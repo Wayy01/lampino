@@ -1,0 +1,218 @@
+@import "tailwindcss";
+
+/* =========================================================
+   ATELIER — luxury automotive editorial (light-only)
+   Warm ivory paper · ink · single refined cobalt accent
+   ========================================================= */
+:root {
+  --background: #f6f4ef; /* warm ivory paper */
+  --surface: #ffffff; /* cards / panels */
+  --foreground: #14110f; /* ink */
+  --muted: #efece4;
+  --muted-foreground: #6b6259;
+
+  --primary: #1d4ed8; /* cobalt */
+  --primary-hover: #1e40af;
+  --primary-deep: #172554; /* navy for deep accents */
+  --primary-foreground: #ffffff;
+
+  --accent: #eef2ff; /* faint blue wash, used sparingly */
+  --accent-foreground: #1e3a8a;
+
+  --border: #e4dfd5; /* warm hairline */
+  --ring: #1d4ed8;
+
+  --radius: 0.5rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-deep: var(--primary-deep);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+
+  --font-display: var(--font-display-app);
+  --font-body: var(--font-body-app);
+  --font-mono: var(--font-mono-app);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 0.15rem);
+  --radius-sm: calc(var(--radius) - 0.25rem);
+
+  /* Animations */
+  --animate-marquee: marquee 38s linear infinite;
+  --animate-ken-burns: kenBurns 18s ease-in-out infinite alternate;
+  --animate-float-slow: floatSlow 9s ease-in-out infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes kenBurns {
+    from {
+      transform: scale(1.05) translate3d(0, 0, 0);
+    }
+    to {
+      transform: scale(1.16) translate3d(-1.5%, -1.5%, 0);
+    }
+  }
+
+  @keyframes floatSlow {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "ss01", "cv01";
+}
+
+/* Editorial display headings */
+.font-display {
+  font-family: var(--font-display), Georgia, "Times New Roman", serif;
+  font-optical-sizing: auto;
+}
+
+/* Mono kicker / labels */
+.label-mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.72rem;
+}
+
+/* Paper grain overlay */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.04;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Thin editorial selection */
+::selection {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* Hide scrollbar for marquee track but keep functional elsewhere */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Radix accordion transitions */
+.cs-accordion-content[data-state="open"] {
+  animation: csAccDown 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cs-accordion-content[data-state="closed"] {
+  animation: csAccUp 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes csAccDown {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+@keyframes csAccUp {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+/* Radix dialog transitions */
+.cs-dialog-overlay {
+  animation: csFade 0.25s ease forwards;
+}
+.cs-dialog-overlay[data-state="closed"] {
+  animation: csFadeOut 0.2s ease forwards;
+}
+.cs-dialog-content {
+  animation: csDialogIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.cs-dialog-content[data-state="closed"] {
+  animation: csDialogOut 0.2s ease forwards;
+}
+@keyframes csFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes csFadeOut {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes csDialogIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes csDialogOut {
+  to {
+    opacity: 0;
+    transform: translateY(4px) scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

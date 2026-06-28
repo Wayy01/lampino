@@ -1,0 +1,371 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "Atelier." [ref=e4] [cursor=pointer]:
+        - /url: /
+      - navigation [ref=e5]:
+        - link "Auto" [ref=e6] [cursor=pointer]:
+          - /url: /cars
+        - link "Come funziona" [ref=e7] [cursor=pointer]:
+          - /url: /about
+      - generic [ref=e8]:
+        - generic [ref=e9]:
+          - button "it" [pressed] [ref=e10] [cursor=pointer]
+          - button "en" [ref=e11] [cursor=pointer]
+        - link "Richiedi un'auto" [ref=e12] [cursor=pointer]:
+          - /url: /cars
+  - main [ref=e13]:
+    - generic [ref=e14]:
+      - generic [ref=e19]:
+        - generic [ref=e20]: Italia · Noleggio auto premium
+        - heading "Guida lo straordinario." [level=1] [ref=e21]:
+          - generic [ref=e23]: Guida lo
+          - generic [ref=e25]: straordinario.
+        - paragraph [ref=e27]: Confrontiamo le flotte dei nostri partner e ti diamo il prezzo migliore sull'auto che vuoi davvero.
+        - generic [ref=e28]:
+          - link "Esplora la flotta" [ref=e29] [cursor=pointer]:
+            - /url: /cars
+            - text: Esplora la flotta
+            - img [ref=e30]
+          - generic [ref=e32]:
+            - generic [ref=e33]: Da
+            - generic [ref=e34]: 500 €
+            - generic [ref=e35]: / giorno
+      - generic:
+        - generic: Scorri
+        - generic:
+          - img
+    - generic [ref=e36]:
+      - generic [ref=e37]:
+        - generic [ref=e39]:
+          - generic [ref=e40]: "01"
+          - generic [ref=e42]: Come funziona
+        - heading "Tre passi. Niente trattative." [level=2] [ref=e43]:
+          - generic [ref=e45]: Tre passi. Niente trattative.
+      - generic [ref=e46]:
+        - generic [ref=e48]:
+          - generic [ref=e49]: "01"
+          - heading "Scegli l'auto" [level=3] [ref=e50]
+          - paragraph [ref=e51]: Sfoglia una flotta selezionata di auto premium e sportive in tutta Italia.
+        - generic [ref=e53]:
+          - generic [ref=e54]: "02"
+          - heading "Confrontiamo i partner" [level=3] [ref=e55]
+          - paragraph [ref=e56]: Teniamo la stessa auto con più società di noleggio e troviamo il prezzo più basso.
+        - generic [ref=e58]:
+          - generic [ref=e59]: "03"
+          - heading "Te la consegniamo" [level=3] [ref=e60]
+          - paragraph [ref=e61]: Invia una sola richiesta. Pensiamo noi a prenotazione, pratiche e consegna.
+    - generic [ref=e63]:
+      - generic [ref=e64]:
+        - generic [ref=e65]: 0+
+        - generic [ref=e66]: Auto in flotta
+      - generic [ref=e67]:
+        - generic [ref=e68]: "0"
+        - generic [ref=e69]: Società partner
+      - generic [ref=e70]:
+        - generic [ref=e71]: "0"
+        - generic [ref=e72]: Città coperte
+      - generic [ref=e73]:
+        - generic [ref=e74]: 0h
+        - generic [ref=e75]: Consegna media
+    - generic [ref=e76]:
+      - generic [ref=e77]:
+        - generic [ref=e78]:
+          - generic [ref=e80]:
+            - generic [ref=e81]: "02"
+            - generic [ref=e83]: Selezione della settimana
+          - heading "Una flotta che vale la deviazione." [level=2] [ref=e84]:
+            - generic [ref=e86]: Una flotta che vale la deviazione.
+        - link "Vedi tutte le auto" [ref=e88] [cursor=pointer]:
+          - /url: /cars
+          - text: Vedi tutte le auto
+          - img [ref=e89]
+      - generic [ref=e91]:
+        - link "Mercedes-Benz Classe S Lusso 3 partner Mercedes-Benz Classe S 5 503 cv Automatico Da 540 € / giorno" [ref=e93] [cursor=pointer]:
+          - /url: /cars/mercedes-benz-classe-s
+          - generic [ref=e94]:
+            - img "Mercedes-Benz Classe S" [ref=e95]
+            - generic [ref=e97]: Lusso
+            - generic [ref=e99]: 3 partner
+            - img [ref=e101]
+          - generic [ref=e104]:
+            - generic [ref=e105]:
+              - heading "Mercedes-Benz Classe S" [level=3] [ref=e106]
+              - generic [ref=e107]:
+                - generic [ref=e108]:
+                  - img [ref=e109]
+                  - text: "5"
+                - generic [ref=e114]:
+                  - img [ref=e115]
+                  - text: 503 cv
+                - generic [ref=e117]:
+                  - img [ref=e118]
+                  - text: Automatico
+            - generic [ref=e129]:
+              - generic [ref=e130]: Da
+              - generic [ref=e131]: 540 €
+              - generic [ref=e132]: / giorno
+        - link "Porsche 911 Carrera Sportiva 2 partner Porsche 911 Carrera 2 385 cv Automatico Da 720 € / giorno" [ref=e134] [cursor=pointer]:
+          - /url: /cars/porsche-911-carrera
+          - generic [ref=e135]:
+            - img "Porsche 911 Carrera" [ref=e136]
+            - generic [ref=e138]: Sportiva
+            - generic [ref=e140]: 2 partner
+            - img [ref=e142]
+          - generic [ref=e145]:
+            - generic [ref=e146]:
+              - heading "Porsche 911 Carrera" [level=3] [ref=e147]
+              - generic [ref=e148]:
+                - generic [ref=e149]:
+                  - img [ref=e150]
+                  - text: "2"
+                - generic [ref=e155]:
+                  - img [ref=e156]
+                  - text: 385 cv
+                - generic [ref=e158]:
+                  - img [ref=e159]
+                  - text: Automatico
+            - generic [ref=e170]:
+              - generic [ref=e171]: Da
+              - generic [ref=e172]: 720 €
+              - generic [ref=e173]: / giorno
+        - link "Range Rover Autobiography SUV 2 partner Range Rover Autobiography 5 350 cv Automatico Da 610 € / giorno" [ref=e175] [cursor=pointer]:
+          - /url: /cars/range-rover-autobiography
+          - generic [ref=e176]:
+            - img "Range Rover Autobiography" [ref=e177]
+            - generic [ref=e179]: SUV
+            - generic [ref=e181]: 2 partner
+            - img [ref=e183]
+          - generic [ref=e186]:
+            - generic [ref=e187]:
+              - heading "Range Rover Autobiography" [level=3] [ref=e188]
+              - generic [ref=e189]:
+                - generic [ref=e190]:
+                  - img [ref=e191]
+                  - text: "5"
+                - generic [ref=e196]:
+                  - img [ref=e197]
+                  - text: 350 cv
+                - generic [ref=e199]:
+                  - img [ref=e200]
+                  - text: Automatico
+            - generic [ref=e211]:
+              - generic [ref=e212]: Da
+              - generic [ref=e213]: 610 €
+              - generic [ref=e214]: / giorno
+        - link "BMW M4 Competition Sportiva BMW M4 Competition 4 510 cv Automatico 560 € / giorno" [ref=e216] [cursor=pointer]:
+          - /url: /cars/bmw-m4-competition
+          - generic [ref=e217]:
+            - img "BMW M4 Competition" [ref=e218]
+            - generic [ref=e220]: Sportiva
+            - img [ref=e222]
+          - generic [ref=e225]:
+            - generic [ref=e226]:
+              - heading "BMW M4 Competition" [level=3] [ref=e227]
+              - generic [ref=e228]:
+                - generic [ref=e229]:
+                  - img [ref=e230]
+                  - text: "4"
+                - generic [ref=e235]:
+                  - img [ref=e236]
+                  - text: 510 cv
+                - generic [ref=e238]:
+                  - img [ref=e239]
+                  - text: Automatico
+            - generic [ref=e250]:
+              - generic [ref=e251]: 560 €
+              - generic [ref=e252]: / giorno
+        - link "Tesla Model S Plaid Elettrica 3 partner Tesla Model S Plaid 5 1020 cv Automatico Da 500 € / giorno" [ref=e254] [cursor=pointer]:
+          - /url: /cars/tesla-model-s-plaid
+          - generic [ref=e255]:
+            - img "Tesla Model S Plaid" [ref=e256]
+            - generic [ref=e258]: Elettrica
+            - generic [ref=e260]: 3 partner
+            - img [ref=e262]
+          - generic [ref=e265]:
+            - generic [ref=e266]:
+              - heading "Tesla Model S Plaid" [level=3] [ref=e267]
+              - generic [ref=e268]:
+                - generic [ref=e269]:
+                  - img [ref=e270]
+                  - text: "5"
+                - generic [ref=e275]:
+                  - img [ref=e276]
+                  - text: 1020 cv
+                - generic [ref=e278]:
+                  - img [ref=e279]
+                  - text: Automatico
+            - generic [ref=e290]:
+              - generic [ref=e291]: Da
+              - generic [ref=e292]: 500 €
+              - generic [ref=e293]: / giorno
+        - link "Audi RS6 Avant Sportiva 2 partner Audi RS6 Avant 5 600 cv Automatico Da 580 € / giorno" [ref=e295] [cursor=pointer]:
+          - /url: /cars/audi-rs6-avant
+          - generic [ref=e296]:
+            - img "Audi RS6 Avant" [ref=e297]
+            - generic [ref=e299]: Sportiva
+            - generic [ref=e301]: 2 partner
+            - img [ref=e303]
+          - generic [ref=e306]:
+            - generic [ref=e307]:
+              - heading "Audi RS6 Avant" [level=3] [ref=e308]
+              - generic [ref=e309]:
+                - generic [ref=e310]:
+                  - img [ref=e311]
+                  - text: "5"
+                - generic [ref=e316]:
+                  - img [ref=e317]
+                  - text: 600 cv
+                - generic [ref=e319]:
+                  - img [ref=e320]
+                  - text: Automatico
+            - generic [ref=e331]:
+              - generic [ref=e332]: Da
+              - generic [ref=e333]: 580 €
+              - generic [ref=e334]: / giorno
+    - generic [ref=e336]:
+      - generic [ref=e337]:
+        - generic [ref=e339]:
+          - generic [ref=e340]: "03"
+          - generic [ref=e342]: Perché noi
+        - heading "L'intermediario che lavora per te." [level=2] [ref=e343]:
+          - generic [ref=e345]: L'intermediario che lavora per te.
+      - generic [ref=e346]:
+        - generic [ref=e348]:
+          - img [ref=e349]
+          - heading "Miglior prezzo, garantito" [level=3] [ref=e352]
+          - paragraph [ref=e353]: Quando due partner hanno la stessa auto, ottieni la tariffa più bassa — in automatico.
+        - generic [ref=e355]:
+          - img [ref=e356]
+          - heading "Nessun costo nascosto" [level=3] [ref=e359]
+          - paragraph [ref=e360]: Un prezzo giornaliero trasparente. Quello che vedi è quello che paghi.
+        - generic [ref=e362]:
+          - img [ref=e363]
+          - heading "Solo partner verificati" [level=3] [ref=e366]
+          - paragraph [ref=e367]: Lavoriamo con società di noleggio consolidate e veicoli ispezionati.
+        - generic [ref=e369]:
+          - img [ref=e370]
+          - heading "Un unico referente" [level=3] [ref=e372]
+          - paragraph [ref=e373]: Gestiamo la prenotazione dall'inizio alla fine, nella tua lingua.
+    - generic [ref=e375]:
+      - generic [ref=e376]:
+        - generic [ref=e377]: Mercedes-Benz
+        - generic [ref=e378]: Porsche
+        - generic [ref=e379]: BMW
+        - generic [ref=e380]: Audi
+        - generic [ref=e381]: Tesla
+        - generic [ref=e382]: Ferrari
+        - generic [ref=e383]: Bentley
+        - generic [ref=e384]: Maserati
+        - generic [ref=e385]: Land Rover
+        - generic [ref=e386]: Mercedes-Benz
+        - generic [ref=e387]: Porsche
+        - generic [ref=e388]: BMW
+        - generic [ref=e389]: Audi
+        - generic [ref=e390]: Tesla
+        - generic [ref=e391]: Ferrari
+        - generic [ref=e392]: Bentley
+        - generic [ref=e393]: Maserati
+        - generic [ref=e394]: Land Rover
+      - generic [ref=e395]:
+        - generic [ref=e396]: Mercedes-Benz
+        - generic [ref=e397]: Porsche
+        - generic [ref=e398]: BMW
+        - generic [ref=e399]: Audi
+        - generic [ref=e400]: Tesla
+        - generic [ref=e401]: Ferrari
+        - generic [ref=e402]: Bentley
+        - generic [ref=e403]: Maserati
+        - generic [ref=e404]: Land Rover
+        - generic [ref=e405]: Mercedes-Benz
+        - generic [ref=e406]: Porsche
+        - generic [ref=e407]: BMW
+        - generic [ref=e408]: Audi
+        - generic [ref=e409]: Tesla
+        - generic [ref=e410]: Ferrari
+        - generic [ref=e411]: Bentley
+        - generic [ref=e412]: Maserati
+        - generic [ref=e413]: Land Rover
+    - generic [ref=e414]:
+      - generic [ref=e415]:
+        - generic [ref=e417]:
+          - generic [ref=e418]: "05"
+          - generic [ref=e420]: Da sapere
+        - heading "Le domande, con risposta." [level=2] [ref=e421]:
+          - generic [ref=e423]: Le domande, con risposta.
+      - generic [ref=e425]:
+        - heading "Perché alcuni prezzi sono fissi e altri 'da'?" [level=3] [ref=e427]:
+          - button "Perché alcuni prezzi sono fissi e altri 'da'?" [ref=e428] [cursor=pointer]:
+            - text: Perché alcuni prezzi sono fissi e altri 'da'?
+            - img [ref=e429]
+        - heading "Le auto sono vostre?" [level=3] [ref=e431]:
+          - button "Le auto sono vostre?" [ref=e432] [cursor=pointer]:
+            - text: Le auto sono vostre?
+            - img [ref=e433]
+        - heading "Cosa è incluso nel prezzo giornaliero?" [level=3] [ref=e435]:
+          - button "Cosa è incluso nel prezzo giornaliero?" [ref=e436] [cursor=pointer]:
+            - text: Cosa è incluso nel prezzo giornaliero?
+            - img [ref=e437]
+        - heading "Quanto è rapida la consegna?" [level=3] [ref=e439]:
+          - button "Quanto è rapida la consegna?" [ref=e440] [cursor=pointer]:
+            - text: Quanto è rapida la consegna?
+            - img [ref=e441]
+    - generic [ref=e445]:
+      - heading "Hai trovato la tua auto?" [level=2] [ref=e446]:
+        - generic [ref=e448]: Hai trovato la tua auto?
+      - paragraph [ref=e449]: Invia una richiesta e confermiamo il miglior prezzo in poche ore.
+      - link "Richiedi un'auto" [ref=e451] [cursor=pointer]:
+        - /url: /cars
+        - text: Richiedi un'auto
+        - img [ref=e452]
+  - contentinfo [ref=e454]:
+    - generic [ref=e455]:
+      - generic [ref=e456]:
+        - generic [ref=e457]:
+          - link "Atelier." [ref=e458] [cursor=pointer]:
+            - /url: /
+          - paragraph [ref=e459]: Noleggio auto premium, intermediato al miglior prezzo in tutta Italia.
+          - generic [ref=e461]:
+            - button "it" [pressed] [ref=e462] [cursor=pointer]
+            - button "en" [ref=e463] [cursor=pointer]
+        - generic [ref=e464]:
+          - paragraph [ref=e465]: Esplora
+          - list [ref=e466]:
+            - listitem [ref=e467]:
+              - link "La flotta" [ref=e468] [cursor=pointer]:
+                - /url: /cars
+                - text: La flotta
+                - img [ref=e469]
+            - listitem [ref=e472]:
+              - link "Come funziona" [ref=e473] [cursor=pointer]:
+                - /url: /about
+                - text: Come funziona
+                - img [ref=e474]
+            - listitem [ref=e477]:
+              - link "Richiedi un'auto" [ref=e478] [cursor=pointer]:
+                - /url: /cars
+                - text: Richiedi un'auto
+                - img [ref=e479]
+        - generic [ref=e482]:
+          - paragraph [ref=e483]: Legale
+          - list [ref=e484]:
+            - listitem [ref=e485]:
+              - link "Contatti" [ref=e486] [cursor=pointer]:
+                - /url: /about
+                - text: Contatti
+                - img [ref=e487]
+            - listitem [ref=e490]:
+              - link "Termini" [ref=e491] [cursor=pointer]:
+                - /url: /about
+                - text: Termini
+                - img [ref=e492]
+            - listitem [ref=e495]:
+              - link "Privacy" [ref=e496] [cursor=pointer]:
+                - /url: /about
+                - text: Privacy
+                - img [ref=e497]
+      - generic [ref=e500]:
+        - paragraph [ref=e501]: © 2026 Atelier — Tutti i diritti riservati.
+        - paragraph [ref=e502]: Made in Italy
+  - button "Open Next.js Dev Tools" [ref=e508] [cursor=pointer]:
+    - img [ref=e509]
