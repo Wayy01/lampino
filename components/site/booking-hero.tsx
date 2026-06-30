@@ -22,9 +22,10 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 
 const ANY = "any";
 
-// Date inputs keep their own native field styling.
+// Date inputs keep their own native field styling. `min-w-0` + `appearance-none`
+// stop iOS Safari from forcing an oversized intrinsic width that overflows the grid.
 const DATE_FIELD =
-  "h-12 w-full rounded-[var(--radius-md)] border border-border bg-surface px-4 " +
+  "h-12 w-full min-w-0 appearance-none rounded-[var(--radius-md)] border border-border bg-surface px-4 " +
   "text-[0.95rem] text-foreground transition-colors focus:border-primary " +
   "focus:outline-none focus:ring-2 focus:ring-primary/15 cursor-pointer";
 
@@ -68,7 +69,7 @@ export function BookingHero({ startingPrice }: { startingPrice: number }) {
 
         {/* Search card */}
         <div className="mt-10 rounded-[var(--radius)] border border-border bg-surface p-5 shadow-sm sm:p-6">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5 [&>div]:min-w-0">
             {/* Pick-up location */}
             <div>
               <Label htmlFor="bk-location">{t.booking.location}</Label>
