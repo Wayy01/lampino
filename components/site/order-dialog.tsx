@@ -87,11 +87,11 @@ export function OrderDialog({
 
             <form onSubmit={handleSubmit} className="grid gap-4">
               <div className="grid grid-cols-2 gap-3">
-                <div>
+                <div className="min-w-0">
                   <Label htmlFor="pickup">{t.order.pickup}</Label>
                   <Input id="pickup" type="date" required />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <Label htmlFor="dropoff">{t.order.dropoff}</Label>
                   <Input id="dropoff" type="date" required />
                 </div>
@@ -101,11 +101,11 @@ export function OrderDialog({
                 <Input id="name" required autoComplete="name" />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div>
+                <div className="min-w-0">
                   <Label htmlFor="email">{t.order.email}</Label>
                   <Input id="email" type="email" required autoComplete="email" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <Label htmlFor="phone">{t.order.phone}</Label>
                   <Input id="phone" type="tel" autoComplete="tel" />
                 </div>
