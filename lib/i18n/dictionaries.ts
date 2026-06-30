@@ -17,6 +17,25 @@ export const en = {
     ctaSecondary: "How it works",
     scroll: "Scroll",
   },
+  booking: {
+    kicker: "Italy · 14 cities",
+    titleA: "Rent the",
+    titleB: "extraordinary.",
+    subtitle:
+      "Pick a city and your dates — we find the best price across our partners.",
+    location: "Pick-up location",
+    locationAny: "Any city",
+    pickup: "Pick-up date",
+    return: "Return date",
+    carType: "Car type",
+    carTypeAny: "Any type",
+    maxPrice: "Max / day",
+    priceAny: "Any price",
+    search: "Search cars",
+    priceFrom: "From",
+    perDay: "/ day",
+    summaryPrefix: "Showing",
+  },
   howItWorks: {
     kicker: "How it works",
     title: "Three steps. No haggling.",
@@ -207,6 +226,76 @@ export const en = {
     ],
     cta: "Explore the fleet",
   },
+  terms: {
+    kicker: "Legal",
+    title: "Terms of service.",
+    updated: "Last updated June 2026",
+    intro:
+      "Atelier is a brokerage. We connect you with Italy's vetted rental companies and handle the booking on your behalf — these terms explain how that works.",
+    body: [
+      {
+        h: "What we do",
+        p: "Atelier does not own or operate any vehicle. We compare rates across our partner rental companies, negotiate on your behalf and arrange the booking, paperwork and handover. The rental contract itself is signed with the partner that supplies the car.",
+      },
+      {
+        h: "Requests and confirmation",
+        p: "Submitting a request through the site is not a confirmed booking. It is an enquiry. We confirm availability and the final price in writing, usually within a few hours. A reservation only exists once you receive that written confirmation.",
+      },
+      {
+        h: "Pricing",
+        p: "Prices are shown per day in euros and may be displayed 'from' a starting rate when more than one partner holds the same car. Final pricing depends on your dates, mileage, the supplying partner and any extras, and is fixed at confirmation.",
+      },
+      {
+        h: "Driver requirements",
+        p: "Drivers must hold a valid licence and meet the minimum age and experience set by the supplying partner. A deposit and a security hold on a credit card in the driver's name are typically required at handover.",
+      },
+      {
+        h: "Changes and cancellations",
+        p: "Cancellation and amendment terms are set by the supplying partner and are stated in your confirmation. We pass on those terms exactly and never add a brokerage cancellation fee of our own.",
+      },
+      {
+        h: "Liability",
+        p: "Once the car is handed over, the rental relationship is between you and the supplying partner, including insurance, damage and traffic penalties. Atelier is not liable for the condition of the vehicle or the conduct of the partner, but we will help mediate any issue.",
+      },
+      {
+        h: "Contact",
+        p: "Questions about these terms can be sent to legal@atelier.example. We may update these terms from time to time; the date above reflects the current version.",
+      },
+    ],
+  },
+  privacy: {
+    kicker: "Legal",
+    title: "Privacy policy.",
+    updated: "Last updated June 2026",
+    intro:
+      "We only collect what we need to broker your rental — your dates, your contact details and the car you want. Here is exactly what we hold and why.",
+    body: [
+      {
+        h: "What we collect",
+        p: "When you send a request we collect your name, email, phone number, requested pickup and drop-off dates and any notes you add. We do not ask for payment card details on this site — those are taken securely by the supplying partner at booking.",
+      },
+      {
+        h: "Why we use it",
+        p: "We use your details for one purpose: to compare partner rates, confirm availability and arrange your booking. We may contact you about that specific request by email or phone.",
+      },
+      {
+        h: "Sharing with partners",
+        p: "To confirm a car we share the minimum necessary — typically your name and rental dates — with the partner that supplies it. We never sell your data or share it for advertising.",
+      },
+      {
+        h: "Cookies",
+        p: "The site uses only essential cookies needed for it to function and to remember your language preference. We do not run third-party advertising trackers.",
+      },
+      {
+        h: "Retention",
+        p: "We keep request details only as long as needed to handle your booking and meet our legal obligations, after which they are deleted or anonymised.",
+      },
+      {
+        h: "Your rights",
+        p: "Under the GDPR you can ask to access, correct or delete the data we hold about you, or object to its use. Write to privacy@atelier.example and we will respond within 30 days.",
+      },
+    ],
+  },
 };
 
 export const it: typeof en = {
@@ -227,6 +316,25 @@ export const it: typeof en = {
     ctaPrimary: "Esplora la flotta",
     ctaSecondary: "Come funziona",
     scroll: "Scorri",
+  },
+  booking: {
+    kicker: "Italia · 14 città",
+    titleA: "Noleggia lo",
+    titleB: "straordinario.",
+    subtitle:
+      "Scegli la città e le date — troviamo il miglior prezzo tra i nostri partner.",
+    location: "Luogo di ritiro",
+    locationAny: "Tutte le città",
+    pickup: "Data di ritiro",
+    return: "Data di riconsegna",
+    carType: "Tipo di auto",
+    carTypeAny: "Tutti i tipi",
+    maxPrice: "Max / giorno",
+    priceAny: "Qualsiasi prezzo",
+    search: "Cerca auto",
+    priceFrom: "Da",
+    perDay: "/ giorno",
+    summaryPrefix: "Risultati per",
   },
   howItWorks: {
     kicker: "Come funziona",
@@ -418,6 +526,76 @@ export const it: typeof en = {
       },
     ],
     cta: "Esplora la flotta",
+  },
+  terms: {
+    kicker: "Legale",
+    title: "Termini di servizio.",
+    updated: "Ultimo aggiornamento giugno 2026",
+    intro:
+      "Atelier è un intermediario. Ti mettiamo in contatto con le società di noleggio italiane selezionate e gestiamo la prenotazione per tuo conto — questi termini spiegano come funziona.",
+    body: [
+      {
+        h: "Cosa facciamo",
+        p: "Atelier non possiede né gestisce alcun veicolo. Confrontiamo le tariffe tra le società di noleggio partner, trattiamo per tuo conto e organizziamo prenotazione, pratiche e consegna. Il contratto di noleggio viene firmato con il partner che fornisce l'auto.",
+      },
+      {
+        h: "Richieste e conferma",
+        p: "Inviare una richiesta dal sito non è una prenotazione confermata. È una richiesta di informazioni. Confermiamo la disponibilità e il prezzo finale per iscritto, di norma entro poche ore. La prenotazione esiste solo quando ricevi tale conferma scritta.",
+      },
+      {
+        h: "Prezzi",
+        p: "I prezzi sono indicati al giorno in euro e possono essere mostrati 'da' una tariffa iniziale quando più partner dispongono della stessa auto. Il prezzo finale dipende dalle date, dal chilometraggio, dal partner fornitore e dagli extra, ed è fissato alla conferma.",
+      },
+      {
+        h: "Requisiti del conducente",
+        p: "I conducenti devono possedere una patente valida e soddisfare l'età minima e l'esperienza richieste dal partner fornitore. Alla consegna sono generalmente richiesti un deposito e un blocco di garanzia su una carta di credito intestata al conducente.",
+      },
+      {
+        h: "Modifiche e cancellazioni",
+        p: "I termini di cancellazione e modifica sono stabiliti dal partner fornitore e indicati nella tua conferma. Li trasferiamo esattamente e non aggiungiamo mai una nostra commissione di cancellazione.",
+      },
+      {
+        h: "Responsabilità",
+        p: "Dopo la consegna dell'auto, il rapporto di noleggio è tra te e il partner fornitore, inclusi assicurazione, danni e sanzioni stradali. Atelier non è responsabile delle condizioni del veicolo o della condotta del partner, ma ti aiuteremo a mediare qualsiasi problema.",
+      },
+      {
+        h: "Contatti",
+        p: "Per domande su questi termini scrivi a legal@atelier.example. Possiamo aggiornare questi termini di tanto in tanto; la data sopra indica la versione corrente.",
+      },
+    ],
+  },
+  privacy: {
+    kicker: "Legale",
+    title: "Informativa sulla privacy.",
+    updated: "Ultimo aggiornamento giugno 2026",
+    intro:
+      "Raccogliamo solo ciò che ci serve per intermediare il tuo noleggio — le date, i tuoi recapiti e l'auto che desideri. Ecco esattamente cosa conserviamo e perché.",
+    body: [
+      {
+        h: "Cosa raccogliamo",
+        p: "Quando invii una richiesta raccogliamo nome, email, numero di telefono, date di ritiro e riconsegna richieste e le eventuali note che aggiungi. Su questo sito non chiediamo i dati della carta di pagamento — vengono raccolti in modo sicuro dal partner fornitore al momento della prenotazione.",
+      },
+      {
+        h: "Perché li usiamo",
+        p: "Usiamo i tuoi dati per un solo scopo: confrontare le tariffe dei partner, confermare la disponibilità e organizzare la prenotazione. Potremmo contattarti in merito a quella specifica richiesta via email o telefono.",
+      },
+      {
+        h: "Condivisione con i partner",
+        p: "Per confermare un'auto condividiamo il minimo necessario — di norma il tuo nome e le date di noleggio — con il partner che la fornisce. Non vendiamo mai i tuoi dati né li condividiamo per scopi pubblicitari.",
+      },
+      {
+        h: "Cookie",
+        p: "Il sito usa solo cookie essenziali necessari al suo funzionamento e a ricordare la lingua preferita. Non utilizziamo tracker pubblicitari di terze parti.",
+      },
+      {
+        h: "Conservazione",
+        p: "Conserviamo i dettagli della richiesta solo per il tempo necessario a gestire la prenotazione e ad adempiere ai nostri obblighi di legge, dopodiché vengono eliminati o anonimizzati.",
+      },
+      {
+        h: "I tuoi diritti",
+        p: "Ai sensi del GDPR puoi chiedere di accedere, correggere o eliminare i dati che conserviamo su di te, oppure opporti al loro utilizzo. Scrivi a privacy@atelier.example e risponderemo entro 30 giorni.",
+      },
+    ],
   },
 };
 

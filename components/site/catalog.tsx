@@ -3,7 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { LayoutGrid, List } from "lucide-react";
-import { cars as allCars, categories, type CarCategory } from "@/lib/data/cars";
+import {
+  cars as allCars,
+  categories,
+  cities,
+  type CarCategory,
+} from "@/lib/data/cars";
 import { getCarPricing } from "@/lib/pricing";
 import { useT } from "@/lib/i18n/provider";
 import { cn, formatEur } from "@/lib/utils";
@@ -14,10 +19,34 @@ type View = "index" | "gallery";
 
 const PRICE_STEPS = [600, 800, 1300] as const;
 
-export function Catalog() {
+type CatalogProps = {
+  initialCategory?: CarCategory | "all";
+  initialMaxPrice?: number;
+  initialLocation?: string | null;
+  initialPickup?: string | null;
+  initialReturn?: string | null;
+};
+
+function formatDate(value: string | null | undefined) {
+  if (!value) return null;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return null;
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "short",
+  }).format(d);
+}
+
+export function Catalog({
+  initialCategory = "all",
+  initialMaxPrice = 1300,
+  initialLocation = null,
+  initialPickup = null,
+  initialReturn = null,
+}: CatalogProps) {
   const t = useT();
   const [view, setView] = useState<View>("index");
-  const [category, setCategory] = useState<CarCategory | "all">("all");
+  const [category, setCategory] = useState<CarCategory | "all">(initialCategory);
 
   // Gallery is the default on mobile; index stays the default on desktop.
   useEffect(() => {
@@ -26,8 +55,19 @@ export function Catalog() {
     }
   }, []);
 
-  const [maxPrice, setMaxPrice] = useState<number>(1300);
+  const [maxPrice, setMaxPrice] = useState<number>(initialMaxPrice);
   const [multiOnly, setMultiOnly] = useState(false);
+
+  // From the homepage search: location + dates have no availability model,
+  // so we acknowledge them in a summary line without filtering the list.
+  const cityName = cities.find((c) => c.slug === initialLocation)?.name ?? null;
+  const pickupLabel = formatDate(initialPickup);
+  const returnLabel = formatDate(initialReturn);
+  const dateLabel =
+    pickupLabel && returnLabel
+      ? `${pickupLabel} – ${returnLabel}`
+      : pickupLabel ?? returnLabel;
+  const summaryParts = [cityName, dateLabel].filter(Boolean) as string[];
 
   const filtered = useMemo(() => {
     return allCars.filter((car) => {
@@ -60,6 +100,19 @@ export function Catalog() {
           {t.catalog.subtitle}
         </p>
       </div>
+
+      {/* Search summary from the homepage booking panel */}
+      {summaryParts.length > 0 && (
+        <div className="label-mono mb-6 flex flex-wrap items-center gap-2 text-muted-foreground">
+          <span>{t.booking.summaryPrefix}</span>
+          {summaryParts.map((part, i) => (
+            <span key={i} className="flex items-center gap-2">
+              {i > 0 && <span className="h-1 w-1 rounded-full bg-border" />}
+              <span className="text-foreground">{part}</span>
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* Controls */}
       <div className="flex flex-col gap-6 border-b border-border pb-6">

@@ -45,7 +45,7 @@ export default function RootLayout({
       lang="it"
       className={`${fraunces.variable} ${hanken.variable} ${geistMono.variable} antialiased`}
     >
-      <body className="min-h-screen">
+      <body className="min-h-screen" suppressHydrationWarning>
         <LanguageProvider>
           <Grain />
           <Navbar />

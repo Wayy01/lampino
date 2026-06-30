@@ -35,8 +35,8 @@ export function Footer() {
             </p>
             <ul className="space-y-3">
               <FooterLink href="/about">{t.footer.links.contact}</FooterLink>
-              <FooterLink href="/about">{t.footer.links.terms}</FooterLink>
-              <FooterLink href="/about">{t.footer.links.privacy}</FooterLink>
+              <FooterLink href="/terms">{t.footer.links.terms}</FooterLink>
+              <FooterLink href="/privacy">{t.footer.links.privacy}</FooterLink>
             </ul>
           </div>
         </div>

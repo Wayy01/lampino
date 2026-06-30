@@ -206,6 +206,30 @@ body {
   }
 }
 
+/* Radix select transitions */
+.cs-select-content[data-state="open"] {
+  animation: csSelectIn 0.18s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.cs-select-content[data-state="closed"] {
+  animation: csSelectOut 0.12s ease forwards;
+}
+@keyframes csSelectIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes csSelectOut {
+  to {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

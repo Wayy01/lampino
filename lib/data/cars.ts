@@ -349,6 +349,25 @@ export const categories: CarCategory[] = [
   "electric",
 ];
 
+export type City = { slug: string; name: string };
+
+export const cities: City[] = [
+  { slug: "milano", name: "Milano" },
+  { slug: "roma", name: "Roma" },
+  { slug: "firenze", name: "Firenze" },
+  { slug: "venezia", name: "Venezia" },
+  { slug: "torino", name: "Torino" },
+  { slug: "napoli", name: "Napoli" },
+  { slug: "bologna", name: "Bologna" },
+  { slug: "genova", name: "Genova" },
+  { slug: "verona", name: "Verona" },
+  { slug: "bari", name: "Bari" },
+  { slug: "palermo", name: "Palermo" },
+  { slug: "catania", name: "Catania" },
+  { slug: "como", name: "Como" },
+  { slug: "rimini", name: "Rimini" },
+];
+
 export function getCarBySlug(slug: string): Car | undefined {
   return cars.find((c) => c.slug === slug);
 }
