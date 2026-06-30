@@ -73,11 +73,9 @@ export function OrderDialog({
                 {t.order.subtitle}
               </DialogDescription>
               <div className="mt-4 flex items-baseline gap-1.5">
-                {pricing.isFrom && (
-                  <span className="label-mono text-muted-foreground">
-                    {t.product.from}
-                  </span>
-                )}
+                <span className="label-mono text-muted-foreground">
+                  {t.product.from}
+                </span>
                 <span className="font-display text-2xl tracking-tight">
                   {formatEur(pricing.fromPrice)}
                 </span>

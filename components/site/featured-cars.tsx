@@ -10,7 +10,7 @@ import { Reveal } from "./reveal";
 
 export function FeaturedCars() {
   const t = useT();
-  const featured = cars.slice(0, 6);
+  const featured = cars.slice(0, 9);
 
   return (
     <section className="mx-auto max-w-[1400px] px-5 py-24 sm:px-8 md:py-32">

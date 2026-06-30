@@ -37,14 +37,6 @@ export function CarCard({ car, index = 0 }: { car: Car; index?: number }) {
             </span>
           </div>
 
-          {pricing.isFrom && (
-            <div className="absolute right-4 top-4">
-              <span className="label-mono rounded-full bg-primary px-3 py-1 text-primary-foreground">
-                {pricing.partnerCount} partner
-              </span>
-            </div>
-          )}
-
           <div className="absolute bottom-4 right-4 flex h-11 w-11 translate-y-2 items-center justify-center rounded-full bg-background text-foreground opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
             <ArrowUpRight className="h-5 w-5" />
           </div>
@@ -68,11 +60,9 @@ export function CarCard({ car, index = 0 }: { car: Car; index?: number }) {
             </div>
           </div>
           <div className="text-right">
-            {pricing.isFrom && (
-              <div className="label-mono text-muted-foreground">
-                {t.product.from}
-              </div>
-            )}
+            <div className="label-mono text-muted-foreground">
+              {t.product.from}
+            </div>
             <div className="font-display text-2xl tracking-tight">
               {formatEur(pricing.fromPrice)}
             </div>

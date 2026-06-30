@@ -56,7 +56,6 @@ export function Catalog({
   }, []);
 
   const [maxPrice, setMaxPrice] = useState<number>(initialMaxPrice);
-  const [multiOnly, setMultiOnly] = useState(false);
 
   // From the homepage search: location + dates have no availability model,
   // so we acknowledge them in a summary line without filtering the list.
@@ -74,15 +73,13 @@ export function Catalog({
       const pricing = getCarPricing(car);
       if (category !== "all" && car.category !== category) return false;
       if (pricing.fromPrice > maxPrice) return false;
-      if (multiOnly && !pricing.isFrom) return false;
       return true;
     });
-  }, [category, maxPrice, multiOnly]);
+  }, [category, maxPrice]);
 
   const reset = () => {
     setCategory("all");
     setMaxPrice(1300);
-    setMultiOnly(false);
   };
 
   return (
@@ -182,27 +179,6 @@ export function Catalog({
               ))}
             </div>
           </div>
-
-          {/* Multi-partner toggle */}
-          <button
-            onClick={() => setMultiOnly((v) => !v)}
-            aria-pressed={multiOnly}
-            className="label-mono flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
-          >
-            <span
-              className={cn(
-                "flex h-4 w-4 items-center justify-center rounded-[4px] border transition-colors",
-                multiOnly
-                  ? "border-primary bg-primary"
-                  : "border-foreground/30",
-              )}
-            >
-              {multiOnly && (
-                <span className="h-1.5 w-1.5 rounded-[1px] bg-primary-foreground" />
-              )}
-            </span>
-            {t.catalog.bestPriceOnly}
-          </button>
 
           <button
             onClick={reset}

@@ -18,7 +18,6 @@ import { getCarPricing } from "@/lib/pricing";
 import { useLang } from "@/lib/i18n/provider";
 import { formatEur } from "@/lib/utils";
 import { CarGallery } from "./car-gallery";
-import { PartnerPricing } from "./partner-pricing";
 import { OrderDialog } from "./order-dialog";
 import { Button } from "@/components/ui/button";
 
@@ -127,11 +126,9 @@ export function CarDetail({ car }: { car: Car }) {
         <div className="lg:sticky lg:top-28 lg:self-start">
           <div className="rounded-[var(--radius-lg)] border border-border bg-surface p-6 md:p-7">
             <div className="flex items-baseline gap-1.5">
-              {pricing.isFrom && (
-                <span className="label-mono text-muted-foreground">
-                  {t.product.from}
-                </span>
-              )}
+              <span className="label-mono text-muted-foreground">
+                {t.product.from}
+              </span>
               <span className="font-display text-4xl tracking-tight">
                 {formatEur(pricing.fromPrice)}
               </span>
@@ -139,11 +136,6 @@ export function CarDetail({ car }: { car: Car }) {
                 {t.product.perDay}
               </span>
             </div>
-            {!pricing.isFrom && (
-              <div className="label-mono mt-2 text-muted-foreground">
-                {t.product.fixed}
-              </div>
-            )}
 
             <OrderDialog
               car={car}
@@ -163,10 +155,6 @@ export function CarDetail({ car }: { car: Car }) {
                 </li>
               ))}
             </ul>
-          </div>
-
-          <div className="mt-4">
-            <PartnerPricing car={car} />
           </div>
         </div>
       </div>

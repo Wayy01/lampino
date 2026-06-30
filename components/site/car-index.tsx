@@ -92,11 +92,9 @@ export function CarIndex({ cars }: { cars: Car[] }) {
               </span>
 
               <div className="shrink-0 text-right">
-                {pricing.isFrom && (
-                  <span className="label-mono mr-2 text-muted-foreground">
-                    {t.product.from}
-                  </span>
-                )}
+                <span className="label-mono mr-2 text-muted-foreground">
+                  {t.product.from}
+                </span>
                 <span className="font-display text-xl tracking-tight md:text-2xl">
                   {formatEur(pricing.fromPrice)}
                 </span>

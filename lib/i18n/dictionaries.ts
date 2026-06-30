@@ -137,7 +137,6 @@ export const en = {
     viewIndex: "Index",
     viewGallery: "Gallery",
     all: "All",
-    bestPriceOnly: "Multi-partner only",
     results: "cars",
     reset: "Reset",
     empty: "No cars match these filters.",
@@ -146,14 +145,7 @@ export const en = {
   product: {
     back: "Back to the fleet",
     from: "From",
-    fixed: "Fixed price",
     perDay: "/ day",
-    partnersTitle: "Available through",
-    bestPrice: "Best price",
-    partnersOne:
-      "Held by a single partner — this is a fixed daily rate.",
-    partnersMany:
-      "Held by {n} partners — you get the lowest rate automatically.",
     request: "Request this car",
     overview: "Overview",
     specs: "Specifications",
@@ -439,7 +431,6 @@ export const it: typeof en = {
     viewIndex: "Indice",
     viewGallery: "Galleria",
     all: "Tutte",
-    bestPriceOnly: "Solo multi-partner",
     results: "auto",
     reset: "Azzera",
     empty: "Nessuna auto corrisponde a questi filtri.",
@@ -448,13 +439,7 @@ export const it: typeof en = {
   product: {
     back: "Torna alla flotta",
     from: "Da",
-    fixed: "Prezzo fisso",
     perDay: "/ giorno",
-    partnersTitle: "Disponibile tramite",
-    bestPrice: "Miglior prezzo",
-    partnersOne: "Disponibile presso un solo partner — tariffa giornaliera fissa.",
-    partnersMany:
-      "Disponibile presso {n} partner — ottieni la tariffa più bassa in automatico.",
     request: "Richiedi questa auto",
     overview: "Panoramica",
     specs: "Specifiche",
