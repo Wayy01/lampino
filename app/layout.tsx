@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Fraunces, Hanken_Grotesk, Geist_Mono } from "next/font/google";
 import { LanguageProvider } from "@/lib/i18n/provider";
+import { CartProvider } from "@/lib/cart/provider";
 import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
+import { CartDrawer } from "@/components/site/cart-drawer";
 import { Grain } from "@/components/site/grain";
 import "./globals.css";
 
@@ -26,13 +28,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Atelier — Premium car rental, brokered for the best price",
+  title: "Lampino — Iluminat pentru casă, livrat rapid",
   description:
-    "We compare our partner fleets across Italy and hand you the best price on premium and performance cars. From €500/day.",
+    "Becuri LED, becuri smart, lumini de Crăciun, benzi LED și iluminat exterior — alese cu grijă și livrate în 24 de ore. De la 79 lei.",
   openGraph: {
-    title: "Atelier — Premium car rental",
+    title: "Lampino — Iluminat pentru casă",
     description:
-      "The middle-man that works for you. Best price across vetted rental partners in Italy.",
+      "Lumină bună, preț corect, livrare rapidă. Magazinul tău de iluminat.",
     type: "website",
   },
 };
@@ -42,15 +44,18 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
-      lang="it"
+      lang="ro"
       className={`${fraunces.variable} ${hanken.variable} ${geistMono.variable} antialiased`}
     >
       <body className="min-h-screen" suppressHydrationWarning>
         <LanguageProvider>
-          <Grain />
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
+          <CartProvider>
+            <Grain />
+            <Navbar />
+            <main>{children}</main>
+            <Footer />
+            <CartDrawer />
+          </CartProvider>
         </LanguageProvider>
       </body>
     </html>

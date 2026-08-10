@@ -1,85 +1,190 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { LayoutGrid, List } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "motion/react";
 import {
-  cars as allCars,
+  products as allProducts,
   categories,
-  cities,
-  type CarCategory,
-} from "@/lib/data/cars";
-import { getCarPricing } from "@/lib/pricing";
+  type ProductCategory,
+} from "@/lib/data/products";
+import {
+  buildFacets,
+  classifyColorTemp,
+  classifyLumens,
+  classifySocket,
+  sortProducts,
+  DEFAULT_SORT,
+  SORT_KEYS,
+  type ColorTempKey,
+  type LumensKey,
+  type SocketKey,
+  type SortKey,
+} from "@/lib/filters";
 import { useT } from "@/lib/i18n/provider";
-import { cn, formatEur } from "@/lib/utils";
-import { CarIndex } from "./car-index";
-import { CarCard } from "./car-card";
+import { cn, formatPrice } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { ProductCard } from "./product-card";
+import type { Facets } from "@/lib/filters";
 
-type View = "index" | "gallery";
-
-const PRICE_STEPS = [600, 800, 1300] as const;
+const PRICE_STEPS = [200, 500, 1200] as const;
+const MAX_PRICE = 1200;
 
 type CatalogProps = {
-  initialCategory?: CarCategory | "all";
+  initialCategory?: ProductCategory | "all";
   initialMaxPrice?: number;
-  initialLocation?: string | null;
-  initialPickup?: string | null;
-  initialReturn?: string | null;
+  initialSort?: SortKey;
+  initialColorTemps?: ColorTempKey[];
+  initialSockets?: SocketKey[];
+  initialLumens?: LumensKey[];
 };
 
-function formatDate(value: string | null | undefined) {
-  if (!value) return null;
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return null;
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "numeric",
-    month: "short",
-  }).format(d);
+function toggle<T>(set: Set<T>, value: T): Set<T> {
+  const next = new Set(set);
+  if (next.has(value)) next.delete(value);
+  else next.add(value);
+  return next;
 }
 
 export function Catalog({
   initialCategory = "all",
-  initialMaxPrice = 1300,
-  initialLocation = null,
-  initialPickup = null,
-  initialReturn = null,
+  initialMaxPrice = MAX_PRICE,
+  initialSort = DEFAULT_SORT,
+  initialColorTemps = [],
+  initialSockets = [],
+  initialLumens = [],
 }: CatalogProps) {
   const t = useT();
-  const [view, setView] = useState<View>("index");
-  const [category, setCategory] = useState<CarCategory | "all">(initialCategory);
+  const router = useRouter();
+  const pathname = usePathname();
 
-  // Gallery is the default on mobile; index stays the default on desktop.
-  useEffect(() => {
-    if (window.matchMedia("(max-width: 767px)").matches) {
-      setView("gallery");
-    }
-  }, []);
-
+  const [category, setCategory] = useState<ProductCategory | "all">(
+    initialCategory,
+  );
   const [maxPrice, setMaxPrice] = useState<number>(initialMaxPrice);
+  const [sort, setSort] = useState<SortKey>(initialSort);
+  const [colorTemps, setColorTemps] = useState<Set<ColorTempKey>>(
+    () => new Set(initialColorTemps),
+  );
+  const [sockets, setSockets] = useState<Set<SocketKey>>(
+    () => new Set(initialSockets),
+  );
+  const [lumens, setLumens] = useState<Set<LumensKey>>(
+    () => new Set(initialLumens),
+  );
+  const [open, setOpen] = useState(false);
 
-  // From the homepage search: location + dates have no availability model,
-  // so we acknowledge them in a summary line without filtering the list.
-  const cityName = cities.find((c) => c.slug === initialLocation)?.name ?? null;
-  const pickupLabel = formatDate(initialPickup);
-  const returnLabel = formatDate(initialReturn);
-  const dateLabel =
-    pickupLabel && returnLabel
-      ? `${pickupLabel} – ${returnLabel}`
-      : pickupLabel ?? returnLabel;
-  const summaryParts = [cityName, dateLabel].filter(Boolean) as string[];
+  // Facet options are derived from the data, so empty ones never render.
+  const facets = useMemo(() => buildFacets(allProducts), []);
 
   const filtered = useMemo(() => {
-    return allCars.filter((car) => {
-      const pricing = getCarPricing(car);
-      if (category !== "all" && car.category !== category) return false;
-      if (pricing.fromPrice > maxPrice) return false;
+    const list = allProducts.filter((product) => {
+      if (category !== "all" && product.category?.slug !== category)
+        return false;
+      if (product.price > maxPrice) return false;
+      if (colorTemps.size) {
+        const ct = classifyColorTemp(product.specifications.colorTemp);
+        if (!ct || !colorTemps.has(ct)) return false;
+      }
+      if (sockets.size && !sockets.has(classifySocket(product.specifications.base)))
+        return false;
+      if (lumens.size) {
+        const lm = classifyLumens(product.specifications.lumens);
+        if (!lm || !lumens.has(lm)) return false;
+      }
       return true;
     });
-  }, [category, maxPrice]);
+    return sortProducts(list, sort);
+  }, [category, maxPrice, colorTemps, sockets, lumens, sort]);
+
+  // Two-way URL sync: reflect the active filters in the query string so the view
+  // survives refresh, back/forward, and can be shared. Defaults are omitted to
+  // keep URLs clean.
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (category !== "all") params.set("category", category);
+    if (maxPrice !== MAX_PRICE) params.set("max", String(maxPrice));
+    if (sort !== DEFAULT_SORT) params.set("sort", sort);
+    if (colorTemps.size) params.set("color", [...colorTemps].join(","));
+    if (sockets.size) params.set("socket", [...sockets].join(","));
+    if (lumens.size) params.set("lumens", [...lumens].join(","));
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }, [category, maxPrice, sort, colorTemps, sockets, lumens, pathname, router]);
+
+  const advancedCount =
+    colorTemps.size +
+    sockets.size +
+    lumens.size +
+    (maxPrice !== MAX_PRICE ? 1 : 0);
+
+  const isDirty =
+    category !== "all" ||
+    sort !== DEFAULT_SORT ||
+    advancedCount > 0;
 
   const reset = () => {
     setCategory("all");
-    setMaxPrice(1300);
+    setMaxPrice(MAX_PRICE);
+    setSort(DEFAULT_SORT);
+    setColorTemps(new Set());
+    setSockets(new Set());
+    setLumens(new Set());
+  };
+
+  // Removable chips for every active advanced filter, visible even when the
+  // panel is collapsed so the current state is always legible.
+  const chips: { key: string; label: string; onRemove: () => void }[] = [];
+  if (maxPrice !== MAX_PRICE)
+    chips.push({
+      key: "price",
+      label: `≤ ${formatPrice(maxPrice)}`,
+      onRemove: () => setMaxPrice(MAX_PRICE),
+    });
+  colorTemps.forEach((c) =>
+    chips.push({
+      key: `color-${c}`,
+      label: t.catalog.colorOptions[c],
+      onRemove: () => setColorTemps((s) => toggle(s, c)),
+    }),
+  );
+  sockets.forEach((s) =>
+    chips.push({
+      key: `socket-${s}`,
+      label: t.catalog.socketOptions[s],
+      onRemove: () => setSockets((prev) => toggle(prev, s)),
+    }),
+  );
+  lumens.forEach((l) =>
+    chips.push({
+      key: `lumens-${l}`,
+      label: t.catalog.brightnessOptions[l],
+      onRemove: () => setLumens((prev) => toggle(prev, l)),
+    }),
+  );
+
+  const panelProps: FiltersPanelProps = {
+    t,
+    facets,
+    category,
+    setCategory,
+    maxPrice,
+    setMaxPrice,
+    colorTemps,
+    setColorTemps,
+    sockets,
+    setSockets,
+    lumens,
+    setLumens,
+    isDirty,
+    reset,
   };
 
   return (
@@ -93,134 +198,265 @@ export function Catalog({
         <h1 className="font-display mt-5 text-[clamp(2.5rem,7vw,5rem)] font-light leading-[0.95] tracking-[-0.03em]">
           {t.catalog.title}
         </h1>
-        <p className="mt-5 text-lg text-muted-foreground">
-          {t.catalog.subtitle}
-        </p>
       </div>
 
-      {/* Search summary from the homepage booking panel */}
-      {summaryParts.length > 0 && (
-        <div className="label-mono mb-6 flex flex-wrap items-center gap-2 text-muted-foreground">
-          <span>{t.booking.summaryPrefix}</span>
-          {summaryParts.map((part, i) => (
-            <span key={i} className="flex items-center gap-2">
-              {i > 0 && <span className="h-1 w-1 rounded-full bg-border" />}
-              <span className="text-foreground">{part}</span>
-            </span>
-          ))}
-        </div>
-      )}
+      <div className="lg:grid lg:grid-cols-[260px_1fr] lg:items-start lg:gap-12">
+        {/* Desktop: persistent sticky filter panel */}
+        <aside className="hidden self-start lg:sticky lg:top-28 lg:block">
+          <FiltersPanel {...panelProps} />
+        </aside>
 
-      {/* Controls */}
-      <div className="flex flex-col gap-6 border-b border-border pb-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          {/* Category pills */}
-          <div className="flex flex-wrap items-center gap-2">
-            <Pill active={category === "all"} onClick={() => setCategory("all")}>
-              {t.catalog.all}
-            </Pill>
-            {categories.map((c) => (
-              <Pill
-                key={c}
-                active={category === c}
-                onClick={() => setCategory(c)}
+        {/* Main column: toolbar + chips + results */}
+        <div className="min-w-0">
+          {/* Toolbar: filters (mobile) · sort · reset · count */}
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-b border-border pb-6">
+            <button
+              onClick={() => setOpen(true)}
+              className={cn(
+                "label-mono inline-flex items-center gap-2 rounded-full border px-4 py-1.5 transition-colors cursor-pointer lg:hidden",
+                advancedCount > 0
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-foreground/25 bg-foreground/[0.04] text-foreground hover:border-primary hover:text-primary",
+              )}
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                fill="none"
+                aria-hidden
               >
-                {t.categories[c]}
-              </Pill>
-            ))}
-          </div>
-
-          {/* View toggle */}
-          <div className="label-mono flex items-center gap-1 rounded-full border border-foreground/15 bg-muted/60 p-1 shadow-sm">
-            <button
-              onClick={() => setView("gallery")}
-              aria-pressed={view === "gallery"}
-              className={cn(
-                "flex items-center gap-2 rounded-full px-4 py-2.5 text-sm transition-colors cursor-pointer",
-                view === "gallery"
-                  ? "bg-foreground text-background shadow-sm"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              <LayoutGrid className="h-4 w-4" />
-              {t.catalog.viewGallery}
+                <path
+                  d="M1 3.5h12M3 7h8M5 10.5h4"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+              {t.catalog.filters}
+              {advancedCount > 0 && ` (${advancedCount})`}
             </button>
-            <button
-              onClick={() => setView("index")}
-              aria-pressed={view === "index"}
-              className={cn(
-                "flex items-center gap-2 rounded-full px-4 py-2.5 text-sm transition-colors cursor-pointer",
-                view === "index"
-                  ? "bg-foreground text-background shadow-sm"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              <List className="h-4 w-4" />
-              {t.catalog.viewIndex}
-            </button>
-          </div>
-        </div>
 
-        <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
-          {/* Max price */}
-          <div className="flex items-center gap-3">
-            <span className="label-mono text-muted-foreground">
-              {t.catalog.maxPrice}
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="label-mono text-muted-foreground">
+                {t.catalog.sort}
+              </span>
+              <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
+                <SelectTrigger className="label-mono h-auto w-auto max-w-full gap-2 rounded-full border-foreground/25 bg-foreground/[0.04] px-4 py-1.5 text-[0.72rem] text-foreground hover:border-primary focus:ring-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {SORT_KEYS.map((k) => (
+                    <SelectItem key={k} value={k} className="label-mono">
+                      {t.catalog.sortOptions[k]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {isDirty && (
+              <button
+                onClick={reset}
+                className="label-mono text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline cursor-pointer"
+              >
+                {t.catalog.reset}
+              </button>
+            )}
+
+            <span className="label-mono ml-auto text-muted-foreground">
+              {filtered.length} {t.catalog.results}
             </span>
-            <div className="flex items-center gap-1">
-              {PRICE_STEPS.map((p) => (
-                <Pill
-                  key={p}
-                  active={maxPrice === p}
-                  onClick={() => setMaxPrice(p)}
+          </div>
+
+          {/* Applied-filter chips */}
+          {chips.length > 0 && (
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              {chips.map((chip) => (
+                <button
+                  key={chip.key}
+                  onClick={chip.onRemove}
+                  className="label-mono inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/5 px-3 py-1.5 text-primary transition-colors hover:bg-primary/10 cursor-pointer"
                 >
-                  {formatEur(p)}
-                </Pill>
+                  {chip.label}
+                  <span aria-hidden>✕</span>
+                </button>
               ))}
             </div>
+          )}
+
+          {/* Results */}
+          <div className="mt-10 min-h-[40vh]">
+            {filtered.length === 0 ? (
+              <p className="font-display py-20 text-center text-2xl text-muted-foreground">
+                {t.catalog.empty}
+              </p>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                className="grid gap-x-8 gap-y-14 sm:grid-cols-2 xl:grid-cols-3"
+              >
+                {filtered.map((product, i) => (
+                  <ProductCard key={product.id} product={product} index={i} />
+                ))}
+              </motion.div>
+            )}
           </div>
-
-          <button
-            onClick={reset}
-            className="label-mono text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline cursor-pointer"
-          >
-            {t.catalog.reset}
-          </button>
-
-          <span className="label-mono ml-auto text-muted-foreground">
-            {filtered.length} {t.catalog.results}
-          </span>
         </div>
       </div>
 
-      {/* Results */}
-      <div className="mt-10 min-h-[40vh]">
-        {filtered.length === 0 ? (
-          <p className="font-display py-20 text-center text-2xl text-muted-foreground">
-            {t.catalog.empty}
-          </p>
-        ) : (
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={view}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      {/* Mobile: filter panel behind a slide-in drawer */}
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent
+          side="left"
+          aria-describedby={undefined}
+          className="sm:max-w-sm"
+        >
+          <div className="flex items-center justify-between border-b border-border px-6 py-5 pr-14">
+            <SheetTitle>{t.catalog.filters}</SheetTitle>
+            <span className="label-mono text-muted-foreground">
+              {filtered.length} {t.catalog.results}
+            </span>
+          </div>
+          <div className="flex-1 overflow-y-auto px-6 py-6">
+            <FiltersPanel {...panelProps} />
+          </div>
+          <div className="border-t border-border px-6 py-5">
+            <button
+              onClick={() => setOpen(false)}
+              className="label-mono w-full rounded-full bg-primary px-6 py-3 text-primary-foreground transition-opacity hover:opacity-90 cursor-pointer"
             >
-              {view === "index" ? (
-                <CarIndex cars={filtered} />
-              ) : (
-                <div className="grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
-                  {filtered.map((car, i) => (
-                    <CarCard key={car.id} car={car} index={i} />
-                  ))}
-                </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
-        )}
-      </div>
+              {t.catalog.showResults}
+              {` (${filtered.length})`}
+            </button>
+          </div>
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+}
+
+type FiltersPanelProps = {
+  t: ReturnType<typeof useT>;
+  facets: Facets;
+  category: ProductCategory | "all";
+  setCategory: (c: ProductCategory | "all") => void;
+  maxPrice: number;
+  setMaxPrice: (p: number) => void;
+  colorTemps: Set<ColorTempKey>;
+  setColorTemps: React.Dispatch<React.SetStateAction<Set<ColorTempKey>>>;
+  sockets: Set<SocketKey>;
+  setSockets: React.Dispatch<React.SetStateAction<Set<SocketKey>>>;
+  lumens: Set<LumensKey>;
+  setLumens: React.Dispatch<React.SetStateAction<Set<LumensKey>>>;
+  isDirty: boolean;
+  reset: () => void;
+};
+
+function FiltersPanel({
+  t,
+  facets,
+  category,
+  setCategory,
+  maxPrice,
+  setMaxPrice,
+  colorTemps,
+  setColorTemps,
+  sockets,
+  setSockets,
+  lumens,
+  setLumens,
+  isDirty,
+  reset,
+}: FiltersPanelProps) {
+  return (
+    <div className="flex flex-col gap-7">
+      <FacetRow label={t.catalog.category}>
+        <Pill active={category === "all"} onClick={() => setCategory("all")}>
+          {t.catalog.all}
+        </Pill>
+        {categories.map((c) => (
+          <Pill key={c} active={category === c} onClick={() => setCategory(c)}>
+            {t.categories[c]}
+          </Pill>
+        ))}
+      </FacetRow>
+
+      <FacetRow label={t.catalog.maxPrice}>
+        {PRICE_STEPS.map((p) => (
+          <Pill key={p} active={maxPrice === p} onClick={() => setMaxPrice(p)}>
+            ≤ {formatPrice(p)}
+          </Pill>
+        ))}
+      </FacetRow>
+
+      {facets.colorTemps.length >= 2 && (
+        <FacetRow label={t.catalog.color}>
+          {facets.colorTemps.map((c) => (
+            <Pill
+              key={c}
+              active={colorTemps.has(c)}
+              onClick={() => setColorTemps((s) => toggle(s, c))}
+            >
+              {t.catalog.colorOptions[c]}
+            </Pill>
+          ))}
+        </FacetRow>
+      )}
+
+      {facets.sockets.length >= 2 && (
+        <FacetRow label={t.catalog.socket}>
+          {facets.sockets.map((s) => (
+            <Pill
+              key={s}
+              active={sockets.has(s)}
+              onClick={() => setSockets((prev) => toggle(prev, s))}
+            >
+              {t.catalog.socketOptions[s]}
+            </Pill>
+          ))}
+        </FacetRow>
+      )}
+
+      {facets.lumens.length >= 2 && (
+        <FacetRow label={t.catalog.brightness}>
+          {facets.lumens.map((l) => (
+            <Pill
+              key={l}
+              active={lumens.has(l)}
+              onClick={() => setLumens((prev) => toggle(prev, l))}
+            >
+              {t.catalog.brightnessOptions[l]}
+            </Pill>
+          ))}
+        </FacetRow>
+      )}
+
+      {isDirty && (
+        <button
+          onClick={reset}
+          className="label-mono self-start text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline cursor-pointer"
+        >
+          {t.catalog.reset}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function FacetRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-3">
+      <span className="label-mono text-muted-foreground">{label}</span>
+      <div className="flex flex-wrap items-center gap-2">{children}</div>
     </div>
   );
 }
@@ -241,8 +477,8 @@ function Pill({
       className={cn(
         "label-mono rounded-full border px-3 py-1.5 transition-colors cursor-pointer",
         active
-          ? "border-foreground bg-foreground text-background"
-          : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground",
+          ? "border-primary bg-primary text-primary-foreground"
+          : "border-border text-muted-foreground hover:border-primary/50 hover:text-primary",
       )}
     >
       {children}

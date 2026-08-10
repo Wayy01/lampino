@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 /* =========================================================
-   ATELIER — luxury automotive editorial (light-only)
-   Warm ivory paper · ink · single refined cobalt accent
+   LAMPINO — home lighting shop (light-only)
+   Warm ivory paper · ink · single warm terracotta accent
    ========================================================= */
 :root {
   --background: #f6f4ef; /* warm ivory paper */
@@ -11,16 +11,16 @@
   --muted: #efece4;
   --muted-foreground: #6b6259;
 
-  --primary: #1d4ed8; /* cobalt */
-  --primary-hover: #1e40af;
-  --primary-deep: #172554; /* navy for deep accents */
+  --primary: #d0713e; /* terracotta */
+  --primary-hover: #b85f30;
+  --primary-deep: #7a3d1f; /* deep terracotta for accents */
   --primary-foreground: #ffffff;
 
-  --accent: #eef2ff; /* faint blue wash, used sparingly */
-  --accent-foreground: #1e3a8a;
+  --accent: #f7ece4; /* faint terracotta wash, used sparingly */
+  --accent-foreground: #8a4a24;
 
   --border: #e4dfd5; /* warm hairline */
-  --ring: #1d4ed8;
+  --ring: #d0713e;
 
   --radius: 0.5rem;
 }
@@ -203,6 +203,52 @@ body {
   to {
     opacity: 0;
     transform: translateY(4px) scale(0.97);
+  }
+}
+
+/* Right-side sheet (cart drawer) transitions */
+.cs-sheet-overlay {
+  animation: csFade 0.25s ease forwards;
+}
+.cs-sheet-overlay[data-state="closed"] {
+  animation: csFadeOut 0.2s ease forwards;
+}
+.cs-sheet-content {
+  animation: csSheetIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.cs-sheet-content[data-state="closed"] {
+  animation: csSheetOut 0.25s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.cs-sheet-content[data-side="left"] {
+  animation: csSheetInLeft 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.cs-sheet-content[data-side="left"][data-state="closed"] {
+  animation: csSheetOutLeft 0.25s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes csSheetIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes csSheetOut {
+  to {
+    transform: translateX(100%);
+  }
+}
+@keyframes csSheetInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes csSheetOutLeft {
+  to {
+    transform: translateX(-100%);
   }
 }
 

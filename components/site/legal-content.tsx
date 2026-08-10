@@ -29,15 +29,6 @@ export function LegalContent({ section }: { section: "terms" | "privacy" }) {
         </h1>
 
         <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.3, ease: EASE }}
-          className="mt-8 max-w-2xl text-xl leading-relaxed text-muted-foreground md:text-2xl"
-        >
-          {content.intro}
-        </motion.p>
-
-        <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.7, delay: 0.45, ease: EASE }}

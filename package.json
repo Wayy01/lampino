@@ -1,5 +1,5 @@
 {
-  "name": "car-shop",
+  "name": "lampino",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@prisma/client": "6",
     "@radix-ui/react-accordion": "^1.2.14",
     "@radix-ui/react-dialog": "^1.1.7",
     "@radix-ui/react-select": "^2.1.7",
@@ -30,6 +31,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
+    "prisma": "6",
     "tailwindcss": "^4",
     "typescript": "^5"
   },
@@ -38,6 +40,8 @@
     "unrs-resolver"
   ],
   "trustedDependencies": [
+    "@prisma/client",
+    "prisma",
     "sharp",
     "unrs-resolver"
   ]

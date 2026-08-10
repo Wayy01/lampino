@@ -1,27 +1,15 @@
-import { cars } from "@/lib/data/cars";
-import { fleetStartingPrice } from "@/lib/pricing";
-import { BookingHero } from "@/components/site/booking-hero";
-// import { HowItWorks } from "@/components/site/how-it-works";
-// import { StatsBand } from "@/components/site/stats-band";
-import { FeaturedCars } from "@/components/site/featured-cars";
-// import { WhyUs } from "@/components/site/why-us";
-// import { BrandMarquee } from "@/components/site/brand-marquee";
+import { HeroVideo } from "@/components/site/hero-video";
+import { FeaturedProducts } from "@/components/site/featured-products";
 import { Faq } from "@/components/site/faq";
-import { CtaBand } from "@/components/site/cta-band";
+import { getHeroVideoUrl } from "@/lib/data/settings";
 
-export default function Home() {
-  const startingPrice = fleetStartingPrice(cars);
-
+export default async function Home() {
+  const heroVideoUrl = await getHeroVideoUrl();
   return (
     <>
-      <BookingHero startingPrice={startingPrice} />
-      {/* <HowItWorks /> */}
-      {/* <StatsBand /> */}
-      <FeaturedCars />
-      {/* <WhyUs /> */}
-      {/* <BrandMarquee /> */}
+      <HeroVideo videoUrl={heroVideoUrl} />
+      <FeaturedProducts />
       <Faq />
-      <CtaBand />
     </>
   );
 }

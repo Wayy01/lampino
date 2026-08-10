@@ -12,7 +12,7 @@ export function LanguageToggle({ className }: { className?: string }) {
         className,
       )}
     >
-      {(["it", "en"] as const).map((code) => (
+      {(["ro", "ru"] as const).map((code) => (
         <button
           key={code}
           onClick={() => setLang(code)}
@@ -20,7 +20,7 @@ export function LanguageToggle({ className }: { className?: string }) {
           className={cn(
             "rounded-full px-2.5 py-1 transition-colors cursor-pointer",
             lang === code
-              ? "bg-foreground text-background"
+              ? "bg-primary text-primary-foreground"
               : "text-muted-foreground hover:text-foreground",
           )}
         >

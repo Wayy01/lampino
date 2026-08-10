@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { AboutContent } from "@/components/site/about-content";
 
 export const metadata: Metadata = {
-  title: "How it works — Atelier",
+  title: "Despre noi — Lampino",
   description:
-    "We broker the drive. The middle-man between you and Italy's best rental companies, for the best price.",
+    "Aducem lumina bună la tine acasă: becuri și corpuri de iluminat alese cu grijă, preț corect și livrare rapidă.",
 };
 
 export default function AboutPage() {

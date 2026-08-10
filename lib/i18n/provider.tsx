@@ -3,8 +3,7 @@
 import {
   createContext,
   useContext,
-  useEffect,
-  useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import { dictionaries, type Dict, type Lang } from "./dictionaries";
@@ -18,26 +17,39 @@ type LangContextValue = {
 
 const LangContext = createContext<LangContextValue | null>(null);
 
-const STORAGE_KEY = "carshop-lang";
+const STORAGE_KEY = "lampino-lang";
+const DEFAULT_LANG: Lang = "ro";
+
+// localStorage-backed store for the active language, read via
+// useSyncExternalStore so hydration stays SSR-safe without a setState effect.
+const listeners = new Set<() => void>();
+
+function readLang(): Lang {
+  if (typeof window === "undefined") return DEFAULT_LANG;
+  const stored = window.localStorage.getItem(STORAGE_KEY);
+  return stored === "ro" || stored === "ru" ? stored : DEFAULT_LANG;
+}
+
+function subscribe(onChange: () => void) {
+  listeners.add(onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    listeners.delete(onChange);
+    window.removeEventListener("storage", onChange);
+  };
+}
+
+function writeLang(next: Lang) {
+  window.localStorage.setItem(STORAGE_KEY, next);
+  document.documentElement.lang = next;
+  listeners.forEach((fn) => fn());
+}
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("it");
+  const lang = useSyncExternalStore(subscribe, readLang, () => DEFAULT_LANG);
 
-  useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY) as Lang | null;
-    if (stored === "it" || stored === "en") {
-      setLangState(stored);
-      document.documentElement.lang = stored;
-    }
-  }, []);
-
-  const setLang = (next: Lang) => {
-    setLangState(next);
-    window.localStorage.setItem(STORAGE_KEY, next);
-    document.documentElement.lang = next;
-  };
-
-  const toggle = () => setLang(lang === "it" ? "en" : "it");
+  const setLang = (next: Lang) => writeLang(next);
+  const toggle = () => writeLang(lang === "ro" ? "ru" : "ro");
 
   return (
     <LangContext.Provider

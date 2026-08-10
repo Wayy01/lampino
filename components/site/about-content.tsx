@@ -29,15 +29,6 @@ export function AboutContent() {
         <h1 className="font-display mt-7 text-[clamp(2.5rem,8vw,6rem)] font-light leading-[0.95] tracking-[-0.03em]">
           <MaskReveal delay={0.1}>{t.about.title}</MaskReveal>
         </h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.3, ease: EASE }}
-          className="mt-8 max-w-2xl text-xl leading-relaxed text-muted-foreground md:text-2xl"
-        >
-          {t.about.intro}
-        </motion.p>
       </div>
 
       <div className="mt-24 grid gap-px overflow-hidden rounded-[var(--radius-lg)] border border-border bg-border md:mt-32 md:grid-cols-3">
@@ -60,7 +51,7 @@ export function AboutContent() {
 
       <Reveal className="mt-20 flex justify-center md:mt-28">
         <Button asChild size="lg" variant="ink" className="group">
-          <Link href="/cars">
+          <Link href="/products">
             {t.about.cta}
             <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
           </Link>

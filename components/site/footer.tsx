@@ -14,7 +14,7 @@ export function Footer() {
         <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr] md:gap-8">
           <div className="max-w-sm">
             <Link href="/" className="font-display text-3xl tracking-tight">
-              Atelier<span className="text-primary">.</span>
+              Lampino<span className="text-primary">.</span>
             </Link>
             <p className="mt-5 text-muted-foreground">{t.footer.tagline}</p>
           </div>
@@ -24,8 +24,8 @@ export function Footer() {
               {t.footer.explore}
             </p>
             <ul className="space-y-3">
-              <FooterLink href="/cars">{t.footer.links.cars}</FooterLink>
-              <FooterLink href="/cars">{t.nav.cta}</FooterLink>
+              <FooterLink href="/products">{t.footer.links.products}</FooterLink>
+              <FooterLink href="/products">{t.nav.cta}</FooterLink>
             </ul>
           </div>
 
@@ -43,9 +43,9 @@ export function Footer() {
 
         <div className="mt-16 flex flex-col gap-3 border-t border-border pt-8 sm:flex-row sm:items-center sm:justify-between">
           <p className="label-mono text-muted-foreground">
-            © {year} Atelier — {t.footer.rights}
+            © {year} Lampino — {t.footer.rights}
           </p>
-          <p className="label-mono text-muted-foreground">Made in Italy</p>
+          <p className="label-mono text-muted-foreground">Iluminat cu grijă</p>
         </div>
       </div>
     </footer>

@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { LegalContent } from "@/components/site/legal-content";
 
 export const metadata: Metadata = {
-  title: "Terms — Atelier",
+  title: "Termeni — Lampino",
   description:
-    "The terms of service for booking a premium rental through Atelier, Italy's car rental brokerage.",
+    "Termenii și condițiile pentru comenzile plasate în magazinul de iluminat Lampino.",
 };
 
 export default function TermsPage() {

@@ -1,28 +1,14 @@
-import type { Car, Partner } from "@/lib/data/cars";
+import type { Product } from "@/lib/data/products";
 
-export type CarPricing = {
-  fromPrice: number; // lowest partner price / day
-  isFrom: boolean; // true when 2+ partners compete on this car
-  partnerCount: number;
-  partners: Partner[]; // sorted ascending by price (best first)
+export type ProductPricing = {
+  price: number; // lei
 };
 
-export function getCarPricing(car: Car): CarPricing {
-  const partners = [...car.partners].sort(
-    (a, b) => a.pricePerDay - b.pricePerDay,
-  );
-  return {
-    fromPrice: partners[0]?.pricePerDay ?? 0,
-    isFrom: partners.length >= 2,
-    partnerCount: partners.length,
-    partners,
-  };
+export function getProductPricing(product: Product): ProductPricing {
+  return { price: product.price };
 }
 
-/** Lowest entry price across the whole fleet — used for hero copy. */
-export function fleetStartingPrice(cars: Car[]): number {
-  return cars.reduce(
-    (min, c) => Math.min(min, getCarPricing(c).fromPrice),
-    Infinity,
-  );
+/** Lowest price across the whole catalog — used for hero copy. */
+export function catalogStartingPrice(products: Product[]): number {
+  return products.reduce((min, p) => Math.min(min, p.price), Infinity);
 }

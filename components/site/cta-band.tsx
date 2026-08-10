@@ -22,7 +22,7 @@ export function CtaBand() {
     <section ref={ref} className="relative overflow-hidden">
       <motion.div style={{ y }} className="absolute inset-0 -z-10 scale-110">
         <Image
-          src="https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&w=2400&q=80"
+          src="https://images.unsplash.com/photo-1543872084-c7bd3822856f?auto=format&fit=crop&w=2400&q=80"
           alt=""
           fill
           sizes="100vw"
@@ -35,15 +35,6 @@ export function CtaBand() {
         <h2 className="font-display mx-auto max-w-3xl text-[clamp(2.25rem,6vw,4.5rem)] font-light leading-[1.02] tracking-[-0.02em]">
           <MaskReveal>{t.ctaBand.title}</MaskReveal>
         </h2>
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, delay: 0.1 }}
-          className="mx-auto mt-6 max-w-md text-background/80"
-        >
-          {t.ctaBand.text}
-        </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -52,7 +43,7 @@ export function CtaBand() {
           className="mt-10"
         >
           <Button asChild size="lg" variant="primary" className="group">
-            <Link href="/cars">
+            <Link href="/products">
               {t.ctaBand.button}
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
             </Link>
