@@ -12,6 +12,14 @@ export type Column<T> = {
   /** Hide the column below the md breakpoint — keep 2–3 essentials visible. */
   hideOnMobile?: boolean;
   align?: "left" | "right";
+  /**
+   * The identity column — the one carrying the row's name. On narrow screens
+   * it absorbs the leftover width and truncates, instead of sizing to its
+   * text and pushing the rest of the row off-screen. Defaults to the first
+   * column; set it explicitly when the first column is a fixed-width control
+   * (e.g. the reorder arrows in the categories table).
+   */
+  primary?: boolean;
 };
 
 /**
@@ -36,6 +44,16 @@ export function DataTable<T>({
 }) {
   const router = useRouter();
 
+  // A table cell sizes to its content, so a long name would widen the whole
+  // row past the viewport. Pinning the identity cell to `w-full max-w-0` lets
+  // it take whatever space is left and truncate — only below `sm`, where the
+  // space actually runs out; wider screens keep their content-sized columns.
+  const primaryIndex = Math.max(
+    0,
+    columns.findIndex((col) => col.primary),
+  );
+  const primaryCell = "max-sm:w-full max-sm:max-w-0";
+
   const handleRowClick = (e: React.MouseEvent, row: T) => {
     if (!rowHref) return;
     const target = e.target as HTMLElement;
@@ -52,13 +70,14 @@ export function DataTable<T>({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b">
-                {columns.map((col) => (
+                {columns.map((col, i) => (
                   <th
                     key={col.key}
                     className={cn(
                       "label-mono whitespace-nowrap px-4 py-3 text-left font-normal text-muted-foreground first:pl-5 last:pr-5",
                       col.align === "right" && "text-right",
                       col.hideOnMobile && "hidden md:table-cell",
+                      i === primaryIndex && primaryCell,
                       col.className,
                     )}
                   >
@@ -78,13 +97,14 @@ export function DataTable<T>({
                       "cursor-pointer transition-colors hover:bg-foreground/[0.02]",
                   )}
                 >
-                  {columns.map((col) => (
+                  {columns.map((col, i) => (
                     <td
                       key={col.key}
                       className={cn(
                         "px-4 py-3.5 first:pl-5 last:pr-5",
                         col.align === "right" && "text-right",
                         col.hideOnMobile && "hidden md:table-cell",
+                        i === primaryIndex && primaryCell,
                         col.className,
                       )}
                     >

@@ -141,6 +141,8 @@ export function CategoriesManager({ rows }: { rows: CategoryRow[] }) {
     {
       key: "category",
       header: t.categories.category,
+      // The reorder arrows come first here, so name this the identity column.
+      primary: true,
       cell: (c) => (
         <div className="flex items-center gap-3">
           <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-[var(--radius-sm)] bg-muted">
