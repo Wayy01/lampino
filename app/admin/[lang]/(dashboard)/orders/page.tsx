@@ -5,7 +5,12 @@ import { num, formatDate } from "@/lib/admin/serialize";
 import { getAdminDict, statusLabel, type AdminLang } from "@/lib/admin/i18n";
 import { isLocale } from "@/lib/i18n/routing";
 import { PageHeader } from "@/components/admin/page-header";
-import { SearchInput, FilterSelect, Pagination } from "@/components/admin/toolbar";
+import {
+  SearchInput,
+  FilterSelect,
+  Pagination,
+  ClearFilters,
+} from "@/components/admin/toolbar";
 import { OrdersTable, type OrderRow } from "@/components/admin/orders-table";
 import { ORDER_STATUSES } from "@/lib/admin/order-status";
 
@@ -81,6 +86,7 @@ export default async function AdminOrdersPage({
             label: statusLabel(t, s),
           }))}
         />
+        <ClearFilters className="justify-center sm:justify-start" />
       </div>
 
       <OrdersTable
@@ -89,6 +95,7 @@ export default async function AdminOrdersPage({
           <Pagination
             page={page}
             totalPages={Math.max(1, Math.ceil(total / PER_PAGE))}
+            total={total}
           />
         }
       />

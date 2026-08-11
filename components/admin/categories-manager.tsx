@@ -1,12 +1,19 @@
 "use client";
 
-import { useActionState, useEffect, useState, useTransition } from "react";
+import {
+  useActionState,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import Image from "next/image";
-import { ArrowDown, ArrowUp, Pencil, Plus, Shapes, Trash2 } from "lucide-react";
+import { Pencil, Plus, Shapes, Trash2 } from "lucide-react";
 import {
   saveCategory,
   deleteCategory,
-  moveCategory,
+  reorderCategories,
   type CategoryActionState,
 } from "@/lib/admin/actions/categories";
 import { useAdminT } from "@/lib/admin/i18n-provider";
@@ -15,6 +22,12 @@ import { MediaField } from "@/components/admin/media";
 import { DataTable, type Column } from "@/components/admin/data-table";
 import { EmptyState } from "@/components/admin/empty-state";
 import { ConfirmButton } from "@/components/admin/confirm-button";
+import {
+  DragHandle,
+  draggingRow,
+  moveItem,
+  useReorder,
+} from "@/components/admin/reorder";
 import {
   Field,
   TextInput,
@@ -98,6 +111,41 @@ export function CategoriesManager({ rows }: { rows: CategoryRow[] }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [, startTransition] = useTransition();
 
+  // Dragging reorders locally so the rows never lag a frame behind the
+  // pointer, and the new order is pushed to the server on drop. Only the id
+  // order is held locally — the row data itself always comes from props, so a
+  // revalidation (a rename, a new category) shows through immediately.
+  const [idOrder, setIdOrder] = useState<number[] | null>(null);
+  const pendingIds = useRef<number[]>([]);
+
+  const order = useMemo(() => {
+    if (!idOrder) return rows;
+    const byId = new Map(rows.map((r) => [r.id, r]));
+    const sorted = idOrder
+      .map((id) => byId.get(id))
+      .filter((r): r is CategoryRow => r !== undefined);
+    const known = new Set(idOrder);
+    // Anything created since the drag lands at the end rather than vanishing.
+    return [...sorted, ...rows.filter((r) => !known.has(r.id))];
+  }, [rows, idOrder]);
+
+  const reorder = useReorder({
+    count: order.length,
+    onMove: (from, to) => {
+      const ids = moveItem(
+        order.map((c) => c.id),
+        from,
+        to,
+      );
+      pendingIds.current = ids;
+      setIdOrder(ids);
+    },
+    onCommit: () => {
+      const ids = pendingIds.current;
+      startTransition(() => reorderCategories(ids));
+    },
+  });
+
   const openNew = () => {
     setEditing(null);
     setDialogOpen(true);
@@ -110,31 +158,15 @@ export function CategoriesManager({ rows }: { rows: CategoryRow[] }) {
   const columns: Column<CategoryRow>[] = [
     {
       key: "order",
-      header: t.categories.order,
-      className: "w-24",
+      header: <span className="sr-only">{t.categories.order}</span>,
+      className: "w-12 pr-0",
       cell: (c) => {
-        const index = rows.findIndex((r) => r.id === c.id);
+        const index = order.findIndex((r) => r.id === c.id);
         return (
-          <div className="flex items-center">
-            <button
-              type="button"
-              onClick={() => startTransition(() => moveCategory(c.id, "up"))}
-              disabled={index === 0}
-              aria-label={t.common.moveUp}
-              className={iconBtn}
-            >
-              <ArrowUp className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => startTransition(() => moveCategory(c.id, "down"))}
-              disabled={index === rows.length - 1}
-              aria-label={t.common.moveDown}
-              className={iconBtn}
-            >
-              <ArrowDown className="h-4 w-4" />
-            </button>
-          </div>
+          <DragHandle
+            label={t.common.dragToReorder}
+            {...reorder.handleProps(index)}
+          />
         );
       },
     },
@@ -222,8 +254,10 @@ export function CategoriesManager({ rows }: { rows: CategoryRow[] }) {
 
       <DataTable
         columns={columns}
-        rows={rows}
+        rows={order}
         rowKey={(c) => c.id}
+        rowProps={(_, i) => reorder.itemProps(i)}
+        rowClassName={(_, i) => (reorder.dragIndex === i ? draggingRow : undefined)}
         empty={
           <EmptyState
             icon={<Shapes className="h-8 w-8" strokeWidth={1.25} />}

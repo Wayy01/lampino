@@ -3,8 +3,6 @@
 import { useActionState, useState } from "react";
 import Image from "next/image";
 import {
-  ArrowDown,
-  ArrowUp,
   Film,
   Image as ImageIcon,
   Layers,
@@ -14,6 +12,7 @@ import {
   Tag,
   Trash2,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   createProduct,
   updateProduct,
@@ -29,6 +28,12 @@ import { useAdminLang } from "@/lib/admin/i18n-provider";
 import { SectionCard } from "@/components/admin/section-card";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { AdminSelect } from "@/components/admin/select";
+import {
+  DragHandle,
+  draggingRow,
+  moveItem,
+  useReorder,
+} from "@/components/admin/reorder";
 import {
   Field,
   TextInput,
@@ -126,13 +131,25 @@ export function ProductForm({
     sortOrder: i,
   }));
 
-  const move = <T,>(list: T[], from: number, to: number): T[] => {
-    if (to < 0 || to >= list.length) return list;
-    const next = [...list];
-    const [item] = next.splice(from, 1);
-    next.splice(to, 0, item);
-    return next;
-  };
+  // Every sub-collection is ordered, and every one of them reorders by drag
+  // (or by ArrowUp/ArrowDown on a focused handle). Nothing is persisted until
+  // the form is submitted — the hidden JSON fields carry the new order.
+  const imageOrder = useReorder({
+    count: images.length,
+    onMove: (from, to) => setImages((prev) => moveItem(prev, from, to)),
+  });
+  const videoOrder = useReorder({
+    count: videos.length,
+    onMove: (from, to) => setVideos((prev) => moveItem(prev, from, to)),
+  });
+  const variantOrder = useReorder({
+    count: variants.length,
+    onMove: (from, to) => setVariants((prev) => moveItem(prev, from, to)),
+  });
+  const specOrder = useReorder({
+    count: specs.length,
+    onMove: (from, to) => setSpecs((prev) => moveItem(prev, from, to)),
+  });
 
   const addImage = () => {
     const url = newImageUrl.trim();
@@ -181,9 +198,18 @@ export function ProductForm({
                 {images.map((img, i) => (
                   <li
                     key={`${img.imageUrl}-${i}`}
-                    className="rounded-[var(--radius-md)] border p-3"
+                    {...imageOrder.itemProps(i)}
+                    className={cn(
+                      "rounded-[var(--radius-md)] border p-3",
+                      imageOrder.dragIndex === i && draggingRow,
+                    )}
                   >
                     <div className="flex items-center gap-3">
+                      <DragHandle
+                        label={t.common.dragToReorder}
+                        className="-ml-1"
+                        {...imageOrder.handleProps(i)}
+                      />
                       <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-[var(--radius-sm)] bg-muted">
                         <Image src={img.imageUrl} alt="" fill sizes="48px" unoptimized className="object-cover" />
                       </div>
@@ -204,26 +230,18 @@ export function ProductForm({
                         />
                         {t.products.mainImage}
                       </label>
-                      <div className="flex items-center">
-                        <button type="button" onClick={() => setImages(move(images, i, i - 1))} disabled={i === 0} aria-label={t.common.moveUp} className={iconBtn}>
-                          <ArrowUp className="h-4 w-4" />
-                        </button>
-                        <button type="button" onClick={() => setImages(move(images, i, i + 1))} disabled={i === images.length - 1} aria-label={t.common.moveDown} className={iconBtn}>
-                          <ArrowDown className="h-4 w-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const next = images.filter((_, j) => j !== i);
-                            if (img.isMain && next.length > 0) next[0] = { ...next[0], isMain: true };
-                            setImages(next);
-                          }}
-                          aria-label={t.common.remove}
-                          className={iconBtn}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = images.filter((_, j) => j !== i);
+                          if (img.isMain && next.length > 0) next[0] = { ...next[0], isMain: true };
+                          setImages(next);
+                        }}
+                        aria-label={t.common.remove}
+                        className={iconBtn}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     </div>
                   </li>
                 ))}
@@ -267,7 +285,14 @@ export function ProductForm({
             {videos.length > 0 && (
               <ul className="mb-4 flex flex-col gap-2">
                 {videos.map((video, i) => (
-                  <li key={i} className="rounded-[var(--radius-md)] border p-3">
+                  <li
+                    key={i}
+                    {...videoOrder.itemProps(i)}
+                    className={cn(
+                      "rounded-[var(--radius-md)] border p-3",
+                      videoOrder.dragIndex === i && draggingRow,
+                    )}
+                  >
                     <div className="flex flex-col gap-2">
                       <MediaField
                         accept="video"
@@ -290,7 +315,12 @@ export function ProductForm({
                         placeholder={t.products.thumbnailUrl}
                       />
                     </div>
-                    <div className="mt-2 flex justify-end">
+                    <div className="mt-2 flex items-center justify-between">
+                      <DragHandle
+                        label={t.common.dragToReorder}
+                        className="-ml-1"
+                        {...videoOrder.handleProps(i)}
+                      />
                       <button type="button" onClick={() => setVideos(videos.filter((_, j) => j !== i))} aria-label={t.common.remove} className={iconBtn}>
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -316,7 +346,14 @@ export function ProductForm({
             {variants.length > 0 && (
               <ul className="mb-4 flex flex-col gap-3">
                 {variants.map((v, i) => (
-                  <li key={i} className="rounded-[var(--radius-md)] border p-3">
+                  <li
+                    key={i}
+                    {...variantOrder.itemProps(i)}
+                    className={cn(
+                      "rounded-[var(--radius-md)] border p-3",
+                      variantOrder.dragIndex === i && draggingRow,
+                    )}
+                  >
                     <div className="grid gap-3 sm:grid-cols-2">
                       <Field label={t.products.nameRo}>
                         <TextInput
@@ -380,12 +417,10 @@ export function ProductForm({
                         {t.products.defaultVariant}
                       </label>
                       <div className="flex items-center">
-                        <button type="button" onClick={() => setVariants(move(variants, i, i - 1))} disabled={i === 0} aria-label={t.common.moveUp} className={iconBtn}>
-                          <ArrowUp className="h-4 w-4" />
-                        </button>
-                        <button type="button" onClick={() => setVariants(move(variants, i, i + 1))} disabled={i === variants.length - 1} aria-label={t.common.moveDown} className={iconBtn}>
-                          <ArrowDown className="h-4 w-4" />
-                        </button>
+                        <DragHandle
+                          label={t.common.dragToReorder}
+                          {...variantOrder.handleProps(i)}
+                        />
                         <button
                           type="button"
                           onClick={() => {
@@ -435,8 +470,20 @@ export function ProductForm({
             {specs.length > 0 && (
               <ul className="mb-4 flex flex-col gap-3">
                 {specs.map((spec, i) => (
-                  <li key={i} className="rounded-[var(--radius-md)] border p-3">
+                  <li
+                    key={i}
+                    {...specOrder.itemProps(i)}
+                    className={cn(
+                      "rounded-[var(--radius-md)] border p-3",
+                      specOrder.dragIndex === i && draggingRow,
+                    )}
+                  >
                     <div className="flex items-end gap-2">
+                      <DragHandle
+                        label={t.common.dragToReorder}
+                        className="-ml-1 mb-0.5"
+                        {...specOrder.handleProps(i)}
+                      />
                       <Field label={t.products.specId} htmlFor={`spec_id_${i}`} className="flex-1">
                         <TextInput
                           id={`spec_id_${i}`}

@@ -8,10 +8,36 @@ import { pick } from "@/lib/utils";
 import { getAdminDict, adminHref, type AdminLang } from "@/lib/admin/i18n";
 import { isLocale } from "@/lib/i18n/routing";
 import { PageHeader } from "@/components/admin/page-header";
-import { SearchInput, FilterSelect, Pagination } from "@/components/admin/toolbar";
+import {
+  SearchInput,
+  FilterSelect,
+  Pagination,
+  ClearFilters,
+} from "@/components/admin/toolbar";
 import { ProductsTable, type ProductRow } from "@/components/admin/products-table";
 
 const PER_PAGE = 12;
+
+/** `sort` query param → Prisma ordering. Unknown values fall back to newest. */
+function productOrderBy(
+  sort: string,
+  lang: AdminLang,
+): Prisma.ProductOrderByWithRelationInput {
+  switch (sort) {
+    case "oldest":
+      return { createdAt: "asc" };
+    case "name":
+      return lang === "ru" ? { name_ru: "asc" } : { name_ro: "asc" };
+    case "price_asc":
+      return { price: "asc" };
+    case "price_desc":
+      return { price: "desc" };
+    case "stock_asc":
+      return { stock: "asc" };
+    default:
+      return { createdAt: "desc" };
+  }
+}
 
 export default async function AdminProductsPage({
   params,
@@ -29,6 +55,7 @@ export default async function AdminProductsPage({
   const q = typeof sp.q === "string" ? sp.q : "";
   const category = typeof sp.category === "string" ? Number(sp.category) : null;
   const status = typeof sp.status === "string" ? sp.status : "";
+  const sort = typeof sp.sort === "string" ? sp.sort : "";
   const page = Math.max(1, Number(sp.page) || 1);
 
   const where: Prisma.ProductWhereInput = {
@@ -50,7 +77,7 @@ export default async function AdminProductsPage({
     prisma.product.count({ where }),
     prisma.product.findMany({
       where,
-      orderBy: { createdAt: "desc" },
+      orderBy: productOrderBy(sort, lang),
       skip: (page - 1) * PER_PAGE,
       take: PER_PAGE,
       include: {
@@ -94,7 +121,7 @@ export default async function AdminProductsPage({
         }
       />
 
-      <div className="mb-4 flex flex-col gap-2 sm:flex-row">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
         <SearchInput
           placeholder={t.products.searchPlaceholder}
           className="sm:max-w-xs sm:flex-1"
@@ -119,6 +146,19 @@ export default async function AdminProductsPage({
               { value: "out", label: t.products.outOfStock },
             ]}
           />
+          <FilterSelect
+            param="sort"
+            allLabel={t.common.sortNewest}
+            options={[
+              { value: "oldest", label: t.common.sortOldest },
+              { value: "name", label: t.common.sortName },
+              { value: "price_asc", label: t.common.sortPriceAsc },
+              { value: "price_desc", label: t.common.sortPriceDesc },
+              { value: "stock_asc", label: t.common.sortStockAsc },
+            ]}
+            className="col-span-2"
+          />
+          <ClearFilters className="col-span-2 justify-center sm:justify-start" />
         </div>
       </div>
 
@@ -128,6 +168,7 @@ export default async function AdminProductsPage({
           <Pagination
             page={page}
             totalPages={Math.max(1, Math.ceil(total / PER_PAGE))}
+            total={total}
           />
         }
       />
