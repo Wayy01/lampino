@@ -93,24 +93,28 @@ export default async function AdminDashboardPage({
           value={formatPrice(num(revenue._sum.totalPrice) ?? 0)}
           hint={t.dashboard.excludingCancelled}
           icon={<Banknote className="h-4 w-4" strokeWidth={1.75} />}
+          href={adminHref(lang, "/orders")}
         />
         <StatCard
           label={t.dashboard.orders}
           value={orderCount}
           hint={`${pendingOrders} ${t.dashboard.pendingHint}`}
           icon={<ShoppingCart className="h-4 w-4" strokeWidth={1.75} />}
+          href={adminHref(lang, "/orders?status=pending")}
         />
         <StatCard
           label={t.dashboard.products}
           value={activeProducts}
           hint={`${lowStock.length} ${t.dashboard.lowStockHint}`}
           icon={<Package className="h-4 w-4" strokeWidth={1.75} />}
+          href={adminHref(lang, "/products")}
         />
         <StatCard
           label={t.dashboard.rentalRequests}
           value={pendingApplications}
           hint={t.dashboard.awaitingReview}
           icon={<CalendarClock className="h-4 w-4" strokeWidth={1.75} />}
+          href={adminHref(lang, "/applications?status=pending")}
         />
       </div>
 

@@ -13,6 +13,8 @@ const DOT: Record<string, string> = {
   rejected: "bg-red-500",
   active: "bg-emerald-600",
   inactive: "bg-muted-foreground/50",
+  scheduled: "bg-sky-600",
+  expired: "bg-muted-foreground/50",
 };
 
 export function StatusBadge({
