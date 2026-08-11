@@ -7,11 +7,6 @@ import {
   ArrowLeft,
   ShoppingBag,
   Zap,
-  Lightbulb,
-  Thermometer,
-  Plug,
-  Clock,
-  Leaf,
   Check,
   MessageCircle,
   Phone,
@@ -21,7 +16,9 @@ import {
 import type { Product } from "@/lib/data/products";
 import type { ContactInfo, MediaItem, ProductVariant } from "@/lib/types";
 import { useLang } from "@/lib/i18n/provider";
+import { shopHref } from "@/lib/i18n/routing";
 import { useCart } from "@/lib/cart/provider";
+import { specList, specLabel, specValue } from "@/lib/specs";
 import { formatPrice, pick, cn } from "@/lib/utils";
 import { ProductGallery } from "./product-gallery";
 import { FastBuyDrawer } from "./fast-buy-drawer";
@@ -59,6 +56,12 @@ export function ProductDetail({
   const stock = selectedVariant?.stock ?? product.stock;
   const inStock = stock > 0;
 
+  const reduced = selectedVariant
+    ? selectedVariant.reducedPrice
+    : product.reducedPrice;
+  const hasDiscount = reduced !== null && reduced < unitPrice;
+  const finalPrice = hasDiscount ? reduced! : unitPrice;
+
   // Videos always come first, then images.
   const media: MediaItem[] = useMemo(
     () => [
@@ -75,20 +78,12 @@ export function ProductDetail({
     [product.videos, product.images],
   );
 
-  const spec = product.specifications;
-  const lifespan = Number(spec.lifespan);
-  const specs = [
-    { icon: Zap, label: t.specsLabels.wattage, value: `${spec.wattage} ${t.specsLabels.w}` },
-    { icon: Lightbulb, label: t.specsLabels.lumens, value: `${spec.lumens} ${t.specsLabels.lm}` },
-    { icon: Thermometer, label: t.specsLabels.colorTemp, value: spec.colorTemp },
-    { icon: Plug, label: t.specsLabels.base, value: spec.base },
-    {
-      icon: Clock,
-      label: t.specsLabels.lifespan,
-      value: `${Number.isFinite(lifespan) ? lifespan.toLocaleString("ro-RO") : spec.lifespan} ${t.specsLabels.h}`,
-    },
-    { icon: Leaf, label: t.specsLabels.energyClass, value: spec.energyClass },
-  ];
+  // Specs are free-form and bilingual — render whatever the product carries.
+  const specs = specList(product.specifications).map(([id, entry]) => ({
+    id,
+    label: specLabel(entry, lang),
+    value: specValue(entry, lang),
+  }));
 
   const selectVariant = (variant: ProductVariant) => {
     setSelectedVariant(variant);
@@ -117,7 +112,7 @@ export function ProductDetail({
         transition={{ duration: 0.5, ease: EASE }}
       >
         <Link
-          href="/products"
+          href={shopHref(lang)}
           className="group label-mono inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
@@ -163,31 +158,42 @@ export function ProductDetail({
             </p>
           </div>
 
-          <div className="mt-14">
-            <div className="label-mono mb-6 text-muted-foreground">
-              {t.product.specs}
-            </div>
-            <div className="grid grid-cols-2 gap-px overflow-hidden rounded-[var(--radius-lg)] border border-border bg-border sm:grid-cols-3">
-              {specs.map((s) => (
-                <div key={s.label} className="flex flex-col gap-3 bg-background p-5">
-                  <s.icon className="h-5 w-5 text-primary" strokeWidth={1.5} />
-                  <div>
-                    <div className="label-mono text-muted-foreground">{s.label}</div>
-                    <div className="mt-1 font-medium">{s.value}</div>
+          {specs.length > 0 && (
+            <div className="mt-14">
+              <div className="label-mono mb-6 text-muted-foreground">
+                {t.product.specs}
+              </div>
+              <div className="grid grid-cols-2 gap-px overflow-hidden rounded-[var(--radius-lg)] border border-border bg-border sm:grid-cols-3">
+                {specs.map((s) => (
+                  <div key={s.id} className="flex flex-col gap-1.5 bg-background p-5">
+                    <div className="label-mono text-muted-foreground">
+                      {s.label}
+                    </div>
+                    <div className="font-medium leading-snug">{s.value}</div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Right: sticky order panel */}
         <div className="lg:sticky lg:top-28 lg:self-start">
           <div className="rounded-[var(--radius-lg)] border border-border bg-surface p-6 md:p-7">
-            <div className="flex items-baseline gap-1.5">
-              <span className="font-display text-4xl tracking-tight">
-                {formatPrice(unitPrice)}
+            <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+              <span
+                className={cn(
+                  "font-display text-4xl tracking-tight",
+                  hasDiscount && "text-primary",
+                )}
+              >
+                {formatPrice(finalPrice)}
               </span>
+              {hasDiscount && (
+                <span className="text-lg text-muted-foreground line-through">
+                  {formatPrice(unitPrice)}
+                </span>
+              )}
             </div>
 
             {/* Stock */}

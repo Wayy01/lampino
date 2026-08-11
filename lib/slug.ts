@@ -1,7 +1,9 @@
-// Cosmetic slugs: "<id>-<name>" for SEO/readable URLs.
-// Lookup ALWAYS uses only the leading numeric id — the name part is
-// decorative, so renaming a product never breaks a link and we never
-// need a `slug` column in the database.
+// Cosmetic name slugs for SEO/readable URLs. Product URLs carry the id and the
+// name slug as separate path segments (`/<lang>/product/<id>/<name-slug>`), and
+// lookup ALWAYS uses only the numeric id — the name part is decorative, so
+// renaming a product never breaks a link and we never need a `slug` column in
+// the database. (`toSlug`/`parseId` remain for the legacy combined "<id>-<name>"
+// form still used by the mock data-access layer.)
 
 const DIACRITICS: Record<string, string> = {
   ă: "a", â: "a", î: "i", ș: "s", ş: "s", ț: "t", ţ: "t",

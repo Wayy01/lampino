@@ -5,12 +5,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowRight } from "lucide-react";
-import { useT } from "@/lib/i18n/provider";
+import { useLang, useT } from "@/lib/i18n/provider";
+import { shopHref } from "@/lib/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { MaskReveal } from "./reveal";
 
 export function CtaBand() {
   const t = useT();
+  const { lang } = useLang();
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -43,7 +45,7 @@ export function CtaBand() {
           className="mt-10"
         >
           <Button asChild size="lg" variant="primary" className="group">
-            <Link href="/products">
+            <Link href={shopHref(lang)}>
               {t.ctaBand.button}
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
             </Link>

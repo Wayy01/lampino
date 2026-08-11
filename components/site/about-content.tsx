@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
-import { useT } from "@/lib/i18n/provider";
+import { useLang, useT } from "@/lib/i18n/provider";
+import { shopHref } from "@/lib/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Reveal, MaskReveal } from "./reveal";
 
@@ -11,6 +12,7 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 
 export function AboutContent() {
   const t = useT();
+  const { lang } = useLang();
 
   return (
     <div className="mx-auto max-w-[1400px] px-5 pb-28 pt-32 sm:px-8 md:pt-40">
@@ -51,7 +53,7 @@ export function AboutContent() {
 
       <Reveal className="mt-20 flex justify-center md:mt-28">
         <Button asChild size="lg" variant="ink" className="group">
-          <Link href="/products">
+          <Link href={shopHref(lang)}>
             {t.about.cta}
             <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
           </Link>

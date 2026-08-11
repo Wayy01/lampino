@@ -9,13 +9,22 @@ import { useLang, useT } from "@/lib/i18n/provider";
 import { formatPrice, pick } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Input, Textarea, Label } from "@/components/ui/input";
+import {
+  useOrderForm,
+  OrderFields,
+  buildOrderLines,
+  openWhatsApp,
+  type OrderForm,
+} from "./order-fields";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
+const IMAGE_PLACEHOLDER =
+  "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=400&q=80";
+
 type View = "cart" | "checkout";
 
-export function CartDrawer() {
+export function CartDrawer({ whatsapp }: { whatsapp: string | null }) {
   const { lang, t } = useLang();
   const { items, count, subtotal, setQuantity, removeItem, clear, isOpen, closeCart } =
     useCart();
@@ -37,8 +46,24 @@ export function CartDrawer() {
     if (!next) closeCart();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Same WhatsApp flow as the product buy-now form, but for the whole cart.
+  const handleSubmit = (values: OrderForm) => {
+    const itemLines = items.map((item) => {
+      const name = pick(lang, item.product.name_ro, item.product.name_ru);
+      const variantLabel = item.variant
+        ? [pick(lang, item.variant.name_ro, item.variant.name_ru), item.variant.size]
+            .filter(Boolean)
+            .join(" · ")
+        : null;
+      return `• ${name}${variantLabel ? ` (${variantLabel})` : ""} × ${item.quantity} — ${formatPrice(unitPrice(item) * item.quantity)}`;
+    });
+    const lines = [
+      t.order.title,
+      ...itemLines,
+      `${t.cart.total}: ${formatPrice(subtotal)}`,
+      ...buildOrderLines(t, values),
+    ];
+    openWhatsApp(whatsapp, lines);
     setSent(true);
     clear();
   };
@@ -82,7 +107,7 @@ export function CartDrawer() {
                     >
                       <div className="relative h-20 w-24 shrink-0 overflow-hidden rounded-[var(--radius-sm)] bg-muted">
                         <Image
-                          src={item.product.images[0].imageUrl}
+                          src={item.product.images[0]?.imageUrl ?? IMAGE_PLACEHOLDER}
                           alt={pick(lang, item.product.name_ro, item.product.name_ru)}
                           fill
                           sizes="96px"
@@ -214,9 +239,16 @@ function CheckoutView({
 }: {
   total: number;
   onBack: () => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: (values: OrderForm) => void;
 }) {
   const t = useT();
+  const form = useOrderForm();
+
+  const handle = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(form.values);
+  };
+
   return (
     <div className="flex flex-1 flex-col overflow-y-auto">
       <div className="px-6 pt-4">
@@ -230,25 +262,8 @@ function CheckoutView({
         <p className="mt-4 text-sm text-muted-foreground">{t.order.subtitle}</p>
       </div>
 
-      <form onSubmit={onSubmit} className="grid gap-4 px-6 py-5">
-        <div>
-          <Label htmlFor="cart-name">{t.order.name}</Label>
-          <Input id="cart-name" required autoComplete="name" />
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="min-w-0">
-            <Label htmlFor="cart-email">{t.order.email}</Label>
-            <Input id="cart-email" type="email" required autoComplete="email" />
-          </div>
-          <div className="min-w-0">
-            <Label htmlFor="cart-phone">{t.order.phone}</Label>
-            <Input id="cart-phone" type="tel" autoComplete="tel" />
-          </div>
-        </div>
-        <div>
-          <Label htmlFor="cart-notes">{t.order.notes}</Label>
-          <Textarea id="cart-notes" rows={2} />
-        </div>
+      <form onSubmit={handle} className="grid gap-4 px-6 py-5">
+        <OrderFields form={form} idPrefix="cart" />
 
         <div className="mt-1 flex items-baseline justify-between border-t border-border pt-4">
           <span className="label-mono text-muted-foreground">{t.cart.total}</span>

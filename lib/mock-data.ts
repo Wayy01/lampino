@@ -5,6 +5,13 @@
 // pre-included, exactly as the serialized query results will be.
 import type { Category, Product } from "./types";
 
+// The mock catalog keeps the *legacy flat* spec shape (`{ [key]: "value" }`) —
+// it exists solely to seed the database (prisma/seed.ts upgrades these to the
+// bilingual shape on the way in). The live app reads from Prisma, not here.
+type MockProduct = Omit<Product, "specifications"> & {
+  specifications: Record<string, string>;
+};
+
 const img = (id: string, w = 1600) =>
   `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=80`;
 
@@ -443,7 +450,7 @@ const seeds: Seed[] = [
   },
 ];
 
-export const products: Product[] = seeds.map((s) => {
+export const products: MockProduct[] = seeds.map((s) => {
   const category = bySlug(s.categorySlug);
   return {
     id: s.id,

@@ -2,18 +2,21 @@
 
 import { useState } from "react";
 import { motion } from "motion/react";
-import { ArrowRight, Check, Minus, Plus, Store, Truck } from "lucide-react";
+import { ArrowRight, Check, Minus, Plus } from "lucide-react";
 import type { Product } from "@/lib/data/products";
 import type { ProductVariant } from "@/lib/types";
 import { useLang } from "@/lib/i18n/provider";
-import { formatPrice, pick, cn } from "@/lib/utils";
+import { formatPrice, pick } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Input, Textarea, Label } from "@/components/ui/input";
+import {
+  useOrderForm,
+  OrderFields,
+  buildOrderLines,
+  openWhatsApp,
+} from "./order-fields";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
-
-type Method = "pickup" | "delivery";
 
 export function FastBuyDrawer({
   open,
@@ -43,11 +46,7 @@ export function FastBuyDrawer({
     : null;
 
   const [qty, setQty] = useState(quantity);
-  const [method, setMethod] = useState<Method>("pickup");
-  const [customer, setCustomer] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
-  const [notes, setNotes] = useState("");
+  const form = useOrderForm();
   const [sent, setSent] = useState(false);
 
   // Sync with the current selection whenever the drawer transitions to open —
@@ -70,15 +69,9 @@ export function FastBuyDrawer({
       `${t.fastBuy.title}: ${name}${variantLabel ? ` (${variantLabel})` : ""}`,
       `${t.product.quantity}: ${qty}`,
       `${t.cart.total}: ${formatPrice(total)}`,
-      `${t.fastBuy.name}: ${customer}`,
-      `${t.fastBuy.phone}: ${phone}`,
-      `${t.fastBuy.method}: ${method === "pickup" ? t.fastBuy.pickup : t.fastBuy.delivery}`,
-      ...(method === "delivery" ? [`${t.fastBuy.address}: ${address}`] : []),
-      ...(notes ? [`${t.fastBuy.notes}: ${notes}`] : []),
+      ...buildOrderLines(t, form.values),
     ];
-    const digits = whatsapp.replace(/[^\d]/g, "");
-    const url = `https://wa.me/${digits}?text=${encodeURIComponent(lines.join("\n"))}`;
-    window.open(url, "_blank", "noopener,noreferrer");
+    openWhatsApp(whatsapp, lines);
     setSent(true);
   };
 
@@ -139,69 +132,7 @@ export function FastBuyDrawer({
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="fb-name">{t.fastBuy.name}</Label>
-                <Input
-                  id="fb-name"
-                  required
-                  autoComplete="name"
-                  value={customer}
-                  onChange={(e) => setCustomer(e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="fb-phone">{t.fastBuy.phone}</Label>
-                <Input
-                  id="fb-phone"
-                  type="tel"
-                  required
-                  autoComplete="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                />
-              </div>
-
-              {/* Delivery method */}
-              <div>
-                <Label>{t.fastBuy.method}</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  <MethodButton
-                    active={method === "pickup"}
-                    icon={<Store className="h-4 w-4" />}
-                    label={t.fastBuy.pickup}
-                    onClick={() => setMethod("pickup")}
-                  />
-                  <MethodButton
-                    active={method === "delivery"}
-                    icon={<Truck className="h-4 w-4" />}
-                    label={t.fastBuy.delivery}
-                    onClick={() => setMethod("delivery")}
-                  />
-                </div>
-              </div>
-
-              {method === "delivery" && (
-                <div>
-                  <Label htmlFor="fb-address">{t.fastBuy.address}</Label>
-                  <Input
-                    id="fb-address"
-                    required
-                    autoComplete="street-address"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                  />
-                </div>
-              )}
-
-              <div>
-                <Label htmlFor="fb-notes">{t.fastBuy.notes}</Label>
-                <Textarea
-                  id="fb-notes"
-                  rows={2}
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                />
-              </div>
+              <OrderFields form={form} idPrefix="fb" />
 
               <div className="mt-1 flex items-baseline justify-between border-t border-border pt-4">
                 <span className="label-mono text-muted-foreground">{t.cart.total}</span>
@@ -219,34 +150,6 @@ export function FastBuyDrawer({
         )}
       </SheetContent>
     </Sheet>
-  );
-}
-
-function MethodButton({
-  active,
-  icon,
-  label,
-  onClick,
-}: {
-  active: boolean;
-  icon: React.ReactNode;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "inline-flex h-12 items-center justify-center gap-2 rounded-[var(--radius-md)] border text-sm font-medium transition-colors cursor-pointer",
-        active
-          ? "border-primary bg-primary/10 text-foreground"
-          : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground",
-      )}
-    >
-      {icon}
-      {label}
-    </button>
   );
 }
 

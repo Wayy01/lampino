@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { useT } from "@/lib/i18n/provider";
+import { useLang, useT } from "@/lib/i18n/provider";
+import { localePath, shopHref, rentalsHref } from "@/lib/i18n/routing";
 
 export function Footer() {
   const t = useT();
+  const { lang } = useLang();
   const year = new Date().getFullYear();
 
   return (
@@ -13,7 +15,10 @@ export function Footer() {
       <div className="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 md:py-24">
         <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr] md:gap-8">
           <div className="max-w-sm">
-            <Link href="/" className="font-display text-3xl tracking-tight">
+            <Link
+              href={localePath(lang)}
+              className="font-display text-3xl tracking-tight"
+            >
               Lampino<span className="text-primary">.</span>
             </Link>
             <p className="mt-5 text-muted-foreground">{t.footer.tagline}</p>
@@ -24,8 +29,10 @@ export function Footer() {
               {t.footer.explore}
             </p>
             <ul className="space-y-3">
-              <FooterLink href="/products">{t.footer.links.products}</FooterLink>
-              <FooterLink href="/products">{t.nav.cta}</FooterLink>
+              <FooterLink href={shopHref(lang)}>
+                {t.footer.links.products}
+              </FooterLink>
+              <FooterLink href={rentalsHref(lang)}>{t.nav.rental}</FooterLink>
             </ul>
           </div>
 
@@ -34,9 +41,15 @@ export function Footer() {
               {t.footer.legal}
             </p>
             <ul className="space-y-3">
-              <FooterLink href="/about">{t.footer.links.contact}</FooterLink>
-              <FooterLink href="/terms">{t.footer.links.terms}</FooterLink>
-              <FooterLink href="/privacy">{t.footer.links.privacy}</FooterLink>
+              <FooterLink href={localePath(lang, "/about")}>
+                {t.footer.links.contact}
+              </FooterLink>
+              <FooterLink href={localePath(lang, "/terms")}>
+                {t.footer.links.terms}
+              </FooterLink>
+              <FooterLink href={localePath(lang, "/privacy")}>
+                {t.footer.links.privacy}
+              </FooterLink>
             </ul>
           </div>
         </div>

@@ -1,0 +1,180 @@
+"use client";
+
+import { useState } from "react";
+import { Store, Truck } from "lucide-react";
+import { useLang } from "@/lib/i18n/provider";
+import type { Dict } from "@/lib/i18n/dictionaries";
+import { cn } from "@/lib/utils";
+import { Input, Textarea, Label } from "@/components/ui/input";
+
+// The customer portion shared by every WhatsApp order form (product buy-now,
+// cart checkout, rental inquiry) so they stay pixel-identical and can't drift.
+
+export type Method = "pickup" | "delivery";
+
+export type OrderForm = {
+  customer: string;
+  phone: string;
+  method: Method;
+  address: string;
+  notes: string;
+};
+
+export function useOrderForm() {
+  const [customer, setCustomer] = useState("");
+  const [phone, setPhone] = useState("");
+  const [method, setMethod] = useState<Method>("pickup");
+  const [address, setAddress] = useState("");
+  const [notes, setNotes] = useState("");
+  const reset = () => {
+    setCustomer("");
+    setPhone("");
+    setMethod("pickup");
+    setAddress("");
+    setNotes("");
+  };
+  return {
+    values: { customer, phone, method, address, notes } as OrderForm,
+    customer,
+    setCustomer,
+    phone,
+    setPhone,
+    method,
+    setMethod,
+    address,
+    setAddress,
+    notes,
+    setNotes,
+    reset,
+  };
+}
+
+export type OrderFormApi = ReturnType<typeof useOrderForm>;
+
+export function OrderFields({
+  form,
+  idPrefix,
+}: {
+  form: OrderFormApi;
+  idPrefix: string;
+}) {
+  const { t } = useLang();
+  return (
+    <>
+      <div>
+        <Label htmlFor={`${idPrefix}-name`}>{t.fastBuy.name}</Label>
+        <Input
+          id={`${idPrefix}-name`}
+          required
+          autoComplete="name"
+          value={form.customer}
+          onChange={(e) => form.setCustomer(e.target.value)}
+        />
+      </div>
+      <div>
+        <Label htmlFor={`${idPrefix}-phone`}>{t.fastBuy.phone}</Label>
+        <Input
+          id={`${idPrefix}-phone`}
+          type="tel"
+          required
+          autoComplete="tel"
+          value={form.phone}
+          onChange={(e) => form.setPhone(e.target.value)}
+        />
+      </div>
+
+      {/* Delivery method */}
+      <div>
+        <Label>{t.fastBuy.method}</Label>
+        <div className="grid grid-cols-2 gap-2">
+          <MethodButton
+            active={form.method === "pickup"}
+            icon={<Store className="h-4 w-4" />}
+            label={t.fastBuy.pickup}
+            onClick={() => form.setMethod("pickup")}
+          />
+          <MethodButton
+            active={form.method === "delivery"}
+            icon={<Truck className="h-4 w-4" />}
+            label={t.fastBuy.delivery}
+            onClick={() => form.setMethod("delivery")}
+          />
+        </div>
+      </div>
+
+      {form.method === "delivery" && (
+        <div>
+          <Label htmlFor={`${idPrefix}-address`}>{t.fastBuy.address}</Label>
+          <Input
+            id={`${idPrefix}-address`}
+            required
+            autoComplete="street-address"
+            value={form.address}
+            onChange={(e) => form.setAddress(e.target.value)}
+          />
+        </div>
+      )}
+
+      <div>
+        <Label htmlFor={`${idPrefix}-notes`}>{t.fastBuy.notes}</Label>
+        <Textarea
+          id={`${idPrefix}-notes`}
+          rows={2}
+          value={form.notes}
+          onChange={(e) => form.setNotes(e.target.value)}
+        />
+      </div>
+    </>
+  );
+}
+
+export function MethodButton({
+  active,
+  icon,
+  label,
+  onClick,
+}: {
+  active: boolean;
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "inline-flex h-12 items-center justify-center gap-2 rounded-[var(--radius-md)] border text-sm font-medium transition-colors cursor-pointer",
+        active
+          ? "border-primary bg-primary/10 text-foreground"
+          : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground",
+      )}
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
+
+/** The customer lines shared by every WhatsApp order message. */
+export function buildOrderLines(t: Dict, values: OrderForm): string[] {
+  return [
+    `${t.fastBuy.name}: ${values.customer}`,
+    `${t.fastBuy.phone}: ${values.phone}`,
+    `${t.fastBuy.method}: ${values.method === "pickup" ? t.fastBuy.pickup : t.fastBuy.delivery}`,
+    ...(values.method === "delivery"
+      ? [`${t.fastBuy.address}: ${values.address}`]
+      : []),
+    ...(values.notes ? [`${t.fastBuy.notes}: ${values.notes}`] : []),
+  ];
+}
+
+/** Open WhatsApp with a prefilled message; returns false if no number is set. */
+export function openWhatsApp(whatsapp: string | null, lines: string[]): boolean {
+  if (!whatsapp) return false;
+  const digits = whatsapp.replace(/[^\d]/g, "");
+  if (!digits) return false;
+  const url = `https://wa.me/${digits}?text=${encodeURIComponent(lines.join("\n"))}`;
+  window.open(url, "_blank", "noopener,noreferrer");
+  return true;
+}

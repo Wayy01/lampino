@@ -76,8 +76,11 @@ export function MaskReveal({
   delay?: number;
 }) {
   return (
+    // Bottom padding gives descenders (ț, ș, p, g…) room inside the clip box so
+    // they're never cropped; the larger hidden offset keeps the line fully
+    // masked before it reveals despite that extra room.
     <motion.span
-      className="block overflow-hidden"
+      className="block overflow-hidden pb-[0.2em]"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-60px" }}
@@ -85,7 +88,7 @@ export function MaskReveal({
       <motion.span
         className={className}
         variants={{
-          hidden: { y: "110%" },
+          hidden: { y: "135%" },
           visible: { y: 0, transition: { duration: 0.9, delay, ease: EASE } },
         }}
         style={{ display: "block" }}

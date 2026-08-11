@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Fraunces, Hanken_Grotesk, Geist_Mono } from "next/font/google";
 import { LanguageProvider } from "@/lib/i18n/provider";
 import { CartProvider } from "@/lib/cart/provider";
@@ -6,7 +7,10 @@ import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
 import { CartDrawer } from "@/components/site/cart-drawer";
 import { Grain } from "@/components/site/grain";
-import "./globals.css";
+import { LOCALES, isLocale } from "@/lib/i18n/routing";
+import { getProducts } from "@/lib/data/products";
+import { getContactSettings } from "@/lib/data/settings";
+import "../globals.css";
 
 const fraunces = Fraunces({
   variable: "--font-display-app",
@@ -39,22 +43,38 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export function generateStaticParams() {
+  return LOCALES.map((lang) => ({ lang }));
+}
+
+export default async function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+  params,
+}: LayoutProps<"/[lang]">) {
+  const { lang } = await params;
+  if (!isLocale(lang)) notFound();
+
+  // The cart persists product ids in localStorage; the provider needs the
+  // catalog to rehydrate those lines with live price/variant data. The contact
+  // number powers the cart's WhatsApp checkout.
+  const [products, contact] = await Promise.all([
+    getProducts(),
+    getContactSettings(),
+  ]);
+
   return (
     <html
-      lang="ro"
+      lang={lang}
       className={`${fraunces.variable} ${hanken.variable} ${geistMono.variable} antialiased`}
     >
       <body className="min-h-screen" suppressHydrationWarning>
-        <LanguageProvider>
-          <CartProvider>
+        <LanguageProvider lang={lang}>
+          <CartProvider products={products}>
             <Grain />
             <Navbar />
             <main>{children}</main>
             <Footer />
-            <CartDrawer />
+            <CartDrawer whatsapp={contact?.whatsapp ?? null} />
           </CartProvider>
         </LanguageProvider>
       </body>

@@ -2,15 +2,19 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { products } from "@/lib/data/products";
-import { useT } from "@/lib/i18n/provider";
+import type { Product } from "@/lib/types";
+import { useLang, useT } from "@/lib/i18n/provider";
+import { shopHref } from "@/lib/i18n/routing";
 import { SectionHeading } from "./section-heading";
 import { ProductCard } from "./product-card";
 import { Reveal } from "./reveal";
 
-export function FeaturedProducts() {
+export function FeaturedProducts({ products }: { products: Product[] }) {
   const t = useT();
+  const { lang } = useLang();
   const featured = products.slice(0, 9);
+
+  if (featured.length === 0) return null;
 
   return (
     <section className="mx-auto max-w-[1400px] px-5 py-24 sm:px-8 md:py-32">
@@ -22,7 +26,7 @@ export function FeaturedProducts() {
         />
         <Reveal>
           <Link
-            href="/products"
+            href={shopHref(lang)}
             className="group label-mono inline-flex items-center gap-2 text-foreground transition-colors hover:text-primary"
           >
             {t.featured.viewAll}

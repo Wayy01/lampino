@@ -7,6 +7,12 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "plus.unsplash.com" },
     ],
   },
+  experimental: {
+    serverActions: {
+      // Admin media uploads (videos especially) go through a Server Action.
+      bodySizeLimit: "200mb",
+    },
+  },
 };
 
 export default nextConfig;

@@ -3,35 +3,48 @@
 import Link from "next/link";
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
-import { useT } from "@/lib/i18n/provider";
+import { useLang, useT } from "@/lib/i18n/provider";
+import { shopHref } from "@/lib/i18n/routing";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 // Poster (always works) shows instantly and stays visible if no video is present.
-const POSTER =
+const DEFAULT_POSTER =
   "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=2400&q=80";
 
-// Bundled clip served from `public/hero.mp4` — used as the fallback whenever the
-// production hero video (HeroContent.leftMediaUrl) isn't available.
+// Bundled clip served from `public/hero.mp4` — the ultimate fallback whenever the
+// production hero video (HeroContent media) isn't available.
 const FALLBACK_VIDEO = "/hero.mp4";
 
-export function HeroVideo({ videoUrl }: { videoUrl?: string | null }) {
+// The homepage hero shows a single background video. The schema stores two media
+// slots; the data layer resolves the best video into `videoUrl` and passes the
+// other media as `posterUrl`, shown before/if the video can't play.
+export function HeroVideo({
+  videoUrl,
+  posterUrl,
+}: {
+  videoUrl?: string | null;
+  posterUrl?: string | null;
+}) {
   const t = useT();
+  const { lang } = useLang();
+  const src = videoUrl || FALLBACK_VIDEO;
+  const poster = posterUrl || DEFAULT_POSTER;
 
   return (
     <section className="relative flex h-[68svh] min-h-[500px] items-center justify-center overflow-hidden">
       {/* Background video with poster fallback */}
       <video
-        key={videoUrl ?? FALLBACK_VIDEO}
+        key={src}
         className="absolute inset-0 h-full w-full object-cover"
         autoPlay
         muted
         loop
         playsInline
-        poster={POSTER}
+        poster={poster}
         aria-hidden
       >
-        <source src={videoUrl || FALLBACK_VIDEO} type="video/mp4" />
+        <source src={src} type="video/mp4" />
       </video>
 
       {/* Dark warm overlay for text contrast */}
@@ -56,7 +69,7 @@ export function HeroVideo({ videoUrl }: { videoUrl?: string | null }) {
         </h1>
 
         <Link
-          href="/products"
+          href={shopHref(lang)}
           className="group mt-10 inline-flex items-center gap-2 border-b border-background/40 pb-1 text-lg text-background transition-colors hover:border-primary hover:text-primary"
         >
           {t.hero.ctaPrimary}

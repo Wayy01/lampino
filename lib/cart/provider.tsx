@@ -8,8 +8,7 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import { products, type Product } from "@/lib/data/products";
-import type { ProductVariant } from "@/lib/types";
+import type { Product, ProductVariant } from "@/lib/types";
 
 export type CartItem = {
   product: Product;
@@ -46,9 +45,11 @@ function lineKey(id: number, variantId: number | null): string {
   return `${id}:${variantId ?? ""}`;
 }
 
-/** Effective unit price for a cart line: the variant overrides the product. */
+/** Effective unit price for a cart line: the variant overrides the product,
+ * and a reduced price (when set) overrides the base price. */
 export function unitPrice(item: CartItem): number {
-  return item.variant?.price ?? item.product.price;
+  if (item.variant) return item.variant.reducedPrice ?? item.variant.price;
+  return item.product.reducedPrice ?? item.product.price;
 }
 
 // localStorage is the source of truth for the cart. It's read via
@@ -94,15 +95,26 @@ function writeStored(next: StoredItem[]) {
   listeners.forEach((fn) => fn());
 }
 
-export function CartProvider({ children }: { children: ReactNode }) {
+export function CartProvider({
+  children,
+  products,
+}: {
+  children: ReactNode;
+  products: Product[];
+}) {
   const [isOpen, setIsOpen] = useState(false);
+
+  const productById = useMemo(
+    () => new Map(products.map((p) => [p.id, p])),
+    [products],
+  );
 
   const stored = useSyncExternalStore(subscribe, readSnapshot, () => EMPTY);
 
   const items = useMemo<CartItem[]>(() => {
     return stored
       .map((entry) => {
-        const product = products.find((p) => p.id === entry.id);
+        const product = productById.get(entry.id);
         if (!product) return null;
         const variant =
           entry.variantId != null
@@ -112,7 +124,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return { product, variant, quantity };
       })
       .filter((item): item is CartItem => item !== null);
-  }, [stored]);
+  }, [stored, productById]);
 
   const addItem = (product: Product, options?: AddItemOptions) => {
     const variantId = options?.variant?.id ?? null;

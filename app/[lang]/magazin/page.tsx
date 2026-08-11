@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Catalog } from "@/components/site/catalog";
-import { categories, type ProductCategory } from "@/lib/data/products";
+import {
+  getProducts,
+  getCategoryOptions,
+  type ProductCategory,
+} from "@/lib/data/products";
 import {
   COLOR_TEMP_ORDER,
   DEFAULT_SORT,
@@ -19,6 +23,8 @@ export const metadata: Metadata = {
     "Becuri LED, becuri smart, lumini de Crăciun, benzi LED și iluminat exterior. De la 79 lei.",
 };
 
+export const dynamic = "force-dynamic";
+
 const PRICE_STEPS = [200, 500, 1200];
 
 const parseList = <T extends string>(
@@ -29,7 +35,7 @@ const parseList = <T extends string>(
     (allowed as readonly string[]).includes(v),
   );
 
-export default async function ProductsPage({
+export default async function MagazinPage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -40,17 +46,26 @@ export default async function ProductsPage({
     return Array.isArray(v) ? v[0] : v;
   };
 
-  const rawCat = get("category");
-  const initialCategory: ProductCategory | "all" =
-    rawCat && categories.includes(rawCat as ProductCategory)
-      ? (rawCat as ProductCategory)
-      : "all";
+  const [products, categoryOptions] = await Promise.all([
+    getProducts(),
+    getCategoryOptions(),
+  ]);
+
+  // Category is addressed by its numeric id in the URL (`?category=13`); map it
+  // back to the slug the catalog filters on.
+  const rawCat = Number(get("category"));
+  const matched = categoryOptions.find((c) => c.id === rawCat);
+  const initialCategory: ProductCategory | "all" = matched ? matched.slug : "all";
 
   const rawMax = Number(get("max"));
   const initialMaxPrice = PRICE_STEPS.includes(rawMax) ? rawMax : 1200;
 
   const rawSort = get("sort");
   const initialSort: SortKey = isSortKey(rawSort) ? rawSort : DEFAULT_SORT;
+
+  const rawPage = Number(get("page"));
+  const initialPage = Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1;
+
   const initialColorTemps: ColorTempKey[] = parseList(
     get("color"),
     COLOR_TEMP_ORDER,
@@ -61,9 +76,12 @@ export default async function ProductsPage({
   return (
     <div className="mx-auto max-w-[1400px] px-5 pb-28 pt-28 sm:px-8 md:pt-36">
       <Catalog
+        products={products}
+        categoryOptions={categoryOptions}
         initialCategory={initialCategory}
         initialMaxPrice={initialMaxPrice}
         initialSort={initialSort}
+        initialPage={initialPage}
         initialColorTemps={initialColorTemps}
         initialSockets={initialSockets}
         initialLumens={initialLumens}

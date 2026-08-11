@@ -1,12 +1,9 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useSyncExternalStore,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, type ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { dictionaries, type Dict, type Lang } from "./dictionaries";
+import { isLocale } from "./routing";
 
 type LangContextValue = {
   lang: Lang;
@@ -17,39 +14,35 @@ type LangContextValue = {
 
 const LangContext = createContext<LangContextValue | null>(null);
 
-const STORAGE_KEY = "lampino-lang";
-const DEFAULT_LANG: Lang = "ro";
+const COOKIE = "lampino-lang";
 
-// localStorage-backed store for the active language, read via
-// useSyncExternalStore so hydration stays SSR-safe without a setState effect.
-const listeners = new Set<() => void>();
+// The active language is driven entirely by the URL locale segment (`/ro`,
+// `/ru`), passed down from the server layout. Switching languages rewrites the
+// leading segment of the current path and persists the choice in a cookie so
+// the proxy honours it on the next locale-less visit.
+export function LanguageProvider({
+  lang,
+  children,
+}: {
+  lang: Lang;
+  children: ReactNode;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
 
-function readLang(): Lang {
-  if (typeof window === "undefined") return DEFAULT_LANG;
-  const stored = window.localStorage.getItem(STORAGE_KEY);
-  return stored === "ro" || stored === "ru" ? stored : DEFAULT_LANG;
-}
-
-function subscribe(onChange: () => void) {
-  listeners.add(onChange);
-  window.addEventListener("storage", onChange);
-  return () => {
-    listeners.delete(onChange);
-    window.removeEventListener("storage", onChange);
+  const setLang = (next: Lang) => {
+    document.cookie = `${COOKIE}=${next};path=/;max-age=31536000;samesite=lax`;
+    document.documentElement.lang = next;
+    const segments = pathname.split("/");
+    if (isLocale(segments[1])) segments[1] = next;
+    else segments.splice(1, 0, next);
+    // Preserve the active query string (filters/pagination) across the switch.
+    const search =
+      typeof window !== "undefined" ? window.location.search : "";
+    router.push(`${segments.join("/") || `/${next}`}${search}`);
   };
-}
 
-function writeLang(next: Lang) {
-  window.localStorage.setItem(STORAGE_KEY, next);
-  document.documentElement.lang = next;
-  listeners.forEach((fn) => fn());
-}
-
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const lang = useSyncExternalStore(subscribe, readLang, () => DEFAULT_LANG);
-
-  const setLang = (next: Lang) => writeLang(next);
-  const toggle = () => writeLang(lang === "ro" ? "ru" : "ro");
+  const toggle = () => setLang(lang === "ro" ? "ru" : "ro");
 
   return (
     <LangContext.Provider

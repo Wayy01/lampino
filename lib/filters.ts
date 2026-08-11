@@ -7,6 +7,7 @@
 // option. All functions are pure and data-driven; adding products with new spec
 // values automatically surfaces the matching facets.
 import type { Product } from "./types";
+import { rawSpecValue } from "./specs";
 
 /* ----------------------------- Color temperature ---------------------------- */
 
@@ -81,10 +82,10 @@ export function buildFacets(products: Product[]): Facets {
   const sockets = new Set<SocketKey>();
   const lumens = new Set<LumensKey>();
   for (const p of products) {
-    const ct = classifyColorTemp(p.specifications.colorTemp);
+    const ct = classifyColorTemp(rawSpecValue(p.specifications, "colorTemp"));
     if (ct) colors.add(ct);
-    sockets.add(classifySocket(p.specifications.base));
-    const lm = classifyLumens(p.specifications.lumens);
+    sockets.add(classifySocket(rawSpecValue(p.specifications, "base")));
+    const lm = classifyLumens(rawSpecValue(p.specifications, "lumens"));
     if (lm) lumens.add(lm);
   }
   return {

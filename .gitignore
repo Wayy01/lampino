@@ -25,3 +25,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# admin media uploads (local storage)
+/public/uploads/
+
+# large binaries / installers
+*.dmg

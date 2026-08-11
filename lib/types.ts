@@ -39,6 +39,21 @@ export interface ProductVariant {
   sortOrder: number;
 }
 
+/**
+ * A single bilingual specification, as stored in the `specifications` Json
+ * column: `{ [id]: { label_ro, label_ru, value_ro, value_ru } }`. The data
+ * layer normalizes every product/rental into this shape (legacy flat rows —
+ * `{ [key]: "value" }` — are upgraded on read), so components only ever see it.
+ */
+export interface SpecEntry {
+  label_ro: string;
+  label_ru: string;
+  value_ro: string;
+  value_ru: string;
+}
+
+export type Specifications = Record<string, SpecEntry>;
+
 export interface Product {
   id: number;
   name_ro: string;
@@ -49,7 +64,7 @@ export interface Product {
   reducedPrice: number | null;
   stock: number;
   hasVariants: boolean;
-  specifications: Record<string, string>;
+  specifications: Specifications;
   categoryId: number | null;
   category: Category | null;
   featured: boolean;
@@ -58,6 +73,14 @@ export interface Product {
   images: ProductImage[];
   videos: ProductVideo[];
   variants: ProductVariant[];
+}
+
+/** Category in display order, carrying the numeric id used in `/magazin?category=<id>` URLs. */
+export interface CategoryOption {
+  id: number;
+  slug: string;
+  name_ro: string;
+  name_ru: string;
 }
 
 export interface RentalPackageVariant {
@@ -80,7 +103,7 @@ export interface RentalPackage {
   price: number;
   reducedPrice: number | null;
   hasVariants: boolean;
-  specifications: Record<string, string>;
+  specifications: Specifications;
   includes_ro: string[];
   includes_ru: string[];
   categoryId: number | null;
@@ -134,6 +157,19 @@ export interface HomepageSettings {
   productHeading_ru: string;
   rentalHeading_ro: string;
   rentalHeading_ru: string;
+}
+
+/**
+ * Resolved hero background media. The schema carries two media slots (left +
+ * right); the hero shows a single background video, so the data layer picks the
+ * best video for `videoUrl` and uses the other media as the `posterUrl`
+ * fallback shown before/if the video can't play.
+ */
+export interface HeroMedia {
+  videoUrl: string | null;
+  posterUrl: string | null;
+  heading_ro: string | null;
+  heading_ru: string | null;
 }
 
 export interface ContactSettings {

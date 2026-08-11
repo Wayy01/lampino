@@ -4,7 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { Menu, X, ShoppingBag } from "lucide-react";
-import { useT } from "@/lib/i18n/provider";
+import { useLang, useT } from "@/lib/i18n/provider";
+import { localePath, shopHref, rentalsHref } from "@/lib/i18n/routing";
 import { useCart } from "@/lib/cart/provider";
 import { LanguageToggle } from "./language-toggle";
 import { Button } from "@/components/ui/button";
@@ -34,18 +35,20 @@ function CartButton({ className }: { className?: string }) {
 
 export function Navbar() {
   const t = useT();
+  const { lang } = useLang();
   const [open, setOpen] = useState(false);
 
   const links = [
-    { href: "/products", label: t.nav.products },
-    { href: "/about", label: t.nav.about },
+    { href: shopHref(lang), label: t.nav.products },
+    { href: rentalsHref(lang), label: t.nav.rental },
+    { href: localePath(lang, "/about"), label: t.nav.about },
   ];
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background">
       <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-5 sm:px-8 md:h-20">
         <Link
-          href="/"
+          href={localePath(lang)}
           className="font-display text-xl tracking-tight md:text-2xl"
           onClick={() => setOpen(false)}
         >
@@ -104,7 +107,7 @@ export function Navbar() {
               <div className="mt-4 flex items-center justify-between">
                 <LanguageToggle />
                 <Button asChild size="sm" variant="ink">
-                  <Link href="/products" onClick={() => setOpen(false)}>
+                  <Link href={shopHref(lang)} onClick={() => setOpen(false)}>
                     {t.nav.cta}
                   </Link>
                 </Button>

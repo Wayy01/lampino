@@ -1,13 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { AnimatePresence, motion } from "motion/react";
-import {
-  products as allProducts,
-  categories,
-  type ProductCategory,
-} from "@/lib/data/products";
+import { usePathname } from "next/navigation";
+import { motion } from "motion/react";
+import type { ProductCategory } from "@/lib/data/products";
+import type { CategoryOption, Locale, Product } from "@/lib/types";
 import {
   buildFacets,
   classifyColorTemp,
@@ -21,8 +18,9 @@ import {
   type SocketKey,
   type SortKey,
 } from "@/lib/filters";
-import { useT } from "@/lib/i18n/provider";
-import { cn, formatPrice } from "@/lib/utils";
+import { rawSpecValue } from "@/lib/specs";
+import { useLang, useT } from "@/lib/i18n/provider";
+import { cn, formatPrice, pick } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -36,15 +34,36 @@ import type { Facets } from "@/lib/filters";
 
 const PRICE_STEPS = [200, 500, 1200] as const;
 const MAX_PRICE = 1200;
+const PAGE_SIZE = 9;
 
 type CatalogProps = {
+  products: Product[];
+  categoryOptions: CategoryOption[];
   initialCategory?: ProductCategory | "all";
   initialMaxPrice?: number;
   initialSort?: SortKey;
+  initialPage?: number;
   initialColorTemps?: ColorTempKey[];
   initialSockets?: SocketKey[];
   initialLumens?: LumensKey[];
 };
+
+// Compact, ellipsis-aware page window: always shows first/last and a neighbour
+// on each side of the current page.
+function pageList(current: number, total: number): (number | "…")[] {
+  const wanted = new Set([1, total, current, current - 1, current + 1]);
+  const pages = [...wanted]
+    .filter((p) => p >= 1 && p <= total)
+    .sort((a, b) => a - b);
+  const out: (number | "…")[] = [];
+  let prev = 0;
+  for (const p of pages) {
+    if (p - prev > 1) out.push("…");
+    out.push(p);
+    prev = p;
+  }
+  return out;
+}
 
 function toggle<T>(set: Set<T>, value: T): Set<T> {
   const next = new Set(set);
@@ -54,15 +73,18 @@ function toggle<T>(set: Set<T>, value: T): Set<T> {
 }
 
 export function Catalog({
+  products,
+  categoryOptions,
   initialCategory = "all",
   initialMaxPrice = MAX_PRICE,
   initialSort = DEFAULT_SORT,
+  initialPage = 1,
   initialColorTemps = [],
   initialSockets = [],
   initialLumens = [],
 }: CatalogProps) {
   const t = useT();
-  const router = useRouter();
+  const { lang } = useLang();
   const pathname = usePathname();
 
   const [category, setCategory] = useState<ProductCategory | "all">(
@@ -70,6 +92,7 @@ export function Catalog({
   );
   const [maxPrice, setMaxPrice] = useState<number>(initialMaxPrice);
   const [sort, setSort] = useState<SortKey>(initialSort);
+  const [page, setPage] = useState<number>(initialPage);
   const [colorTemps, setColorTemps] = useState<Set<ColorTempKey>>(
     () => new Set(initialColorTemps),
   );
@@ -81,43 +104,114 @@ export function Catalog({
   );
   const [open, setOpen] = useState(false);
 
+  // Any filter change resets pagination to the first page. Wrap the raw setters
+  // so callers (panel + chips) get this for free.
+  const changeCategory = (c: ProductCategory | "all") => {
+    setCategory(c);
+    setPage(1);
+  };
+  const changeMaxPrice = (p: number) => {
+    setMaxPrice(p);
+    setPage(1);
+  };
+  const changeSort = (s: SortKey) => {
+    setSort(s);
+    setPage(1);
+  };
+  const changeColorTemps: typeof setColorTemps = (v) => {
+    setColorTemps(v);
+    setPage(1);
+  };
+  const changeSockets: typeof setSockets = (v) => {
+    setSockets(v);
+    setPage(1);
+  };
+  const changeLumens: typeof setLumens = (v) => {
+    setLumens(v);
+    setPage(1);
+  };
+
   // Facet options are derived from the data, so empty ones never render.
-  const facets = useMemo(() => buildFacets(allProducts), []);
+  const facets = useMemo(() => buildFacets(products), [products]);
 
   const filtered = useMemo(() => {
-    const list = allProducts.filter((product) => {
+    const list = products.filter((product) => {
       if (category !== "all" && product.category?.slug !== category)
         return false;
       if (product.price > maxPrice) return false;
       if (colorTemps.size) {
-        const ct = classifyColorTemp(product.specifications.colorTemp);
+        const ct = classifyColorTemp(
+          rawSpecValue(product.specifications, "colorTemp"),
+        );
         if (!ct || !colorTemps.has(ct)) return false;
       }
-      if (sockets.size && !sockets.has(classifySocket(product.specifications.base)))
+      if (
+        sockets.size &&
+        !sockets.has(classifySocket(rawSpecValue(product.specifications, "base")))
+      )
         return false;
       if (lumens.size) {
-        const lm = classifyLumens(product.specifications.lumens);
+        const lm = classifyLumens(rawSpecValue(product.specifications, "lumens"));
         if (!lm || !lumens.has(lm)) return false;
       }
       return true;
     });
     return sortProducts(list, sort);
-  }, [category, maxPrice, colorTemps, sockets, lumens, sort]);
+  }, [products, category, maxPrice, colorTemps, sockets, lumens, sort]);
 
-  // Two-way URL sync: reflect the active filters in the query string so the view
-  // survives refresh, back/forward, and can be shared. Defaults are omitted to
-  // keep URLs clean.
+  // Pagination is derived from the filtered list; `currentPage` is clamped so a
+  // shrinking result set never leaves us on an empty page. (Every filter change
+  // also resets `page` to 1 via the change* setters, so the clamp only guards
+  // transient renders.)
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paged = filtered.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
+
+  // Reflect the active filters in the query string so the view survives refresh,
+  // back/forward, and can be shared. Category is addressed by its numeric id.
+  // When anything is active, sort + page are surfaced too so the URL is a
+  // complete snapshot (e.g. ?category=13&sort=featured&page=1).
+  //
+  // We update the URL with history.replaceState (a pure client-side history edit)
+  // rather than router.replace: the catalog filters entirely on the client, so a
+  // server round-trip is wasteful — and on a `force-dynamic` route it would also
+  // hand back fresh `products`/`categoryOptions` arrays, re-firing this effect in
+  // an endless replace loop. The guard skips no-op writes for good measure.
   useEffect(() => {
     const params = new URLSearchParams();
-    if (category !== "all") params.set("category", category);
+    const catId = categoryOptions.find((c) => c.slug === category)?.id;
+    if (category !== "all" && catId) params.set("category", String(catId));
     if (maxPrice !== MAX_PRICE) params.set("max", String(maxPrice));
-    if (sort !== DEFAULT_SORT) params.set("sort", sort);
     if (colorTemps.size) params.set("color", [...colorTemps].join(","));
     if (sockets.size) params.set("socket", [...sockets].join(","));
     if (lumens.size) params.set("lumens", [...lumens].join(","));
+
+    const active =
+      params.toString().length > 0 || sort !== DEFAULT_SORT || currentPage > 1;
+    if (active) {
+      params.set("sort", sort);
+      params.set("page", String(currentPage));
+    }
+
     const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-  }, [category, maxPrice, sort, colorTemps, sockets, lumens, pathname, router]);
+    const target = qs ? `${pathname}?${qs}` : pathname;
+    if (target !== `${pathname}${window.location.search}`) {
+      window.history.replaceState(null, "", target);
+    }
+  }, [
+    category,
+    maxPrice,
+    sort,
+    currentPage,
+    colorTemps,
+    sockets,
+    lumens,
+    pathname,
+    categoryOptions,
+  ]);
 
   const advancedCount =
     colorTemps.size +
@@ -137,6 +231,7 @@ export function Catalog({
     setColorTemps(new Set());
     setSockets(new Set());
     setLumens(new Set());
+    setPage(1);
   };
 
   // Removable chips for every active advanced filter, visible even when the
@@ -146,43 +241,45 @@ export function Catalog({
     chips.push({
       key: "price",
       label: `≤ ${formatPrice(maxPrice)}`,
-      onRemove: () => setMaxPrice(MAX_PRICE),
+      onRemove: () => changeMaxPrice(MAX_PRICE),
     });
   colorTemps.forEach((c) =>
     chips.push({
       key: `color-${c}`,
       label: t.catalog.colorOptions[c],
-      onRemove: () => setColorTemps((s) => toggle(s, c)),
+      onRemove: () => changeColorTemps((s) => toggle(s, c)),
     }),
   );
   sockets.forEach((s) =>
     chips.push({
       key: `socket-${s}`,
       label: t.catalog.socketOptions[s],
-      onRemove: () => setSockets((prev) => toggle(prev, s)),
+      onRemove: () => changeSockets((prev) => toggle(prev, s)),
     }),
   );
   lumens.forEach((l) =>
     chips.push({
       key: `lumens-${l}`,
       label: t.catalog.brightnessOptions[l],
-      onRemove: () => setLumens((prev) => toggle(prev, l)),
+      onRemove: () => changeLumens((prev) => toggle(prev, l)),
     }),
   );
 
   const panelProps: FiltersPanelProps = {
     t,
+    lang,
+    categoryOptions,
     facets,
     category,
-    setCategory,
+    setCategory: changeCategory,
     maxPrice,
-    setMaxPrice,
+    setMaxPrice: changeMaxPrice,
     colorTemps,
-    setColorTemps,
+    setColorTemps: changeColorTemps,
     sockets,
-    setSockets,
+    setSockets: changeSockets,
     lumens,
-    setLumens,
+    setLumens: changeLumens,
     isDirty,
     reset,
   };
@@ -200,10 +297,30 @@ export function Catalog({
         </h1>
       </div>
 
-      <div className="lg:grid lg:grid-cols-[260px_1fr] lg:items-start lg:gap-12">
+      <div className="lg:grid lg:grid-cols-[320px_1fr] lg:items-start lg:gap-12">
         {/* Desktop: persistent sticky filter panel */}
         <aside className="hidden self-start lg:sticky lg:top-28 lg:block">
-          <FiltersPanel {...panelProps} />
+          <div className="rounded-[var(--radius-lg)] border border-white/50 bg-surface/55 p-6 shadow-[0_8px_32px_-12px_rgba(20,17,15,0.18)] ring-1 ring-foreground/[0.06] backdrop-blur-xl">
+            <div className="mb-6 flex items-center gap-2.5 border-b border-border pb-4">
+              <svg width="15" height="15" viewBox="0 0 14 14" fill="none" aria-hidden>
+                <path
+                  d="M1 3.5h12M3 7h8M5 10.5h4"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <span className="label-mono text-foreground">
+                {t.catalog.filters}
+              </span>
+              {advancedCount > 0 && (
+                <span className="label-mono ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-primary-foreground">
+                  {advancedCount}
+                </span>
+              )}
+            </div>
+            <FiltersPanel {...panelProps} />
+          </div>
         </aside>
 
         {/* Main column: toolbar + chips + results */}
@@ -241,7 +358,10 @@ export function Catalog({
               <span className="label-mono text-muted-foreground">
                 {t.catalog.sort}
               </span>
-              <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
+              <Select
+                value={sort}
+                onValueChange={(v) => changeSort(v as SortKey)}
+              >
                 <SelectTrigger className="label-mono h-auto w-auto max-w-full gap-2 rounded-full border-foreground/25 bg-foreground/[0.04] px-4 py-1.5 text-[0.72rem] text-foreground hover:border-primary focus:ring-0">
                   <SelectValue />
                 </SelectTrigger>
@@ -293,17 +413,60 @@ export function Catalog({
               </p>
             ) : (
               <motion.div
+                key={currentPage}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                 className="grid gap-x-8 gap-y-14 sm:grid-cols-2 xl:grid-cols-3"
               >
-                {filtered.map((product, i) => (
+                {paged.map((product, i) => (
                   <ProductCard key={product.id} product={product} index={i} />
                 ))}
               </motion.div>
             )}
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <nav
+              aria-label="Pagination"
+              className="mt-16 flex items-center justify-center gap-2"
+            >
+              <PageButton
+                disabled={currentPage <= 1}
+                onClick={() => setPage(currentPage - 1)}
+                aria-label={t.catalog.prevPage}
+              >
+                ‹
+              </PageButton>
+              {pageList(currentPage, totalPages).map((p, i) =>
+                p === "…" ? (
+                  <span
+                    key={`ellipsis-${i}`}
+                    className="label-mono px-1 text-muted-foreground"
+                  >
+                    …
+                  </span>
+                ) : (
+                  <PageButton
+                    key={p}
+                    active={p === currentPage}
+                    onClick={() => setPage(p)}
+                    aria-current={p === currentPage ? "page" : undefined}
+                  >
+                    {p}
+                  </PageButton>
+                ),
+              )}
+              <PageButton
+                disabled={currentPage >= totalPages}
+                onClick={() => setPage(currentPage + 1)}
+                aria-label={t.catalog.nextPage}
+              >
+                ›
+              </PageButton>
+            </nav>
+          )}
         </div>
       </div>
 
@@ -312,7 +475,7 @@ export function Catalog({
         <SheetContent
           side="left"
           aria-describedby={undefined}
-          className="sm:max-w-sm"
+          className="border-white/40 bg-surface/70 backdrop-blur-2xl sm:max-w-md"
         >
           <div className="flex items-center justify-between border-b border-border px-6 py-5 pr-14">
             <SheetTitle>{t.catalog.filters}</SheetTitle>
@@ -340,6 +503,8 @@ export function Catalog({
 
 type FiltersPanelProps = {
   t: ReturnType<typeof useT>;
+  lang: Locale;
+  categoryOptions: CategoryOption[];
   facets: Facets;
   category: ProductCategory | "all";
   setCategory: (c: ProductCategory | "all") => void;
@@ -357,6 +522,8 @@ type FiltersPanelProps = {
 
 function FiltersPanel({
   t,
+  lang,
+  categoryOptions,
   facets,
   category,
   setCategory,
@@ -372,14 +539,18 @@ function FiltersPanel({
   reset,
 }: FiltersPanelProps) {
   return (
-    <div className="flex flex-col gap-7">
+    <div className="flex flex-col divide-y divide-border">
       <FacetRow label={t.catalog.category}>
         <Pill active={category === "all"} onClick={() => setCategory("all")}>
           {t.catalog.all}
         </Pill>
-        {categories.map((c) => (
-          <Pill key={c} active={category === c} onClick={() => setCategory(c)}>
-            {t.categories[c]}
+        {categoryOptions.map((c) => (
+          <Pill
+            key={c.id}
+            active={category === c.slug}
+            onClick={() => setCategory(c.slug)}
+          >
+            {pick(lang, c.name_ro, c.name_ru)}
           </Pill>
         ))}
       </FacetRow>
@@ -437,7 +608,7 @@ function FiltersPanel({
       {isDirty && (
         <button
           onClick={reset}
-          className="label-mono self-start text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline cursor-pointer"
+          className="label-mono self-start pt-5 text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline cursor-pointer"
         >
           {t.catalog.reset}
         </button>
@@ -454,10 +625,43 @@ function FacetRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-3">
-      <span className="label-mono text-muted-foreground">{label}</span>
+    <div className="flex flex-col gap-3 py-5 first:pt-0 last:pb-0">
+      <span className="label-mono text-foreground/80">{label}</span>
       <div className="flex flex-wrap items-center gap-2">{children}</div>
     </div>
+  );
+}
+
+function PageButton({
+  active = false,
+  disabled = false,
+  onClick,
+  children,
+  ...rest
+}: {
+  active?: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+} & React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        "label-mono flex h-9 min-w-9 items-center justify-center rounded-full border px-3 transition-colors",
+        disabled
+          ? "cursor-not-allowed border-foreground/10 text-muted-foreground/40"
+          : "cursor-pointer",
+        active
+          ? "border-primary bg-primary text-primary-foreground"
+          : !disabled &&
+              "border-foreground/20 text-foreground/70 hover:border-primary hover:text-primary",
+      )}
+      {...rest}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -477,8 +681,8 @@ function Pill({
       className={cn(
         "label-mono rounded-full border px-3 py-1.5 transition-colors cursor-pointer",
         active
-          ? "border-primary bg-primary text-primary-foreground"
-          : "border-border text-muted-foreground hover:border-primary/50 hover:text-primary",
+          ? "border-primary bg-primary text-primary-foreground shadow-[0_1px_6px_-1px_var(--primary)]"
+          : "border-foreground/20 text-foreground/70 hover:border-primary hover:text-primary",
       )}
     >
       {children}
