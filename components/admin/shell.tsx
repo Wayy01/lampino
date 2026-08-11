@@ -7,8 +7,12 @@ import {
   LayoutDashboard,
   Package,
   Shapes,
+  Sparkles,
+  CalendarClock,
   ShoppingCart,
+  BadgePercent,
   PanelsTopLeft,
+  Users,
   Settings2,
   LogOut,
   Menu,
@@ -30,8 +34,12 @@ const NAV: {
   { path: "", label: (t) => t.nav.dashboard, icon: LayoutDashboard, exact: true },
   { path: "/products", label: (t) => t.nav.products, icon: Package },
   { path: "/categories", label: (t) => t.nav.categories, icon: Shapes },
+  { path: "/rentals", label: (t) => t.nav.rentals, icon: Sparkles },
   { path: "/orders", label: (t) => t.nav.orders, icon: ShoppingCart },
+  { path: "/applications", label: (t) => t.nav.applications, icon: CalendarClock },
+  { path: "/promotions", label: (t) => t.nav.promotions, icon: BadgePercent },
   { path: "/homepage", label: (t) => t.nav.homepage, icon: PanelsTopLeft },
+  { path: "/users", label: (t) => t.nav.users, icon: Users },
   { path: "/settings", label: (t) => t.nav.settings, icon: Settings2 },
 ];
 
@@ -153,7 +161,7 @@ export function AdminShell({
   return (
     <div className="min-h-screen lg:flex">
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r bg-surface px-4 py-6 lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col overflow-y-auto border-r bg-surface px-4 py-6 lg:flex">
         <div className="mb-8 px-3">
           <Wordmark />
         </div>
