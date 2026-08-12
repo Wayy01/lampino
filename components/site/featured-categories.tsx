@@ -13,7 +13,13 @@ import { Reveal } from "./reveal";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-export function FeaturedCategories({ categories }: { categories: Category[] }) {
+export function FeaturedCategories({
+  categories,
+  heading,
+}: {
+  categories: Category[];
+  heading?: string;
+}) {
   const t = useT();
   const { lang } = useLang();
 
@@ -34,7 +40,7 @@ export function FeaturedCategories({ categories }: { categories: Category[] }) {
           <SectionHeading
             index="01"
             kicker={t.featuredCategories.kicker}
-            title={t.featuredCategories.title}
+            title={heading || t.featuredCategories.title}
           />
         </div>
         <Reveal delay={0.15}>

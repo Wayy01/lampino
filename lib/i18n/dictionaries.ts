@@ -18,32 +18,6 @@ export const ro = {
     ctaSecondary: "Despre noi",
     scroll: "Derulează",
   },
-  howItWorks: {
-    kicker: "Cum funcționează",
-    title: "Alege. Comandă. Iluminează.",
-    steps: [
-      {
-        title: "Alege produsul",
-        text: "Răsfoiește o colecție selectată de becuri, ghirlande și corpuri de iluminat.",
-      },
-      {
-        title: "Comandă online",
-        text: "Un singur preț clar per produs — fără costuri ascunse și fără surprize.",
-      },
-      {
-        title: "Livrăm rapid",
-        text: "Comenzile pleacă în 24 de ore și ajung la ușa ta în toată țara.",
-      },
-    ],
-  },
-  stats: {
-    items: [
-      { value: 500, suffix: "+", label: "Produse în stoc" },
-      { value: 6, suffix: "", label: "Categorii" },
-      { value: 24, suffix: "h", label: "Expediere" },
-      { value: 2, suffix: " ani", label: "Garanție" },
-    ],
-  },
   featured: {
     kicker: "Selectate pentru tine",
     title: "Lumină pentru fiecare cameră.",
@@ -139,28 +113,6 @@ export const ro = {
       close: "Închide",
     },
   },
-  whyUs: {
-    kicker: "De ce Lampino",
-    title: "Lumină bună, fără bătăi de cap.",
-    items: [
-      {
-        title: "Preț corect",
-        text: "Un singur preț clar, afișat direct. Fără costuri ascunse.",
-      },
-      {
-        title: "Livrare rapidă",
-        text: "Comenzile pleacă în 24 de ore în toată țara.",
-      },
-      {
-        title: "Doar mărci de încredere",
-        text: "Lucrăm cu producători verificați și produse testate.",
-      },
-      {
-        title: "Garanție 2 ani",
-        text: "Fiecare bec și corp de iluminat vine cu garanție.",
-      },
-    ],
-  },
   faq: {
     kicker: "Bine de știut",
     title: "Întrebări, cu răspuns.",
@@ -193,6 +145,9 @@ export const ro = {
     explore: "Explorează",
     company: "Companie",
     legal: "Legal",
+    contact: "Contact",
+    hours: "Program",
+    follow: "Urmărește-ne",
     rights: "Toate drepturile rezervate.",
     links: {
       products: "Produse",
@@ -317,6 +272,17 @@ export const ro = {
     continueShopping: "Continuă cumpărăturile",
     itemsOne: "produs",
     itemsMany: "produse",
+    delivery: "Livrare",
+    deliveryFree: "Gratuită",
+    deliveryChisinau: "Chișinău",
+    deliveryOutside: "Restul Moldovei",
+    freeDeliveryFrom: "Livrare gratuită de la",
+    totalWithDelivery: "Total cu livrare",
+  },
+  offers: {
+    products: "Produse la ofertă",
+    rentals: "Pachete la ofertă",
+    empty: "Momentan nu sunt oferte speciale. Revino curând.",
   },
   specsLabels: {
     wattage: "Putere",
@@ -397,7 +363,7 @@ export const ro = {
       },
       {
         h: "Contact",
-        p: "Întrebări despre acești termeni pot fi trimise la legal@lampino.example. Putem actualiza termenii din când în când; data de mai sus reflectă versiunea curentă.",
+        p: "Întrebări despre acești termeni pot fi trimise la {email}. Putem actualiza termenii din când în când; data de mai sus reflectă versiunea curentă.",
       },
     ],
   },
@@ -430,7 +396,7 @@ export const ro = {
       },
       {
         h: "Drepturile tale",
-        p: "Poți cere accesul, corectarea sau ștergerea datelor pe care le deținem despre tine. Scrie la privacy@lampino.example și răspundem în 30 de zile.",
+        p: "Poți cere accesul, corectarea sau ștergerea datelor pe care le deținem despre tine. Scrie la {email} și răspundem în 30 de zile.",
       },
     ],
   },
@@ -455,32 +421,6 @@ export const ru: typeof ro = {
     ctaPrimary: "Смотреть коллекцию",
     ctaSecondary: "О нас",
     scroll: "Листайте",
-  },
-  howItWorks: {
-    kicker: "Как это работает",
-    title: "Выбирай. Заказывай. Свети.",
-    steps: [
-      {
-        title: "Выберите товар",
-        text: "Просматривайте отобранную коллекцию ламп, гирлянд и светильников.",
-      },
-      {
-        title: "Закажите онлайн",
-        text: "Одна понятная цена за товар — без скрытых расходов и сюрпризов.",
-      },
-      {
-        title: "Быстрая доставка",
-        text: "Заказы отправляются за 24 часа и приезжают к вашей двери по всей стране.",
-      },
-    ],
-  },
-  stats: {
-    items: [
-      { value: 500, suffix: "+", label: "Товаров в наличии" },
-      { value: 6, suffix: "", label: "Категорий" },
-      { value: 24, suffix: "ч", label: "Отправка" },
-      { value: 2, suffix: " года", label: "Гарантия" },
-    ],
   },
   featured: {
     kicker: "Выбрано для вас",
@@ -577,28 +517,6 @@ export const ru: typeof ro = {
       close: "Закрыть",
     },
   },
-  whyUs: {
-    kicker: "Почему Lampino",
-    title: "Хороший свет без хлопот.",
-    items: [
-      {
-        title: "Честная цена",
-        text: "Одна понятная цена, указанная сразу. Без скрытых расходов.",
-      },
-      {
-        title: "Быстрая доставка",
-        text: "Заказы отправляются за 24 часа по всей стране.",
-      },
-      {
-        title: "Только надёжные бренды",
-        text: "Работаем с проверенными производителями и протестированными товарами.",
-      },
-      {
-        title: "Гарантия 2 года",
-        text: "Каждая лампа и светильник поставляются с гарантией.",
-      },
-    ],
-  },
   faq: {
     kicker: "Полезно знать",
     title: "Вопросы и ответы.",
@@ -631,6 +549,9 @@ export const ru: typeof ro = {
     explore: "Обзор",
     company: "Компания",
     legal: "Правовое",
+    contact: "Контакты",
+    hours: "График работы",
+    follow: "Мы в соцсетях",
     rights: "Все права защищены.",
     links: {
       products: "Товары",
@@ -755,6 +676,17 @@ export const ru: typeof ro = {
     continueShopping: "Продолжить покупки",
     itemsOne: "товар",
     itemsMany: "товаров",
+    delivery: "Доставка",
+    deliveryFree: "Бесплатно",
+    deliveryChisinau: "Кишинёв",
+    deliveryOutside: "По Молдове",
+    freeDeliveryFrom: "Бесплатная доставка от",
+    totalWithDelivery: "Итого с доставкой",
+  },
+  offers: {
+    products: "Товары по акции",
+    rentals: "Пакеты по акции",
+    empty: "Сейчас нет специальных предложений. Загляните позже.",
   },
   specsLabels: {
     wattage: "Мощность",
@@ -835,7 +767,7 @@ export const ru: typeof ro = {
       },
       {
         h: "Контакты",
-        p: "Вопросы об этих условиях можно направлять на legal@lampino.example. Мы можем время от времени обновлять условия; дата выше отражает текущую версию.",
+        p: "Вопросы об этих условиях можно направлять на {email}. Мы можем время от времени обновлять условия; дата выше отражает текущую версию.",
       },
     ],
   },
@@ -868,7 +800,7 @@ export const ru: typeof ro = {
       },
       {
         h: "Ваши права",
-        p: "Вы можете запросить доступ, исправление или удаление данных, которые мы храним о вас. Напишите на privacy@lampino.example, и мы ответим в течение 30 дней.",
+        p: "Вы можете запросить доступ, исправление или удаление данных, которые мы храним о вас. Напишите на {email}, и мы ответим в течение 30 дней.",
       },
     ],
   },

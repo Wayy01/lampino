@@ -34,7 +34,7 @@ Next.js 16 App Router + React 19, Tailwind v4 (CSS-only config in `app/globals.c
 
 **Read path — `lib/data/*`.** Every storefront page fetches through `lib/data/{products,rentals,categories,settings}.ts`, which query Prisma and serialize to the plain view models in `lib/types.ts`: `Decimal` → `number`, relations flattened, `specifications` run through `normalizeSpecs`. Pages and components never touch `prisma` directly, and never receive a `Decimal`. Storefront pages set `export const dynamic = "force-dynamic"`.
 
-> The header comments in `lib/prisma.ts` and `lib/mock-data.ts` claim the site still reads mock data. That's stale — `lib/data/*` queries Prisma. `lib/mock-data.ts` is now only a seed source.
+> `lib/seed-catalog.ts` is the seed source and nothing else — `prisma/seed.ts` is its only importer. No storefront or admin code reads it.
 
 **Write path — server actions.** Storefront: `lib/actions/rentals.ts` only (a rental inquiry creates a `RentalApplication`). Admin: `lib/admin/actions/*.ts`, each action starting with `await requireAdmin(lang)`, ending with `revalidatePath("/admin/[lang]/...", "page")` — note the literal bracket segments — and returning `{ ok } | { error }` for `useActionState`. Complex sub-collections (images, videos, variants, specs) are serialized to hidden JSON form fields and parsed back with the payload types exported alongside the action.
 

@@ -1,13 +1,11 @@
-// Static catalog data shaped like the Prisma view models in lib/types.ts.
-// The lib/data/* layer returns these same shapes today from this mock data and
-// will return them from real `prisma.*` queries later — so pages/components
-// never change. Prices are plain numbers (not Decimal) and relations are
-// pre-included, exactly as the serialized query results will be.
+// Seed source only. `prisma/seed.ts` is the single importer; no storefront or
+// admin code reads this file — every page goes through lib/data/*, which
+// queries Prisma. Shaped like the view models in lib/types.ts so the seed can
+// write it straight into the database.
 import type { Category, Product } from "./types";
 
-// The mock catalog keeps the *legacy flat* spec shape (`{ [key]: "value" }`) —
-// it exists solely to seed the database (prisma/seed.ts upgrades these to the
-// bilingual shape on the way in). The live app reads from Prisma, not here.
+// The seed catalog keeps the *legacy flat* spec shape (`{ [key]: "value" }`);
+// prisma/seed.ts upgrades these to the bilingual shape on the way in.
 type MockProduct = Omit<Product, "specifications"> & {
   specifications: Record<string, string>;
 };

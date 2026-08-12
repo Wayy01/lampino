@@ -7,9 +7,15 @@ import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
 import { CartDrawer } from "@/components/site/cart-drawer";
 import { Grain } from "@/components/site/grain";
+import { PromoBanner } from "@/components/site/promo-banner";
 import { LOCALES, isLocale } from "@/lib/i18n/routing";
 import { getProducts } from "@/lib/data/products";
-import { getContactSettings } from "@/lib/data/settings";
+import {
+  getContactSettings,
+  getDeliverySettings,
+  getPromoBanner,
+  getThemeSettings,
+} from "@/lib/data/settings";
 import "../globals.css";
 
 const fraunces = Fraunces({
@@ -57,24 +63,46 @@ export default async function RootLayout({
   // The cart persists product ids in localStorage; the provider needs the
   // catalog to rehydrate those lines with live price/variant data. The contact
   // number powers the cart's WhatsApp checkout.
-  const [products, contact] = await Promise.all([
+  const [products, contact, delivery, banner, theme] = await Promise.all([
     getProducts(),
     getContactSettings(),
+    getDeliverySettings(),
+    getPromoBanner(),
+    getThemeSettings(),
   ]);
+
+  // The palette lives in globals.css; an active ThemeSettings row overrides the
+  // accent slots inline. `--promo-h` offsets the fixed navbar and is only set
+  // when a banner is actually rendered.
+  const rootStyle: React.CSSProperties = {
+    ...(theme && {
+      ["--primary" as string]: theme.colorPrimary,
+      ["--primary-hover" as string]: `color-mix(in srgb, ${theme.colorPrimary} 85%, #000)`,
+      ["--primary-deep" as string]: `color-mix(in srgb, ${theme.colorPrimary} 60%, #000)`,
+      ["--ring" as string]: theme.colorPrimary,
+      ["--accent-foreground" as string]: theme.colorAccent,
+    }),
+    ...(banner && { ["--promo-h" as string]: "2.5rem" }),
+  };
 
   return (
     <html
       lang={lang}
       className={`${fraunces.variable} ${hanken.variable} ${geistMono.variable} antialiased`}
+      style={rootStyle}
     >
       <body className="min-h-screen" suppressHydrationWarning>
         <LanguageProvider lang={lang}>
           <CartProvider products={products}>
             <Grain />
+            {banner && <PromoBanner banner={banner} />}
             <Navbar />
             <main>{children}</main>
-            <Footer />
-            <CartDrawer whatsapp={contact?.whatsapp ?? null} />
+            <Footer contact={contact} />
+            <CartDrawer
+              whatsapp={contact?.whatsapp ?? null}
+              delivery={delivery}
+            />
           </CartProvider>
         </LanguageProvider>
       </body>

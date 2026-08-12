@@ -51,6 +51,7 @@ export function RentalInquiryDrawer({
   const today = new Date().toISOString().slice(0, 10);
 
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [eventType, setEventType] = useState<string>("wedding");
   const [eventDate, setEventDate] = useState("");
@@ -81,6 +82,7 @@ export function RentalInquiryDrawer({
       rentalPackageId: pkg.id,
       rentalPackageVariantId: variant?.id ?? null,
       customerName: name,
+      customerEmail: email || null,
       customerPhone: phone,
       eventType,
       eventDate,
@@ -139,6 +141,16 @@ export function RentalInquiryDrawer({
                   autoComplete="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="ra-email">{f.email}</Label>
+                <Input
+                  id="ra-email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div>

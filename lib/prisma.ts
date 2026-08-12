@@ -1,7 +1,6 @@
-// PrismaClient singleton — generated from the production schema and ready to
-// use, but the current design build reads from lib/data/* (mock data) instead.
-// To go live later, swap the bodies of lib/data/* to real `prisma.*` queries;
-// pages and components stay unchanged.
+// PrismaClient singleton, generated from prisma/schema.prisma into
+// lib/generated/prisma. Everything that reads the database goes through
+// lib/data/* (storefront) or lib/admin/* (CMS) — pages never import this.
 import { PrismaClient } from "./generated/prisma";
 
 const globalForPrisma = globalThis as unknown as {

@@ -89,8 +89,11 @@ export async function getProducts(options?: {
 }
 
 export async function getFeaturedProducts(limit = 9): Promise<Product[]> {
+  const settings = await prisma.homepageSettings.findFirst({ where: { isActive: true } });
+  const categoryId = settings?.featuredProductsCategoryId ?? undefined;
+
   const featured = await prisma.product.findMany({
-    where: { isActive: true, featured: true },
+    where: { isActive: true, featured: true, categoryId },
     include: productInclude,
     orderBy: [{ featuredOrder: "asc" }, { createdAt: "desc" }],
     take: limit,
@@ -100,7 +103,7 @@ export async function getFeaturedProducts(limit = 9): Promise<Product[]> {
   // Top up with the newest active products when not enough are flagged featured.
   const seen = new Set(featured.map((p) => p.id));
   const fill = await prisma.product.findMany({
-    where: { isActive: true, id: { notIn: [...seen] } },
+    where: { isActive: true, id: { notIn: [...seen] }, categoryId },
     include: productInclude,
     orderBy: { createdAt: "desc" },
     take: limit - featured.length,

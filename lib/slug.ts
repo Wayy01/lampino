@@ -2,8 +2,7 @@
 // name slug as separate path segments (`/<lang>/product/<id>/<name-slug>`), and
 // lookup ALWAYS uses only the numeric id — the name part is decorative, so
 // renaming a product never breaks a link and we never need a `slug` column in
-// the database. (`toSlug`/`parseId` remain for the legacy combined "<id>-<name>"
-// form still used by the mock data-access layer.)
+// the database.
 
 const DIACRITICS: Record<string, string> = {
   ă: "a", â: "a", î: "i", ș: "s", ş: "s", ț: "t", ţ: "t",

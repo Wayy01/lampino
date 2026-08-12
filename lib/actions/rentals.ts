@@ -9,6 +9,7 @@ export type RentalApplicationInput = {
   rentalPackageId: number;
   rentalPackageVariantId: number | null;
   customerName: string;
+  customerEmail: string | null;
   customerPhone: string;
   eventType: string;
   eventDate: string; // "YYYY-MM-DD"
@@ -21,8 +22,8 @@ export type RentalApplicationInput = {
 export type RentalApplicationResult = { ok: true } | { ok: false; error: string };
 
 const EVENT_TYPES = ["wedding", "corporate", "birthday", "private", "other"];
-// The schema requires an email but we don't ask the customer for one — store the
-// company address so the team has a valid record to reply from.
+// Email is optional on the form; when the customer leaves it blank we store the
+// shop's own address so the record stays valid and the team can still reply.
 const FALLBACK_EMAIL = "contact@lampino.md";
 
 export async function submitRentalApplication(
@@ -66,7 +67,8 @@ export async function submitRentalApplication(
     ]);
     if (!pkg) return { ok: false, error: "package_not_found" };
 
-    const customerEmail = contact?.email?.trim() || FALLBACK_EMAIL;
+    const customerEmail =
+      input.customerEmail?.trim() || contact?.email?.trim() || FALLBACK_EMAIL;
 
     // Price is resolved server-side from the package/variant — never the client.
     let rentalPackageVariantId: number | null = null;

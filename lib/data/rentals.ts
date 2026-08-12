@@ -60,6 +60,18 @@ export async function getRentalPackages(): Promise<RentalPackage[]> {
   return rows.map(serializeRental);
 }
 
+/** Rental packages to spotlight on the homepage, filtered by `featuredRentalsCategoryId` when the admin set one. */
+export async function getFeaturedRentals(limit = 3): Promise<RentalPackage[]> {
+  const settings = await prisma.homepageSettings.findFirst({ where: { isActive: true } });
+  const rows = await prisma.rentalPackage.findMany({
+    where: { isActive: true, categoryId: settings?.featuredRentalsCategoryId ?? undefined },
+    include: rentalInclude,
+    orderBy: [{ price: "asc" }, { createdAt: "desc" }],
+    take: limit,
+  });
+  return rows.map(serializeRental);
+}
+
 export async function getRentalPackageById(id: number): Promise<RentalPackage | null> {
   if (!Number.isInteger(id) || id <= 0) return null;
   const row = await prisma.rentalPackage.findFirst({

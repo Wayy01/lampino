@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getRentalPackages } from "@/lib/data/rentals";
+import { getHomepageSettings } from "@/lib/data/settings";
 import { isLocale } from "@/lib/i18n/routing";
 import { dictionaries, type Lang } from "@/lib/i18n/dictionaries";
+import { pick } from "@/lib/utils";
 import { RentalCard } from "@/components/site/rental-card";
 
 export const dynamic = "force-dynamic";
@@ -30,7 +32,13 @@ export default async function ArendaPage({
   if (!isLocale(lang)) notFound();
 
   const d = dictionaries[lang].arenda;
-  const packages = await getRentalPackages();
+  const [packages, settings] = await Promise.all([
+    getRentalPackages(),
+    getHomepageSettings(),
+  ]);
+  const heading = settings
+    ? pick(lang, settings.rentalHeading_ro, settings.rentalHeading_ru)
+    : "";
   const countLabel =
     packages.length === 1 ? d.resultsOne : d.resultsMany;
 
@@ -43,7 +51,7 @@ export default async function ArendaPage({
           <span>{d.kicker}</span>
         </div>
         <h1 className="font-display mt-5 text-[clamp(2.5rem,7vw,5rem)] font-light leading-[0.95] tracking-[-0.03em]">
-          {d.title}
+          {heading || d.title}
         </h1>
       </div>
 

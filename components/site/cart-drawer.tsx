@@ -6,6 +6,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight, ArrowLeft, Check, Minus, Plus, Trash2 } from "lucide-react";
 import { useCart, unitPrice } from "@/lib/cart/provider";
 import { useLang, useT } from "@/lib/i18n/provider";
+import type { DeliverySettings } from "@/lib/types";
+import { deliveryFee } from "@/lib/pricing";
 import { formatPrice, pick } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -24,7 +26,13 @@ const IMAGE_PLACEHOLDER =
 
 type View = "cart" | "checkout";
 
-export function CartDrawer({ whatsapp }: { whatsapp: string | null }) {
+export function CartDrawer({
+  whatsapp,
+  delivery,
+}: {
+  whatsapp: string | null;
+  delivery: DeliverySettings | null;
+}) {
   const { lang, t } = useLang();
   const { items, count, subtotal, setQuantity, removeItem, clear, isOpen, closeCart } =
     useCart();
@@ -57,11 +65,21 @@ export function CartDrawer({ whatsapp }: { whatsapp: string | null }) {
         : null;
       return `• ${name}${variantLabel ? ` (${variantLabel})` : ""} × ${item.quantity} — ${formatPrice(unitPrice(item) * item.quantity)}`;
     });
+    const fee =
+      values.method === "delivery"
+        ? deliveryFee(delivery, subtotal, values.region)
+        : 0;
     const lines = [
       t.order.title,
       ...itemLines,
-      `${t.cart.total}: ${formatPrice(subtotal)}`,
+      `${t.cart.subtotal}: ${formatPrice(subtotal)}`,
       ...buildOrderLines(t, values),
+      ...(fee !== null && values.method === "delivery"
+        ? [
+            `${t.cart.delivery}: ${fee === 0 ? t.cart.deliveryFree : formatPrice(fee)}`,
+          ]
+        : []),
+      `${t.cart.total}: ${formatPrice(subtotal + (fee ?? 0))}`,
     ];
     openWhatsApp(whatsapp, lines);
     setSent(true);
@@ -174,6 +192,13 @@ export function CartDrawer({ whatsapp }: { whatsapp: string | null }) {
                   {formatPrice(subtotal)}
                 </span>
               </div>
+              {delivery && (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {subtotal >= delivery.freeDeliveryThreshold
+                    ? `${t.cart.delivery}: ${t.cart.deliveryFree}`
+                    : `${t.cart.freeDeliveryFrom} ${formatPrice(delivery.freeDeliveryThreshold)}`}
+                </p>
+              )}
               <Button
                 size="lg"
                 className="group mt-5 w-full"
@@ -187,6 +212,7 @@ export function CartDrawer({ whatsapp }: { whatsapp: string | null }) {
         ) : (
           <CheckoutView
             total={subtotal}
+            delivery={delivery}
             onBack={() => setView("cart")}
             onSubmit={handleSubmit}
           />
@@ -234,15 +260,20 @@ function Stepper({
 
 function CheckoutView({
   total,
+  delivery,
   onBack,
   onSubmit,
 }: {
   total: number;
+  delivery: DeliverySettings | null;
   onBack: () => void;
   onSubmit: (values: OrderForm) => void;
 }) {
   const t = useT();
   const form = useOrderForm();
+
+  const fee =
+    form.method === "delivery" ? deliveryFee(delivery, total, form.region) : 0;
 
   const handle = (e: React.FormEvent) => {
     e.preventDefault();
@@ -265,11 +296,23 @@ function CheckoutView({
       <form onSubmit={handle} className="grid gap-4 px-6 py-5">
         <OrderFields form={form} idPrefix="cart" />
 
-        <div className="mt-1 flex items-baseline justify-between border-t border-border pt-4">
-          <span className="label-mono text-muted-foreground">{t.cart.total}</span>
-          <span className="font-display text-2xl tracking-tight">
-            {formatPrice(total)}
-          </span>
+        <div className="mt-1 border-t border-border pt-4">
+          {fee !== null && form.method === "delivery" && (
+            <div className="flex items-baseline justify-between pb-2 text-sm">
+              <span className="text-muted-foreground">{t.cart.delivery}</span>
+              <span className="text-muted-foreground">
+                {fee === 0 ? t.cart.deliveryFree : formatPrice(fee)}
+              </span>
+            </div>
+          )}
+          <div className="flex items-baseline justify-between">
+            <span className="label-mono text-muted-foreground">
+              {fee ? t.cart.totalWithDelivery : t.cart.total}
+            </span>
+            <span className="font-display text-2xl tracking-tight">
+              {formatPrice(total + (fee ?? 0))}
+            </span>
+          </div>
         </div>
 
         <Button type="submit" size="lg" className="group w-full">

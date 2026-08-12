@@ -9,7 +9,13 @@ import { SectionHeading } from "./section-heading";
 import { ProductCard } from "./product-card";
 import { Reveal } from "./reveal";
 
-export function FeaturedProducts({ products }: { products: Product[] }) {
+export function FeaturedProducts({
+  products,
+  heading,
+}: {
+  products: Product[];
+  heading?: string;
+}) {
   const t = useT();
   const { lang } = useLang();
   const featured = products.slice(0, 9);
@@ -22,7 +28,7 @@ export function FeaturedProducts({ products }: { products: Product[] }) {
         <SectionHeading
           index="02"
           kicker={t.featured.kicker}
-          title={t.featured.title}
+          title={heading || t.featured.title}
         />
         <Reveal>
           <Link

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Store, Truck } from "lucide-react";
+import { MapPin, Store, Truck } from "lucide-react";
 import { useLang } from "@/lib/i18n/provider";
 import type { Dict } from "@/lib/i18n/dictionaries";
+import type { DeliveryRegion } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 import { Input, Textarea, Label } from "@/components/ui/input";
 
@@ -16,6 +17,7 @@ export type OrderForm = {
   customer: string;
   phone: string;
   method: Method;
+  region: DeliveryRegion;
   address: string;
   notes: string;
 };
@@ -24,23 +26,27 @@ export function useOrderForm() {
   const [customer, setCustomer] = useState("");
   const [phone, setPhone] = useState("");
   const [method, setMethod] = useState<Method>("pickup");
+  const [region, setRegion] = useState<DeliveryRegion>("chisinau");
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
   const reset = () => {
     setCustomer("");
     setPhone("");
     setMethod("pickup");
+    setRegion("chisinau");
     setAddress("");
     setNotes("");
   };
   return {
-    values: { customer, phone, method, address, notes } as OrderForm,
+    values: { customer, phone, method, region, address, notes } as OrderForm,
     customer,
     setCustomer,
     phone,
     setPhone,
     method,
     setMethod,
+    region,
+    setRegion,
     address,
     setAddress,
     notes,
@@ -103,16 +109,35 @@ export function OrderFields({
       </div>
 
       {form.method === "delivery" && (
-        <div>
-          <Label htmlFor={`${idPrefix}-address`}>{t.fastBuy.address}</Label>
-          <Input
-            id={`${idPrefix}-address`}
-            required
-            autoComplete="street-address"
-            value={form.address}
-            onChange={(e) => form.setAddress(e.target.value)}
-          />
-        </div>
+        <>
+          <div>
+            <Label>{t.cart.delivery}</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <MethodButton
+                active={form.region === "chisinau"}
+                icon={<MapPin className="h-4 w-4" />}
+                label={t.cart.deliveryChisinau}
+                onClick={() => form.setRegion("chisinau")}
+              />
+              <MethodButton
+                active={form.region === "outside"}
+                icon={<MapPin className="h-4 w-4" />}
+                label={t.cart.deliveryOutside}
+                onClick={() => form.setRegion("outside")}
+              />
+            </div>
+          </div>
+          <div>
+            <Label htmlFor={`${idPrefix}-address`}>{t.fastBuy.address}</Label>
+            <Input
+              id={`${idPrefix}-address`}
+              required
+              autoComplete="street-address"
+              value={form.address}
+              onChange={(e) => form.setAddress(e.target.value)}
+            />
+          </div>
+        </>
       )}
 
       <div>
@@ -163,7 +188,10 @@ export function buildOrderLines(t: Dict, values: OrderForm): string[] {
     `${t.fastBuy.phone}: ${values.phone}`,
     `${t.fastBuy.method}: ${values.method === "pickup" ? t.fastBuy.pickup : t.fastBuy.delivery}`,
     ...(values.method === "delivery"
-      ? [`${t.fastBuy.address}: ${values.address}`]
+      ? [
+          `${t.cart.delivery}: ${values.region === "chisinau" ? t.cart.deliveryChisinau : t.cart.deliveryOutside}`,
+          `${t.fastBuy.address}: ${values.address}`,
+        ]
       : []),
     ...(values.notes ? [`${t.fastBuy.notes}: ${values.notes}`] : []),
   ];

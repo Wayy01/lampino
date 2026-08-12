@@ -1,5 +1,5 @@
-// Full mock-data seed: wipes and repopulates every table in the schema.
-// The catalog (categories + first 12 products) mirrors lib/mock-data.ts so the
+// Full catalog seed: wipes and repopulates every table in the schema.
+// The catalog (categories + first 12 products) mirrors lib/seed-catalog.ts so the
 // public site and the database tell the same story; everything else (orders,
 // rentals, settings, admin user) is layered on top.
 //
@@ -7,7 +7,7 @@
 import { PrismaClient, Prisma } from "../lib/generated/prisma";
 import { hashPassword } from "../lib/admin/password";
 import { specsFromJson, specsToJson } from "../lib/admin/specs";
-import { categories as mockCategories, products as mockProducts } from "../lib/mock-data";
+import { categories as mockCategories, products as mockProducts } from "../lib/seed-catalog";
 
 // The DB stores specifications in the bilingual admin shape
 // (`{ [id]: { label_ro, label_ru, value_ro, value_ru } }`); the mock catalog
@@ -125,7 +125,7 @@ async function seedPromotions() {
   });
 }
 
-// Products 1–12 come straight from lib/mock-data.ts; 13–16 are extra rows that
+// Products 1–12 come straight from lib/seed-catalog.ts; 13–16 are extra rows that
 // exercise the rest of the schema (reduced prices, promotions, inactive).
 async function seedProducts() {
   const promoByProduct: Record<number, number> = { 3: 1, 5: 1, 9: 1, 2: 2, 7: 2 };

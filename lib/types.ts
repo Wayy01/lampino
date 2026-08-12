@@ -1,7 +1,7 @@
 // Serializable view models mirroring the Prisma schema, but with `number`
-// in place of `Decimal` and relations pre-included. The lib/data/* layer
-// returns these shapes today from mock data and will return the same shapes
-// from real Prisma queries later — so components never change.
+// in place of `Decimal` and relations pre-included. Every one of these is
+// produced by the lib/data/* layer from a real Prisma query, so components
+// never see a `Decimal` and never touch `prisma` themselves.
 
 export type Locale = "ro" | "ru";
 
@@ -128,6 +128,25 @@ export interface ContactInfo {
   whatsapp: string;
 }
 
+/** Delivery pricing, rendered in the cart and quoted in the WhatsApp order. */
+export interface DeliverySettings {
+  freeDeliveryThreshold: number;
+  deliveryCostChisinau: number;
+  deliveryCostOutside: number;
+}
+
+/** Palette overrides from `ThemeSettings`, injected as CSS variables. */
+export interface ThemeSettings {
+  colorPrimary: string;
+  colorSecondary: string;
+  colorTertiary: string;
+  colorAccent: string;
+  colorSuccess: string;
+  colorWarning: string;
+  colorError: string;
+  colorInfo: string;
+}
+
 export interface HeroContent {
   leftHeading_ro: string;
   leftHeading_ru: string;
@@ -170,6 +189,9 @@ export interface HeroMedia {
   posterUrl: string | null;
   heading_ro: string | null;
   heading_ru: string | null;
+  buttonText_ro: string | null;
+  buttonText_ru: string | null;
+  buttonUrl: string | null;
 }
 
 export interface ContactSettings {
@@ -196,4 +218,8 @@ export interface PromoBanner {
   ctaText_ru: string;
   ctaLink: string;
   isActive: boolean;
+  showOnDesktop: boolean;
+  showOnMobile: boolean;
+  backgroundColor: string;
+  textColor: string;
 }

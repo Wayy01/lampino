@@ -6,7 +6,13 @@ import { Reveal, MaskReveal } from "./reveal";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-export function LegalContent({ section }: { section: "terms" | "privacy" }) {
+export function LegalContent({
+  section,
+  email,
+}: {
+  section: "terms" | "privacy";
+  email: string | null;
+}) {
   const t = useT();
   const content = t[section];
 
@@ -50,7 +56,9 @@ export function LegalContent({ section }: { section: "terms" | "privacy" }) {
                   {block.h}
                 </h2>
                 <p className="mt-4 leading-relaxed text-muted-foreground">
-                  {block.p}
+                  {/* `{email}` is filled from ContactSettings so the legal
+                      text always quotes the shop's real address. */}
+                  {block.p.replace("{email}", email ?? "")}
                 </p>
               </div>
             </div>

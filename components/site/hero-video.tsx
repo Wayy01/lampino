@@ -4,7 +4,8 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import { useLang, useT } from "@/lib/i18n/provider";
-import { shopHref } from "@/lib/i18n/routing";
+import { shopHref, isLocale, localePath, type Locale } from "@/lib/i18n/routing";
+import { pick } from "@/lib/utils";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -16,20 +17,42 @@ const DEFAULT_POSTER =
 // production hero video (HeroContent media) isn't available.
 const FALLBACK_VIDEO = "/hero.mp4";
 
+// `HeroContent.leftButtonUrl` is stored without a locale prefix (e.g. `/magazin`).
+// App-relative paths get the active locale segment; absolute URLs pass through.
+function withLocale(lang: Locale, url: string): string {
+  if (/^https?:\/\//.test(url)) return url;
+  if (!url.startsWith("/")) return url;
+  const segment = url.split("/")[1];
+  return isLocale(segment) ? url : localePath(lang, url);
+}
+
 // The homepage hero shows a single background video. The schema stores two media
 // slots; the data layer resolves the best video into `videoUrl` and passes the
 // other media as `posterUrl`, shown before/if the video can't play.
 export function HeroVideo({
   videoUrl,
   posterUrl,
+  heading_ro,
+  heading_ru,
+  buttonText_ro,
+  buttonText_ru,
+  buttonUrl,
 }: {
   videoUrl?: string | null;
   posterUrl?: string | null;
+  heading_ro?: string | null;
+  heading_ru?: string | null;
+  buttonText_ro?: string | null;
+  buttonText_ru?: string | null;
+  buttonUrl?: string | null;
 }) {
   const t = useT();
   const { lang } = useLang();
   const src = videoUrl || FALLBACK_VIDEO;
   const poster = posterUrl || DEFAULT_POSTER;
+  const heading = pick(lang, heading_ro, heading_ru);
+  const ctaLabel = pick(lang, buttonText_ro, buttonText_ru) || t.hero.ctaPrimary;
+  const ctaHref = buttonUrl ? withLocale(lang, buttonUrl) : shopHref(lang);
 
   return (
     <section className="relative flex h-[68svh] min-h-[500px] items-center justify-center overflow-hidden">
@@ -64,15 +87,19 @@ export function HeroVideo({
         </div>
 
         <h1 className="font-display mt-7 text-[clamp(2.75rem,9vw,7rem)] font-light leading-[0.95] tracking-[-0.03em]">
-          {t.hero.titleA}{" "}
-          <span className="italic text-primary">{t.hero.titleB}</span>
+          {heading || (
+            <>
+              {t.hero.titleA}{" "}
+              <span className="italic text-primary">{t.hero.titleB}</span>
+            </>
+          )}
         </h1>
 
         <Link
-          href={shopHref(lang)}
+          href={ctaHref}
           className="group mt-10 inline-flex items-center gap-2 border-b border-background/40 pb-1 text-lg text-background transition-colors hover:border-primary hover:text-primary"
         >
-          {t.hero.ctaPrimary}
+          {ctaLabel}
           <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
         </Link>
       </motion.div>
