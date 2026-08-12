@@ -14,7 +14,7 @@ export function Faq() {
   const t = useT();
   return (
     <section className="mx-auto max-w-[1400px] px-5 py-24 sm:px-8 md:py-32">
-      <SectionHeading index="05" kicker={t.faq.kicker} title={t.faq.title} />
+      <SectionHeading index="04" kicker={t.faq.kicker} title={t.faq.title} />
       <Reveal className="mt-16 md:mt-20">
         <Accordion type="single" collapsible className="border-b border-border">
           {t.faq.items.map((item, i) => (

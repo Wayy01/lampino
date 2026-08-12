@@ -38,7 +38,7 @@ export function FeaturedCategories({
       <div className="flex flex-wrap items-end justify-between gap-6">
         <div className="max-w-xl">
           <SectionHeading
-            index="01"
+            index="02"
             kicker={t.featuredCategories.kicker}
             title={heading || t.featuredCategories.title}
           />

@@ -26,7 +26,7 @@ export function FeaturedProducts({
     <section className="mx-auto max-w-[1400px] px-5 py-24 sm:px-8 md:py-32">
       <div className="flex flex-wrap items-end justify-between gap-6">
         <SectionHeading
-          index="02"
+          index="01"
           kicker={t.featured.kicker}
           title={heading || t.featured.title}
         />

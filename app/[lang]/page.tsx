@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { HeroVideo } from "@/components/site/hero-video";
-import { WelcomeBand } from "@/components/site/welcome-band";
 import { FeaturedCategories } from "@/components/site/featured-categories";
 import { FeaturedProducts } from "@/components/site/featured-products";
 import { FeaturedRentals } from "@/components/site/featured-rentals";
@@ -51,9 +50,8 @@ export default async function Home({
         buttonText_ru={hero.buttonText_ru}
         buttonUrl={hero.buttonUrl}
       />
-      <WelcomeBand settings={settings} />
-      <FeaturedCategories categories={categories} heading={categoryHeading} />
       <FeaturedProducts products={featured} heading={productHeading} />
+      <FeaturedCategories categories={categories} heading={categoryHeading} />
       <FeaturedRentals packages={rentals} heading={rentalHeading} />
       <Faq />
     </>
