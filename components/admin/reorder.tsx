@@ -9,10 +9,16 @@ import { cn } from "@/lib/utils";
  * (images, videos, variants, specs) and the categories table alike.
  *
  * Built on pointer events rather than HTML5 drag-and-drop, which does not fire
- * on touch screens at all. The handle captures the pointer, the item under the
- * pointer is found with `elementFromPoint`, and the list is reordered live as
- * you drag — so there is no drag preview to keep in sync. `touch-action: none`
- * on the handle stops the page scrolling out from under a touch drag.
+ * on touch screens at all. The item under the pointer is found with
+ * `elementFromPoint` and the list is reordered live as you drag — so there is
+ * no drag preview to keep in sync. `touch-action: none` on the handle stops the
+ * page scrolling out from under a touch drag.
+ *
+ * The move/up listeners live on the window rather than on the handle. Lists
+ * whose rows are keyed by position remount every handle on each reorder, which
+ * drops pointer capture mid-drag; the release would then miss the handle and
+ * strand the drag in a started state, leaving a later hover to move rows with
+ * no button held.
  *
  * The same handle is a keyboard control: focus it and press ArrowUp/ArrowDown.
  */
@@ -34,9 +40,6 @@ export type ReorderItemProps = {
 
 export type ReorderHandleProps = {
   onPointerDown: (e: React.PointerEvent<HTMLElement>) => void;
-  onPointerMove: (e: React.PointerEvent<HTMLElement>) => void;
-  onPointerUp: (e: React.PointerEvent<HTMLElement>) => void;
-  onPointerCancel: (e: React.PointerEvent<HTMLElement>) => void;
   onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
   "data-reorder-handle": string;
 };
@@ -79,27 +82,19 @@ export function useReorder({
       ?.focus();
   });
 
-  const end = (e: React.PointerEvent<HTMLElement>) => {
-    if (active.current === null) return;
-    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    }
-    active.current = null;
-    setDragIndex(null);
-    if (moved.current) latest.current.onCommit?.();
-    moved.current = false;
-  };
+  // Detaches the in-flight drag's window listeners; null when nothing is being
+  // dragged. Also runs on unmount so a drag can never outlive the list.
+  const detach = useRef<(() => void) | null>(null);
+  useEffect(() => () => detach.current?.(), []);
 
-  const handleProps = (index: number): ReorderHandleProps => ({
-    onPointerDown: (e) => {
-      if (e.pointerType === "mouse" && e.button !== 0) return;
-      e.preventDefault();
-      e.currentTarget.setPointerCapture(e.pointerId);
-      active.current = index;
-      moved.current = false;
-      setDragIndex(index);
-    },
-    onPointerMove: (e) => {
+  const start = (index: number, pointerId: number) => {
+    detach.current?.();
+    active.current = index;
+    moved.current = false;
+    setDragIndex(index);
+
+    const move = (e: PointerEvent) => {
+      if (e.pointerId !== pointerId) return;
       const from = active.current;
       if (from === null) return;
       const row = document
@@ -113,9 +108,34 @@ export function useReorder({
       active.current = to;
       moved.current = true;
       setDragIndex(to);
+    };
+
+    const end = (e: PointerEvent) => {
+      if (e.pointerId !== pointerId) return;
+      detach.current?.();
+      active.current = null;
+      setDragIndex(null);
+      if (moved.current) latest.current.onCommit?.();
+      moved.current = false;
+    };
+
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", end);
+    window.addEventListener("pointercancel", end);
+    detach.current = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", end);
+      window.removeEventListener("pointercancel", end);
+      detach.current = null;
+    };
+  };
+
+  const handleProps = (index: number): ReorderHandleProps => ({
+    onPointerDown: (e) => {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      e.preventDefault();
+      start(index, e.pointerId);
     },
-    onPointerUp: end,
-    onPointerCancel: end,
     onKeyDown: (e) => {
       const delta = e.key === "ArrowUp" ? -1 : e.key === "ArrowDown" ? 1 : 0;
       if (delta === 0) return;
