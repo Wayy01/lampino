@@ -34,6 +34,7 @@ import {
   SubmitButton,
   ActionNotice,
   LangField,
+  AdminForm,
 } from "@/components/admin/form-controls";
 
 export type CategoryRow = {
@@ -77,7 +78,7 @@ function CategoryDialog({
         <DialogTitle>
           {category ? t.categories.editCategory : t.categories.newCategory}
         </DialogTitle>
-        <form action={formAction} className="flex flex-col gap-4">
+        <AdminForm action={formAction} className="flex flex-col gap-4">
           <LangField />
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t.products.nameRo} htmlFor="cat_name_ro">
@@ -99,7 +100,7 @@ function CategoryDialog({
               {category ? t.products.saveChanges : t.categories.createCategory}
             </SubmitButton>
           </div>
-        </form>
+        </AdminForm>
       </DialogContent>
     </Dialog>
   );

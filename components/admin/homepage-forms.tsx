@@ -20,6 +20,7 @@ import {
   SubmitButton,
   ActionNotice,
   LangField,
+  AdminForm,
 } from "@/components/admin/form-controls";
 
 export type HeroData = {
@@ -105,7 +106,7 @@ export function HeroForm({ hero }: { hero: HeroData | null }) {
       title={t.homepage.hero}
       icon={<PanelsTopLeft className="h-4 w-4" strokeWidth={1.75} />}
     >
-      <form action={formAction}>
+      <AdminForm action={formAction}>
         <LangField />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label={t.homepage.headingRo} htmlFor="hero_h_ro">
@@ -158,7 +159,7 @@ export function HeroForm({ hero }: { hero: HeroData | null }) {
           <Toggle name="isActive" label={t.homepage.heroVisible} defaultChecked={hero?.isActive ?? true} />
         </div>
         <FormFooter state={state} label={t.homepage.saveHero} />
-      </form>
+      </AdminForm>
     </SectionCard>
   );
 }
@@ -186,7 +187,7 @@ export function HomepageSettingsForm({
       title={t.homepage.sections}
       icon={<SlidersHorizontal className="h-4 w-4" strokeWidth={1.75} />}
     >
-      <form action={formAction}>
+      <AdminForm action={formAction}>
         <LangField />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label={t.homepage.welcomeHeadingRo} htmlFor="hs_wh_ro">
@@ -289,7 +290,7 @@ export function HomepageSettingsForm({
           <Toggle name="isActive" label={t.homepage.sectionsVisible} defaultChecked={settings?.isActive ?? true} />
         </div>
         <FormFooter state={state} label={t.homepage.saveSections} />
-      </form>
+      </AdminForm>
     </SectionCard>
   );
 }
@@ -306,7 +307,7 @@ export function BannerForm({ banner }: { banner: BannerData | null }) {
       title={t.homepage.promoBanner}
       icon={<Megaphone className="h-4 w-4" strokeWidth={1.75} />}
     >
-      <form action={formAction}>
+      <AdminForm action={formAction}>
         <LangField />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label={t.homepage.messageRo} htmlFor="pb_m_ro">
@@ -350,7 +351,7 @@ export function BannerForm({ banner }: { banner: BannerData | null }) {
           <Toggle name="showOnMobile" label={t.homepage.showOnMobile} defaultChecked={banner?.showOnMobile ?? true} />
         </div>
         <FormFooter state={state} label={t.homepage.saveBanner} />
-      </form>
+      </AdminForm>
     </SectionCard>
   );
 }

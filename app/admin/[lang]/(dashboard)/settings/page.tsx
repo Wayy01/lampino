@@ -26,22 +26,44 @@ export default async function AdminSettingsPage({
   await requireAdmin(lang);
   const t = getAdminDict(lang);
 
-  const [contact, delivery, theme, offers, categories, products, rentals] =
+  const offers = await prisma.specialOffersPage.findFirst({
+    orderBy: { id: "asc" },
+  });
+
+  // Already-selected rows must stay in the picker even after they're
+  // deactivated — an option that isn't rendered posts nothing, and the save
+  // would drop it from the selection without saying so.
+  const selectedIds = (json: unknown): number[] =>
+    Array.isArray(json) ? json.filter((n): n is number => typeof n === "number") : [];
+
+  const label = (name: string, isActive: boolean) =>
+    isActive ? name : `${name} (${t.statuses.inactive.toLowerCase()})`;
+
+  const [contact, delivery, theme, categories, products, rentals] =
     await Promise.all([
       prisma.contactSettings.findFirst({ orderBy: { id: "asc" } }),
       prisma.deliverySettings.findFirst({ orderBy: { id: "asc" } }),
       prisma.themeSettings.findFirst({ orderBy: { id: "asc" } }),
-      prisma.specialOffersPage.findFirst({ orderBy: { id: "asc" } }),
       prisma.category.findMany({ orderBy: { position: "asc" } }),
       prisma.product.findMany({
-        where: { isActive: true },
+        where: {
+          OR: [
+            { isActive: true },
+            { id: { in: selectedIds(offers?.selectedProductIds) } },
+          ],
+        },
         orderBy: { name_ro: "asc" },
-        select: { id: true, name_ro: true, name_ru: true },
+        select: { id: true, name_ro: true, name_ru: true, isActive: true },
       }),
       prisma.rentalPackage.findMany({
-        where: { isActive: true },
+        where: {
+          OR: [
+            { isActive: true },
+            { id: { in: selectedIds(offers?.selectedRentalPackageIds) } },
+          ],
+        },
         orderBy: { title_ro: "asc" },
-        select: { id: true, title_ro: true, title_ru: true },
+        select: { id: true, title_ro: true, title_ru: true, isActive: true },
       }),
     ]);
 
@@ -112,11 +134,11 @@ export default async function AdminSettingsPage({
           }))}
           products={products.map((p) => ({
             id: p.id,
-            name: pick(lang, p.name_ro, p.name_ru),
+            name: label(pick(lang, p.name_ro, p.name_ru), p.isActive),
           }))}
           rentals={rentals.map((r) => ({
             id: r.id,
-            name: pick(lang, r.title_ro, r.title_ru),
+            name: label(pick(lang, r.title_ro, r.title_ru), r.isActive),
           }))}
         />
       </div>

@@ -42,6 +42,11 @@ function numOrNull(fd: FormData, key: string): number | null {
   return Number.isFinite(value) ? value : null;
 }
 
+// `price` columns are Decimal(10,2); anything larger is a Postgres
+// `numeric field overflow` that escapes the action as an unhandled 500.
+const MAX_MONEY = 99_999_999.99;
+const overMoney = (n: number | null) => n !== null && (n < 0 || n > MAX_MONEY);
+
 function json<T>(fd: FormData, key: string, fallback: T): T {
   try {
     return JSON.parse(String(fd.get(key) ?? "")) as T;
@@ -69,6 +74,14 @@ function parseProduct(fd: FormData): ParsedProduct | { error: string } {
   if (reducedPrice !== null && reducedPrice >= price) {
     return { error: errors.reducedBelowPrice };
   }
+  if (overMoney(price) || overMoney(reducedPrice)) {
+    return { error: errors.priceTooLarge };
+  }
+
+  const stock = numOrNull(fd, "stock") ?? 0;
+  if (!Number.isInteger(stock) || stock < 0) {
+    return { error: errors.stockInvalid };
+  }
 
   const specRows = json<SpecRow[]>(fd, "specifications", []).filter(
     (row) => !isEmptySpecRow(row),
@@ -79,6 +92,20 @@ function parseProduct(fd: FormData): ParsedProduct | { error: string } {
     (v) => v.name_ro.trim() && v.name_ru.trim(),
   );
 
+  // Variants carry their own money and stock, and are just as capable of
+  // overflowing the column or undercutting their own reduced price.
+  for (const v of variants) {
+    if (overMoney(v.price) || overMoney(v.reducedPrice)) {
+      return { error: errors.priceTooLarge };
+    }
+    if (v.reducedPrice !== null && v.reducedPrice >= v.price) {
+      return { error: errors.reducedBelowPrice };
+    }
+    if (!Number.isInteger(v.stock) || v.stock < 0) {
+      return { error: errors.stockInvalid };
+    }
+  }
+
   return {
     scalars: {
       name_ro,
@@ -87,7 +114,7 @@ function parseProduct(fd: FormData): ParsedProduct | { error: string } {
       description_ru: str(fd, "description_ru"),
       price: new Prisma.Decimal(price),
       reducedPrice: reducedPrice === null ? null : new Prisma.Decimal(reducedPrice),
-      stock: numOrNull(fd, "stock") ?? 0,
+      stock,
       hasVariants: variants.length > 0,
       specifications: specsToJson(specRows),
       categoryId: numOrNull(fd, "categoryId"),
@@ -163,13 +190,16 @@ export async function updateProduct(
     prisma.productVariant.deleteMany({
       where: { productId: id, id: { notIn: keptVariantIds } },
     }),
+    // `updateMany` scopes the write to this product, so a variant id posted
+    // from a stale tab (or another product's row) matches nothing instead of
+    // throwing P2025 and rolling back the entire save.
     ...parsed.variants.map((v) =>
       v.id === null
         ? prisma.productVariant.create({
             data: { ...variantData(v), productId: id },
           })
-        : prisma.productVariant.update({
-            where: { id: v.id },
+        : prisma.productVariant.updateMany({
+            where: { id: v.id, productId: id },
             data: variantData(v),
           }),
     ),

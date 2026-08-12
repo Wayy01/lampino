@@ -43,6 +43,11 @@ function numOrNull(fd: FormData, key: string): number | null {
   return Number.isFinite(value) ? value : null;
 }
 
+// `price` columns are Decimal(10,2); anything larger is a Postgres
+// `numeric field overflow` that escapes the action as an unhandled 500.
+const MAX_MONEY = 99_999_999.99;
+const overMoney = (n: number | null) => n !== null && (n < 0 || n > MAX_MONEY);
+
 function json<T>(fd: FormData, key: string, fallback: T): T {
   try {
     return JSON.parse(String(fd.get(key) ?? "")) as T;
@@ -73,6 +78,9 @@ function parseRental(fd: FormData): ParsedRental | { error: string } {
   if (reducedPrice !== null && reducedPrice >= price) {
     return { error: errors.reducedBelowPrice };
   }
+  if (overMoney(price) || overMoney(reducedPrice)) {
+    return { error: errors.priceTooLarge };
+  }
 
   const specRows = json<SpecRow[]>(fd, "specifications", []).filter(
     (row) => !isEmptySpecRow(row),
@@ -82,6 +90,17 @@ function parseRental(fd: FormData): ParsedRental | { error: string } {
   const variants = json<VariantPayload[]>(fd, "variants", []).filter(
     (v) => v.name_ro.trim() && v.name_ru.trim(),
   );
+
+  // Variants carry their own money and are just as capable of overflowing the
+  // column or undercutting their own reduced price.
+  for (const v of variants) {
+    if (overMoney(v.price) || overMoney(v.reducedPrice)) {
+      return { error: errors.priceTooLarge };
+    }
+    if (v.reducedPrice !== null && v.reducedPrice >= v.price) {
+      return { error: errors.reducedBelowPrice };
+    }
+  }
 
   return {
     scalars: {
@@ -171,8 +190,10 @@ export async function updateRental(
         ? prisma.rentalPackageVariant.create({
             data: { ...variantData(v), rentalPackageId: id },
           })
-        : prisma.rentalPackageVariant.update({
-            where: { id: v.id },
+        : // Scoped to this package so a stale variant id from another tab
+          // matches nothing instead of rolling back the whole transaction.
+          prisma.rentalPackageVariant.updateMany({
+            where: { id: v.id, rentalPackageId: id },
             data: variantData(v),
           }),
     ),

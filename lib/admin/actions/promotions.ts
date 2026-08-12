@@ -20,10 +20,25 @@ function numOrNull(fd: FormData, key: string): number | null {
   return Number.isFinite(value) ? value : null;
 }
 
-function dateOrNull(fd: FormData, key: string): Date | null {
+/**
+ * `<input type="date">` posts `YYYY-MM-DD`, which `new Date()` reads as UTC
+ * midnight — east of Greenwich that lands *inside* the previous local day, so a
+ * promotion would expire hours before its stated last date. Parse the parts
+ * explicitly instead, and let the end date cover its whole day.
+ */
+function dateOrNull(
+  fd: FormData,
+  key: string,
+  edge: "start" | "end" = "start",
+): Date | null {
   const raw = str(fd, key);
-  if (raw === "") return null;
-  const value = new Date(raw);
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw);
+  if (!match) return null;
+  const [, y, m, d] = match.map(Number);
+  const value =
+    edge === "start"
+      ? new Date(y, m - 1, d, 0, 0, 0, 0)
+      : new Date(y, m - 1, d, 23, 59, 59, 999);
   return Number.isNaN(value.getTime()) ? null : value;
 }
 
@@ -46,10 +61,12 @@ function parsePromotion(fd: FormData): ParsedPromotion | { error: string } {
   const name_ru = str(fd, "name_ru");
   if (!name_ro || !name_ru) return { error: errors.namesRequired };
 
-  const startDate = dateOrNull(fd, "startDate");
-  const endDate = dateOrNull(fd, "endDate");
+  const startDate = dateOrNull(fd, "startDate", "start");
+  const endDate = dateOrNull(fd, "endDate", "end");
   if (!startDate || !endDate) return { error: errors.datesRequired };
-  if (endDate <= startDate) return { error: errors.endBeforeStart };
+  // The end date runs to 23:59 of its own day, so a single-day promotion
+  // (start === end) is valid; only an end *before* the start is rejected.
+  if (endDate < startDate) return { error: errors.endBeforeStart };
 
   const discountPercent = numOrNull(fd, "discountPercent");
   if (discountPercent === null || discountPercent < 0 || discountPercent > 100) {

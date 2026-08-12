@@ -22,6 +22,7 @@ import {
   SubmitButton,
   ActionNotice,
   LangField,
+  AdminForm,
 } from "@/components/admin/form-controls";
 
 export type ContactData = {
@@ -104,7 +105,7 @@ export function ContactForm({ contact }: { contact: ContactData | null }) {
       title={t.settings.contact}
       icon={<Contact className="h-4 w-4" strokeWidth={1.75} />}
     >
-      <form action={formAction}>
+      <AdminForm action={formAction}>
         <LangField />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Field label={t.settings.phone} htmlFor="ct_phone">
@@ -154,7 +155,7 @@ export function ContactForm({ contact }: { contact: ContactData | null }) {
           <Toggle name="isActive" label={t.settings.sectionEnabled} defaultChecked={contact?.isActive ?? true} />
         </div>
         <FormFooter state={state} label={t.settings.saveContact} />
-      </form>
+      </AdminForm>
     </SectionCard>
   );
 }
@@ -171,7 +172,7 @@ export function DeliveryForm({ delivery }: { delivery: DeliveryData | null }) {
       title={t.settings.delivery}
       icon={<Truck className="h-4 w-4" strokeWidth={1.75} />}
     >
-      <form action={formAction}>
+      <AdminForm action={formAction}>
         <LangField />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Field label={t.settings.freeThreshold} htmlFor="dl_free">
@@ -188,7 +189,7 @@ export function DeliveryForm({ delivery }: { delivery: DeliveryData | null }) {
           <Toggle name="isActive" label={t.settings.sectionEnabled} defaultChecked={delivery?.isActive ?? true} />
         </div>
         <FormFooter state={state} label={t.settings.saveDelivery} />
-      </form>
+      </AdminForm>
     </SectionCard>
   );
 }
@@ -219,7 +220,7 @@ export function ThemeForm({ theme }: { theme: ThemeData | null }) {
       title={t.settings.theme}
       icon={<Palette className="h-4 w-4" strokeWidth={1.75} />}
     >
-      <form action={formAction}>
+      <AdminForm action={formAction}>
         <LangField />
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           {THEME_FIELDS.map(({ name, label }) => (
@@ -243,7 +244,7 @@ export function ThemeForm({ theme }: { theme: ThemeData | null }) {
           <Toggle name="isActive" label={t.settings.sectionEnabled} defaultChecked={theme?.isActive ?? true} />
         </div>
         <FormFooter state={state} label={t.settings.saveTheme} />
-      </form>
+      </AdminForm>
     </SectionCard>
   );
 }
@@ -271,7 +272,7 @@ export function SpecialOffersForm({
       title={t.settings.specialOffers}
       icon={<Sparkles className="h-4 w-4" strokeWidth={1.75} />}
     >
-      <form action={formAction}>
+      <AdminForm action={formAction}>
         <LangField />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label={t.settings.titleRo} htmlFor="so_t_ro">
@@ -375,7 +376,7 @@ export function SpecialOffersForm({
           <Toggle name="isActive" label={t.settings.pageEnabled} defaultChecked={offers?.isActive ?? false} />
         </div>
         <FormFooter state={state} label={t.settings.saveOffers} />
-      </form>
+      </AdminForm>
     </SectionCard>
   );
 }

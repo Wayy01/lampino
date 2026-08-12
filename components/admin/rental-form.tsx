@@ -43,6 +43,7 @@ import {
   SubmitButton,
   ActionNotice,
   LangField,
+  AdminForm,
 } from "@/components/admin/form-controls";
 
 export type RentalFormData = {
@@ -229,7 +230,7 @@ export function RentalForm({
   };
 
   return (
-    <form action={formAction}>
+    <AdminForm action={formAction}>
       {/* Editors serialize into hidden fields; scalars post natively. */}
       <LangField />
       <input type="hidden" name="specifications" value={JSON.stringify(specs)} />
@@ -469,6 +470,7 @@ export function RentalForm({
                             type="number"
                             min="0"
                             step="0.01"
+                            max="99999999.99"
                             inputMode="decimal"
                             value={v.price}
                             onChange={(e) => setVariants(variants.map((x, j) => (j === i ? { ...x, price: e.target.value } : x)))}
@@ -479,6 +481,7 @@ export function RentalForm({
                             type="number"
                             min="0"
                             step="0.01"
+                            max="99999999.99"
                             inputMode="decimal"
                             value={v.reducedPrice}
                             onChange={(e) => setVariants(variants.map((x, j) => (j === i ? { ...x, reducedPrice: e.target.value } : x)))}
@@ -632,10 +635,10 @@ export function RentalForm({
           <SectionCard title={t.products.price}>
             <div className="grid grid-cols-2 gap-4">
               <Field label={t.products.price} htmlFor="price">
-                <TextInput id="price" name="price" type="number" min="0" step="0.01" inputMode="decimal" defaultValue={rental?.price} required />
+                <TextInput id="price" name="price" type="number" min="0" max="99999999.99" step="0.01" inputMode="decimal" defaultValue={rental?.price} required />
               </Field>
               <Field label={t.products.reducedPrice} htmlFor="reducedPrice">
-                <TextInput id="reducedPrice" name="reducedPrice" type="number" min="0" step="0.01" inputMode="decimal" defaultValue={rental?.reducedPrice ?? ""} />
+                <TextInput id="reducedPrice" name="reducedPrice" type="number" min="0" max="99999999.99" step="0.01" inputMode="decimal" defaultValue={rental?.reducedPrice ?? ""} />
               </Field>
             </div>
           </SectionCard>
@@ -696,6 +699,6 @@ export function RentalForm({
           )}
         </div>
       </div>
-    </form>
+    </AdminForm>
   );
 }

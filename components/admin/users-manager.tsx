@@ -19,6 +19,7 @@ import {
   SubmitButton,
   ActionNotice,
   LangField,
+  AdminForm,
 } from "@/components/admin/form-controls";
 
 export type UserRow = {
@@ -59,7 +60,7 @@ function UserDialog({
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
         <DialogTitle>{user ? t.users.editUser : t.users.newUser}</DialogTitle>
-        <form action={formAction} className="flex flex-col gap-4">
+        <AdminForm action={formAction} className="flex flex-col gap-4">
           <LangField />
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t.users.username} htmlFor="user_username">
@@ -113,7 +114,7 @@ function UserDialog({
               {user ? t.products.saveChanges : t.users.createUser}
             </SubmitButton>
           </div>
-        </form>
+        </AdminForm>
       </DialogContent>
     </Dialog>
   );

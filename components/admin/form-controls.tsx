@@ -1,5 +1,6 @@
 "use client";
 
+import { createContext, useContext, useTransition } from "react";
 import { useFormStatus } from "react-dom";
 import { Check, LoaderCircle, TriangleAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -86,6 +87,43 @@ export function Toggle({
   );
 }
 
+const PendingContext = createContext<boolean | null>(null);
+
+/**
+ * Every admin form. React resets an uncontrolled `<form action={fn}>` the
+ * moment the action settles (`startHostTransition` calls `requestFormReset`
+ * before it even runs the action), so a rejected save used to wipe everything
+ * the admin had typed. Dispatching the action ourselves from `onSubmit` skips
+ * that reset — at the cost of `useFormStatus`, which only tracks the `action`
+ * prop, so the pending flag is published on a context instead.
+ */
+export function AdminForm({
+  action,
+  children,
+  className,
+}: {
+  action: (formData: FormData) => void;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const [pending, startTransition] = useTransition();
+
+  return (
+    <PendingContext value={pending}>
+      <form
+        className={className}
+        onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.currentTarget);
+          startTransition(() => action(formData));
+        }}
+      >
+        {children}
+      </form>
+    </PendingContext>
+  );
+}
+
 /** Submit button with pending spinner, for use inside a <form>. */
 export function SubmitButton({
   children,
@@ -96,7 +134,9 @@ export function SubmitButton({
   className?: string;
   variant?: "ink" | "primary";
 }) {
-  const { pending } = useFormStatus();
+  const status = useFormStatus();
+  const fromForm = useContext(PendingContext);
+  const pending = fromForm ?? status.pending;
   return (
     <button
       type="submit"

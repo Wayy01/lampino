@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lampino — Verification Report</title>
+<style>
+  :root {
+    --bg: #111214;
+    --panel: #17181b;
+    --text: #f2f2f3;
+    --dim: #a3a5aa;
+    --faint: #6f7176;
+    --line: #2a2c30;
+    --ok: #6ee7a8;
+    --warn: #f0c76b;
+    --bad: #f08b8b;
+    --link: #8ab4f8;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 64px 28px 120px; }
+
+  header { border-bottom: 1px solid var(--line); padding-bottom: 28px; margin-bottom: 44px; }
+  h1 { font-size: 30px; line-height: 1.2; margin: 0 0 10px; font-weight: bold; letter-spacing: -0.01em; }
+  .sub { color: var(--dim); font-size: 14px; margin: 0; }
+  .meta { color: var(--faint); font-size: 13px; margin-top: 14px; }
+
+  h2 {
+    font-size: 20px; margin: 52px 0 6px; font-weight: bold; letter-spacing: -0.01em;
+    padding-top: 22px; border-top: 1px solid var(--line);
+  }
+  h2:first-of-type { border-top: none; padding-top: 0; }
+  h3 { font-size: 15px; margin: 28px 0 8px; font-weight: bold; color: var(--text); }
+  p { margin: 10px 0; color: var(--dim); }
+  p.lead { color: var(--text); }
+
+  ul { margin: 10px 0 10px 0; padding-left: 20px; color: var(--dim); }
+  li { margin: 5px 0; }
+  li strong, p strong { color: var(--text); font-weight: bold; }
+
+  code {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: #d9dbe0;
+    white-space: nowrap;
+  }
+
+  table { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: 14px; }
+  th {
+    text-align: left; color: var(--faint); font-weight: bold; font-size: 11px;
+    letter-spacing: 0.09em; text-transform: uppercase;
+    padding: 0 12px 9px 0; border-bottom: 1px solid var(--line); vertical-align: bottom;
+  }
+  td { padding: 11px 12px 11px 0; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--dim); }
+  td:first-child { color: var(--text); }
+  tr:last-child td { border-bottom: none; }
+
+  .ok { color: var(--ok); }
+  .warn { color: var(--warn); }
+  .bad { color: var(--bad); }
+  .tag { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: bold; }
+
+  .box {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 18px 22px; margin: 20px 0;
+  }
+  .box p:first-child { margin-top: 0; }
+  .box p:last-child { margin-bottom: 0; }
+
+  .kpis { display: flex; flex-wrap: wrap; gap: 10px; margin: 26px 0 6px; }
+  .kpi {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 14px 18px; min-width: 132px; flex: 1 1 132px;
+  }
+  .kpi .n { font-size: 24px; font-weight: bold; color: var(--text); line-height: 1.1; }
+  .kpi .l { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); margin-top: 5px; }
+
+  footer { margin-top: 72px; padding-top: 22px; border-top: 1px solid var(--line); color: var(--faint); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Lampino — data-source &amp; admin verification</h1>
+  <p class="sub">Full audit of storefront content sources, mock-data removal, and an end-to-end exercise of the admin CMS against the live Postgres database.</p>
+  <p class="meta">12 August 2026 · Next.js 16.2.9 · React 19.2.4 · Prisma 6 · Postgres <code>lampino</code> · driven against <code>localhost:3000</code></p>
+</header>
+
+<div class="kpis">
+  <div class="kpi"><div class="n">19</div><div class="l">Routes verified</div></div>
+  <div class="kpi"><div class="n">21</div><div class="l">Tables checked</div></div>
+  <div class="kpi"><div class="n">12</div><div class="l">Defects fixed</div></div>
+  <div class="kpi"><div class="n">0</div><div class="l">Mock reads left</div></div>
+  <div class="kpi"><div class="n ok">PASS</div><div class="l">Build / types / lint</div></div>
+</div>
+
+<h2>1. Summary</h2>
+
+<p class="lead">The catalog was already fully database-driven. What was <em>not</em> driven by the database was everything around it: the hero text, every homepage section heading, the whole welcome block, the footer contact details, delivery pricing, the promo banner, and the special-offers page. Those were admin-editable fields that the storefront simply never read — an admin could type into them all day and nothing on the site would change.</p>
+
+<p>All of that is now wired. Separately, twelve real defects were found in the admin CMS and fixed, the worst being that <strong>any validation error wiped every field the user had typed</strong>. No mock data remains in any read path.</p>
+
+<div class="box">
+  <p><strong>Verified working end to end:</strong> product create / edit / delete (with images, variants, bilingual specs), rental package create / edit / delete, category create / edit / rename / reorder / delete, promotion create / edit / validation, admin user create with password hashing, order status change + delete with cascade, rental application submission from the storefront + status change, homepage &amp; site settings forms, promo banner, special-offers page, cart with live delivery pricing, both locales (<code>ro</code> / <code>ru</code>).</p>
+</div>
+
+<h2>2. Database &amp; schema</h2>
+
+<p>Connected to the live Postgres instance and confirmed all 21 tables from <code>prisma/schema.prisma</code> exist and are populated. The generated client in <code>lib/generated/prisma</code> matches the schema byte for byte.</p>
+
+<table>
+  <tr><th>Table</th><th>Rows</th><th>Notes</th></tr>
+  <tr><td>categories</td><td>12</td><td>ordered by <code>position</code>, drag + keyboard reorder writes back</td></tr>
+  <tr><td>products</td><td>16</td><td>47 images, 5 variants across them</td></tr>
+  <tr><td>rental_packages</td><td>4</td><td>4 variants, bilingual <code>includes_*</code> JSON</td></tr>
+  <tr><td>orders / order_items</td><td>12 / 19</td><td>admin + seed side only — the storefront hands off to WhatsApp</td></tr>
+  <tr><td>rental_applications</td><td>6</td><td>written by the public rental form</td></tr>
+  <tr><td>promotions</td><td>2</td><td>state derived from the date window, no status column</td></tr>
+  <tr><td>hero_content, homepage_settings, contact_settings, delivery_settings, theme_settings, promo_banners, special_offers_pages</td><td>1 each</td><td>singleton settings rows</td></tr>
+  <tr><td>AdminUser</td><td>1</td><td>scrypt hashes, format <code>scrypt:&lt;salt&gt;:&lt;hash&gt;</code></td></tr>
+</table>
+
+<h3>Referential behaviour, checked against real rows</h3>
+<ul>
+  <li>Deleting an <strong>order</strong> cascaded its <code>order_items</code> — verified on a disposable order (0 items left).</li>
+  <li>Deleting a <strong>product</strong> cascaded its images and variants — verified (0 / 0 left).</li>
+  <li>Deleting a <strong>rental package</strong> cascaded its rental application — verified.</li>
+  <li>Deleting a <strong>category</strong> or <strong>promotion</strong> nulls the referencing foreign keys rather than erroring (optional relations default to <code>SetNull</code>), so no delete in the admin can hit a foreign-key violation.</li>
+</ul>
+
+<h2>3. Mock data removal</h2>
+
+<p>The read path was already Prisma-only — but the codebase still <em>claimed</em> otherwise in several places, and carried five dead components full of invented content.</p>
+
+<table>
+  <tr><th>Item</th><th>Action</th></tr>
+  <tr><td><code>lib/mock-data.ts</code></td><td>Renamed to <code>lib/seed-catalog.ts</code>. Its only importer is <code>prisma/seed.ts</code> — confirmed by grep across the whole tree.</td></tr>
+  <tr><td>Stale comments in <code>lib/prisma.ts</code>, <code>lib/types.ts</code>, <code>lib/slug.ts</code>, <code>lib/data/settings.ts</code>, <code>prisma/seed.ts</code></td><td>All said the site "reads from mock data". Rewritten to describe what the code actually does.</td></tr>
+  <tr><td><code>brand-marquee.tsx</code></td><td><span class="bad">Deleted.</span> Never imported. Listed <em>Mercedes-Benz, Porsche, BMW</em> as brands — in a lighting shop.</td></tr>
+  <tr><td><code>stats-band.tsx</code></td><td><span class="bad">Deleted.</span> Never imported. Hardcoded "500+ products, 6 categories" — both wrong against the real data.</td></tr>
+  <tr><td><code>why-us.tsx</code>, <code>how-it-works.tsx</code>, <code>cta-band.tsx</code></td><td><span class="bad">Deleted.</span> Never imported by any page.</td></tr>
+  <tr><td>Dead dictionary blocks (<code>stats</code>, <code>whyUs</code>, <code>howItWorks</code>)</td><td>Removed from both <code>ro</code> and <code>ru</code>, keeping the two objects in sync.</td></tr>
+  <tr><td><code>legal@lampino.example</code>, <code>privacy@lampino.example</code></td><td>Placeholder addresses printed on the live Terms and Privacy pages. Replaced with an <code>{email}</code> token filled from <code>ContactSettings.email</code>.</td></tr>
+</table>
+
+<p><code>grep -rn "mock" app lib components</code> now returns nothing.</p>
+
+<h2>4. Storefront: what was not coming from the database</h2>
+
+<p>Each row below was an admin-editable field with a working form that the storefront ignored entirely.</p>
+
+<table>
+  <tr><th>Content</th><th>Was</th><th>Now reads</th></tr>
+  <tr><td>Hero heading</td><td>Dictionary literal</td><td><code>HeroContent.leftHeading_ro/_ru</code></td></tr>
+  <tr><td>Hero CTA label + target</td><td>Dictionary + hardcoded <code>shopHref()</code></td><td><code>leftButtonText_*</code>, <code>leftButtonUrl</code> (locale-prefixed on the fly)</td></tr>
+  <tr><td>Welcome block</td><td><span class="bad">Did not exist on the page at all</span></td><td><code>HomepageSettings.welcome*</code> — new <code>WelcomeBand</code></td></tr>
+  <tr><td>"Categories" heading</td><td>Dictionary literal</td><td><code>HomepageSettings.categoryHeading_*</code></td></tr>
+  <tr><td>"Products" heading</td><td>Dictionary literal</td><td><code>HomepageSettings.productHeading_*</code></td></tr>
+  <tr><td>Rentals heading + homepage rentals band</td><td><span class="bad">No consumer existed</span></td><td><code>rentalHeading_*</code> + <code>featuredRentalsCategoryId</code></td></tr>
+  <tr><td>Featured product selection</td><td>Ignored the configured category</td><td><code>featuredProductsCategoryId</code></td></tr>
+  <tr><td>Footer contact block</td><td><span class="bad">No contact details in the footer at all</span></td><td>Phone, email, address, city, country, business hours, Facebook / Instagram / TikTok — 14 <code>ContactSettings</code> columns</td></tr>
+  <tr><td>Cart delivery pricing</td><td>A delivery button that quoted no price</td><td><code>DeliverySettings</code> — free-delivery threshold, Chișinău vs. rest-of-Moldova rates</td></tr>
+  <tr><td>Promo banner</td><td><span class="bad">Fully editable in admin, zero renderers</span></td><td><code>PromoBanner</code> — message, CTA, link, colours, per-breakpoint visibility</td></tr>
+  <tr><td><code>/oferte-speciale</code></td><td><span class="bad">Route did not exist — the banner's default CTA was a guaranteed 404</span></td><td>New route driven by <code>SpecialOffersPage</code> (manual or by-category selection)</td></tr>
+  <tr><td>Theme colours</td><td>Static CSS only</td><td><code>ThemeSettings.colorPrimary/colorAccent</code> injected as CSS variables</td></tr>
+  <tr><td>Terms / Privacy contact address</td><td>Placeholder <code>@lampino.example</code></td><td><code>ContactSettings.email</code></td></tr>
+  <tr><td>Rental application email</td><td>Customer never asked; row stored the shop's own address</td><td>New email field on the inquiry form (shop address still used as fallback)</td></tr>
+</table>
+
+<div class="box">
+  <p><strong>A note on the theme colours.</strong> The <code>theme_settings</code> row was seeded with the Prisma defaults (<code>#3B82F6</code>, a blue) which have nothing to do with Lampino's warm terracotta palette. Wiring it up as-is would have repainted the entire site blue. The row was updated to the palette the site is actually designed in (<code>#d0713e</code> / <code>#8a4a24</code>) first, so the visual output is unchanged <em>and</em> the admin colour picker now genuinely controls the site.</p>
+</div>
+
+<h3>Verified rendering</h3>
+<p>Fetched <code>/ro</code> and <code>/ru</code> and confirmed the actual database strings appear in the HTML — <code>Lumină bună pentru fiecare cameră</code>, <code>Bine ați venit la Lampino</code>, <code>Categorii populare</code>, <code>Produse recomandate</code>, <code>Închiriere pentru evenimente</code>, the phone number, the email, the business hours, the social links, and their Russian equivalents (<code>Добро пожаловать</code>, <code>Популярные категории</code>, <code>Рекомендуемые товары</code>, <code>Аренда для мероприятий</code>, <code>Пн–Пт</code>, <code>Кишинев</code>).</p>
+
+<h2>5. Admin CMS — what was tested</h2>
+
+<p>Logged in at <code>/admin/ro/login</code> as <code>admin</code> and drove the real UI in a browser. Every result below was confirmed by reading the database afterwards, not by trusting the screen.</p>
+
+<table>
+  <tr><th>Area</th><th>Exercised</th><th>Result</th></tr>
+  <tr><td>Login</td><td>Credential form, session cookie, dashboard load</td><td class="ok">Pass — dashboard totals (13.207 lei revenue, 12 orders, 15 active products) match the tables</td></tr>
+  <tr><td>Products — create</td><td>Full product: bilingual name + description, price 250 / reduced 199, stock, category picked from the live dropdown, image by URL, one variant, one bilingual specification</td><td class="ok">Pass — row 17 written with canonical spec JSON, <code>hasVariants</code> derived correctly, appeared on <code>/ro/magazin</code> and both locale detail pages</td></tr>
+  <tr><td>Products — edit</td><td>Renamed, repriced, restocked, then deactivated</td><td class="ok">Pass — changes persisted; deactivating 404'd the detail page and removed it from the catalog</td></tr>
+  <tr><td>Products — validation</td><td>Reduced price above price; price above the <code>Decimal(10,2)</code> ceiling</td><td class="ok">Pass — both return translated form errors</td></tr>
+  <tr><td>Products — delete</td><td>Row-actions menu, two-step confirm</td><td class="ok">Pass — product, variants and images all gone</td></tr>
+  <tr><td>Categories</td><td>Create with auto-generated slug, edit, duplicate-slug rejection, keyboard reorder, delete</td><td class="ok">Pass — slug <code>zz-categorie-test</code> generated, position appended, clash rejected, reorder rewrote <code>position</code> and was restored</td></tr>
+  <tr><td>Rentals</td><td>Create with bilingual <code>includes</code> lists, price + reduced price; delete</td><td class="ok">Pass — package 5 written, rendered on <code>/ro/arenda</code> and its detail page, then deleted with its application cascading</td></tr>
+  <tr><td>Promotions</td><td>Create with product + rental membership, discount %, featured flag; edit; date validation</td><td class="ok">Pass — membership written to both <code>products</code> and <code>rental_packages</code></td></tr>
+  <tr><td>Users</td><td>Create with role, short-password rejection, scrypt hashing</td><td class="ok">Pass — password rejected under 8 chars, stored as <code>scrypt:…</code>, never sent to the client</td></tr>
+  <tr><td>Orders</td><td>Status change (pending → shipped), delete with cascade</td><td class="ok">Pass — status persisted and reverted; delete removed the order and its items</td></tr>
+  <tr><td>Applications</td><td>Submitted a real inquiry from the storefront, then approved it in admin</td><td class="ok">Pass — row created with server-resolved price (2.900 lei, the reduced one), status updated</td></tr>
+  <tr><td>Homepage settings</td><td>Hero form, headings form, promo banner form (enabled it)</td><td class="ok">Pass — banner immediately appeared on the storefront</td></tr>
+  <tr><td>Site settings</td><td>Contact, delivery, theme, special offers (published it, switched selection modes)</td><td class="ok">Pass — offers page went live at <code>/ro/oferte-speciale</code></td></tr>
+  <tr><td>Cart / checkout</td><td>Added items, checked totals, delivery region switching</td><td class="ok">Pass — 990 lei → +50 Chișinău = 1.040 · +90 rest of Moldova = 1.080 · free above the 1.500 threshold</td></tr>
+</table>
+
+<div class="box">
+  <p><strong>Not tested, and why.</strong> <em>File upload</em> — I can't produce a real file through the browser harness, so the upload button was left alone (the URL-entry path beside it was tested instead). <em>Promotion deletion specifically</em> — the browser automation kept dropping its connection on that page's confirm button and I could not land the second click; the promotion's create, edit and validation paths were all verified, and deletion runs through the same shared action and confirm component that were verified on products, rentals, categories and orders. That one leftover test promotion was removed directly from the database.</p>
+</div>
+
+<h2>6. Defects found and fixed</h2>
+
+<h3 class="bad">Critical</h3>
+
+<p><strong>A validation error erased everything the user had typed.</strong> Reproduced live: on <code>/admin/ro/products/new</code>, fill in name, description and price, set a reduced price above the price, submit — the error rendered correctly, and every single field came back blank. React 19 automatically resets an uncontrolled <code>&lt;form action={fn}&gt;</code> the moment the action settles (<code>startHostTransition</code> calls <code>requestFormReset</code> <em>before</em> it even runs your action), and there is no opt-out on that code path. This hit all fourteen admin forms — products, rentals, promotions, the category and user dialogs, and every settings card.</p>
+<p>Fixed with one shared <code>AdminForm</code> component that dispatches the action from <code>onSubmit</code> inside a transition instead of via the <code>action</code> prop, which skips the reset. Because <code>useFormStatus</code> only tracks the <code>action</code> prop, the pending flag is now published on a context that <code>SubmitButton</code> reads, so the spinners still work. <span class="ok">Re-tested: the error shows and all four fields keep their values.</span></p>
+
+<h3 class="warn">Data loss</h3>
+<ul>
+  <li><strong>Special-offers selection silently wiped.</strong> The form only renders the controls for the active selection method, so the other half posted nothing — but the action wrote all of it anyway. Switching from "manual" to "by category" and saving erased the entire manual product and rental selection with a cheerful "Saved." message. Now only the fields belonging to the submitted method are written. <span class="ok">Verified by round-tripping manual → category → manual: all 7 products and 4 rentals survived.</span></li>
+  <li><strong>Deactivating a product dropped it from the offers selection.</strong> The picker only listed active rows, so a previously-selected but now-inactive product rendered no checkbox and was quietly removed on the next save. Selected rows are now always listed, marked <code>(inactiv)</code>.</li>
+  <li><strong>A cleared delivery field saved as zero.</strong> <code>Number("")</code> is <code>0</code>, which passed the "is it finite and non-negative" check, so the intended fallback was unreachable dead code — clearing "free delivery threshold" meant free delivery on every order. Empty input now falls back properly.</li>
+</ul>
+
+<h3 class="warn">Crashes and correctness</h3>
+<ul>
+  <li><strong>Oversized price → unhandled 500.</strong> The columns are <code>Decimal(10,2)</code> and the inputs had no upper bound, so typing a long number produced a Postgres <code>numeric field overflow</code> that escaped the action as a 500 error page with all input lost. Now validated server-side (product and rental, top-level and per-variant) with a translated message, plus a <code>max</code> on the inputs. <span class="ok">Verified: bypassing the client-side max returns "Prețul depășește valoarea maximă permisă." instead of a 500.</span></li>
+  <li><strong>Promotions expired a day early and single-day promotions were impossible.</strong> <code>new Date("2026-08-12")</code> parses as UTC midnight while the status helper compares against local time, so in Moldova (UTC+2/+3) a promotion ended at 02:00 or 03:00 on its stated final day. And the validation rejected <code>start === end</code> outright. Dates are now parsed as local, the end date runs to 23:59:59.999 of its own day, and only a genuinely earlier end date is rejected. <span class="ok">Verified: a 12 Aug → 12 Aug promotion saves and reads Active on 12 Aug.</span></li>
+  <li><strong>Variant updates weren't scoped to their parent.</strong> The variant id came straight from a client-controlled hidden JSON field and was never checked against the product being saved. Two consequences: a second browser tab that had deleted a variant made the whole save throw <code>P2025</code> and roll back, losing every edit; and an authenticated editor could rewrite a variant belonging to a different product. Now scoped with <code>updateMany</code>, so an unknown id matches nothing instead of exploding.</li>
+  <li><strong>Variant reduced prices were never validated.</strong> A variant priced at 100 with a "reduced" price of 150 saved happily and rendered as a struck-through 150 against 100 on the storefront. Now checked, along with negative prices and non-integer stock.</li>
+</ul>
+
+<h3 class="warn">Security</h3>
+<ul>
+  <li><strong>Upload could write an attacker-chosen extension into a public directory.</strong> The file kind was decided from the MIME prefix, but the extension fell back to the client-supplied filename — so <code>Content-Type: image/x-anything</code> with <code>evil.html</code> landed at <code>public/uploads/images/&lt;random&gt;.html</code>, served same-origin. The extension now comes only from a strict MIME allow-list.</li>
+  <li><strong>SVG upload removed.</strong> <code>image/svg+xml</code> was explicitly allow-listed. An SVG served from <code>/uploads/</code> can execute script in the site's own origin, and uploads are rendered <code>unoptimized</code>. Dropped from the allow-list.</li>
+</ul>
+
+<h2>7. Known gaps — not fixed, flagged for a decision</h2>
+
+<p>These are real, but each one is a product decision rather than a bug, so I've left them alone and am reporting them instead.</p>
+
+<ul>
+  <li><strong>The <code>role</code> column is decorative.</strong> <code>requireAdmin</code> returns as soon as any valid session exists; nothing anywhere reads <code>session.role</code>. A user created as "Editor" can delete every product, every order, and can open <code>/users</code> and reset the owner's password. Either enforce the two roles or remove the role selector, because right now it implies a restriction that does not exist.</li>
+  <li><strong>Sessions survive deletion.</strong> Auth is a stateless signed cookie with a 7-day lifetime and no per-request database lookup (deliberate — it's fast). But deleting a user does not revoke their session; a departing employee's open tab keeps full admin access for up to a week. The only lever is rotating <code>ADMIN_SESSION_SECRET</code>, which logs everyone out.</li>
+  <li><strong>No rate limiting on the login form,</strong> and a timing difference between "no such user" (fast) and "wrong password" (~100ms of scrypt) leaks whether a username exists.</li>
+  <li><strong>Promotions still don't affect displayed prices.</strong> An admin can attach a product to a promotion with a discount percentage and a date window, and the storefront will keep showing the plain <code>reducedPrice</code>. Wiring this up means deciding how a promotion percentage and a per-product reduced price interact when both are set — a pricing decision, not a code fix.</li>
+  <li><strong>Orders can only be read, never created, in the admin.</strong> Product checkout hands off to WhatsApp and never writes an <code>Order</code>, so the Orders screen can only ever show seeded or manually-inserted rows. This matches the documented design; noting it because "12 orders" on the dashboard is seed data, not sales.</li>
+  <li><strong>Singleton settings tables only expose row 1</strong> (every action uses <code>findFirst orderBy id asc</code>). If a second row ever appears it is unreachable and undeletable through the UI.</li>
+  <li><strong>SEO metadata is hardcoded in Romanian</strong> on every page regardless of locale, and there is no schema field for it.</li>
+</ul>
+
+<h2>8. Checks run</h2>
+
+<table>
+  <tr><th>Check</th><th>Command</th><th>Result</th></tr>
+  <tr><td>Types</td><td><code>bunx tsc --noEmit</code></td><td class="ok">Clean</td></tr>
+  <tr><td>Lint</td><td><code>bunx eslint .</code></td><td class="ok">Clean</td></tr>
+  <tr><td>Production build</td><td><code>bun run build</code></td><td class="ok">Succeeded — 30 routes compiled, including the new <code>/[lang]/oferte-speciale</code></td></tr>
+  <tr><td>Route sweep</td><td>19 URLs across both locales, storefront + admin</td><td class="ok">All 200</td></tr>
+  <tr><td>Canonical URLs</td><td>Wrong slug, missing id, non-numeric id</td><td class="ok">307 to canonical / 404 / 404</td></tr>
+</table>
+
+<p>The database was left as it was found: all test records created during this exercise — a product, a rental package, a category, a promotion, an admin user, an order and a rental application — were removed again, most of them through the admin UI as part of testing the delete paths. Final counts: 12 categories, 16 products, 4 rental packages, 6 rental applications, 12 orders, 2 promotions, 1 admin user.</p>
+
+<footer>
+  Lampino verification report · generated 12 August 2026 · disposable, safe to delete
+</footer>
+
+</div>
+</body>
+</html>

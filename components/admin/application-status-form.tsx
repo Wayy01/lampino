@@ -16,6 +16,7 @@ import {
   SubmitButton,
   ActionNotice,
   LangField,
+  AdminForm,
 } from "@/components/admin/form-controls";
 
 export function ApplicationStatusForm({
@@ -33,7 +34,7 @@ export function ApplicationStatusForm({
 
   return (
     <>
-      <form action={formAction} className="flex items-center gap-2">
+      <AdminForm action={formAction} className="flex items-center gap-2">
         <LangField />
         <AdminSelect
           name="status"
@@ -45,7 +46,7 @@ export function ApplicationStatusForm({
           }))}
         />
         <SubmitButton className="shrink-0">{t.common.update}</SubmitButton>
-      </form>
+      </AdminForm>
       <div className="mt-3">
         <ActionNotice state={state} />
       </div>

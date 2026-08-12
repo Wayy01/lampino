@@ -167,6 +167,8 @@ const ro = {
       namesRequired: "Numele RO și RU sunt obligatorii.",
       priceRequired: "Este necesar un preț valid.",
       reducedBelowPrice: "Prețul redus trebuie să fie sub prețul normal.",
+      priceTooLarge: "Prețul depășește valoarea maximă permisă.",
+      stockInvalid: "Stocul trebuie să fie un număr întreg pozitiv.",
     },
   },
   categories: {
@@ -348,6 +350,8 @@ const ro = {
       titlesRequired: "Titlurile RO și RU sunt obligatorii.",
       priceRequired: "Este necesar un preț valid.",
       reducedBelowPrice: "Prețul redus trebuie să fie sub prețul normal.",
+      priceTooLarge: "Prețul depășește valoarea maximă permisă.",
+      stockInvalid: "Stocul trebuie să fie un număr întreg pozitiv.",
     },
   },
   applications: {
@@ -613,6 +617,8 @@ const ru: AdminDict = {
       namesRequired: "Названия RO и RU обязательны.",
       priceRequired: "Требуется корректная цена.",
       reducedBelowPrice: "Цена со скидкой должна быть ниже обычной.",
+      priceTooLarge: "Цена превышает максимально допустимое значение.",
+      stockInvalid: "Остаток должен быть целым неотрицательным числом.",
     },
   },
   categories: {
@@ -792,6 +798,8 @@ const ru: AdminDict = {
       titlesRequired: "Заголовки RO и RU обязательны.",
       priceRequired: "Требуется корректная цена.",
       reducedBelowPrice: "Цена со скидкой должна быть ниже обычной.",
+      priceTooLarge: "Цена превышает максимально допустимое значение.",
+      stockInvalid: "Остаток должен быть целым неотрицательным числом.",
     },
   },
   applications: {

@@ -19,6 +19,7 @@ import {
   SubmitButton,
   ActionNotice,
   LangField,
+  AdminForm,
 } from "@/components/admin/form-controls";
 
 export type PromotionFormData = {
@@ -60,7 +61,7 @@ export function PromotionForm({
   );
 
   return (
-    <form action={formAction}>
+    <AdminForm action={formAction}>
       <LangField />
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -198,6 +199,6 @@ export function PromotionForm({
           )}
         </div>
       </div>
-    </form>
+    </AdminForm>
   );
 }

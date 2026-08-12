@@ -12,8 +12,13 @@ function str(fd: FormData, key: string): string {
   return String(fd.get(key) ?? "").trim();
 }
 
+// A cleared input posts "", which `Number("")` turns into a valid 0 — so the
+// empty case has to be caught before the numeric check or clearing "free
+// delivery threshold" would silently mean "free delivery on every order".
 function dec(fd: FormData, key: string, fallback: number): Prisma.Decimal {
-  const value = Number(str(fd, key));
+  const raw = str(fd, key);
+  if (raw === "") return new Prisma.Decimal(fallback);
+  const value = Number(raw);
   return new Prisma.Decimal(Number.isFinite(value) && value >= 0 ? value : fallback);
 }
 
@@ -122,6 +127,23 @@ export async function updateSpecialOffers(
       .filter((v) => Number.isInteger(v));
 
   const filterRaw = Number(str(fd, "filterByCategoryId"));
+  const method =
+    str(fd, "selectionMethod") === "category" ? "category" : "manual";
+
+  // The form only renders the controls belonging to the active selection
+  // method, so the other half posts nothing. Writing both halves every time
+  // would erase whichever one is currently hidden.
+  const selection =
+    method === "category"
+      ? {
+          filterByCategoryId:
+            Number.isInteger(filterRaw) && filterRaw > 0 ? filterRaw : null,
+        }
+      : {
+          selectedProductIds: ids("selectedProductIds"),
+          selectedRentalPackageIds: ids("selectedRentalPackageIds"),
+        };
+
   const data = {
     title_ro: str(fd, "title_ro"),
     title_ru: str(fd, "title_ru"),
@@ -129,10 +151,8 @@ export async function updateSpecialOffers(
     description_ru: str(fd, "description_ru"),
     mediaUrl: str(fd, "mediaUrl") || null,
     mediaType: str(fd, "mediaType") === "video" ? "video" : "image",
-    selectionMethod: str(fd, "selectionMethod") === "category" ? "category" : "manual",
-    selectedProductIds: ids("selectedProductIds"),
-    selectedRentalPackageIds: ids("selectedRentalPackageIds"),
-    filterByCategoryId: Number.isInteger(filterRaw) && filterRaw > 0 ? filterRaw : null,
+    selectionMethod: method,
+    ...selection,
     isActive: fd.get("isActive") === "on",
   };
 
