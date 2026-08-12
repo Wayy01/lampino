@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAdminT } from "@/lib/admin/i18n-provider";
 import { AdminSelect, type AdminSelectOption } from "@/components/admin/select";
@@ -85,19 +85,51 @@ export function FilterSelect({
   );
 }
 
-/** Prev / next pager driven by the `page` query param. */
+/**
+ * Clears every filter at once. Renders nothing until something is filtered,
+ * so it never takes up space on an untouched list.
+ */
+export function ClearFilters({ className }: { className?: string }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const t = useAdminT();
+
+  if ([...searchParams.keys()].length === 0) return null;
+
+  return (
+    <button
+      type="button"
+      onClick={() => router.replace(pathname)}
+      className={cn(
+        "flex h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-[var(--radius-md)] border px-3 text-sm text-muted-foreground transition-colors hover:bg-foreground/[0.03] hover:text-foreground",
+        className,
+      )}
+    >
+      <X className="h-4 w-4" />
+      {t.common.clearFilters}
+    </button>
+  );
+}
+
+/**
+ * Table footer: how many rows the filters matched, plus prev/next when there
+ * is more than one page.
+ */
 export function Pagination({
   page,
   totalPages,
+  total,
 }: {
   page: number;
   totalPages: number;
+  /** Row count across all pages, shown on the left. */
+  total?: number;
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const t = useAdminT();
-  if (totalPages <= 1) return null;
 
   const go = (next: number) => {
     const params = new URLSearchParams(searchParams);
@@ -111,30 +143,35 @@ export function Pagination({
     "flex h-8 w-8 cursor-pointer items-center justify-center rounded-[var(--radius-sm)] border transition-colors hover:bg-foreground/[0.04] disabled:pointer-events-none disabled:opacity-40";
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex min-h-8 items-center justify-between gap-3">
       <span className="font-mono text-xs text-muted-foreground">
-        {page} / {totalPages}
+        {total !== undefined && `${total} ${t.common.results}`}
       </span>
-      <div className="flex items-center gap-1.5">
-        <button
-          type="button"
-          onClick={() => go(page - 1)}
-          disabled={page <= 1}
-          aria-label={t.common.previousPage}
-          className={btn}
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
-          onClick={() => go(page + 1)}
-          disabled={page >= totalPages}
-          aria-label={t.common.nextPage}
-          className={btn}
-        >
-          <ChevronRight className="h-4 w-4" />
-        </button>
-      </div>
+      {totalPages > 1 && (
+        <div className="flex items-center gap-1.5">
+          <span className="font-mono text-xs text-muted-foreground">
+            {page} / {totalPages}
+          </span>
+          <button
+            type="button"
+            onClick={() => go(page - 1)}
+            disabled={page <= 1}
+            aria-label={t.common.previousPage}
+            className={btn}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => go(page + 1)}
+            disabled={page >= totalPages}
+            aria-label={t.common.nextPage}
+            className={btn}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

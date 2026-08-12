@@ -57,24 +57,24 @@ export async function deleteCategory(id: number): Promise<void> {
   revalidatePath("/admin/[lang]/categories", "page");
 }
 
-export async function moveCategory(
-  id: number,
-  direction: "up" | "down",
-): Promise<void> {
+/**
+ * Persist the order the admin dragged the list into. Takes the full id list
+ * and rewrites `position` to match it, which also normalizes any duplicate or
+ * gapped positions left behind by older data.
+ */
+export async function reorderCategories(ids: number[]): Promise<void> {
   await requireAdmin();
-  const ordered = await prisma.category.findMany({
-    orderBy: [{ position: "asc" }, { id: "asc" }],
-  });
-  const index = ordered.findIndex((c) => c.id === id);
-  const swapWith = direction === "up" ? index - 1 : index + 1;
-  if (index === -1 || swapWith < 0 || swapWith >= ordered.length) return;
+  const ordered = [...new Set(ids.filter((id) => Number.isInteger(id)))];
+  const existing = await prisma.category.findMany({ select: { id: true } });
+  const known = new Set(existing.map((c) => c.id));
+  // Ignore a stale client list rather than renumbering half the table.
+  if (ordered.length !== known.size || ordered.some((id) => !known.has(id))) {
+    return;
+  }
 
-  // Normalize positions to indexes while swapping, in case of duplicates.
-  const next = [...ordered];
-  [next[index], next[swapWith]] = [next[swapWith], next[index]];
   await prisma.$transaction(
-    next.map((c, i) =>
-      prisma.category.update({ where: { id: c.id }, data: { position: i } }),
+    ordered.map((id, i) =>
+      prisma.category.update({ where: { id }, data: { position: i } }),
     ),
   );
   revalidatePath("/admin/[lang]/categories", "page");

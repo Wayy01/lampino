@@ -10,7 +10,12 @@ import {
 } from "@/lib/admin/i18n";
 import { isLocale } from "@/lib/i18n/routing";
 import { PageHeader } from "@/components/admin/page-header";
-import { SearchInput, FilterSelect, Pagination } from "@/components/admin/toolbar";
+import {
+  SearchInput,
+  FilterSelect,
+  Pagination,
+  ClearFilters,
+} from "@/components/admin/toolbar";
 import {
   ApplicationsTable,
   type ApplicationRow,
@@ -104,6 +109,7 @@ export default async function AdminApplicationsPage({
               label: eventLabel(t, e),
             }))}
           />
+          <ClearFilters className="col-span-2 justify-center sm:justify-start" />
         </div>
       </div>
 
@@ -113,6 +119,7 @@ export default async function AdminApplicationsPage({
           <Pagination
             page={page}
             totalPages={Math.max(1, Math.ceil(total / PER_PAGE))}
+            total={total}
           />
         }
       />

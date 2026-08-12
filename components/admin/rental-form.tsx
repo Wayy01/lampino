@@ -3,8 +3,6 @@
 import { useActionState, useState } from "react";
 import Image from "next/image";
 import {
-  ArrowDown,
-  ArrowUp,
   Film,
   Image as ImageIcon,
   Layers,
@@ -15,6 +13,7 @@ import {
   Tag,
   Trash2,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   createRental,
   updateRental,
@@ -30,6 +29,12 @@ import { useAdminLang } from "@/lib/admin/i18n-provider";
 import { SectionCard } from "@/components/admin/section-card";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { AdminSelect } from "@/components/admin/select";
+import {
+  DragHandle,
+  draggingRow,
+  moveItem,
+  useReorder,
+} from "@/components/admin/reorder";
 import {
   Field,
   TextInput,
@@ -80,6 +85,75 @@ const iconBtn =
 const ghostBtn =
   "flex h-10 cursor-pointer items-center gap-1.5 rounded-[var(--radius-md)] border px-3 text-sm transition-colors hover:bg-foreground/[0.03]";
 
+/**
+ * One "what's included" checklist. Rendered twice — once per language — and
+ * kept a separate component so each list owns its own reorder state; the
+ * order is what the package page prints, so it is worth dragging around.
+ */
+function IncludesEditor({
+  label,
+  rows,
+  onChange,
+}: {
+  label: string;
+  rows: string[];
+  onChange: (rows: string[]) => void;
+}) {
+  const { t } = useAdminLang();
+  const order = useReorder({
+    count: rows.length,
+    onMove: (from, to) => onChange(moveItem(rows, from, to)),
+  });
+
+  return (
+    <Field label={label} hint={t.rentals.includesHint}>
+      {rows.length > 0 && (
+        <ul className="mb-2 flex flex-col gap-2">
+          {rows.map((row, i) => (
+            <li
+              key={i}
+              {...order.itemProps(i)}
+              className={cn(
+                "flex items-center gap-1 rounded-[var(--radius-md)]",
+                order.dragIndex === i && draggingRow,
+              )}
+            >
+              <DragHandle
+                label={t.common.dragToReorder}
+                {...order.handleProps(i)}
+              />
+              <TextInput
+                value={row}
+                onChange={(e) =>
+                  onChange(rows.map((r, j) => (j === i ? e.target.value : r)))
+                }
+                placeholder={t.rentals.includePlaceholder}
+                className="min-w-0 flex-1"
+              />
+              <button
+                type="button"
+                onClick={() => onChange(rows.filter((_, j) => j !== i))}
+                aria-label={t.common.remove}
+                className={iconBtn}
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <button
+        type="button"
+        onClick={() => onChange([...rows, ""])}
+        className={ghostBtn}
+      >
+        <Plus className="h-4 w-4" />
+        {t.rentals.addInclude}
+      </button>
+    </Field>
+  );
+}
+
 export function RentalForm({
   rental,
   categories,
@@ -127,24 +201,25 @@ export function RentalForm({
     sortOrder: i,
   }));
 
-  // The two checklist columns are the same editor twice, once per language.
-  const includeColumns: {
-    key: string;
-    label: string;
-    rows: string[];
-    set: React.Dispatch<React.SetStateAction<string[]>>;
-  }[] = [
-    { key: "ro", label: t.rentals.includesRo, rows: includesRo, set: setIncludesRo },
-    { key: "ru", label: t.rentals.includesRu, rows: includesRu, set: setIncludesRu },
-  ];
-
-  const move = <T,>(list: T[], from: number, to: number): T[] => {
-    if (to < 0 || to >= list.length) return list;
-    const next = [...list];
-    const [item] = next.splice(from, 1);
-    next.splice(to, 0, item);
-    return next;
-  };
+  // Every sub-collection is ordered, and every one of them reorders by drag
+  // (or by ArrowUp/ArrowDown on a focused handle). Nothing is persisted until
+  // the form is submitted — the hidden JSON fields carry the new order.
+  const imageOrder = useReorder({
+    count: images.length,
+    onMove: (from, to) => setImages((prev) => moveItem(prev, from, to)),
+  });
+  const videoOrder = useReorder({
+    count: videos.length,
+    onMove: (from, to) => setVideos((prev) => moveItem(prev, from, to)),
+  });
+  const variantOrder = useReorder({
+    count: variants.length,
+    onMove: (from, to) => setVariants((prev) => moveItem(prev, from, to)),
+  });
+  const specOrder = useReorder({
+    count: specs.length,
+    onMove: (from, to) => setSpecs((prev) => moveItem(prev, from, to)),
+  });
 
   const addImage = () => {
     const url = newImageUrl.trim();
@@ -191,44 +266,16 @@ export function RentalForm({
             icon={<ListChecks className="h-4 w-4" strokeWidth={1.75} />}
           >
             <div className="grid gap-4 sm:grid-cols-2">
-              {includeColumns.map((col) => (
-                <Field key={col.key} label={col.label} hint={t.rentals.includesHint}>
-                  {col.rows.length > 0 && (
-                    <ul className="mb-2 flex flex-col gap-2">
-                      {col.rows.map((row, i) => (
-                        <li key={i} className="flex items-center gap-1">
-                          <TextInput
-                            value={row}
-                            onChange={(e) =>
-                              col.set(
-                                col.rows.map((r, j) => (j === i ? e.target.value : r)),
-                              )
-                            }
-                            placeholder={t.rentals.includePlaceholder}
-                            className="min-w-0 flex-1"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => col.set(col.rows.filter((_, j) => j !== i))}
-                            aria-label={t.common.remove}
-                            className={iconBtn}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => col.set([...col.rows, ""])}
-                    className={ghostBtn}
-                  >
-                    <Plus className="h-4 w-4" />
-                    {t.rentals.addInclude}
-                  </button>
-                </Field>
-              ))}
+              <IncludesEditor
+                label={t.rentals.includesRo}
+                rows={includesRo}
+                onChange={setIncludesRo}
+              />
+              <IncludesEditor
+                label={t.rentals.includesRu}
+                rows={includesRu}
+                onChange={setIncludesRu}
+              />
             </div>
           </SectionCard>
 
@@ -241,9 +288,18 @@ export function RentalForm({
                 {images.map((img, i) => (
                   <li
                     key={`${img.imageUrl}-${i}`}
-                    className="rounded-[var(--radius-md)] border p-3"
+                    {...imageOrder.itemProps(i)}
+                    className={cn(
+                      "rounded-[var(--radius-md)] border p-3",
+                      imageOrder.dragIndex === i && draggingRow,
+                    )}
                   >
                     <div className="flex items-center gap-3">
+                      <DragHandle
+                        label={t.common.dragToReorder}
+                        className="-ml-1"
+                        {...imageOrder.handleProps(i)}
+                      />
                       <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-[var(--radius-sm)] bg-muted">
                         <Image src={img.imageUrl} alt="" fill sizes="48px" unoptimized className="object-cover" />
                       </div>
@@ -264,26 +320,18 @@ export function RentalForm({
                         />
                         {t.products.mainImage}
                       </label>
-                      <div className="flex items-center">
-                        <button type="button" onClick={() => setImages(move(images, i, i - 1))} disabled={i === 0} aria-label={t.common.moveUp} className={iconBtn}>
-                          <ArrowUp className="h-4 w-4" />
-                        </button>
-                        <button type="button" onClick={() => setImages(move(images, i, i + 1))} disabled={i === images.length - 1} aria-label={t.common.moveDown} className={iconBtn}>
-                          <ArrowDown className="h-4 w-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const next = images.filter((_, j) => j !== i);
-                            if (img.isMain && next.length > 0) next[0] = { ...next[0], isMain: true };
-                            setImages(next);
-                          }}
-                          aria-label={t.common.remove}
-                          className={iconBtn}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = images.filter((_, j) => j !== i);
+                          if (img.isMain && next.length > 0) next[0] = { ...next[0], isMain: true };
+                          setImages(next);
+                        }}
+                        aria-label={t.common.remove}
+                        className={iconBtn}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     </div>
                   </li>
                 ))}
@@ -327,7 +375,14 @@ export function RentalForm({
             {videos.length > 0 && (
               <ul className="mb-4 flex flex-col gap-2">
                 {videos.map((video, i) => (
-                  <li key={i} className="rounded-[var(--radius-md)] border p-3">
+                  <li
+                    key={i}
+                    {...videoOrder.itemProps(i)}
+                    className={cn(
+                      "rounded-[var(--radius-md)] border p-3",
+                      videoOrder.dragIndex === i && draggingRow,
+                    )}
+                  >
                     <div className="flex flex-col gap-2">
                       <MediaField
                         accept="video"
@@ -350,7 +405,12 @@ export function RentalForm({
                         placeholder={t.products.thumbnailUrl}
                       />
                     </div>
-                    <div className="mt-2 flex justify-end">
+                    <div className="mt-2 flex items-center justify-between">
+                      <DragHandle
+                        label={t.common.dragToReorder}
+                        className="-ml-1"
+                        {...videoOrder.handleProps(i)}
+                      />
                       <button type="button" onClick={() => setVideos(videos.filter((_, j) => j !== i))} aria-label={t.common.remove} className={iconBtn}>
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -376,7 +436,14 @@ export function RentalForm({
             {variants.length > 0 && (
               <ul className="mb-4 flex flex-col gap-3">
                 {variants.map((v, i) => (
-                  <li key={i} className="rounded-[var(--radius-md)] border p-3">
+                  <li
+                    key={i}
+                    {...variantOrder.itemProps(i)}
+                    className={cn(
+                      "rounded-[var(--radius-md)] border p-3",
+                      variantOrder.dragIndex === i && draggingRow,
+                    )}
+                  >
                     <div className="grid gap-3 sm:grid-cols-2">
                       <Field label={t.products.nameRo}>
                         <TextInput
@@ -431,12 +498,10 @@ export function RentalForm({
                         {t.products.defaultVariant}
                       </label>
                       <div className="flex items-center">
-                        <button type="button" onClick={() => setVariants(move(variants, i, i - 1))} disabled={i === 0} aria-label={t.common.moveUp} className={iconBtn}>
-                          <ArrowUp className="h-4 w-4" />
-                        </button>
-                        <button type="button" onClick={() => setVariants(move(variants, i, i + 1))} disabled={i === variants.length - 1} aria-label={t.common.moveDown} className={iconBtn}>
-                          <ArrowDown className="h-4 w-4" />
-                        </button>
+                        <DragHandle
+                          label={t.common.dragToReorder}
+                          {...variantOrder.handleProps(i)}
+                        />
                         <button
                           type="button"
                           onClick={() => {
@@ -485,8 +550,20 @@ export function RentalForm({
             {specs.length > 0 && (
               <ul className="mb-4 flex flex-col gap-3">
                 {specs.map((spec, i) => (
-                  <li key={i} className="rounded-[var(--radius-md)] border p-3">
+                  <li
+                    key={i}
+                    {...specOrder.itemProps(i)}
+                    className={cn(
+                      "rounded-[var(--radius-md)] border p-3",
+                      specOrder.dragIndex === i && draggingRow,
+                    )}
+                  >
                     <div className="flex items-end gap-2">
+                      <DragHandle
+                        label={t.common.dragToReorder}
+                        className="-ml-1 mb-0.5"
+                        {...specOrder.handleProps(i)}
+                      />
                       <Field label={t.products.specId} htmlFor={`spec_id_${i}`} className="flex-1">
                         <TextInput
                           id={`spec_id_${i}`}

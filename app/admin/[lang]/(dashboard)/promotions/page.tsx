@@ -9,7 +9,12 @@ import { pick } from "@/lib/utils";
 import { getAdminDict, adminHref, type AdminLang } from "@/lib/admin/i18n";
 import { isLocale } from "@/lib/i18n/routing";
 import { PageHeader } from "@/components/admin/page-header";
-import { SearchInput, FilterSelect, Pagination } from "@/components/admin/toolbar";
+import {
+  SearchInput,
+  FilterSelect,
+  Pagination,
+  ClearFilters,
+} from "@/components/admin/toolbar";
 import {
   PromotionsTable,
   type PromotionRow,
@@ -116,6 +121,7 @@ export default async function AdminPromotionsPage({
             { value: "featured", label: t.products.featured },
           ]}
         />
+        <ClearFilters className="justify-center sm:justify-start" />
       </div>
 
       <PromotionsTable
@@ -124,6 +130,7 @@ export default async function AdminPromotionsPage({
           <Pagination
             page={page}
             totalPages={Math.max(1, Math.ceil(total / PER_PAGE))}
+            total={total}
           />
         }
       />

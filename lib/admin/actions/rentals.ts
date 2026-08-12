@@ -5,7 +5,12 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma";
 import { requireAdmin } from "@/lib/admin/session";
-import { getAdminDict, langFromForm, type AdminLang } from "@/lib/admin/i18n";
+import {
+  adminDictionaries,
+  getAdminDict,
+  langFromForm,
+  type AdminLang,
+} from "@/lib/admin/i18n";
 import { specsToJson, isEmptySpecRow, type SpecRow } from "@/lib/admin/specs";
 import { includesToJson } from "@/lib/admin/includes";
 
@@ -184,4 +189,93 @@ export async function deleteRental(lang: AdminLang, id: number): Promise<void> {
   await prisma.rentalPackage.delete({ where: { id } });
   revalidatePath("/admin/[lang]/rentals", "page");
   redirect(`/admin/${lang}/rentals`);
+}
+
+// ---------------------------------------------------------------------------
+// Row actions — the `⋯` menu on the rentals table.
+// ---------------------------------------------------------------------------
+
+function revalidateRentals(): void {
+  revalidatePath("/admin/[lang]/rentals", "page");
+  revalidatePath("/admin/[lang]/rentals/[id]", "page");
+}
+
+export async function setRentalActive(
+  id: number,
+  isActive: boolean,
+): Promise<void> {
+  await requireAdmin();
+  await prisma.rentalPackage.update({ where: { id }, data: { isActive } });
+  revalidateRentals();
+}
+
+/** Delete from the list — same as `deleteRental` minus the redirect. */
+export async function removeRental(id: number): Promise<void> {
+  await requireAdmin();
+  await prisma.rentalPackage.delete({ where: { id } });
+  revalidateRentals();
+}
+
+/**
+ * Copy a package with its images, videos and variants, then open the copy.
+ * Rental applications are never copied — they belong to the original booking.
+ */
+export async function duplicateRental(
+  lang: AdminLang,
+  id: number,
+): Promise<void> {
+  await requireAdmin(lang);
+  const source = await prisma.rentalPackage.findUnique({
+    where: { id },
+    include: {
+      images: { orderBy: { id: "asc" } },
+      videos: { orderBy: { id: "asc" } },
+      variants: { orderBy: { sortOrder: "asc" } },
+    },
+  });
+  if (!source) return;
+
+  const copy = await prisma.rentalPackage.create({
+    data: {
+      title_ro: `${source.title_ro} ${adminDictionaries.ro.common.copySuffix}`,
+      title_ru: `${source.title_ru} ${adminDictionaries.ru.common.copySuffix}`,
+      description_ro: source.description_ro,
+      description_ru: source.description_ru,
+      price: source.price,
+      reducedPrice: source.reducedPrice,
+      hasVariants: source.hasVariants,
+      specifications: (source.specifications ?? {}) as Prisma.InputJsonValue,
+      includes_ro: (source.includes_ro ?? []) as Prisma.InputJsonValue,
+      includes_ru: (source.includes_ru ?? []) as Prisma.InputJsonValue,
+      categoryId: source.categoryId,
+      promotionId: source.promotionId,
+      isActive: false,
+      images: {
+        create: source.images.map((i) => ({
+          imageUrl: i.imageUrl,
+          isMain: i.isMain,
+        })),
+      },
+      videos: {
+        create: source.videos.map((v) => ({
+          videoUrl: v.videoUrl,
+          thumbnailUrl: v.thumbnailUrl,
+        })),
+      },
+      variants: {
+        create: source.variants.map((v) => ({
+          name_ro: v.name_ro,
+          name_ru: v.name_ru,
+          size: v.size,
+          price: v.price,
+          reducedPrice: v.reducedPrice,
+          isDefault: v.isDefault,
+          sortOrder: v.sortOrder,
+        })),
+      },
+    },
+  });
+
+  revalidateRentals();
+  redirect(`/admin/${lang}/rentals/${copy.id}`);
 }

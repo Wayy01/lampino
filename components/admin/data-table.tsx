@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import type { ReorderItemProps } from "@/components/admin/reorder";
 
 export type Column<T> = {
   key: string;
@@ -32,6 +33,8 @@ export function DataTable<T>({
   rows,
   rowKey,
   rowHref,
+  rowProps,
+  rowClassName,
   empty,
   footer,
 }: {
@@ -39,6 +42,10 @@ export function DataTable<T>({
   rows: T[];
   rowKey: (row: T) => string | number;
   rowHref?: (row: T) => string;
+  /** Drag-reorder attributes for the `<tr>` — see `useReorder().itemProps`. */
+  rowProps?: (row: T, index: number) => ReorderItemProps;
+  /** Extra row classes, e.g. the lifted look while a row is being dragged. */
+  rowClassName?: (row: T, index: number) => string | undefined;
   empty?: React.ReactNode;
   footer?: React.ReactNode;
 }) {
@@ -74,7 +81,9 @@ export function DataTable<T>({
                   <th
                     key={col.key}
                     className={cn(
-                      "label-mono whitespace-nowrap px-4 py-3 text-left font-normal text-muted-foreground first:pl-5 last:pr-5",
+                      // Tighter gutters below `sm`, where every pixel taken by
+                      // padding is a pixel off the name column.
+                      "label-mono whitespace-nowrap px-3 py-3 text-left font-normal text-muted-foreground first:pl-4 last:pr-4 sm:px-4 sm:first:pl-5 sm:last:pr-5",
                       col.align === "right" && "text-right",
                       col.hideOnMobile && "hidden md:table-cell",
                       i === primaryIndex && primaryCell,
@@ -87,21 +96,23 @@ export function DataTable<T>({
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
+              {rows.map((row, rowIndex) => (
                 <tr
                   key={rowKey(row)}
                   onClick={(e) => handleRowClick(e, row)}
+                  {...rowProps?.(row, rowIndex)}
                   className={cn(
                     "border-b last:border-b-0",
                     rowHref &&
                       "cursor-pointer transition-colors hover:bg-foreground/[0.02]",
+                    rowClassName?.(row, rowIndex),
                   )}
                 >
                   {columns.map((col, i) => (
                     <td
                       key={col.key}
                       className={cn(
-                        "px-4 py-3.5 first:pl-5 last:pr-5",
+                        "px-3 py-3.5 first:pl-4 last:pr-4 sm:px-4 sm:first:pl-5 sm:last:pr-5",
                         col.align === "right" && "text-right",
                         col.hideOnMobile && "hidden md:table-cell",
                         i === primaryIndex && primaryCell,

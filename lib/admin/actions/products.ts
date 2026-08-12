@@ -5,7 +5,12 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma";
 import { requireAdmin } from "@/lib/admin/session";
-import { getAdminDict, langFromForm, type AdminLang } from "@/lib/admin/i18n";
+import {
+  adminDictionaries,
+  getAdminDict,
+  langFromForm,
+  type AdminLang,
+} from "@/lib/admin/i18n";
 import { specsToJson, isEmptySpecRow, type SpecRow } from "@/lib/admin/specs";
 
 export type ProductActionState = { ok?: boolean; error?: string } | null;
@@ -183,4 +188,107 @@ export async function deleteProduct(
   await prisma.product.delete({ where: { id } });
   revalidatePath("/admin/[lang]/products", "page");
   redirect(`/admin/${lang}/products`);
+}
+
+// ---------------------------------------------------------------------------
+// Row actions — the `⋯` menu on the products table. Each one is a single
+// field flip or a whole-row operation, so they take ids rather than a FormData.
+// ---------------------------------------------------------------------------
+
+function revalidateProducts(): void {
+  revalidatePath("/admin/[lang]/products", "page");
+  revalidatePath("/admin/[lang]/products/[id]", "page");
+  revalidatePath("/admin/[lang]", "page"); // dashboard counts
+}
+
+export async function setProductActive(
+  id: number,
+  isActive: boolean,
+): Promise<void> {
+  await requireAdmin();
+  await prisma.product.update({ where: { id }, data: { isActive } });
+  revalidateProducts();
+}
+
+export async function setProductFeatured(
+  id: number,
+  featured: boolean,
+): Promise<void> {
+  await requireAdmin();
+  await prisma.product.update({ where: { id }, data: { featured } });
+  revalidateProducts();
+}
+
+/** Delete from the list — same as `deleteProduct` minus the redirect. */
+export async function removeProduct(id: number): Promise<void> {
+  await requireAdmin();
+  await prisma.product.delete({ where: { id } });
+  revalidateProducts();
+}
+
+/**
+ * Copy a product with its images, videos and variants, then open the copy.
+ * The duplicate starts hidden and unfeatured so an unfinished clone can never
+ * show up in the shop.
+ */
+export async function duplicateProduct(
+  lang: AdminLang,
+  id: number,
+): Promise<void> {
+  await requireAdmin(lang);
+  const source = await prisma.product.findUnique({
+    where: { id },
+    include: {
+      images: { orderBy: { id: "asc" } },
+      videos: { orderBy: { id: "asc" } },
+      variants: { orderBy: { sortOrder: "asc" } },
+    },
+  });
+  if (!source) return;
+
+  const copy = await prisma.product.create({
+    data: {
+      name_ro: `${source.name_ro} ${adminDictionaries.ro.common.copySuffix}`,
+      name_ru: `${source.name_ru} ${adminDictionaries.ru.common.copySuffix}`,
+      description_ro: source.description_ro,
+      description_ru: source.description_ru,
+      price: source.price,
+      reducedPrice: source.reducedPrice,
+      stock: source.stock,
+      hasVariants: source.hasVariants,
+      specifications: (source.specifications ?? {}) as Prisma.InputJsonValue,
+      categoryId: source.categoryId,
+      promotionId: source.promotionId,
+      featured: false,
+      featuredOrder: source.featuredOrder,
+      isActive: false,
+      images: {
+        create: source.images.map((i) => ({
+          imageUrl: i.imageUrl,
+          isMain: i.isMain,
+        })),
+      },
+      videos: {
+        create: source.videos.map((v) => ({
+          videoUrl: v.videoUrl,
+          thumbnailUrl: v.thumbnailUrl,
+        })),
+      },
+      variants: {
+        create: source.variants.map((v) => ({
+          name_ro: v.name_ro,
+          name_ru: v.name_ru,
+          size: v.size,
+          price: v.price,
+          reducedPrice: v.reducedPrice,
+          stock: v.stock,
+          isDefault: v.isDefault,
+          sortOrder: v.sortOrder,
+        })),
+      },
+    },
+  });
+
+  revalidateProducts();
+  redirect(`/admin/${lang}/products/${copy.id}`);
 }
