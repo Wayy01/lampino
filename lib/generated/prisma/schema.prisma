@@ -407,3 +407,28 @@ model SpecialOffersPage {
 
   @@map("special_offers_pages")
 }
+
+// Anonymous storefront analytics. One row per tracked interaction: a
+// product/rental detail view (with the time the visitor spent on the page in
+// `dwellMs`) or an add-to-cart. Product/rental ids are plain scalars, not
+// relations — deleting a product must never be blocked by, or cascade into,
+// its historical analytics, and a stale id is resolved by lookup on read.
+model AnalyticsEvent {
+  id              Int      @id @default(autoincrement())
+  // "product_view" | "rental_view" | "add_to_cart"
+  type            String
+  productId       Int?     @map("product_id")
+  rentalPackageId Int?     @map("rental_package_id")
+  // Time on page in milliseconds; set for *_view events, null for add_to_cart.
+  dwellMs         Int?     @map("dwell_ms")
+  // Anonymous per-browser id (localStorage), so repeat views can be counted
+  // as unique visitors without any personal data.
+  visitorId       String?  @map("visitor_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([type])
+  @@index([createdAt])
+  @@index([type, productId])
+  @@index([type, rentalPackageId])
+  @@map("analytics_events")
+}

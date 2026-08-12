@@ -11,6 +11,7 @@ import { dictionaries, type Lang } from "@/lib/i18n/dictionaries";
 import { pick } from "@/lib/utils";
 import { RentalDetail } from "@/components/site/rental-detail";
 import { RentalCard } from "@/components/site/rental-card";
+import { ViewTracker } from "@/components/site/view-tracker";
 
 export const dynamic = "force-dynamic";
 
@@ -55,6 +56,7 @@ export default async function RentalPackagePage({
 
   return (
     <>
+      <ViewTracker kind="rental" id={pkg.id} />
       <RentalDetail pkg={pkg} contact={contact} />
 
       {related.length > 0 && (

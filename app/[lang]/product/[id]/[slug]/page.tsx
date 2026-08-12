@@ -7,6 +7,7 @@ import { isLocale, productHref } from "@/lib/i18n/routing";
 import { pick } from "@/lib/utils";
 import { ProductDetail } from "@/components/site/product-detail";
 import { RelatedProducts } from "@/components/site/related-products";
+import { ViewTracker } from "@/components/site/view-tracker";
 
 export const dynamic = "force-dynamic";
 
@@ -52,6 +53,7 @@ export default async function ProductPage({
   ]);
   return (
     <>
+      <ViewTracker kind="product" id={product.id} />
       <ProductDetail product={product} contact={contact} />
       <RelatedProducts products={related} />
     </>

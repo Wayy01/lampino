@@ -7,6 +7,7 @@ import { ArrowUpRight, ShoppingBag } from "lucide-react";
 import type { Product } from "@/lib/data/products";
 import { useLang } from "@/lib/i18n/provider";
 import { useCart } from "@/lib/cart/provider";
+import { track } from "@/lib/analytics/track";
 import { formatPrice, pick, cn } from "@/lib/utils";
 import { productHref } from "@/lib/i18n/routing";
 import { specList, specValue } from "@/lib/specs";
@@ -41,6 +42,7 @@ export function ProductCard({
     e.preventDefault();
     e.stopPropagation();
     addItem(product);
+    track({ type: "add_to_cart", productId: product.id });
     openCart();
   };
 
