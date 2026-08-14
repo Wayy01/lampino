@@ -18,6 +18,7 @@ import type { ContactInfo, MediaItem, ProductVariant } from "@/lib/types";
 import { useLang } from "@/lib/i18n/provider";
 import { shopHref } from "@/lib/i18n/routing";
 import { useCart } from "@/lib/cart/provider";
+import { track } from "@/lib/analytics/track";
 import { specList, specLabel, specValue } from "@/lib/specs";
 import { formatPrice, pick, cn } from "@/lib/utils";
 import { ProductGallery } from "./product-gallery";
@@ -276,6 +277,7 @@ export function ProductDetail({
               disabled={!inStock}
               onClick={() => {
                 addItem(product, { variant: selectedVariant, quantity });
+                track({ type: "add_to_cart", productId: product.id });
                 openCart();
               }}
             >

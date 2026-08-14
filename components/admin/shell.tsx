@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
+  ChartColumnBig,
   Package,
   Shapes,
   Sparkles,
@@ -32,6 +33,7 @@ const NAV: {
   exact?: boolean;
 }[] = [
   { path: "", label: (t) => t.nav.dashboard, icon: LayoutDashboard, exact: true },
+  { path: "/analytics", label: (t) => t.nav.analytics, icon: ChartColumnBig },
   { path: "/products", label: (t) => t.nav.products, icon: Package },
   { path: "/categories", label: (t) => t.nav.categories, icon: Shapes },
   { path: "/rentals", label: (t) => t.nav.rentals, icon: Sparkles },
