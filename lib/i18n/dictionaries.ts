@@ -1,4 +1,18 @@
 export const ro = {
+  // Whole-page failures (an error boundary or a 404), plus the per-reason
+  // checkout messages that replace the old single "something went wrong".
+  errors: {
+    pageTitle: "Ceva n-a mers",
+    pageText:
+      "Pagina nu a putut fi încărcată. De obicei e ceva temporar — încearcă din nou.",
+    retry: "Încearcă din nou",
+    home: "Înapoi la pagina principală",
+    shop: "Vezi produsele",
+    notFoundTitle: "Pagina nu există",
+    notFoundText:
+      "Linkul e greșit sau produsul a fost între timp retras din magazin.",
+    errorCode: "Cod eroare",
+  },
   meta: {
     title: "Lampino — Iluminat pentru casă, livrat rapid",
     description:
@@ -115,6 +129,19 @@ export const ro = {
       submit: "Trimite cererea",
       sending: "Se trimite…",
       error: "Ceva n-a mers. Verifică datele și încearcă din nou.",
+      errors: {
+        invalid_contact: "Completează numele și numărul de telefon.",
+        invalid_event_type: "Alege tipul evenimentului.",
+        invalid_location: "Completează locația evenimentului.",
+        invalid_guests: "Numărul de invitați trebuie să fie cel puțin 1.",
+        invalid_date: "Alege o dată validă pentru eveniment.",
+        invalid_end_date:
+          "Data de sfârșit nu poate fi înaintea datei de început.",
+        package_not_found:
+          "Acest pachet nu mai este disponibil. Alege altul din listă.",
+        server_error:
+          "Cererea nu a putut fi trimisă. Încearcă din nou în câteva momente.",
+      },
       successTitle: "Cerere trimisă!",
       successText:
         "Mulțumim — revenim în curând cu o ofertă pentru evenimentul tău.",
@@ -245,6 +272,23 @@ export const ro = {
     submit: "Trimite comanda",
     sending: "Se trimite…",
     error: "Ceva n-a mers. Verifică datele și încearcă din nou.",
+    // One message per reason `submitOrder` can refuse, so the customer knows
+    // what to change instead of re-reading the whole form.
+    errors: {
+      invalid_contact: "Completează numele și numărul de telefon.",
+      invalid_address:
+        "Pentru livrare la adresă trebuie completată adresa de livrare.",
+      empty_cart: "Coșul este gol — adaugă un produs înainte de a comanda.",
+      unavailable:
+        "Produsele din coș nu mai sunt disponibile. Scoate-le și încearcă din nou.",
+      out_of_stock: "Stoc insuficient pentru unul dintre produse:",
+      server_error:
+        "Comanda nu a putut fi înregistrată. Nu ai fost taxat — încearcă din nou în câteva momente.",
+    },
+    // Lines dropped because the product left the shop between adding to cart
+    // and checking out.
+    removedTitle: "Am scos din coș produsele indisponibile:",
+    stockLeft: "disponibil:",
     successTitle: "Comandă trimisă.",
     successText:
       "Mulțumim — revenim în scurt timp cu confirmarea comenzii.",
@@ -417,6 +461,18 @@ export const ro = {
 };
 
 export const ru: typeof ro = {
+  errors: {
+    pageTitle: "Что-то пошло не так",
+    pageText:
+      "Страницу не удалось загрузить. Обычно это временно — попробуйте снова.",
+    retry: "Попробовать снова",
+    home: "На главную",
+    shop: "Смотреть товары",
+    notFoundTitle: "Страница не найдена",
+    notFoundText:
+      "Ссылка неверна, либо товар уже снят с продажи.",
+    errorCode: "Код ошибки",
+  },
   meta: {
     title: "Lampino — Освещение для дома с быстрой доставкой",
     description:
@@ -533,6 +589,18 @@ export const ru: typeof ro = {
       submit: "Отправить заявку",
       sending: "Отправка…",
       error: "Что-то пошло не так. Проверьте данные и попробуйте снова.",
+      errors: {
+        invalid_contact: "Укажите имя и номер телефона.",
+        invalid_event_type: "Выберите тип мероприятия.",
+        invalid_location: "Укажите место проведения.",
+        invalid_guests: "Количество гостей должно быть не меньше 1.",
+        invalid_date: "Выберите корректную дату мероприятия.",
+        invalid_end_date: "Дата окончания не может быть раньше даты начала.",
+        package_not_found:
+          "Этот пакет больше не доступен. Выберите другой из списка.",
+        server_error:
+          "Заявку не удалось отправить. Попробуйте снова через несколько минут.",
+      },
       successTitle: "Заявка отправлена!",
       successText:
         "Спасибо — мы скоро вернёмся с предложением для вашего мероприятия.",
@@ -663,6 +731,18 @@ export const ru: typeof ro = {
     submit: "Отправить заказ",
     sending: "Отправка…",
     error: "Что-то пошло не так. Проверьте данные и попробуйте снова.",
+    errors: {
+      invalid_contact: "Укажите имя и номер телефона.",
+      invalid_address: "Для доставки укажите адрес.",
+      empty_cart: "Корзина пуста — добавьте товар перед заказом.",
+      unavailable:
+        "Товаров из корзины больше нет в наличии. Удалите их и попробуйте снова.",
+      out_of_stock: "Недостаточно товара на складе:",
+      server_error:
+        "Заказ не удалось оформить. Деньги не списаны — попробуйте снова через несколько минут.",
+    },
+    removedTitle: "Мы убрали из корзины недоступные товары:",
+    stockLeft: "в наличии:",
     successTitle: "Заказ отправлен.",
     successText:
       "Спасибо — мы скоро свяжемся с подтверждением заказа.",

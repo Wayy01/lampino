@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { DEFAULT_LOCALE, LOCALES } from "@/lib/i18n/routing";
+import { DEFAULT_LOCALE, LOCALE_HEADER, LOCALES } from "@/lib/i18n/routing";
 
 const COOKIE = "lampino-lang";
 
@@ -22,23 +22,33 @@ function detectLocale(request: NextRequest): string {
 const isLocaleSegment = (segment: string | undefined) =>
   LOCALES.includes(segment as (typeof LOCALES)[number]);
 
+/** Forward the resolved locale to the app; see `LOCALE_HEADER`. */
+function withLocaleHeader(request: NextRequest, locale: string) {
+  const headers = new Headers(request.headers);
+  headers.set(LOCALE_HEADER, locale);
+  return NextResponse.next({ request: { headers } });
+}
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Admin lives at /admin/<locale>/...; redirect locale-less admin paths.
   if (pathname === "/admin" || pathname.startsWith("/admin/")) {
     const rest = pathname.slice("/admin".length); // "" | "/login" | "/ro/..."
-    if (isLocaleSegment(rest.split("/")[1])) return NextResponse.next();
+    const adminLocale = rest.split("/")[1];
+    if (isLocaleSegment(adminLocale)) {
+      return withLocaleHeader(request, adminLocale);
+    }
     const url = request.nextUrl.clone();
     url.pathname = `/admin/${detectLocale(request)}${rest}`;
     return NextResponse.redirect(url);
   }
 
   // Already locale-prefixed (`/ro`, `/ru`, or a deeper path)? Leave it alone.
-  const hasLocale = LOCALES.some(
+  const current = LOCALES.find(
     (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
   );
-  if (hasLocale) return NextResponse.next();
+  if (current) return withLocaleHeader(request, current);
 
   // Otherwise redirect to the detected locale, preserving path + query.
   const locale = detectLocale(request);

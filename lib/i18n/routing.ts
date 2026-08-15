@@ -13,6 +13,15 @@ export function isLocale(value: string | undefined): value is Locale {
   return value === "ro" || value === "ru";
 }
 
+/**
+ * Request header carrying the resolved locale, set by `proxy.ts`.
+ *
+ * Only `not-found.tsx` needs it: that file must be a Server Component (a
+ * client one is ignored in favour of Next's built-in 404) and is rendered
+ * without `params`, so the `[lang]` segment is otherwise unreachable from it.
+ */
+export const LOCALE_HEADER = "x-lampino-locale";
+
 /** Prefix an app-relative path (starting with `/`, or empty for the home page). */
 export function localePath(lang: Locale, path = ""): string {
   return `/${lang}${path}`;

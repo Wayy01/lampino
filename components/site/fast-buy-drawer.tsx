@@ -10,6 +10,7 @@ import { formatPrice, pick } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { submitOrder } from "@/lib/actions/orders";
+import { OrderError, type OrderFailure } from "./order-error";
 import { useOrderForm, OrderFields } from "./order-fields";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -42,7 +43,7 @@ export function FastBuyDrawer({
   const [qty, setQty] = useState(quantity);
   const form = useOrderForm();
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState(false);
+  const [failure, setFailure] = useState<OrderFailure | null>(null);
   const [sent, setSent] = useState(false);
 
   // Sync with the current selection whenever the drawer transitions to open —
@@ -54,7 +55,7 @@ export function FastBuyDrawer({
     if (open) {
       setQty(Math.min(Math.max(1, quantity), Math.max(1, stock)));
       setSent(false);
-      setError(false);
+      setFailure(null);
     }
   }
 
@@ -64,7 +65,7 @@ export function FastBuyDrawer({
     e.preventDefault();
     if (pending) return;
     setPending(true);
-    setError(false);
+    setFailure(null);
     const res = await submitOrder({
       items: [{ productId: product.id, variantId: variant?.id ?? null, quantity: qty }],
       customerName: form.customer,
@@ -76,7 +77,7 @@ export function FastBuyDrawer({
     });
     setPending(false);
     if (res.ok) setSent(true);
-    else setError(true);
+    else setFailure(res);
   };
 
   return (
@@ -145,7 +146,16 @@ export function FastBuyDrawer({
                 </span>
               </div>
 
-              {error && <p className="text-sm text-red-600">{t.fastBuy.error}</p>}
+              {failure && (
+                <OrderError
+                  failure={failure}
+                  nameOf={() =>
+                    variantLabel
+                      ? `${pick(lang, product.name_ro, product.name_ru)} · ${variantLabel}`
+                      : pick(lang, product.name_ro, product.name_ru)
+                  }
+                />
+              )}
 
               <Button type="submit" size="lg" className="group w-full" disabled={pending}>
                 {pending ? t.fastBuy.sending : t.fastBuy.submit}

@@ -85,7 +85,7 @@ export function ProductsTable({
       ) : (
         <Eye className="h-4 w-4" />
       ),
-      run: () => setProductActive(p.id, !p.isActive),
+      run: () => setProductActive(lang, p.id, !p.isActive),
     },
     {
       key: "featured",
@@ -95,7 +95,7 @@ export function ProductsTable({
       ) : (
         <Star className="h-4 w-4" />
       ),
-      run: () => setProductFeatured(p.id, !p.featured),
+      run: () => setProductFeatured(lang, p.id, !p.featured),
     },
     {
       key: "duplicate",
@@ -107,7 +107,7 @@ export function ProductsTable({
       key: "delete",
       label: t.common.delete,
       icon: <Trash2 className="h-4 w-4" />,
-      run: () => removeProduct(p.id),
+      run: () => removeProduct(lang, p.id),
       confirm: true,
       danger: true,
     },

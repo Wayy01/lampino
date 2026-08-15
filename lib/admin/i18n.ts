@@ -75,6 +75,54 @@ const ro = {
     tooLarge: "Fișierul este prea mare",
     invalidType: "Tip de fișier neacceptat.",
     failed: "Încărcarea a eșuat.",
+    noFile: "Nu ai selectat niciun fișier.",
+    emptyFile: "Fișierul este gol.",
+    writeFailed:
+      "Fișierul nu a putut fi salvat pe server. Încearcă din nou; dacă persistă, spațiul pe disc poate fi plin.",
+    networkFailed:
+      "Încărcarea a fost întreruptă. Verifică conexiunea și încearcă din nou.",
+    allowedTypes: "Acceptate: JPG, PNG, WebP, GIF, AVIF, MP4, WebM, MOV.",
+  },
+  // Failures from the layer under validation — the database, the filesystem,
+  // the session. Rendered by `ActionNotice` and the action toast.
+  errors: {
+    unexpected:
+      "Ceva n-a mers pe server. Încearcă din nou; dacă se repetă, reîncarcă pagina.",
+    databaseUnreachable:
+      "Baza de date nu răspunde. Modificarea nu a fost salvată — încearcă din nou în câteva momente.",
+    databaseTimeout:
+      "Baza de date a răspuns prea greu și operațiunea a fost anulată. Încearcă din nou.",
+    databaseBusy:
+      "Baza de date este supraîncărcată. Așteaptă câteva secunde și încearcă din nou.",
+    duplicate: "Există deja o înregistrare cu această valoare.",
+    stillReferenced:
+      "Nu poate fi șters cât timp este folosit în altă parte. Elimină întâi legăturile.",
+    recordMissing:
+      "Înregistrarea nu mai există — probabil a fost ștearsă în altă filă. Reîncarcă pagina.",
+    missingRequired: "Un câmp obligatoriu a rămas gol.",
+    valueTooLong: "O valoare depășește lungimea maximă permisă.",
+    writeConflict:
+      "O altă modificare a intervenit în același timp. Reîncarcă pagina și încearcă din nou.",
+    invalidQuery:
+      "Cerere invalidă către baza de date. Reîncarcă pagina; dacă persistă, este o eroare a aplicației.",
+    sessionExpired:
+      "Sesiunea a expirat. Autentifică-te din nou — datele completate se păstrează în această filă.",
+    loadFailed: "Datele nu au putut fi încărcate.",
+    loadFailedHint:
+      "Baza de date nu a răspuns. Încearcă din nou — nimic nu a fost modificat.",
+    retry: "Încearcă din nou",
+    reload: "Reîncarcă pagina",
+    backToDashboard: "Înapoi la panou",
+    dismiss: "Închide",
+    errorCode: "Cod eroare",
+    // Silent no-ops that used to look like nothing happened.
+    reorderStale:
+      "Lista s-a schimbat între timp, așa că ordinea nu a fost salvată. Reîncarcă pagina și încearcă din nou.",
+    sourceMissing:
+      "Înregistrarea sursă nu mai există, deci nu a putut fi duplicată.",
+    cannotDeleteSelf: "Nu îți poți șterge propriul cont.",
+    cannotDeleteLastAdmin:
+      "Nu poți șterge ultimul cont de administrator — ai rămâne fără acces.",
   },
   statuses: {
     pending: "În așteptare",
@@ -556,6 +604,50 @@ const ru: AdminDict = {
     tooLarge: "Файл слишком большой",
     invalidType: "Неподдерживаемый тип файла.",
     failed: "Не удалось загрузить.",
+    noFile: "Файл не выбран.",
+    emptyFile: "Файл пустой.",
+    writeFailed:
+      "Не удалось сохранить файл на сервере. Попробуйте снова; если повторяется — возможно, закончилось место на диске.",
+    networkFailed:
+      "Загрузка прервана. Проверьте соединение и попробуйте снова.",
+    allowedTypes: "Поддерживаются: JPG, PNG, WebP, GIF, AVIF, MP4, WebM, MOV.",
+  },
+  errors: {
+    unexpected:
+      "Что-то пошло не так на сервере. Попробуйте снова; если повторяется — перезагрузите страницу.",
+    databaseUnreachable:
+      "База данных не отвечает. Изменения не сохранены — попробуйте через несколько секунд.",
+    databaseTimeout:
+      "База данных отвечала слишком долго, операция отменена. Попробуйте снова.",
+    databaseBusy:
+      "База данных перегружена. Подождите несколько секунд и попробуйте снова.",
+    duplicate: "Запись с таким значением уже существует.",
+    stillReferenced:
+      "Нельзя удалить, пока запись используется в другом месте. Сначала уберите связи.",
+    recordMissing:
+      "Записи больше нет — вероятно, её удалили в другой вкладке. Перезагрузите страницу.",
+    missingRequired: "Обязательное поле осталось пустым.",
+    valueTooLong: "Значение превышает максимальную длину.",
+    writeConflict:
+      "Одновременно прошло другое изменение. Перезагрузите страницу и попробуйте снова.",
+    invalidQuery:
+      "Некорректный запрос к базе данных. Перезагрузите страницу; если повторяется — это ошибка приложения.",
+    sessionExpired:
+      "Сессия истекла. Войдите снова — введённые данные сохранятся в этой вкладке.",
+    loadFailed: "Не удалось загрузить данные.",
+    loadFailedHint:
+      "База данных не ответила. Попробуйте снова — ничего не изменено.",
+    retry: "Попробовать снова",
+    reload: "Перезагрузить страницу",
+    backToDashboard: "Вернуться в панель",
+    dismiss: "Закрыть",
+    errorCode: "Код ошибки",
+    reorderStale:
+      "Список изменился, поэтому порядок не сохранён. Перезагрузите страницу и попробуйте снова.",
+    sourceMissing: "Исходной записи больше нет, дублировать нечего.",
+    cannotDeleteSelf: "Нельзя удалить собственную учётную запись.",
+    cannotDeleteLastAdmin:
+      "Нельзя удалить последнего администратора — вы потеряете доступ.",
   },
   statuses: {
     pending: "В ожидании",

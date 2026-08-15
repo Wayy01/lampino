@@ -29,15 +29,16 @@ export async function uploadMedia(fd: FormData): Promise<UploadResult> {
   const t = getAdminDict(lang).media;
 
   const file = fd.get("file");
-  if (!(file instanceof File) || file.size === 0) {
-    return { error: t.failed };
-  }
+  // Distinguish "you picked nothing" from "the file you picked has no bytes" —
+  // the second usually means a broken transfer, and re-picking fixes it.
+  if (!(file instanceof File)) return { error: t.noFile };
+  if (file.size === 0) return { error: t.emptyFile };
 
   // The extension comes from the allow-list, never from the client-supplied
   // filename — otherwise `Content-Type: image/x-anything` plus `evil.html`
   // would write a same-origin HTML file into public/uploads.
   const ext = EXT_BY_MIME[file.type];
-  if (!ext) return { error: t.invalidType };
+  if (!ext) return { error: `${t.invalidType} ${t.allowedTypes}` };
 
   const kind = file.type.startsWith("image/") ? "image" : "video";
 
@@ -49,8 +50,15 @@ export async function uploadMedia(fd: FormData): Promise<UploadResult> {
   const name = `${Date.now()}-${randomBytes(5).toString("hex")}${ext}`;
   const dir = path.join(process.cwd(), "public", "uploads", `${kind}s`);
 
-  await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, name), Buffer.from(await file.arrayBuffer()));
+  // A full disk, a read-only mount or a missing `public/` all surface here.
+  // Without this the write rejected straight out of the action and the upload
+  // button just stopped spinning.
+  try {
+    await mkdir(dir, { recursive: true });
+    await writeFile(path.join(dir, name), Buffer.from(await file.arrayBuffer()));
+  } catch {
+    return { error: t.writeFailed };
+  }
 
   return { url: `/uploads/${kind}s/${name}` };
 }

@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma";
 import { requireAdmin } from "@/lib/admin/session";
 import { getAdminDict, langFromForm, type AdminLang } from "@/lib/admin/i18n";
+import { runAction, runFormAction, type ActionResult } from "@/lib/admin/errors";
 
 export type PromotionActionState = { ok?: boolean; error?: string } | null;
 
@@ -126,17 +127,20 @@ export async function createPromotion(
 ): Promise<PromotionActionState> {
   const lang = langFromForm(fd);
   await requireAdmin(lang);
-  const parsed = parsePromotion(fd);
-  if ("error" in parsed) return { error: parsed.error };
 
-  const promotion = await prisma.promotion.create({ data: parsed.scalars });
-  // Assignments need the new id, so they follow the insert.
-  await prisma.$transaction(
-    assignmentOps(promotion.id, parsed.productIds, parsed.rentalIds),
-  );
+  return runFormAction(lang, async () => {
+    const parsed = parsePromotion(fd);
+    if ("error" in parsed) return { error: parsed.error };
 
-  revalidate();
-  redirect(`/admin/${lang}/promotions/${promotion.id}`);
+    const promotion = await prisma.promotion.create({ data: parsed.scalars });
+    // Assignments need the new id, so they follow the insert.
+    await prisma.$transaction(
+      assignmentOps(promotion.id, parsed.productIds, parsed.rentalIds),
+    );
+
+    revalidate();
+    redirect(`/admin/${lang}/promotions/${promotion.id}`);
+  });
 }
 
 export async function updatePromotion(
@@ -144,28 +148,34 @@ export async function updatePromotion(
   _prev: PromotionActionState,
   fd: FormData,
 ): Promise<PromotionActionState> {
-  await requireAdmin(langFromForm(fd));
-  const parsed = parsePromotion(fd);
-  if ("error" in parsed) return { error: parsed.error };
+  const lang = langFromForm(fd);
+  await requireAdmin(lang);
 
-  await prisma.$transaction([
-    prisma.promotion.update({ where: { id }, data: parsed.scalars }),
-    ...assignmentOps(id, parsed.productIds, parsed.rentalIds),
-  ]);
+  return runFormAction(lang, async () => {
+    const parsed = parsePromotion(fd);
+    if ("error" in parsed) return { error: parsed.error };
 
-  revalidate();
-  return { ok: true };
+    await prisma.$transaction([
+      prisma.promotion.update({ where: { id }, data: parsed.scalars }),
+      ...assignmentOps(id, parsed.productIds, parsed.rentalIds),
+    ]);
+
+    revalidate();
+    return { ok: true };
+  });
 }
 
 export async function deletePromotion(
   lang: AdminLang,
   id: number,
-): Promise<void> {
+): Promise<ActionResult> {
   await requireAdmin(lang);
-  await prisma.$transaction([
-    ...assignmentOps(id, [], []),
-    prisma.promotion.delete({ where: { id } }),
-  ]);
-  revalidatePath("/admin/[lang]/promotions", "page");
-  redirect(`/admin/${lang}/promotions`);
+  return runAction(lang, async () => {
+    await prisma.$transaction([
+      ...assignmentOps(id, [], []),
+      prisma.promotion.delete({ where: { id } }),
+    ]);
+    revalidatePath("/admin/[lang]/promotions", "page");
+    redirect(`/admin/${lang}/promotions`);
+  });
 }
