@@ -15,8 +15,10 @@ const SEGMENTS = 10;
 const GRAVITY = 0.9;
 const DAMPING = 0.985;
 const ITERATIONS = 8;
-const BULB_W = 92;
-const BULB_TOP_OFFSET = 10; // rope attaches near the top of the bulb cap
+const BULB_SCALE = 1.5;
+const BULB_W = 92 * BULB_SCALE;
+const BULB_H = 132 * BULB_SCALE;
+const BULB_TOP_OFFSET = 10 * BULB_SCALE; // rope attaches near the top of the bulb cap
 
 const LABEL = { ro: "Trage becul sau apasă pentru a-l aprinde / stinge", ru: "Потяните лампу или нажмите, чтобы включить / выключить" };
 
@@ -267,16 +269,16 @@ export function HeroLightbulb() {
             isOn ? "opacity-100" : "opacity-0",
           )}
           style={{
-            left: -84,
-            top: -50,
-            width: 260,
-            height: 260,
+            left: -84 * BULB_SCALE,
+            top: -50 * BULB_SCALE,
+            width: 260 * BULB_SCALE,
+            height: 260 * BULB_SCALE,
             background:
               "radial-gradient(circle, rgba(255,196,110,0.55) 0%, rgba(255,170,70,0.22) 45%, rgba(255,170,70,0) 72%)",
           }}
         />
 
-        <svg width={BULB_W} height={132} viewBox="0 0 92 132" className="relative drop-shadow-sm">
+        <svg width={BULB_W} height={BULB_H} viewBox="0 0 92 132" className="relative drop-shadow-sm">
           {/* cord loop / cap */}
           <rect x="41" y="0" width="10" height="14" rx="3" fill="var(--foreground)" fillOpacity="0.55" />
 
