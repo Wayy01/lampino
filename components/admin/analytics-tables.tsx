@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { ExternalLink, Package, Sparkles } from "lucide-react";
 import { productHref, rentalHref } from "@/lib/i18n/routing";
-import { pick } from "@/lib/utils";
+import { cn, pick } from "@/lib/utils";
 import { useAdminLang } from "@/lib/admin/i18n-provider";
 import type { ProductStat, RentalStat } from "@/lib/admin/analytics";
 import { formatDwell } from "@/lib/admin/analytics-format";
@@ -91,6 +92,12 @@ export function ProductAnalyticsTable({ rows }: { rows: ProductStat[] }) {
       header: a.colCart,
       align: "right",
       cell: (p) => <span className={num}>{p.addToCart}</span>,
+    },
+    {
+      key: "orders",
+      header: a.colOrders,
+      align: "right",
+      cell: (p) => <span className={num}>{p.orders}</span>,
     },
     {
       key: "conv",
@@ -186,5 +193,65 @@ export function RentalAnalyticsTable({ rows }: { rows: RentalStat[] }) {
         />
       }
     />
+  );
+}
+
+/**
+ * Segmented toggle between the products and rentals tables. Each table has
+ * five columns and needs the full page width to lay out without its own
+ * horizontal scrollbar, so only one shows at a time instead of squeezing both
+ * into a side-by-side grid.
+ */
+export function AnalyticsTablesSection({
+  products,
+  rentals,
+}: {
+  products: ProductStat[];
+  rentals: RentalStat[];
+}) {
+  const { t } = useAdminLang();
+  const a = t.analytics;
+  const [view, setView] = useState<"products" | "rentals">("products");
+
+  const tabs: { key: "products" | "rentals"; label: string; icon: React.ReactNode }[] = [
+    {
+      key: "products",
+      label: a.productsTitle,
+      icon: <Package className="h-4 w-4" strokeWidth={1.75} />,
+    },
+    {
+      key: "rentals",
+      label: a.rentalsTitle,
+      icon: <Sparkles className="h-4 w-4" strokeWidth={1.75} />,
+    },
+  ];
+
+  return (
+    <section className="mt-6">
+      <div className="mb-3 inline-flex gap-1 rounded-[var(--radius-md)] border bg-surface p-1">
+        {tabs.map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            onClick={() => setView(tab.key)}
+            className={cn(
+              "flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-3 py-1.5 text-sm font-medium transition-colors",
+              view === tab.key
+                ? "bg-foreground text-background"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {tab.icon}
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {view === "products" ? (
+        <ProductAnalyticsTable rows={products} />
+      ) : (
+        <RentalAnalyticsTable rows={rentals} />
+      )}
+    </section>
   );
 }

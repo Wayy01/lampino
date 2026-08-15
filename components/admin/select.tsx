@@ -76,14 +76,14 @@ export function AdminSelect({
           <SelectPrimitive.Content
             position="popper"
             sideOffset={4}
-            className="cs-select-content z-[100] max-h-[min(18rem,var(--radix-select-content-available-height))] w-[var(--radix-select-trigger-width)] min-w-[8rem] overflow-hidden rounded-[var(--radius-md)] border bg-surface shadow-lg"
+            className="cs-select-content z-[100] max-h-[min(18rem,var(--radix-select-content-available-height))] w-max min-w-[var(--radix-select-trigger-width)] max-w-[min(20rem,90vw)] overflow-hidden rounded-[var(--radius-md)] border bg-surface shadow-lg"
           >
             <SelectPrimitive.Viewport className="max-h-[inherit] overflow-y-auto p-1">
               {options.map((option) => (
                 <SelectPrimitive.Item
                   key={option.value || EMPTY}
                   value={option.value === "" ? EMPTY : option.value}
-                  className="flex cursor-pointer select-none items-center justify-between gap-2 rounded-[var(--radius-sm)] px-2.5 py-2 text-sm outline-none transition-colors data-[highlighted]:bg-muted data-[state=checked]:text-primary"
+                  className="flex cursor-pointer select-none items-center justify-between gap-2 whitespace-nowrap rounded-[var(--radius-sm)] px-2.5 py-2 text-sm outline-none transition-colors data-[highlighted]:bg-muted data-[state=checked]:text-primary"
                 >
                   <SelectPrimitive.ItemText>
                     {option.label}

@@ -10,6 +10,7 @@ import {
   DEFAULT_SORT,
   isSortKey,
   LUMENS_ORDER,
+  priceCeiling,
   SOCKET_ORDER,
   type ColorTempKey,
   type LumensKey,
@@ -24,8 +25,6 @@ export const metadata: Metadata = {
 };
 
 export const dynamic = "force-dynamic";
-
-const PRICE_STEPS = [200, 500, 1200];
 
 const parseList = <T extends string>(
   raw: string | undefined,
@@ -57,8 +56,12 @@ export default async function MagazinPage({
   const matched = categoryOptions.find((c) => c.id === rawCat);
   const initialCategory: ProductCategory | "all" = matched ? matched.slug : "all";
 
+  // A shared `max` in the URL is honoured when it's a sane positive value the
+  // catalog can actually contain; otherwise fall back to the ceiling (no filter).
+  const ceiling = priceCeiling(products);
   const rawMax = Number(get("max"));
-  const initialMaxPrice = PRICE_STEPS.includes(rawMax) ? rawMax : 1200;
+  const initialMaxPrice =
+    rawMax > 0 && rawMax <= ceiling ? rawMax : ceiling;
 
   const rawSort = get("sort");
   const initialSort: SortKey = isSortKey(rawSort) ? rawSort : DEFAULT_SORT;

@@ -16,6 +16,10 @@ const ALL_TYPES = new Set([...VIEW_TYPES, "add_to_cart"]);
 // single forgotten tab can't skew the average dwell time.
 const MAX_DWELL_MS = 30 * 60 * 1000;
 
+// A refresh or back/forward within this window is the same visit, not a new
+// one — skip logging it so reloading a page doesn't inflate its view count.
+const VIEW_DEDUPE_WINDOW_MS = 30 * 60 * 1000;
+
 /** A finite integer id in the plausible range, or null. */
 function id(value: unknown): number | null {
   return typeof value === "number" && Number.isInteger(value) && value > 0
@@ -47,6 +51,20 @@ export async function POST(request: Request) {
         return noContent();
       }
       dwellMs = Math.min(Math.round(raw), MAX_DWELL_MS);
+
+      if (visitorId) {
+        const recent = await prisma.analyticsEvent.findFirst({
+          where: {
+            type,
+            visitorId,
+            productId: type === "rental_view" ? null : productId,
+            rentalPackageId: type === "rental_view" ? rentalPackageId : null,
+            createdAt: { gte: new Date(Date.now() - VIEW_DEDUPE_WINDOW_MS) },
+          },
+          select: { id: true },
+        });
+        if (recent) return noContent();
+      }
     }
 
     await prisma.analyticsEvent.create({

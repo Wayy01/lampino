@@ -7,10 +7,7 @@ import { formatDwell } from "@/lib/admin/analytics-format";
 import { PageHeader } from "@/components/admin/page-header";
 import { StatCard } from "@/components/admin/stat-card";
 import { FilterSelect } from "@/components/admin/toolbar";
-import {
-  ProductAnalyticsTable,
-  RentalAnalyticsTable,
-} from "@/components/admin/analytics-tables";
+import { AnalyticsTablesSection } from "@/components/admin/analytics-tables";
 
 // Reads cookies via requireAdmin, so it's dynamic anyway — keep the numbers
 // live rather than cached.
@@ -113,29 +110,7 @@ export default async function AdminAnalyticsPage({
         />
       </div>
 
-      <div className="mt-6 grid items-start gap-6 lg:grid-cols-2 lg:gap-5">
-        <section>
-          <h2 className="mb-3 flex items-center gap-2.5 font-medium">
-            <Eye
-              className="h-4 w-4 text-muted-foreground"
-              strokeWidth={1.75}
-            />
-            {a.productsTitle}
-          </h2>
-          <ProductAnalyticsTable rows={products} />
-        </section>
-
-        <section>
-          <h2 className="mb-3 flex items-center gap-2.5 font-medium">
-            <Sparkles
-              className="h-4 w-4 text-muted-foreground"
-              strokeWidth={1.75}
-            />
-            {a.rentalsTitle}
-          </h2>
-          <RentalAnalyticsTable rows={rentals} />
-        </section>
-      </div>
+      <AnalyticsTablesSection products={products} rentals={rentals} />
     </>
   );
 }

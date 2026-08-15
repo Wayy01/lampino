@@ -3,13 +3,12 @@
 import { useState } from "react";
 import { MapPin, Store, Truck } from "lucide-react";
 import { useLang } from "@/lib/i18n/provider";
-import type { Dict } from "@/lib/i18n/dictionaries";
 import type { DeliveryRegion } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 import { Input, Textarea, Label } from "@/components/ui/input";
 
-// The customer portion shared by every WhatsApp order form (product buy-now,
-// cart checkout, rental inquiry) so they stay pixel-identical and can't drift.
+// The customer portion shared by every checkout form (product buy-now, cart
+// checkout) so they stay pixel-identical and can't drift.
 
 export type Method = "pickup" | "delivery";
 
@@ -181,28 +180,3 @@ export function MethodButton({
   );
 }
 
-/** The customer lines shared by every WhatsApp order message. */
-export function buildOrderLines(t: Dict, values: OrderForm): string[] {
-  return [
-    `${t.fastBuy.name}: ${values.customer}`,
-    `${t.fastBuy.phone}: ${values.phone}`,
-    `${t.fastBuy.method}: ${values.method === "pickup" ? t.fastBuy.pickup : t.fastBuy.delivery}`,
-    ...(values.method === "delivery"
-      ? [
-          `${t.cart.delivery}: ${values.region === "chisinau" ? t.cart.deliveryChisinau : t.cart.deliveryOutside}`,
-          `${t.fastBuy.address}: ${values.address}`,
-        ]
-      : []),
-    ...(values.notes ? [`${t.fastBuy.notes}: ${values.notes}`] : []),
-  ];
-}
-
-/** Open WhatsApp with a prefilled message; returns false if no number is set. */
-export function openWhatsApp(whatsapp: string | null, lines: string[]): boolean {
-  if (!whatsapp) return false;
-  const digits = whatsapp.replace(/[^\d]/g, "");
-  if (!digits) return false;
-  const url = `https://wa.me/${digits}?text=${encodeURIComponent(lines.join("\n"))}`;
-  window.open(url, "_blank", "noopener,noreferrer");
-  return true;
-}

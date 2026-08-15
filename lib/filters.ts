@@ -95,6 +95,28 @@ export function buildFacets(products: Product[]): Facets {
   };
 }
 
+/* --------------------------------- Price ----------------------------------- */
+
+// Fixed low/mid buckets for the "Preț max" facet. The top bucket is not fixed —
+// it is the actual catalog ceiling (see `priceCeiling`), so the priciest product
+// is always reachable no matter how high it is priced.
+const PRICE_BUCKETS = [200, 500, 1200] as const;
+
+/**
+ * The highest price the filter needs to admit: the dearest product in the
+ * catalog, rounded up to a clean hundred, and never below the top fixed bucket.
+ * At this value the max-price filter is effectively "no limit".
+ */
+export function priceCeiling(products: { price: number }[]): number {
+  const max = products.reduce((m, p) => Math.max(m, p.price), 0);
+  return Math.max(PRICE_BUCKETS.at(-1)!, Math.ceil(max / 100) * 100);
+}
+
+/** The max-price pills for a given ceiling: fixed buckets below it, then it. */
+export function priceSteps(ceiling: number): number[] {
+  return [...PRICE_BUCKETS.filter((b) => b < ceiling), ceiling];
+}
+
 /* --------------------------------- Sort ------------------------------------ */
 
 export type SortKey = "featured" | "price-asc" | "price-desc";

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lampino — Full QA Audit</title>
+<style>
+  :root {
+    --bg: #111214;
+    --panel: #17181b;
+    --text: #f2f2f3;
+    --dim: #a3a5aa;
+    --faint: #6f7176;
+    --line: #2a2c30;
+    --ok: #6ee7a8;
+    --warn: #f0c76b;
+    --bad: #f08b8b;
+    --link: #8ab4f8;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 64px 28px 120px; }
+
+  header { border-bottom: 1px solid var(--line); padding-bottom: 28px; margin-bottom: 44px; }
+  h1 { font-size: 30px; line-height: 1.2; margin: 0 0 10px; font-weight: bold; letter-spacing: -0.01em; }
+  .sub { color: var(--dim); font-size: 14px; margin: 0; }
+  .meta { color: var(--faint); font-size: 13px; margin-top: 14px; }
+
+  h2 {
+    font-size: 20px; margin: 52px 0 6px; font-weight: bold; letter-spacing: -0.01em;
+    padding-top: 22px; border-top: 1px solid var(--line);
+  }
+  h2:first-of-type { border-top: none; padding-top: 0; }
+  h3 { font-size: 15px; margin: 28px 0 8px; font-weight: bold; color: var(--text); }
+  p { margin: 10px 0; color: var(--dim); }
+  p.lead { color: var(--text); }
+
+  ul { margin: 10px 0 10px 0; padding-left: 20px; color: var(--dim); }
+  li { margin: 5px 0; }
+  li strong, p strong { color: var(--text); font-weight: bold; }
+
+  code {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: #d9dbe0;
+    white-space: nowrap;
+  }
+
+  table { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: 14px; }
+  th {
+    text-align: left; color: var(--faint); font-weight: bold; font-size: 11px;
+    letter-spacing: 0.09em; text-transform: uppercase;
+    padding: 0 12px 9px 0; border-bottom: 1px solid var(--line); vertical-align: bottom;
+  }
+  td { padding: 11px 12px 11px 0; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--dim); }
+  td:first-child { color: var(--text); }
+  tr:last-child td { border-bottom: none; }
+
+  .ok { color: var(--ok); }
+  .warn { color: var(--warn); }
+  .bad { color: var(--bad); }
+  .tag { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: bold; }
+
+  .box {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 18px 22px; margin: 20px 0;
+  }
+  .box p:first-child { margin-top: 0; }
+  .box p:last-child { margin-bottom: 0; }
+
+  .kpis { display: flex; flex-wrap: wrap; gap: 10px; margin: 26px 0 6px; }
+  .kpi {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 14px 18px; min-width: 132px; flex: 1 1 132px;
+  }
+  .kpi .n { font-size: 24px; font-weight: bold; color: var(--text); line-height: 1.1; }
+  .kpi .l { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); margin-top: 5px; }
+
+  footer { margin-top: 72px; padding-top: 22px; border-top: 1px solid var(--line); color: var(--faint); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Lampino — Full QA Audit</h1>
+  <p class="sub">Every storefront button and every admin action, driven in a real browser on desktop (1440px) and mobile (390px), with each write verified against Postgres.</p>
+  <p class="meta">2026-08-14 · Next.js 16 / React 19 / Prisma / Postgres · admin: <code>admin / admin123</code> · no code changed</p>
+</header>
+
+<div class="kpis">
+  <div class="kpi"><div class="n">20</div><div class="l">Admin write-actions verified</div></div>
+  <div class="kpi"><div class="n bad">2</div><div class="l">Real bugs</div></div>
+  <div class="kpi"><div class="n warn">5</div><div class="l">Minor issues</div></div>
+  <div class="kpi"><div class="n">20</div><div class="l">Routes exercised</div></div>
+  <div class="kpi"><div class="n ok">0</div><div class="l">Test records left behind</div></div>
+</div>
+
+<h2>1. Summary</h2>
+<p class="lead">The site is in good shape. Both apps — storefront and admin CMS — work end to end: the cart and WhatsApp checkout, the rental inquiry, and all admin CRUD (create / edit / duplicate / delete) persist correctly to the database. Two genuine bugs stand out, one of which hides your single most expensive product from the shop.</p>
+<p>I clicked through every navigational and action control I could reach, created and deleted real records in every admin collection, and confirmed each mutation in Postgres rather than trusting the UI's success toast. Everything I created for testing was deleted again — the database is back at its seed baseline (16 products, 4 rentals, 2 promotions, 12 categories, 12 orders, 1 admin user).</p>
+
+<div class="box">
+  <p><strong>Verified working:</strong> homepage (nav, promo band, hero, FAQ accordions, footer links), shop filters + sort + pagination, product gallery + variant switching + out-of-stock handling, add-to-cart + quantity + remove + localStorage persistence, free-shipping threshold, WhatsApp cart checkout + buy-now (correct deep links), rental variant pricing + request-quote form, RO↔RU language switch, admin login/logout/guard, product/rental/promotion/category/user CRUD, order + application status changes, homepage &amp; settings section saves, mobile hamburger nav + full-screen cart + responsive admin tables.</p>
+</div>
+
+<h2>2. Bugs found</h2>
+<p>Two defects that a real customer or the store owner would hit. Both confirmed three ways — in the source, in the database, and in the running browser.</p>
+
+<h3><span class="bad">BUG 1 — Products over 1.200 lei can never appear in the shop</span> <span class="tag warn">medium-high</span></h3>
+<p>The catalog's "Preț max" filter defaults to <code>1200</code> and offers no higher bucket, so any product priced above 1.200 lei is silently filtered out of <code>/magazin</code> — you cannot browse or sort your way to it. In <code>components/site/catalog.tsx</code>: <code>MAX_PRICE = 1200</code> is the initial state, <code>PRICE_STEPS = [200, 500, 1200]</code> are the only choices, and line 141 drops every <code>product.price &gt; maxPrice</code>.</p>
+<p><strong>Proof:</strong> the catalog reports "14 produse" while the DB holds 15 active products; the missing one is <code>id=14 "Lustră Suspendată Halo 60cm" = 1.890 lei</code>. It is still featured on the homepage and reachable by direct URL, but selecting "Preț descrescător" (price high→low) in the shop shows the 1.190-lei lampadar first — the 1.890-lei chandelier is absent from the sorted list. Your most expensive item is unshoppable.</p>
+
+<h3><span class="bad">BUG 2 — Russian pages carry Romanian &lt;title&gt; and meta description</span> <span class="tag warn">medium</span></h3>
+<p>Page metadata is a static export, not localized. <code>app/[lang]/layout.tsx:41</code> hard-codes a Romanian <code>title</code> and <code>description</code> with no <code>generateMetadata</code>, so the locale segment is ignored for SEO/meta.</p>
+<p><strong>Proof:</strong> <code>curl</code> of both locales returns the same tag — <code>&lt;title&gt;Lampino — Iluminat pentru casă, livrat rapid&lt;/title&gt;</code> and a Romanian <code>&lt;meta name="description"&gt;</code> — on <code>/ru</code> as well as <code>/ro</code>. A Russian visitor sees a Romanian browser-tab title and a Romanian description in search results. The on-page content itself translates correctly; only the document metadata does not.</p>
+
+<h2>3. Minor issues &amp; polish</h2>
+<table>
+  <tr><th>Issue</th><th>Where</th><th>Severity</th></tr>
+  <tr><td>WhatsApp order message repeats the label "Livrare:" three times</td><td>Cart checkout deep link — one line each for delivery <em>method</em>, <em>region</em> and <em>cost</em>, all labelled "Livrare:". Reads ambiguously to whoever receives the order.</td><td class="warn">cosmetic</td></tr>
+  <tr><td><code>favicon.ico</code> returns 404</td><td>Storefront and admin both — console error on every page load</td><td class="warn">minor</td></tr>
+  <tr><td>Hero image not marked <code>loading="eager"</code></td><td>Homepage LCP element — Next.js perf warning in console</td><td class="warn">perf</td></tr>
+  <tr><td>"Oferte speciale" lists some products with no discount</td><td>Page heading says "la preț redus" but e.g. Bandă LED Alb Cald (349 lei) shows no reduction. Admin-curated, so may be intentional.</td><td class="warn">content</td></tr>
+  <tr><td>Destructive-action confirm is easy to miss</td><td>The two-click <code>ConfirmButton</code> arms for only 3s and only changes colour + a subtle label swap ("Șterg produsul?"). Not a bug — a deliberate safety pattern — but a slow second click silently re-arms instead of deleting.</td><td class="warn">UX note</td></tr>
+</table>
+
+<h2>4. Storefront — what was exercised</h2>
+<p>Ten page types across both locales, desktop and mobile. Every result below was observed live in the browser.</p>
+<table>
+  <tr><th>Area</th><th>Controls tested</th><th>Result</th></tr>
+  <tr><td>Homepage</td><td>Promo band CTA, header nav ×3, logo, RO/RU switch, cart, hero CTA, 9 product cards + add-to-cart, 3 category cards, 3 rental cards, 4 FAQ accordions, full footer (tel/mailto/social/legal)</td><td class="ok">Pass</td></tr>
+  <tr><td>Shop <code>/magazin</code></td><td>Category filter (12), price-max, colour/socket/brightness facets, sort dropdown, pagination, result count, add-to-cart</td><td class="warn">Pass — see Bug 1</td></tr>
+  <tr><td>Product detail</td><td>Gallery thumbnails, spec table, quantity stepper, variant switch (price/stock/WhatsApp update live), <strong>out-of-stock variant correctly disabled</strong>, add-to-cart, buy-now, WhatsApp + call links, related products</td><td class="ok">Pass</td></tr>
+  <tr><td>Cart + checkout</td><td>Add, qty ±, remove, free-shipping threshold (1.500 lei), localStorage persist + badge, cart cleared post-order, pickup/delivery toggle, conditional region + address fields</td><td class="ok">Pass</td></tr>
+  <tr><td>WhatsApp handoff</td><td>Cart checkout &amp; buy-now both build <code>wa.me/37367524111</code> with a correct itemized message (verified the encoded payload)</td><td class="ok">Pass</td></tr>
+  <tr><td>Rentals <code>/arenda</code> + detail</td><td>4-package listing, variant pricing switch, gallery, spec grid, includes list, WhatsApp + call</td><td class="ok">Pass</td></tr>
+  <tr><td>Rental inquiry form</td><td>Required-field validation (blocks empty), full submit → created <code>RentalApplication</code> #8 in DB, success screen</td><td class="ok">Pass</td></tr>
+  <tr><td>About / Terms / Privacy / Offers</td><td>HTTP 200 and render in both <code>ro</code> and <code>ru</code></td><td class="ok">Pass</td></tr>
+  <tr><td>Language</td><td>RO↔RU switch rewrites URL and translates nav, sections, footer</td><td class="ok">Pass (content) / <span class="bad">fail (metadata, Bug 2)</span></td></tr>
+</table>
+
+<h2>5. Admin CMS — what was exercised</h2>
+<p>Every admin action below was run and then <strong>confirmed in Postgres</strong>. Records I created were deleted again; live seed records I touched (order/hero/delivery) were reverted to their original values.</p>
+<table>
+  <tr><th>Action</th><th>How verified</th><th>Result</th></tr>
+  <tr><td>Login / bad-creds / logout / route guard</td><td><code>admin/admin123</code> logs in; wrong password shows "Neverное…" error; logout + direct hit on a protected URL both redirect to login; show/hide-password toggle flips input type</td><td class="ok">Pass</td></tr>
+  <tr><td>Dashboard</td><td>Revenue 13.207 lei, orders 12, products 15, applications — all stat cards + recent-orders + low-stock + top-products render</td><td class="ok">Pass</td></tr>
+  <tr><td>Product — duplicate</td><td>Created <code>id=18</code> "…(copie)", correctly starts <em>Inactiv</em>, copies images/specs/price</td><td class="ok">Pass</td></tr>
+  <tr><td>Product — edit + save</td><td>Name→"QA Edited Chandelier", price→1750, activate; DB confirmed <code>isActive=true</code>; "Salvat." shown</td><td class="ok">Pass</td></tr>
+  <tr><td>Product — create + validation</td><td>Empty submit blocked (3 required fields); valid create made <code>id=19</code></td><td class="ok">Pass</td></tr>
+  <tr><td>Product — sub-collections</td><td>"Adaugă variantă / video / specificație" each add editable rows; image list has main-image radio + remove</td><td class="ok">Pass</td></tr>
+  <tr><td>Product — delete</td><td>Two-click confirm removed <code>id=18</code> and <code>id=19</code>; DB returns null</td><td class="ok">Pass</td></tr>
+  <tr><td>Rental — duplicate / edit / delete</td><td>Dup→<code>id=6</code>, title→"QA Edited Rental Package" + price 3100 persisted, then deleted</td><td class="ok">Pass</td></tr>
+  <tr><td>Promotion — create + link + delete</td><td>Created <code>id=4</code> (10% discount, dates, 1 product linked — DB <code>_count.products=1</code>), then deleted</td><td class="ok">Pass</td></tr>
+  <tr><td>Category — create / edit / delete</td><td>Create auto-generated slug <code>qa-test-category</code>; rename kept slug (URL-safe); delete warns about orphaned products</td><td class="ok">Pass</td></tr>
+  <tr><td>Homepage editor</td><td>Hero title save persisted to <code>heroContent.leftHeading_ro</code>, then reverted to original</td><td class="ok">Pass</td></tr>
+  <tr><td>Site settings</td><td>Delivery free-ship threshold 1500→1400 persisted to <code>deliverySettings</code>, then reverted to 1500</td><td class="ok">Pass</td></tr>
+  <tr><td>Users</td><td>Create <code>qatester</code> (password stored <code>scrypt:…</code>, not plaintext), edit role editor→admin, delete; own row has no delete button (self-delete blocked)</td><td class="ok">Pass</td></tr>
+  <tr><td>Orders</td><td>Detail shows items/customer/address; status pending→confirmed persisted, then reverted</td><td class="ok">Pass</td></tr>
+  <tr><td>Applications</td><td>Detail shows full inquiry; status pending→approved persisted; deleted the test record</td><td class="ok">Pass</td></tr>
+</table>
+
+<h2>6. Mobile (390 × 844)</h2>
+<p>Re-ran the primary flows at phone width. No broken layouts, no clipped controls.</p>
+<table>
+  <tr><th>Surface</th><th>Behaviour</th><th>Result</th></tr>
+  <tr><td>Storefront header</td><td>Collapses to logo + cart + hamburger; menu opens nav ×3 + RO/RU + CTA</td><td class="ok">Pass</td></tr>
+  <tr><td>Cart drawer</td><td>Full-screen overlay: item, stepper, total, threshold note, full-width checkout CTA</td><td class="ok">Pass</td></tr>
+  <tr><td>Admin dashboard</td><td>Sidebar → hamburger ("Deschide meniul"); stat cards reflow to 2-col</td><td class="ok">Pass</td></tr>
+  <tr><td>Admin data table</td><td>Products table collapses to product + price columns, keeps thumbnails, stars, stock, variant badges, per-row actions</td><td class="ok">Pass</td></tr>
+</table>
+
+<h2>7. Known gaps — flagged for a decision</h2>
+<ul>
+  <li><strong>Bug 1 needs a product call.</strong> Either add a higher (or "no limit") price bucket to <code>PRICE_STEPS</code>, or make <code>MAX_PRICE</code> derive from the actual catalog maximum. Right now the ceiling is a hard 1.200 lei and the chandelier is invisible in the shop.</li>
+  <li><strong>Bug 2 needs a decision on i18n metadata.</strong> Move the storefront <code>metadata</code> to a per-locale <code>generateMetadata</code> so <code>/ru</code> gets Russian title + description. Purely SEO/UX; no functional breakage.</li>
+  <li><strong>WhatsApp "Livrare:" triple-label.</strong> Decide whether the order message should distinguish method / region / cost with separate labels before it ships to real customers.</li>
+</ul>
+
+<h2>8. Not tested, and why</h2>
+<div class="box">
+  <p>Coverage was broad but not total. The following were deliberately or unavoidably skipped:</p>
+</div>
+<ul>
+  <li><strong>Real file uploads.</strong> The image/video "Încarcă" buttons and drag-to-reorder handles were confirmed present, but I did not push a file through the OS file chooser or perform an actual drag — only the URL-add path was exercised.</li>
+  <li><strong>Deleting a seed <em>Order</em>.</strong> Skipped on purpose so as not to distort the 13.207 lei revenue figure and order stats. The delete mechanism itself is proven on products, rentals, promotions, categories, users and applications.</li>
+  <li><strong>Theme-colour save and the homepage promo-banner / special-offers sub-sections.</strong> I verified the Hero and Delivery section saves; the remaining section-save buttons use the identical <code>SectionCard</code> + server-action pattern but were not each individually submitted.</li>
+  <li><strong>Password-length rule on user create.</strong> The "≥ 8 characters" hint is shown; I created a valid 10-char user but did not submit a too-short password to confirm the guard fires.</li>
+  <li><strong>Security hardening.</strong> No test of login rate-limiting, session expiry/tampering, CSRF, or authorization differences between the <code>editor</code> and <code>admin</code> roles.</li>
+  <li><strong>No automated suite exists</strong> (<code>bun run lint</code> / build not run as part of this pass — the task was interactive click-through, not a code change). This was a black-box behavioural audit, not a static analysis.</li>
+</ul>
+
+<h2>9. Checks run</h2>
+<table>
+  <tr><th>Check</th><th>Method</th><th>Result</th></tr>
+  <tr><td>Dev server</td><td><code>bun dev</code> → localhost:3000</td><td class="ok">Ready, no compile errors</td></tr>
+  <tr><td>Bug 1 confirmation</td><td>Read <code>catalog.tsx</code> + Prisma count of price&gt;1200 + browser sort</td><td class="bad">Confirmed</td></tr>
+  <tr><td>Bug 2 confirmation</td><td><code>curl /ro</code> vs <code>curl /ru</code> title + <code>layout.tsx:41</code></td><td class="bad">Confirmed</td></tr>
+  <tr><td>Every admin write</td><td>Prisma query after each mutation</td><td class="ok">Matched UI</td></tr>
+  <tr><td>Data integrity (post-test)</td><td>Row counts vs seed baseline</td><td class="ok">16 / 4 / 2 / 12 / 12 / 1 — restored</td></tr>
+  <tr><td>Console errors</td><td>Playwright console capture across pages</td><td class="warn">Only favicon 404 + LCP hint</td></tr>
+</table>
+
+<footer>
+  Lampino QA audit · generated 2026-08-14 · no source files were modified · disposable, safe to delete
+</footer>
+
+</div>
+</body>
+</html>

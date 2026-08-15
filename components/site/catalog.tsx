@@ -10,6 +10,8 @@ import {
   classifyColorTemp,
   classifyLumens,
   classifySocket,
+  priceCeiling,
+  priceSteps,
   sortProducts,
   DEFAULT_SORT,
   SORT_KEYS,
@@ -32,8 +34,6 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { ProductCard } from "./product-card";
 import type { Facets } from "@/lib/filters";
 
-const PRICE_STEPS = [200, 500, 1200] as const;
-const MAX_PRICE = 1200;
 const PAGE_SIZE = 9;
 
 type CatalogProps = {
@@ -76,7 +76,7 @@ export function Catalog({
   products,
   categoryOptions,
   initialCategory = "all",
-  initialMaxPrice = MAX_PRICE,
+  initialMaxPrice,
   initialSort = DEFAULT_SORT,
   initialPage = 1,
   initialColorTemps = [],
@@ -87,10 +87,15 @@ export function Catalog({
   const { lang } = useLang();
   const pathname = usePathname();
 
+  // The max-price ceiling and its pills are derived from the live catalog, so the
+  // priciest product is always reachable — no hardcoded cap can hide it.
+  const priceCap = useMemo(() => priceCeiling(products), [products]);
+  const steps = useMemo(() => priceSteps(priceCap), [priceCap]);
+
   const [category, setCategory] = useState<ProductCategory | "all">(
     initialCategory,
   );
-  const [maxPrice, setMaxPrice] = useState<number>(initialMaxPrice);
+  const [maxPrice, setMaxPrice] = useState<number>(initialMaxPrice ?? priceCap);
   const [sort, setSort] = useState<SortKey>(initialSort);
   const [page, setPage] = useState<number>(initialPage);
   const [colorTemps, setColorTemps] = useState<Set<ColorTempKey>>(
@@ -184,7 +189,7 @@ export function Catalog({
     const params = new URLSearchParams();
     const catId = categoryOptions.find((c) => c.slug === category)?.id;
     if (category !== "all" && catId) params.set("category", String(catId));
-    if (maxPrice !== MAX_PRICE) params.set("max", String(maxPrice));
+    if (maxPrice !== priceCap) params.set("max", String(maxPrice));
     if (colorTemps.size) params.set("color", [...colorTemps].join(","));
     if (sockets.size) params.set("socket", [...sockets].join(","));
     if (lumens.size) params.set("lumens", [...lumens].join(","));
@@ -204,6 +209,7 @@ export function Catalog({
   }, [
     category,
     maxPrice,
+    priceCap,
     sort,
     currentPage,
     colorTemps,
@@ -217,7 +223,7 @@ export function Catalog({
     colorTemps.size +
     sockets.size +
     lumens.size +
-    (maxPrice !== MAX_PRICE ? 1 : 0);
+    (maxPrice !== priceCap ? 1 : 0);
 
   const isDirty =
     category !== "all" ||
@@ -226,7 +232,7 @@ export function Catalog({
 
   const reset = () => {
     setCategory("all");
-    setMaxPrice(MAX_PRICE);
+    setMaxPrice(priceCap);
     setSort(DEFAULT_SORT);
     setColorTemps(new Set());
     setSockets(new Set());
@@ -237,11 +243,11 @@ export function Catalog({
   // Removable chips for every active advanced filter, visible even when the
   // panel is collapsed so the current state is always legible.
   const chips: { key: string; label: string; onRemove: () => void }[] = [];
-  if (maxPrice !== MAX_PRICE)
+  if (maxPrice !== priceCap)
     chips.push({
       key: "price",
       label: `≤ ${formatPrice(maxPrice)}`,
-      onRemove: () => changeMaxPrice(MAX_PRICE),
+      onRemove: () => changeMaxPrice(priceCap),
     });
   colorTemps.forEach((c) =>
     chips.push({
@@ -274,6 +280,7 @@ export function Catalog({
     setCategory: changeCategory,
     maxPrice,
     setMaxPrice: changeMaxPrice,
+    priceSteps: steps,
     colorTemps,
     setColorTemps: changeColorTemps,
     sockets,
@@ -510,6 +517,7 @@ type FiltersPanelProps = {
   setCategory: (c: ProductCategory | "all") => void;
   maxPrice: number;
   setMaxPrice: (p: number) => void;
+  priceSteps: number[];
   colorTemps: Set<ColorTempKey>;
   setColorTemps: React.Dispatch<React.SetStateAction<Set<ColorTempKey>>>;
   sockets: Set<SocketKey>;
@@ -529,6 +537,7 @@ function FiltersPanel({
   setCategory,
   maxPrice,
   setMaxPrice,
+  priceSteps,
   colorTemps,
   setColorTemps,
   sockets,
@@ -556,7 +565,7 @@ function FiltersPanel({
       </FacetRow>
 
       <FacetRow label={t.catalog.maxPrice}>
-        {PRICE_STEPS.map((p) => (
+        {priceSteps.map((p) => (
           <Pill key={p} active={maxPrice === p} onClick={() => setMaxPrice(p)}>
             ≤ {formatPrice(p)}
           </Pill>

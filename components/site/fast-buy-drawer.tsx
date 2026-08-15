@@ -9,12 +9,8 @@ import { useLang } from "@/lib/i18n/provider";
 import { formatPrice, pick } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import {
-  useOrderForm,
-  OrderFields,
-  buildOrderLines,
-  openWhatsApp,
-} from "./order-fields";
+import { submitOrder } from "@/lib/actions/orders";
+import { useOrderForm, OrderFields } from "./order-fields";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -24,14 +20,12 @@ export function FastBuyDrawer({
   product,
   variant,
   quantity,
-  whatsapp,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   product: Product;
   variant: ProductVariant | null;
   quantity: number;
-  whatsapp: string;
 }) {
   const { lang, t } = useLang();
 
@@ -47,6 +41,8 @@ export function FastBuyDrawer({
 
   const [qty, setQty] = useState(quantity);
   const form = useOrderForm();
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState(false);
   const [sent, setSent] = useState(false);
 
   // Sync with the current selection whenever the drawer transitions to open —
@@ -58,21 +54,29 @@ export function FastBuyDrawer({
     if (open) {
       setQty(Math.min(Math.max(1, quantity), Math.max(1, stock)));
       setSent(false);
+      setError(false);
     }
   }
 
   const total = unitPrice * qty;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const lines = [
-      `${t.fastBuy.title}: ${name}${variantLabel ? ` (${variantLabel})` : ""}`,
-      `${t.product.quantity}: ${qty}`,
-      `${t.cart.total}: ${formatPrice(total)}`,
-      ...buildOrderLines(t, form.values),
-    ];
-    openWhatsApp(whatsapp, lines);
-    setSent(true);
+    if (pending) return;
+    setPending(true);
+    setError(false);
+    const res = await submitOrder({
+      items: [{ productId: product.id, variantId: variant?.id ?? null, quantity: qty }],
+      customerName: form.customer,
+      customerPhone: form.phone,
+      method: form.method,
+      region: form.region,
+      address: form.method === "delivery" ? form.address : null,
+      notes: form.notes || null,
+    });
+    setPending(false);
+    if (res.ok) setSent(true);
+    else setError(true);
   };
 
   return (
@@ -141,9 +145,13 @@ export function FastBuyDrawer({
                 </span>
               </div>
 
-              <Button type="submit" size="lg" className="group w-full">
-                {t.fastBuy.submit}
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+              {error && <p className="text-sm text-red-600">{t.fastBuy.error}</p>}
+
+              <Button type="submit" size="lg" className="group w-full" disabled={pending}>
+                {pending ? t.fastBuy.sending : t.fastBuy.submit}
+                {!pending && (
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                )}
               </Button>
             </div>
           </form>

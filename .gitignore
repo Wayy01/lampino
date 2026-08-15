@@ -31,3 +31,6 @@ next-env.d.ts
 
 # large binaries / installers
 *.dmg
+
+# playwright mcp session artifacts
+/.playwright-mcp/

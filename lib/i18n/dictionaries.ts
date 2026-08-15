@@ -1,4 +1,12 @@
 export const ro = {
+  meta: {
+    title: "Lampino — Iluminat pentru casă, livrat rapid",
+    description:
+      "Becuri LED, becuri smart, lumini de Crăciun, benzi LED și iluminat exterior — alese cu grijă și livrate în 24 de ore. De la 79 lei.",
+    ogTitle: "Lampino — Iluminat pentru casă",
+    ogDescription:
+      "Lumină bună, preț corect, livrare rapidă. Magazinul tău de iluminat.",
+  },
   nav: {
     home: "Acasă",
     products: "Produse",
@@ -235,6 +243,8 @@ export const ro = {
     phone: "Telefon",
     notes: "Note (opțional)",
     submit: "Trimite comanda",
+    sending: "Se trimite…",
+    error: "Ceva n-a mers. Verifică datele și încearcă din nou.",
     successTitle: "Comandă trimisă.",
     successText:
       "Mulțumim — revenim în scurt timp cu confirmarea comenzii.",
@@ -243,7 +253,7 @@ export const ro = {
   fastBuy: {
     title: "Cumpără rapid",
     subtitle:
-      "Completează datele și îți confirmăm comanda pe WhatsApp în câteva minute.",
+      "Completează datele și îți confirmăm comanda în câteva minute.",
     name: "Nume complet",
     phone: "Telefon",
     method: "Livrare",
@@ -251,10 +261,12 @@ export const ro = {
     delivery: "Livrare la adresă",
     address: "Adresă de livrare",
     notes: "Note (opțional)",
-    submit: "Trimite pe WhatsApp",
-    successTitle: "Aproape gata!",
+    submit: "Trimite comanda",
+    sending: "Se trimite…",
+    error: "Ceva n-a mers. Verifică datele și încearcă din nou.",
+    successTitle: "Comandă trimisă.",
     successText:
-      "Ți-am deschis WhatsApp cu comanda completată. Apasă trimite ca să o confirmăm.",
+      "Mulțumim — revenim în scurt timp cu confirmarea comenzii.",
     close: "Închide",
   },
   cart: {
@@ -278,6 +290,8 @@ export const ro = {
     deliveryOutside: "Restul Moldovei",
     freeDeliveryFrom: "Livrare gratuită de la",
     totalWithDelivery: "Total cu livrare",
+    deliveryNotice:
+      "Costul livrării îl confirmăm la telefon, în funcție de adresă.",
   },
   offers: {
     products: "Produse la ofertă",
@@ -403,6 +417,14 @@ export const ro = {
 };
 
 export const ru: typeof ro = {
+  meta: {
+    title: "Lampino — Освещение для дома с быстрой доставкой",
+    description:
+      "Светодиодные и умные лампы, новогодние гирлянды, LED-ленты и уличное освещение — тщательно отобранные и с доставкой за 24 часа. От 79 лей.",
+    ogTitle: "Lampino — Освещение для дома",
+    ogDescription:
+      "Хороший свет, честная цена, быстрая доставка. Ваш магазин освещения.",
+  },
   nav: {
     home: "Главная",
     products: "Товары",
@@ -639,6 +661,8 @@ export const ru: typeof ro = {
     phone: "Телефон",
     notes: "Примечания (необязательно)",
     submit: "Отправить заказ",
+    sending: "Отправка…",
+    error: "Что-то пошло не так. Проверьте данные и попробуйте снова.",
     successTitle: "Заказ отправлен.",
     successText:
       "Спасибо — мы скоро свяжемся с подтверждением заказа.",
@@ -647,7 +671,7 @@ export const ru: typeof ro = {
   fastBuy: {
     title: "Быстрая покупка",
     subtitle:
-      "Заполните данные, и мы подтвердим заказ в WhatsApp через несколько минут.",
+      "Заполните данные, и мы подтвердим заказ через несколько минут.",
     name: "Полное имя",
     phone: "Телефон",
     method: "Доставка",
@@ -655,10 +679,12 @@ export const ru: typeof ro = {
     delivery: "Доставка по адресу",
     address: "Адрес доставки",
     notes: "Примечания (необязательно)",
-    submit: "Отправить в WhatsApp",
-    successTitle: "Почти готово!",
+    submit: "Отправить заказ",
+    sending: "Отправка…",
+    error: "Что-то пошло не так. Проверьте данные и попробуйте снова.",
+    successTitle: "Заказ отправлен.",
     successText:
-      "Мы открыли WhatsApp с готовым заказом. Нажмите отправить, чтобы подтвердить.",
+      "Спасибо — мы скоро свяжемся с подтверждением заказа.",
     close: "Закрыть",
   },
   cart: {
@@ -682,6 +708,8 @@ export const ru: typeof ro = {
     deliveryOutside: "По Молдове",
     freeDeliveryFrom: "Бесплатная доставка от",
     totalWithDelivery: "Итого с доставкой",
+    deliveryNotice:
+      "Стоимость доставки уточним по телефону, в зависимости от адреса.",
   },
   offers: {
     products: "Товары по акции",

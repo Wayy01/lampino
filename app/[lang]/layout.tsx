@@ -9,6 +9,7 @@ import { CartDrawer } from "@/components/site/cart-drawer";
 import { Grain } from "@/components/site/grain";
 import { PromoBanner } from "@/components/site/promo-banner";
 import { LOCALES, isLocale } from "@/lib/i18n/routing";
+import { dictionaries } from "@/lib/i18n/dictionaries";
 import { getProducts } from "@/lib/data/products";
 import {
   getContactSettings,
@@ -37,17 +38,23 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "Lampino — Iluminat pentru casă, livrat rapid",
-  description:
-    "Becuri LED, becuri smart, lumini de Crăciun, benzi LED și iluminat exterior — alese cu grijă și livrate în 24 de ore. De la 79 lei.",
-  openGraph: {
-    title: "Lampino — Iluminat pentru casă",
-    description:
-      "Lumină bună, preț corect, livrare rapidă. Magazinul tău de iluminat.",
-    type: "website",
-  },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const meta = dictionaries[isLocale(lang) ? lang : "ro"].meta;
+  return {
+    title: meta.title,
+    description: meta.description,
+    openGraph: {
+      title: meta.ogTitle,
+      description: meta.ogDescription,
+      type: "website",
+    },
+  };
+}
 
 export function generateStaticParams() {
   return LOCALES.map((lang) => ({ lang }));
@@ -99,10 +106,7 @@ export default async function RootLayout({
             <Navbar />
             <main>{children}</main>
             <Footer contact={contact} />
-            <CartDrawer
-              whatsapp={contact?.whatsapp ?? null}
-              delivery={delivery}
-            />
+            <CartDrawer delivery={delivery} />
           </CartProvider>
         </LanguageProvider>
       </body>

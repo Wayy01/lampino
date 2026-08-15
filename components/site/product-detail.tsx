@@ -285,18 +285,16 @@ export function ProductDetail({
               {t.cart.add}
             </Button>
 
-            {contact?.whatsapp && (
-              <Button
-                variant="outline"
-                size="lg"
-                className="mt-3 w-full"
-                disabled={!inStock}
-                onClick={() => setFastBuyOpen(true)}
-              >
-                <Zap className="h-5 w-5" strokeWidth={1.75} />
-                {t.product.buyNow}
-              </Button>
-            )}
+            <Button
+              variant="outline"
+              size="lg"
+              className="mt-3 w-full"
+              disabled={!inStock}
+              onClick={() => setFastBuyOpen(true)}
+            >
+              <Zap className="h-5 w-5" strokeWidth={1.75} />
+              {t.product.buyNow}
+            </Button>
 
             {/* Contact actions */}
             {(contact?.whatsapp || contact?.phone) && (
@@ -336,16 +334,13 @@ export function ProductDetail({
         </div>
       </div>
 
-      {contact?.whatsapp && (
-        <FastBuyDrawer
-          open={fastBuyOpen}
-          onOpenChange={setFastBuyOpen}
-          product={product}
-          variant={selectedVariant}
-          quantity={quantity}
-          whatsapp={contact.whatsapp}
-        />
-      )}
+      <FastBuyDrawer
+        open={fastBuyOpen}
+        onOpenChange={setFastBuyOpen}
+        product={product}
+        variant={selectedVariant}
+        quantity={quantity}
+      />
     </div>
   );
 }

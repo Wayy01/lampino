@@ -7,17 +7,11 @@ import { ArrowRight, ArrowLeft, Check, Minus, Plus, Trash2 } from "lucide-react"
 import { useCart, unitPrice } from "@/lib/cart/provider";
 import { useLang, useT } from "@/lib/i18n/provider";
 import type { DeliverySettings } from "@/lib/types";
-import { deliveryFee } from "@/lib/pricing";
 import { formatPrice, pick } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import {
-  useOrderForm,
-  OrderFields,
-  buildOrderLines,
-  openWhatsApp,
-  type OrderForm,
-} from "./order-fields";
+import { submitOrder } from "@/lib/actions/orders";
+import { useOrderForm, OrderFields, type OrderForm } from "./order-fields";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -27,16 +21,16 @@ const IMAGE_PLACEHOLDER =
 type View = "cart" | "checkout";
 
 export function CartDrawer({
-  whatsapp,
   delivery,
 }: {
-  whatsapp: string | null;
   delivery: DeliverySettings | null;
 }) {
   const { lang, t } = useLang();
   const { items, count, subtotal, setQuantity, removeItem, clear, isOpen, closeCart } =
     useCart();
   const [view, setView] = useState<View>("cart");
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState(false);
   const [sent, setSent] = useState(false);
 
   // Reset internal view whenever the drawer closes.
@@ -45,6 +39,7 @@ export function CartDrawer({
       const id = setTimeout(() => {
         setView("cart");
         setSent(false);
+        setError(false);
       }, 300);
       return () => clearTimeout(id);
     }
@@ -54,36 +49,30 @@ export function CartDrawer({
     if (!next) closeCart();
   };
 
-  // Same WhatsApp flow as the product buy-now form, but for the whole cart.
-  const handleSubmit = (values: OrderForm) => {
-    const itemLines = items.map((item) => {
-      const name = pick(lang, item.product.name_ro, item.product.name_ru);
-      const variantLabel = item.variant
-        ? [pick(lang, item.variant.name_ro, item.variant.name_ru), item.variant.size]
-            .filter(Boolean)
-            .join(" · ")
-        : null;
-      return `• ${name}${variantLabel ? ` (${variantLabel})` : ""} × ${item.quantity} — ${formatPrice(unitPrice(item) * item.quantity)}`;
+  const handleSubmit = async (values: OrderForm) => {
+    if (pending) return;
+    setPending(true);
+    setError(false);
+    const res = await submitOrder({
+      items: items.map((item) => ({
+        productId: item.product.id,
+        variantId: item.variant?.id ?? null,
+        quantity: item.quantity,
+      })),
+      customerName: values.customer,
+      customerPhone: values.phone,
+      method: values.method,
+      region: values.region,
+      address: values.method === "delivery" ? values.address : null,
+      notes: values.notes || null,
     });
-    const fee =
-      values.method === "delivery"
-        ? deliveryFee(delivery, subtotal, values.region)
-        : 0;
-    const lines = [
-      t.order.title,
-      ...itemLines,
-      `${t.cart.subtotal}: ${formatPrice(subtotal)}`,
-      ...buildOrderLines(t, values),
-      ...(fee !== null && values.method === "delivery"
-        ? [
-            `${t.cart.delivery}: ${fee === 0 ? t.cart.deliveryFree : formatPrice(fee)}`,
-          ]
-        : []),
-      `${t.cart.total}: ${formatPrice(subtotal + (fee ?? 0))}`,
-    ];
-    openWhatsApp(whatsapp, lines);
-    setSent(true);
-    clear();
+    setPending(false);
+    if (res.ok) {
+      setSent(true);
+      clear();
+    } else {
+      setError(true);
+    }
   };
 
   return (
@@ -212,7 +201,8 @@ export function CartDrawer({
         ) : (
           <CheckoutView
             total={subtotal}
-            delivery={delivery}
+            pending={pending}
+            error={error}
             onBack={() => setView("cart")}
             onSubmit={handleSubmit}
           />
@@ -260,20 +250,19 @@ function Stepper({
 
 function CheckoutView({
   total,
-  delivery,
+  pending,
+  error,
   onBack,
   onSubmit,
 }: {
   total: number;
-  delivery: DeliverySettings | null;
+  pending: boolean;
+  error: boolean;
   onBack: () => void;
   onSubmit: (values: OrderForm) => void;
 }) {
   const t = useT();
   const form = useOrderForm();
-
-  const fee =
-    form.method === "delivery" ? deliveryFee(delivery, total, form.region) : 0;
 
   const handle = (e: React.FormEvent) => {
     e.preventDefault();
@@ -297,27 +286,28 @@ function CheckoutView({
         <OrderFields form={form} idPrefix="cart" />
 
         <div className="mt-1 border-t border-border pt-4">
-          {fee !== null && form.method === "delivery" && (
-            <div className="flex items-baseline justify-between pb-2 text-sm">
-              <span className="text-muted-foreground">{t.cart.delivery}</span>
-              <span className="text-muted-foreground">
-                {fee === 0 ? t.cart.deliveryFree : formatPrice(fee)}
-              </span>
-            </div>
+          {form.method === "delivery" && (
+            <p className="pb-3 text-sm text-muted-foreground">
+              {t.cart.deliveryNotice}
+            </p>
           )}
           <div className="flex items-baseline justify-between">
             <span className="label-mono text-muted-foreground">
-              {fee ? t.cart.totalWithDelivery : t.cart.total}
+              {t.cart.total}
             </span>
             <span className="font-display text-2xl tracking-tight">
-              {formatPrice(total + (fee ?? 0))}
+              {formatPrice(total)}
             </span>
           </div>
         </div>
 
-        <Button type="submit" size="lg" className="group w-full">
-          {t.order.submit}
-          <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+        {error && <p className="text-sm text-red-600">{t.order.error}</p>}
+
+        <Button type="submit" size="lg" className="group w-full" disabled={pending}>
+          {pending ? t.order.sending : t.order.submit}
+          {!pending && (
+            <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+          )}
         </Button>
       </form>
     </div>

@@ -19,6 +19,7 @@ export type ProductStat = {
   views: number;
   avgDwellMs: number | null;
   addToCart: number;
+  orders: number;
 };
 
 export type RentalStat = {
@@ -67,6 +68,7 @@ export async function getAnalytics(
     productViewByItem,
     rentalViewByItem,
     addToCartByItem,
+    orderByItem,
     inquiryByItem,
     products,
     rentals,
@@ -95,6 +97,14 @@ export async function getAnalytics(
       where: { ...inWindow, type: "add_to_cart", productId: { not: null } },
       _count: { _all: true },
     }),
+    prisma.orderItem.groupBy({
+      by: ["productId"],
+      where: {
+        productId: { not: null },
+        order: createdAt ? { createdAt } : undefined,
+      },
+      _count: { _all: true },
+    }),
     prisma.rentalApplication.groupBy({
       by: ["rentalPackageId"],
       where: createdAt ? { createdAt } : {},
@@ -117,6 +127,9 @@ export async function getAnalytics(
   const carts = new Map(
     addToCartByItem.map((r) => [r.productId!, r._count._all]),
   );
+  const orderCounts = new Map(
+    orderByItem.map((r) => [r.productId!, r._count._all]),
+  );
   const rentalViews = new Map(
     rentalViewByItem.map((r) => [
       r.rentalPackageId!,
@@ -137,6 +150,7 @@ export async function getAnalytics(
       views: v?.views ?? 0,
       avgDwellMs: v?.avg ?? null,
       addToCart: carts.get(p.id) ?? 0,
+      orders: orderCounts.get(p.id) ?? 0,
     };
   });
 
