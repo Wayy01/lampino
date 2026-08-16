@@ -24,9 +24,26 @@ export type SubmitOrderInput = {
   notes: string | null;
 };
 
+/** Every way checkout can be refused. The UI maps these to `t.order.errors`. */
+export type SubmitOrderError =
+  | "invalid_contact"
+  | "invalid_address"
+  | "empty_cart"
+  | "unavailable"
+  | "out_of_stock"
+  | "server_error";
+
+/** A line the customer asked for that the catalog can no longer supply. */
+export type RejectedLine = {
+  productId: number;
+  variantId: number | null;
+  /** Units actually available; 0 when the product itself is gone. */
+  available: number;
+};
+
 export type SubmitOrderResult =
   | { ok: true; orderId: number }
-  | { ok: false; error: string };
+  | { ok: false; error: SubmitOrderError; rejected?: RejectedLine[] };
 
 // Storefront checkout doesn't collect an email; store the shop's own so the
 // row stays a valid contact point for the team.
@@ -64,33 +81,62 @@ export async function submitOrder(
     });
     const productById = new Map(products.map((p) => [p.id, p]));
 
-    // Price is resolved server-side from the catalog — never the client. A
-    // line whose product was deleted or deactivated since it was added to the
-    // cart is silently dropped rather than failing the whole order.
+    // Price and stock are resolved server-side from the catalog — never the
+    // client. A line the catalog can no longer supply is reported back rather
+    // than dropped, so the customer is told what changed instead of receiving
+    // a confirmation for a smaller order than they placed.
     const resolved: {
       productId: number;
       variantId: number | null;
       quantity: number;
       priceEach: Prisma.Decimal;
     }[] = [];
+    const gone: RejectedLine[] = [];
+    const short: RejectedLine[] = [];
+
     for (const line of requested) {
       const product = productById.get(line.productId);
-      if (!product) continue;
+      if (!product) {
+        gone.push({ productId: line.productId, variantId: line.variantId, available: 0 });
+        continue;
+      }
       let priceEach = product.reducedPrice ?? product.price;
       let variantId: number | null = null;
+      let available = product.stock;
       if (line.variantId) {
         const variant = product.variants.find((v) => v.id === line.variantId);
-        if (variant) {
-          variantId = variant.id;
-          priceEach = variant.reducedPrice ?? variant.price;
+        if (!variant) {
+          // The size/colour they chose is gone even though the product stayed.
+          gone.push({ productId: product.id, variantId: line.variantId, available: 0 });
+          continue;
         }
+        variantId = variant.id;
+        priceEach = variant.reducedPrice ?? variant.price;
+        available = variant.stock;
       }
+
+      // Stock was never checked here before: an order for 50 of a 2-in-stock
+      // lamp was accepted silently and only discovered when someone read it.
+      if (available < line.quantity) {
+        short.push({ productId: product.id, variantId, available });
+        continue;
+      }
+
       resolved.push({
         productId: product.id,
         variantId,
         quantity: line.quantity,
         priceEach,
       });
+    }
+
+    // Refuse the whole order when any line can't be filled — a partial order
+    // the customer never agreed to is worse than being asked to adjust the cart.
+    if (short.length > 0) {
+      return { ok: false, error: "out_of_stock", rejected: short };
+    }
+    if (gone.length > 0) {
+      return { ok: false, error: "unavailable", rejected: gone };
     }
     if (resolved.length === 0) return { ok: false, error: "empty_cart" };
 

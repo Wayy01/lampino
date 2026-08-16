@@ -7,7 +7,7 @@ import {
   deleteUser,
   type UserActionState,
 } from "@/lib/admin/actions/users";
-import { useAdminT } from "@/lib/admin/i18n-provider";
+import { useAdminLang, useAdminT } from "@/lib/admin/i18n-provider";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { AdminSelect } from "@/components/admin/select";
 import { DataTable, type Column } from "@/components/admin/data-table";
@@ -127,7 +127,7 @@ export function UsersManager({
   rows: UserRow[];
   currentUserId: number;
 }) {
-  const t = useAdminT();
+  const { t, lang } = useAdminLang();
   const [editing, setEditing] = useState<UserRow | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -195,7 +195,7 @@ export function UsersManager({
           {/* Never offer deleting yourself or the last remaining account. */}
           {u.id !== currentUserId && rows.length > 1 && (
             <ConfirmButton
-              action={deleteUser.bind(null, currentUserId, u.id)}
+              action={deleteUser.bind(null, lang, currentUserId, u.id)}
               confirmLabel={t.common.sure}
               title={t.users.deleteUser}
             >

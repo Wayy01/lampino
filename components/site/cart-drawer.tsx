@@ -10,7 +10,8 @@ import type { DeliverySettings } from "@/lib/types";
 import { formatPrice, pick } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { submitOrder } from "@/lib/actions/orders";
+import { submitOrder, type RejectedLine } from "@/lib/actions/orders";
+import { OrderError, type OrderFailure } from "./order-error";
 import { useOrderForm, OrderFields, type OrderForm } from "./order-fields";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -30,7 +31,7 @@ export function CartDrawer({
     useCart();
   const [view, setView] = useState<View>("cart");
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState(false);
+  const [failure, setFailure] = useState<OrderFailure | null>(null);
   const [sent, setSent] = useState(false);
 
   // Reset internal view whenever the drawer closes.
@@ -39,7 +40,7 @@ export function CartDrawer({
       const id = setTimeout(() => {
         setView("cart");
         setSent(false);
-        setError(false);
+        setFailure(null);
       }, 300);
       return () => clearTimeout(id);
     }
@@ -49,10 +50,26 @@ export function CartDrawer({
     if (!next) closeCart();
   };
 
+  // Rejected lines come back as ids; the cart still holds the matching rows,
+  // so name them the way the customer sees them in the list above.
+  const nameOf = (line: RejectedLine) => {
+    const item = items.find(
+      (i) =>
+        i.product.id === line.productId &&
+        (i.variant?.id ?? null) === line.variantId,
+    );
+    if (!item) return null;
+    const name = pick(lang, item.product.name_ro, item.product.name_ru);
+    const variant = item.variant
+      ? pick(lang, item.variant.name_ro, item.variant.name_ru)
+      : null;
+    return variant ? `${name} · ${variant}` : name;
+  };
+
   const handleSubmit = async (values: OrderForm) => {
     if (pending) return;
     setPending(true);
-    setError(false);
+    setFailure(null);
     const res = await submitOrder({
       items: items.map((item) => ({
         productId: item.product.id,
@@ -71,7 +88,7 @@ export function CartDrawer({
       setSent(true);
       clear();
     } else {
-      setError(true);
+      setFailure(res);
     }
   };
 
@@ -202,7 +219,8 @@ export function CartDrawer({
           <CheckoutView
             total={subtotal}
             pending={pending}
-            error={error}
+            failure={failure}
+            nameOf={nameOf}
             onBack={() => setView("cart")}
             onSubmit={handleSubmit}
           />
@@ -251,13 +269,15 @@ function Stepper({
 function CheckoutView({
   total,
   pending,
-  error,
+  failure,
+  nameOf,
   onBack,
   onSubmit,
 }: {
   total: number;
   pending: boolean;
-  error: boolean;
+  failure: OrderFailure | null;
+  nameOf: (line: RejectedLine) => string | null;
   onBack: () => void;
   onSubmit: (values: OrderForm) => void;
 }) {
@@ -301,7 +321,7 @@ function CheckoutView({
           </div>
         </div>
 
-        {error && <p className="text-sm text-red-600">{t.order.error}</p>}
+        {failure && <OrderError failure={failure} nameOf={nameOf} />}
 
         <Button type="submit" size="lg" className="group w-full" disabled={pending}>
           {pending ? t.order.sending : t.order.submit}

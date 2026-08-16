@@ -13,6 +13,12 @@ import {
 } from "@/lib/admin/i18n";
 import { specsToJson, isEmptySpecRow, type SpecRow } from "@/lib/admin/specs";
 import { includesToJson } from "@/lib/admin/includes";
+import {
+  ActionRefusal,
+  runAction,
+  runFormAction,
+  type ActionResult,
+} from "@/lib/admin/errors";
 
 export type RentalActionState = { ok?: boolean; error?: string } | null;
 
@@ -140,20 +146,23 @@ export async function createRental(
 ): Promise<RentalActionState> {
   const lang = langFromForm(fd);
   await requireAdmin(lang);
-  const parsed = parseRental(fd);
-  if ("error" in parsed) return { error: parsed.error };
 
-  const rental = await prisma.rentalPackage.create({
-    data: {
-      ...parsed.scalars,
-      images: { create: parsed.images },
-      videos: { create: parsed.videos },
-      variants: { create: parsed.variants.map(variantData) },
-    },
+  return runFormAction(lang, async () => {
+    const parsed = parseRental(fd);
+    if ("error" in parsed) return { error: parsed.error };
+
+    const rental = await prisma.rentalPackage.create({
+      data: {
+        ...parsed.scalars,
+        images: { create: parsed.images },
+        videos: { create: parsed.videos },
+        variants: { create: parsed.variants.map(variantData) },
+      },
+    });
+
+    revalidatePath("/admin/[lang]/rentals", "page");
+    redirect(`/admin/${lang}/rentals/${rental.id}`);
   });
-
-  revalidatePath("/admin/[lang]/rentals", "page");
-  redirect(`/admin/${lang}/rentals/${rental.id}`);
 }
 
 export async function updateRental(
@@ -161,55 +170,64 @@ export async function updateRental(
   _prev: RentalActionState,
   fd: FormData,
 ): Promise<RentalActionState> {
-  await requireAdmin(langFromForm(fd));
-  const parsed = parseRental(fd);
-  if ("error" in parsed) return { error: parsed.error };
+  const lang = langFromForm(fd);
+  await requireAdmin(lang);
 
-  const keptVariantIds = parsed.variants
-    .map((v) => v.id)
-    .filter((v): v is number => v !== null);
+  return runFormAction(lang, async () => {
+    const parsed = parseRental(fd);
+    if ("error" in parsed) return { error: parsed.error };
 
-  await prisma.$transaction([
-    prisma.rentalPackage.update({ where: { id }, data: parsed.scalars }),
-    // Images and videos carry no foreign keys — rebuild them wholesale.
-    prisma.rentalPackageImage.deleteMany({ where: { rentalPackageId: id } }),
-    prisma.rentalPackageImage.createMany({
-      data: parsed.images.map((i) => ({ ...i, rentalPackageId: id })),
-    }),
-    prisma.rentalPackageVideo.deleteMany({ where: { rentalPackageId: id } }),
-    prisma.rentalPackageVideo.createMany({
-      data: parsed.videos.map((v) => ({ ...v, rentalPackageId: id })),
-    }),
-    // Variants are referenced by order items and rental applications, so
-    // update in place where possible.
-    prisma.rentalPackageVariant.deleteMany({
-      where: { rentalPackageId: id, id: { notIn: keptVariantIds } },
-    }),
-    ...parsed.variants.map((v) =>
-      v.id === null
-        ? prisma.rentalPackageVariant.create({
-            data: { ...variantData(v), rentalPackageId: id },
-          })
-        : // Scoped to this package so a stale variant id from another tab
-          // matches nothing instead of rolling back the whole transaction.
-          prisma.rentalPackageVariant.updateMany({
-            where: { id: v.id, rentalPackageId: id },
-            data: variantData(v),
-          }),
-    ),
-  ]);
+    const keptVariantIds = parsed.variants
+      .map((v) => v.id)
+      .filter((v): v is number => v !== null);
 
-  revalidatePath("/admin/[lang]/rentals", "page");
-  revalidatePath("/admin/[lang]/rentals/[id]", "page");
-  return { ok: true };
+    await prisma.$transaction([
+      prisma.rentalPackage.update({ where: { id }, data: parsed.scalars }),
+      // Images and videos carry no foreign keys — rebuild them wholesale.
+      prisma.rentalPackageImage.deleteMany({ where: { rentalPackageId: id } }),
+      prisma.rentalPackageImage.createMany({
+        data: parsed.images.map((i) => ({ ...i, rentalPackageId: id })),
+      }),
+      prisma.rentalPackageVideo.deleteMany({ where: { rentalPackageId: id } }),
+      prisma.rentalPackageVideo.createMany({
+        data: parsed.videos.map((v) => ({ ...v, rentalPackageId: id })),
+      }),
+      // Variants are referenced by order items and rental applications, so
+      // update in place where possible.
+      prisma.rentalPackageVariant.deleteMany({
+        where: { rentalPackageId: id, id: { notIn: keptVariantIds } },
+      }),
+      ...parsed.variants.map((v) =>
+        v.id === null
+          ? prisma.rentalPackageVariant.create({
+              data: { ...variantData(v), rentalPackageId: id },
+            })
+          : // Scoped to this package so a stale variant id from another tab
+            // matches nothing instead of rolling back the whole transaction.
+            prisma.rentalPackageVariant.updateMany({
+              where: { id: v.id, rentalPackageId: id },
+              data: variantData(v),
+            }),
+      ),
+    ]);
+
+    revalidatePath("/admin/[lang]/rentals", "page");
+    revalidatePath("/admin/[lang]/rentals/[id]", "page");
+    return { ok: true };
+  });
 }
 
-export async function deleteRental(lang: AdminLang, id: number): Promise<void> {
+export async function deleteRental(
+  lang: AdminLang,
+  id: number,
+): Promise<ActionResult> {
   await requireAdmin(lang);
-  // Rental applications cascade with the package — schema-defined behaviour.
-  await prisma.rentalPackage.delete({ where: { id } });
-  revalidatePath("/admin/[lang]/rentals", "page");
-  redirect(`/admin/${lang}/rentals`);
+  return runAction(lang, async () => {
+    // Rental applications cascade with the package — schema-defined behaviour.
+    await prisma.rentalPackage.delete({ where: { id } });
+    revalidatePath("/admin/[lang]/rentals", "page");
+    redirect(`/admin/${lang}/rentals`);
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -222,19 +240,27 @@ function revalidateRentals(): void {
 }
 
 export async function setRentalActive(
+  lang: AdminLang,
   id: number,
   isActive: boolean,
-): Promise<void> {
-  await requireAdmin();
-  await prisma.rentalPackage.update({ where: { id }, data: { isActive } });
-  revalidateRentals();
+): Promise<ActionResult> {
+  await requireAdmin(lang);
+  return runAction(lang, async () => {
+    await prisma.rentalPackage.update({ where: { id }, data: { isActive } });
+    revalidateRentals();
+  });
 }
 
 /** Delete from the list — same as `deleteRental` minus the redirect. */
-export async function removeRental(id: number): Promise<void> {
-  await requireAdmin();
-  await prisma.rentalPackage.delete({ where: { id } });
-  revalidateRentals();
+export async function removeRental(
+  lang: AdminLang,
+  id: number,
+): Promise<ActionResult> {
+  await requireAdmin(lang);
+  return runAction(lang, async () => {
+    await prisma.rentalPackage.delete({ where: { id } });
+    revalidateRentals();
+  });
 }
 
 /**
@@ -244,59 +270,61 @@ export async function removeRental(id: number): Promise<void> {
 export async function duplicateRental(
   lang: AdminLang,
   id: number,
-): Promise<void> {
+): Promise<ActionResult> {
   await requireAdmin(lang);
-  const source = await prisma.rentalPackage.findUnique({
-    where: { id },
-    include: {
-      images: { orderBy: { id: "asc" } },
-      videos: { orderBy: { id: "asc" } },
-      variants: { orderBy: { sortOrder: "asc" } },
-    },
-  });
-  if (!source) return;
+  return runAction(lang, async () => {
+    const source = await prisma.rentalPackage.findUnique({
+      where: { id },
+      include: {
+        images: { orderBy: { id: "asc" } },
+        videos: { orderBy: { id: "asc" } },
+        variants: { orderBy: { sortOrder: "asc" } },
+      },
+    });
+    if (!source) throw new ActionRefusal("sourceMissing");
 
-  const copy = await prisma.rentalPackage.create({
-    data: {
-      title_ro: `${source.title_ro} ${adminDictionaries.ro.common.copySuffix}`,
-      title_ru: `${source.title_ru} ${adminDictionaries.ru.common.copySuffix}`,
-      description_ro: source.description_ro,
-      description_ru: source.description_ru,
-      price: source.price,
-      reducedPrice: source.reducedPrice,
-      hasVariants: source.hasVariants,
-      specifications: (source.specifications ?? {}) as Prisma.InputJsonValue,
-      includes_ro: (source.includes_ro ?? []) as Prisma.InputJsonValue,
-      includes_ru: (source.includes_ru ?? []) as Prisma.InputJsonValue,
-      categoryId: source.categoryId,
-      promotionId: source.promotionId,
-      isActive: false,
-      images: {
-        create: source.images.map((i) => ({
-          imageUrl: i.imageUrl,
-          isMain: i.isMain,
-        })),
+    const copy = await prisma.rentalPackage.create({
+      data: {
+        title_ro: `${source.title_ro} ${adminDictionaries.ro.common.copySuffix}`,
+        title_ru: `${source.title_ru} ${adminDictionaries.ru.common.copySuffix}`,
+        description_ro: source.description_ro,
+        description_ru: source.description_ru,
+        price: source.price,
+        reducedPrice: source.reducedPrice,
+        hasVariants: source.hasVariants,
+        specifications: (source.specifications ?? {}) as Prisma.InputJsonValue,
+        includes_ro: (source.includes_ro ?? []) as Prisma.InputJsonValue,
+        includes_ru: (source.includes_ru ?? []) as Prisma.InputJsonValue,
+        categoryId: source.categoryId,
+        promotionId: source.promotionId,
+        isActive: false,
+        images: {
+          create: source.images.map((i) => ({
+            imageUrl: i.imageUrl,
+            isMain: i.isMain,
+          })),
+        },
+        videos: {
+          create: source.videos.map((v) => ({
+            videoUrl: v.videoUrl,
+            thumbnailUrl: v.thumbnailUrl,
+          })),
+        },
+        variants: {
+          create: source.variants.map((v) => ({
+            name_ro: v.name_ro,
+            name_ru: v.name_ru,
+            size: v.size,
+            price: v.price,
+            reducedPrice: v.reducedPrice,
+            isDefault: v.isDefault,
+            sortOrder: v.sortOrder,
+          })),
+        },
       },
-      videos: {
-        create: source.videos.map((v) => ({
-          videoUrl: v.videoUrl,
-          thumbnailUrl: v.thumbnailUrl,
-        })),
-      },
-      variants: {
-        create: source.variants.map((v) => ({
-          name_ro: v.name_ro,
-          name_ru: v.name_ru,
-          size: v.size,
-          price: v.price,
-          reducedPrice: v.reducedPrice,
-          isDefault: v.isDefault,
-          sortOrder: v.sortOrder,
-        })),
-      },
-    },
-  });
+    });
 
-  revalidateRentals();
-  redirect(`/admin/${lang}/rentals/${copy.id}`);
+    revalidateRentals();
+    redirect(`/admin/${lang}/rentals/${copy.id}`);
+  });
 }

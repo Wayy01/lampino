@@ -56,7 +56,9 @@ export function UploadButton({
       if ("url" in result) onUploaded(result.url);
       else setError(result.error);
     } catch {
-      setError(t.media.failed);
+      // The action never returned — the request was cut off in transit, which
+      // for a large video usually means the connection, not the server.
+      setError(t.media.networkFailed);
     } finally {
       setPending(false);
     }

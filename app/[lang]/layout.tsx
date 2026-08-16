@@ -70,8 +70,15 @@ export default async function RootLayout({
   // The cart persists product ids in localStorage; the provider needs the
   // catalog to rehydrate those lines with live price/variant data. The contact
   // number powers the cart's WhatsApp checkout.
+  //
+  // A throw here would escape every `error.tsx` — a boundary cannot catch the
+  // layout of its own segment — and drop the visitor on Next's bare error page
+  // with no navigation and no message. So the shell degrades instead: an empty
+  // catalog still renders the navbar and footer, and the page inside is left to
+  // fail into `app/[lang]/error.tsx`, which can explain itself and offer a
+  // retry. The settings loaders already resolve to `null` on failure.
   const [products, contact, delivery, banner, theme] = await Promise.all([
-    getProducts(),
+    getProducts().catch(() => []),
     getContactSettings(),
     getDeliverySettings(),
     getPromoBanner(),

@@ -9,7 +9,10 @@ import { formatPrice, pick, cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea, Label } from "@/components/ui/input";
-import { submitRentalApplication } from "@/lib/actions/rentals";
+import {
+  submitRentalApplication,
+  type RentalApplicationError,
+} from "@/lib/actions/rentals";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -60,7 +63,7 @@ export function RentalInquiryDrawer({
   const [guestCount, setGuestCount] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<RentalApplicationError | null>(null);
   const [sent, setSent] = useState(false);
 
   // Reset transient state whenever the drawer reopens (render-time sync).
@@ -69,7 +72,7 @@ export function RentalInquiryDrawer({
     setWasOpen(open);
     if (open) {
       setSent(false);
-      setError(false);
+      setError(null);
     }
   }
 
@@ -77,7 +80,7 @@ export function RentalInquiryDrawer({
     e.preventDefault();
     if (pending) return;
     setPending(true);
-    setError(false);
+    setError(null);
     const res = await submitRentalApplication({
       rentalPackageId: pkg.id,
       rentalPackageVariantId: variant?.id ?? null,
@@ -93,7 +96,7 @@ export function RentalInquiryDrawer({
     });
     setPending(false);
     if (res.ok) setSent(true);
-    else setError(true);
+    else setError(res.error);
   };
 
   return (
@@ -260,7 +263,14 @@ export function RentalInquiryDrawer({
                 </p>
               </div>
 
-              {error && <p className="text-sm text-red-600">{f.error}</p>}
+              {error && (
+                <p
+                  role="alert"
+                  className="rounded-[var(--radius-sm)] bg-red-50 px-3 py-2.5 text-sm text-red-700"
+                >
+                  {f.errors[error]}
+                </p>
+              )}
 
               <Button
                 type="submit"

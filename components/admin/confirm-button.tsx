@@ -3,10 +3,17 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { LoaderCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAdminT } from "@/lib/admin/i18n-provider";
+import { useActionToast } from "@/components/admin/action-toast";
+import type { ActionResult } from "@/lib/admin/errors";
 
 /**
  * Two-step destructive button: first click arms it ("Sure?"), second click
  * runs the bound server action. Disarms itself after a moment.
+ *
+ * The action reports back — a refused delete (row still referenced, record
+ * already gone, database down) surfaces as a toast instead of the button
+ * simply un-spinning with the row still on screen.
  */
 export function ConfirmButton({
   action,
@@ -15,12 +22,14 @@ export function ConfirmButton({
   className,
   title,
 }: {
-  action: () => Promise<void>;
+  action: () => Promise<ActionResult>;
   children: React.ReactNode;
   confirmLabel?: React.ReactNode;
   className?: string;
   title?: string;
 }) {
+  const t = useAdminT();
+  const toast = useActionToast();
   const [armed, setArmed] = useState(false);
   const [pending, startTransition] = useTransition();
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -36,7 +45,15 @@ export function ConfirmButton({
     clearTimeout(timer.current);
     setArmed(false);
     startTransition(async () => {
-      await action();
+      try {
+        const result = await action();
+        if (result && !result.ok) toast.error(result.error);
+      } catch {
+        // A rejected action means the request never completed — a dropped
+        // connection or a server that died mid-write. `describeError` never
+        // saw it, so there is no server-authored message to show.
+        toast.error(t.errors.unexpected);
+      }
     });
   };
 

@@ -25,6 +25,7 @@ import { logout } from "@/lib/admin/actions/auth";
 import { useAdminLang } from "@/lib/admin/i18n-provider";
 import type { AdminDict } from "@/lib/admin/i18n";
 import { LOCALES } from "@/lib/i18n/routing";
+import { ActionToastProvider } from "@/components/admin/action-toast";
 
 const NAV: {
   path: string;
@@ -161,59 +162,61 @@ export function AdminShell({
   }, [open]);
 
   return (
-    <div className="min-h-screen lg:flex">
-      {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col overflow-y-auto border-r bg-surface px-4 py-6 lg:flex">
-        <div className="mb-8 px-3">
-          <Wordmark />
-        </div>
-        <NavLinks />
-        <SidebarFooter username={username} />
-      </aside>
-
-      {/* Mobile top bar */}
-      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b bg-surface px-4 lg:hidden">
-        <Wordmark />
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          aria-label={t.nav.openMenu}
-          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-foreground/[0.05]"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
-      </header>
-
-      {/* Mobile drawer */}
-      {open && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="absolute inset-0 bg-foreground/30 backdrop-blur-[2px]"
-            onClick={() => setOpen(false)}
-          />
-          <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col overflow-y-auto bg-surface px-4 py-6 shadow-xl">
-            <div className="mb-8 flex items-center justify-between px-3">
-              <Wordmark />
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                aria-label={t.nav.closeMenu}
-                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-foreground/[0.05]"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <NavLinks onNavigate={() => setOpen(false)} />
-            <SidebarFooter username={username} />
+    <ActionToastProvider>
+      <div className="min-h-screen lg:flex">
+        {/* Desktop sidebar */}
+        <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col overflow-y-auto border-r bg-surface px-4 py-6 lg:flex">
+          <div className="mb-8 px-3">
+            <Wordmark />
           </div>
-        </div>
-      )}
+          <NavLinks />
+          <SidebarFooter username={username} />
+        </aside>
 
-      <main className="min-w-0 flex-1 lg:pl-60">
-        <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
-          {children}
-        </div>
-      </main>
-    </div>
+        {/* Mobile top bar */}
+        <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b bg-surface px-4 lg:hidden">
+          <Wordmark />
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            aria-label={t.nav.openMenu}
+            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-foreground/[0.05]"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        </header>
+
+        {/* Mobile drawer */}
+        {open && (
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <div
+              className="absolute inset-0 bg-foreground/30 backdrop-blur-[2px]"
+              onClick={() => setOpen(false)}
+            />
+            <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col overflow-y-auto bg-surface px-4 py-6 shadow-xl">
+              <div className="mb-8 flex items-center justify-between px-3">
+                <Wordmark />
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  aria-label={t.nav.closeMenu}
+                  className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-foreground/[0.05]"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <NavLinks onNavigate={() => setOpen(false)} />
+              <SidebarFooter username={username} />
+            </div>
+          </div>
+        )}
+
+        <main className="min-w-0 flex-1 lg:pl-60">
+          <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+            {children}
+          </div>
+        </main>
+      </div>
+    </ActionToastProvider>
   );
 }

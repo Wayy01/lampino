@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { LoaderCircle, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAdminT } from "@/lib/admin/i18n-provider";
+import { useActionToast } from "@/components/admin/action-toast";
+import type { ActionResult } from "@/lib/admin/errors";
 
 export type RowAction = {
   key: string;
@@ -15,8 +17,12 @@ export type RowAction = {
   href?: string;
   /** Storefront (or any external) URL — opens in a new tab. */
   externalHref?: string;
-  /** Server action, run in a transition; the menu closes when it settles. */
-  run?: () => Promise<void>;
+  /**
+   * Server action, run in a transition; the menu closes when it settles.
+   * A `{ ok: false }` result is reported as a toast — the row this menu
+   * belongs to may be gone by then, so there is nowhere inline to put it.
+   */
+  run?: () => Promise<ActionResult>;
   /** Requires a second tap/click before running. For destructive actions. */
   confirm?: boolean;
   danger?: boolean;
@@ -44,6 +50,7 @@ export function RowActions({
   label: string;
 }) {
   const t = useAdminT();
+  const toast = useActionToast();
   const router = useRouter();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -146,7 +153,10 @@ export function RowActions({
     const run = action.run;
     startTransition(async () => {
       try {
-        await run();
+        const result = await run();
+        if (result && !result.ok) toast.error(result.error);
+      } catch {
+        toast.error(t.errors.unexpected);
       } finally {
         setRunning(null);
         setOpen(false);

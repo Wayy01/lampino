@@ -71,7 +71,7 @@ export function RentalsTable({
       ) : (
         <Eye className="h-4 w-4" />
       ),
-      run: () => setRentalActive(r.id, !r.isActive),
+      run: () => setRentalActive(lang, r.id, !r.isActive),
     },
     {
       key: "duplicate",
@@ -87,7 +87,7 @@ export function RentalsTable({
           ? `${t.common.delete} · ${r.applicationCount} ${t.rentals.applicationsCount}`
           : t.common.delete,
       icon: <Trash2 className="h-4 w-4" />,
-      run: () => removeRental(r.id),
+      run: () => removeRental(lang, r.id),
       confirm: true,
       danger: true,
     },

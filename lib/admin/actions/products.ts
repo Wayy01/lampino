@@ -12,6 +12,12 @@ import {
   type AdminLang,
 } from "@/lib/admin/i18n";
 import { specsToJson, isEmptySpecRow, type SpecRow } from "@/lib/admin/specs";
+import {
+  ActionRefusal,
+  runAction,
+  runFormAction,
+  type ActionResult,
+} from "@/lib/admin/errors";
 
 export type ProductActionState = { ok?: boolean; error?: string } | null;
 
@@ -146,20 +152,23 @@ export async function createProduct(
 ): Promise<ProductActionState> {
   const lang = langFromForm(fd);
   await requireAdmin(lang);
-  const parsed = parseProduct(fd);
-  if ("error" in parsed) return { error: parsed.error };
 
-  const product = await prisma.product.create({
-    data: {
-      ...parsed.scalars,
-      images: { create: parsed.images },
-      videos: { create: parsed.videos },
-      variants: { create: parsed.variants.map(variantData) },
-    },
+  return runFormAction(lang, async () => {
+    const parsed = parseProduct(fd);
+    if ("error" in parsed) return { error: parsed.error };
+
+    const product = await prisma.product.create({
+      data: {
+        ...parsed.scalars,
+        images: { create: parsed.images },
+        videos: { create: parsed.videos },
+        variants: { create: parsed.variants.map(variantData) },
+      },
+    });
+
+    revalidatePath("/admin/[lang]/products", "page");
+    redirect(`/admin/${lang}/products/${product.id}`);
   });
-
-  revalidatePath("/admin/[lang]/products", "page");
-  redirect(`/admin/${lang}/products/${product.id}`);
 }
 
 export async function updateProduct(
@@ -167,57 +176,63 @@ export async function updateProduct(
   _prev: ProductActionState,
   fd: FormData,
 ): Promise<ProductActionState> {
-  await requireAdmin(langFromForm(fd));
-  const parsed = parseProduct(fd);
-  if ("error" in parsed) return { error: parsed.error };
+  const lang = langFromForm(fd);
+  await requireAdmin(lang);
 
-  const keptVariantIds = parsed.variants
-    .map((v) => v.id)
-    .filter((v): v is number => v !== null);
+  return runFormAction(lang, async () => {
+    const parsed = parseProduct(fd);
+    if ("error" in parsed) return { error: parsed.error };
 
-  await prisma.$transaction([
-    prisma.product.update({ where: { id }, data: parsed.scalars }),
-    // Images and videos carry no foreign keys — rebuild them wholesale.
-    prisma.productImage.deleteMany({ where: { productId: id } }),
-    prisma.productImage.createMany({
-      data: parsed.images.map((i) => ({ ...i, productId: id })),
-    }),
-    prisma.productVideo.deleteMany({ where: { productId: id } }),
-    prisma.productVideo.createMany({
-      data: parsed.videos.map((v) => ({ ...v, productId: id })),
-    }),
-    // Variants are referenced by order items, so update in place where possible.
-    prisma.productVariant.deleteMany({
-      where: { productId: id, id: { notIn: keptVariantIds } },
-    }),
-    // `updateMany` scopes the write to this product, so a variant id posted
-    // from a stale tab (or another product's row) matches nothing instead of
-    // throwing P2025 and rolling back the entire save.
-    ...parsed.variants.map((v) =>
-      v.id === null
-        ? prisma.productVariant.create({
-            data: { ...variantData(v), productId: id },
-          })
-        : prisma.productVariant.updateMany({
-            where: { id: v.id, productId: id },
-            data: variantData(v),
-          }),
-    ),
-  ]);
+    const keptVariantIds = parsed.variants
+      .map((v) => v.id)
+      .filter((v): v is number => v !== null);
 
-  revalidatePath("/admin/[lang]/products", "page");
-  revalidatePath("/admin/[lang]/products/[id]", "page");
-  return { ok: true };
+    await prisma.$transaction([
+      prisma.product.update({ where: { id }, data: parsed.scalars }),
+      // Images and videos carry no foreign keys — rebuild them wholesale.
+      prisma.productImage.deleteMany({ where: { productId: id } }),
+      prisma.productImage.createMany({
+        data: parsed.images.map((i) => ({ ...i, productId: id })),
+      }),
+      prisma.productVideo.deleteMany({ where: { productId: id } }),
+      prisma.productVideo.createMany({
+        data: parsed.videos.map((v) => ({ ...v, productId: id })),
+      }),
+      // Variants are referenced by order items, so update in place where possible.
+      prisma.productVariant.deleteMany({
+        where: { productId: id, id: { notIn: keptVariantIds } },
+      }),
+      // `updateMany` scopes the write to this product, so a variant id posted
+      // from a stale tab (or another product's row) matches nothing instead of
+      // throwing P2025 and rolling back the entire save.
+      ...parsed.variants.map((v) =>
+        v.id === null
+          ? prisma.productVariant.create({
+              data: { ...variantData(v), productId: id },
+            })
+          : prisma.productVariant.updateMany({
+              where: { id: v.id, productId: id },
+              data: variantData(v),
+            }),
+      ),
+    ]);
+
+    revalidatePath("/admin/[lang]/products", "page");
+    revalidatePath("/admin/[lang]/products/[id]", "page");
+    return { ok: true };
+  });
 }
 
 export async function deleteProduct(
   lang: AdminLang,
   id: number,
-): Promise<void> {
+): Promise<ActionResult> {
   await requireAdmin(lang);
-  await prisma.product.delete({ where: { id } });
-  revalidatePath("/admin/[lang]/products", "page");
-  redirect(`/admin/${lang}/products`);
+  return runAction(lang, async () => {
+    await prisma.product.delete({ where: { id } });
+    revalidatePath("/admin/[lang]/products", "page");
+    redirect(`/admin/${lang}/products`);
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -232,28 +247,39 @@ function revalidateProducts(): void {
 }
 
 export async function setProductActive(
+  lang: AdminLang,
   id: number,
   isActive: boolean,
-): Promise<void> {
-  await requireAdmin();
-  await prisma.product.update({ where: { id }, data: { isActive } });
-  revalidateProducts();
+): Promise<ActionResult> {
+  await requireAdmin(lang);
+  return runAction(lang, async () => {
+    await prisma.product.update({ where: { id }, data: { isActive } });
+    revalidateProducts();
+  });
 }
 
 export async function setProductFeatured(
+  lang: AdminLang,
   id: number,
   featured: boolean,
-): Promise<void> {
-  await requireAdmin();
-  await prisma.product.update({ where: { id }, data: { featured } });
-  revalidateProducts();
+): Promise<ActionResult> {
+  await requireAdmin(lang);
+  return runAction(lang, async () => {
+    await prisma.product.update({ where: { id }, data: { featured } });
+    revalidateProducts();
+  });
 }
 
 /** Delete from the list — same as `deleteProduct` minus the redirect. */
-export async function removeProduct(id: number): Promise<void> {
-  await requireAdmin();
-  await prisma.product.delete({ where: { id } });
-  revalidateProducts();
+export async function removeProduct(
+  lang: AdminLang,
+  id: number,
+): Promise<ActionResult> {
+  await requireAdmin(lang);
+  return runAction(lang, async () => {
+    await prisma.product.delete({ where: { id } });
+    revalidateProducts();
+  });
 }
 
 /**
@@ -264,61 +290,63 @@ export async function removeProduct(id: number): Promise<void> {
 export async function duplicateProduct(
   lang: AdminLang,
   id: number,
-): Promise<void> {
+): Promise<ActionResult> {
   await requireAdmin(lang);
-  const source = await prisma.product.findUnique({
-    where: { id },
-    include: {
-      images: { orderBy: { id: "asc" } },
-      videos: { orderBy: { id: "asc" } },
-      variants: { orderBy: { sortOrder: "asc" } },
-    },
-  });
-  if (!source) return;
+  return runAction(lang, async () => {
+    const source = await prisma.product.findUnique({
+      where: { id },
+      include: {
+        images: { orderBy: { id: "asc" } },
+        videos: { orderBy: { id: "asc" } },
+        variants: { orderBy: { sortOrder: "asc" } },
+      },
+    });
+    if (!source) throw new ActionRefusal("sourceMissing");
 
-  const copy = await prisma.product.create({
-    data: {
-      name_ro: `${source.name_ro} ${adminDictionaries.ro.common.copySuffix}`,
-      name_ru: `${source.name_ru} ${adminDictionaries.ru.common.copySuffix}`,
-      description_ro: source.description_ro,
-      description_ru: source.description_ru,
-      price: source.price,
-      reducedPrice: source.reducedPrice,
-      stock: source.stock,
-      hasVariants: source.hasVariants,
-      specifications: (source.specifications ?? {}) as Prisma.InputJsonValue,
-      categoryId: source.categoryId,
-      promotionId: source.promotionId,
-      featured: false,
-      featuredOrder: source.featuredOrder,
-      isActive: false,
-      images: {
-        create: source.images.map((i) => ({
-          imageUrl: i.imageUrl,
-          isMain: i.isMain,
-        })),
+    const copy = await prisma.product.create({
+      data: {
+        name_ro: `${source.name_ro} ${adminDictionaries.ro.common.copySuffix}`,
+        name_ru: `${source.name_ru} ${adminDictionaries.ru.common.copySuffix}`,
+        description_ro: source.description_ro,
+        description_ru: source.description_ru,
+        price: source.price,
+        reducedPrice: source.reducedPrice,
+        stock: source.stock,
+        hasVariants: source.hasVariants,
+        specifications: (source.specifications ?? {}) as Prisma.InputJsonValue,
+        categoryId: source.categoryId,
+        promotionId: source.promotionId,
+        featured: false,
+        featuredOrder: source.featuredOrder,
+        isActive: false,
+        images: {
+          create: source.images.map((i) => ({
+            imageUrl: i.imageUrl,
+            isMain: i.isMain,
+          })),
+        },
+        videos: {
+          create: source.videos.map((v) => ({
+            videoUrl: v.videoUrl,
+            thumbnailUrl: v.thumbnailUrl,
+          })),
+        },
+        variants: {
+          create: source.variants.map((v) => ({
+            name_ro: v.name_ro,
+            name_ru: v.name_ru,
+            size: v.size,
+            price: v.price,
+            reducedPrice: v.reducedPrice,
+            stock: v.stock,
+            isDefault: v.isDefault,
+            sortOrder: v.sortOrder,
+          })),
+        },
       },
-      videos: {
-        create: source.videos.map((v) => ({
-          videoUrl: v.videoUrl,
-          thumbnailUrl: v.thumbnailUrl,
-        })),
-      },
-      variants: {
-        create: source.variants.map((v) => ({
-          name_ro: v.name_ro,
-          name_ru: v.name_ru,
-          size: v.size,
-          price: v.price,
-          reducedPrice: v.reducedPrice,
-          stock: v.stock,
-          isDefault: v.isDefault,
-          sortOrder: v.sortOrder,
-        })),
-      },
-    },
-  });
+    });
 
-  revalidateProducts();
-  redirect(`/admin/${lang}/products/${copy.id}`);
+    revalidateProducts();
+    redirect(`/admin/${lang}/products/${copy.id}`);
+  });
 }

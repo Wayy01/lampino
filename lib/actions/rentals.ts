@@ -19,7 +19,20 @@ export type RentalApplicationInput = {
   additionalInfo: string | null;
 };
 
-export type RentalApplicationResult = { ok: true } | { ok: false; error: string };
+/** Every way a rental request can be refused; mapped to `t.rental.form.errors`. */
+export type RentalApplicationError =
+  | "invalid_contact"
+  | "invalid_event_type"
+  | "invalid_location"
+  | "invalid_guests"
+  | "invalid_date"
+  | "invalid_end_date"
+  | "package_not_found"
+  | "server_error";
+
+export type RentalApplicationResult =
+  | { ok: true }
+  | { ok: false; error: RentalApplicationError };
 
 const EVENT_TYPES = ["wedding", "corporate", "birthday", "private", "other"];
 // Email is optional on the form; when the customer leaves it blank we store the

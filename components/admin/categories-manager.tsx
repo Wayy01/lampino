@@ -16,7 +16,8 @@ import {
   reorderCategories,
   type CategoryActionState,
 } from "@/lib/admin/actions/categories";
-import { useAdminT } from "@/lib/admin/i18n-provider";
+import { useAdminLang, useAdminT } from "@/lib/admin/i18n-provider";
+import { useActionToast } from "@/components/admin/action-toast";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { MediaField } from "@/components/admin/media";
 import { DataTable, type Column } from "@/components/admin/data-table";
@@ -107,7 +108,8 @@ function CategoryDialog({
 }
 
 export function CategoriesManager({ rows }: { rows: CategoryRow[] }) {
-  const t = useAdminT();
+  const { t, lang } = useAdminLang();
+  const toast = useActionToast();
   const [editing, setEditing] = useState<CategoryRow | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [, startTransition] = useTransition();
@@ -143,7 +145,16 @@ export function CategoriesManager({ rows }: { rows: CategoryRow[] }) {
     },
     onCommit: () => {
       const ids = pendingIds.current;
-      startTransition(() => reorderCategories(ids));
+      startTransition(async () => {
+        try {
+          const result = await reorderCategories(lang, ids);
+          // The local order stays as dragged on failure so the admin can see
+          // what was refused; the message says a reload is needed.
+          if (!result.ok) toast.error(result.error);
+        } catch {
+          toast.error(t.errors.unexpected);
+        }
+      });
     },
   });
 
@@ -225,7 +236,7 @@ export function CategoriesManager({ rows }: { rows: CategoryRow[] }) {
             <Pencil className="h-4 w-4" />
           </button>
           <ConfirmButton
-            action={deleteCategory.bind(null, c.id)}
+            action={deleteCategory.bind(null, lang, c.id)}
             confirmLabel={t.common.sure}
             title={
               c.productCount > 0
