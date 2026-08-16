@@ -2,9 +2,12 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getRentalPackages } from "@/lib/data/rentals";
 import { getHomepageSettings } from "@/lib/data/settings";
-import { isLocale } from "@/lib/i18n/routing";
+import { isLocale, localePath, rentalPath, rentalsHref } from "@/lib/i18n/routing";
 import { dictionaries, type Lang } from "@/lib/i18n/dictionaries";
 import { pick } from "@/lib/utils";
+import { localeAlternates, openGraphFor } from "@/lib/seo";
+import { breadcrumbSchema, itemListSchema } from "@/lib/schema";
+import { JsonLd } from "@/components/site/json-ld";
 import { RentalCard } from "@/components/site/rental-card";
 
 export const dynamic = "force-dynamic";
@@ -16,10 +19,16 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang } = await params;
   const l: Lang = isLocale(lang) ? lang : "ro";
-  const d = dictionaries[l].arenda;
+  const d = dictionaries[l].seo;
   return {
-    title: `${d.title} — Lampino`,
-    description: d.subtitle,
+    title: d.rentalTitle,
+    description: d.rentalDescription,
+    alternates: localeAlternates(l, "/arenda"),
+    openGraph: openGraphFor(l, {
+      title: d.rentalTitle,
+      description: d.rentalDescription,
+      path: "/arenda",
+    }),
   };
 }
 
@@ -44,6 +53,20 @@ export default async function ArendaPage({
 
   return (
     <div className="mx-auto max-w-[1400px] px-5 pb-28 pt-28 sm:px-8 md:pt-36">
+      <JsonLd
+        data={[
+          breadcrumbSchema([
+            { name: dictionaries[lang].nav.home, path: localePath(lang) },
+            { name: dictionaries[lang].nav.rental, path: rentalsHref(lang) },
+          ]),
+          itemListSchema(
+            packages.map((p) => ({
+              name: pick(lang, p.title_ro, p.title_ru),
+              path: localePath(lang, rentalPath(p.id, p.title_ro)),
+            })),
+          ),
+        ]}
+      />
       {/* Editorial header */}
       <div className="max-w-2xl">
         <div className="label-mono flex items-center gap-3 text-muted-foreground">

@@ -20,6 +20,29 @@ function ids(json: unknown): number[] {
     : [];
 }
 
+export type SpecialOffersMeta = Pick<
+  SpecialOffers,
+  "title_ro" | "title_ru" | "description_ro" | "description_ru"
+>;
+
+/**
+ * Just the admin-authored headline of `/oferte-speciale`, without resolving the
+ * catalog behind it — enough for `generateMetadata` and for the sitemap to know
+ * whether the page is published at all (`null` when it isn't).
+ */
+export async function getSpecialOffersMeta(): Promise<SpecialOffersMeta | null> {
+  const page = await prisma.specialOffersPage.findFirst({
+    where: { isActive: true },
+    select: {
+      title_ro: true,
+      title_ru: true,
+      description_ro: true,
+      description_ru: true,
+    },
+  });
+  return page;
+}
+
 /**
  * The `/oferte-speciale` page. `SpecialOffersPage` picks its contents one of
  * two ways: `manual` uses the explicitly selected ids (order preserved), and

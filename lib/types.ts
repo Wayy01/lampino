@@ -75,6 +75,16 @@ export interface Product {
   variants: ProductVariant[];
 }
 
+/**
+ * A catalog row reduced to what the sitemap needs: the id the URL is keyed on,
+ * the Romanian name/title the decorative slug is built from, and a lastmod.
+ */
+export interface CatalogIndexEntry {
+  id: number;
+  slugSource: string;
+  updatedAt: string;
+}
+
 /** Category in display order, carrying the numeric id used in `/magazin?category=<id>` URLs. */
 export interface CategoryOption {
   id: number;

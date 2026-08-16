@@ -16,7 +16,7 @@ bunx prisma generate         # regenerate the client into lib/generated/prisma
 bun prisma/seed.ts           # wipes and repopulates every table; prints admin/admin123
 ```
 
-Env: `DATABASE_URL` (Postgres) and `ADMIN_SESSION_SECRET` (any random string — `session.ts` throws without it, and rotating it logs every admin out). No test suite exists.
+Env: `DATABASE_URL` (Postgres) and `ADMIN_SESSION_SECRET` (any random string — `session.ts` throws without it, and rotating it logs every admin out). Optional: `NEXT_PUBLIC_SITE_URL` (canonical origin, defaults to `https://lampino.md` — set it on staging so previews don't emit production canonicals) and `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` (the Search Console meta-tag token). Both are read at build time. No test suite exists.
 
 The Prisma client is generated to `lib/generated/prisma` (not `@prisma/client`) and **is committed**. Import `Prisma` types from `@/lib/generated/prisma`; import the singleton from `@/lib/prisma`. ESLint ignores `lib/generated/**`.
 
@@ -47,6 +47,8 @@ Next.js 16 App Router + React 19, Tailwind v4 (CSS-only config in `app/globals.c
 **`specifications` is a Json column with two shapes.** Canonical: `{ [id]: { label_ro, label_ru, value_ro, value_ru } }`. Legacy flat: `{ [key]: "value" }`, upgraded on read by `normalizeSpecs` (`lib/specs.ts`, storefront) and `specsFromJson` (`lib/admin/specs.ts`, admin). Catalog facets in `lib/filters.ts` classify the raw spec strings (`colorTemp`, `base`, `lumens`) into fixed buckets and only surface buckets that occur in the data.
 
 **Canonical detail URLs** are `/<lang>/product/<id>/<slug>` and `/<lang>/rental-package/<id>/<slug>`. The id is the source of truth; the slug is decorative and a mismatch redirects to the canonical form.
+
+**SEO lives in `lib/seo.ts` + `lib/schema.ts`.** `metadataBase` is set once in the storefront layout; every page then calls `localeAlternates(lang, path)` for its canonical + `ro`/`ru`/`x-default` hreflang and `openGraphFor(lang, …)` for its Open Graph block — Next *replaces* a child route's `openGraph` rather than merging it, so `siteName`/`locale` must be restated per page and that helper is the only place they live. `<head>`-only copy is the `seo` block in `dictionaries.ts`, separate from on-page copy. `lib/schema.ts` builds the JSON-LD, rendered through `components/site/json-ld.tsx`: the layout emits `Store` + `WebSite`, detail pages emit `Product`/`Service` + `BreadcrumbList`, the homepage emits `FAQPage`. `app/sitemap.ts` is `force-dynamic` (so `next build` needs no database and new products appear immediately) and reads the lean `getProductIndex()` / `getRentalIndex()` rows. `app/robots.ts`, `app/manifest.ts`, `app/icon.svg`, `app/apple-icon.tsx` and `app/[lang]/opengraph-image.tsx` are the metadata routes — `/apple-icon` is the only one without a file extension, hence its explicit exclusion from the `proxy.ts` matcher.
 
 ## Conventions
 

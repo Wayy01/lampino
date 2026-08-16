@@ -6,9 +6,24 @@ import {
 } from "@/lib/data/rentals";
 import { getContactSettings } from "@/lib/data/settings";
 import { slugify } from "@/lib/slug";
-import { isLocale, rentalHref } from "@/lib/i18n/routing";
+import {
+  isLocale,
+  localePath,
+  rentalHref,
+  rentalPath,
+  rentalsHref,
+} from "@/lib/i18n/routing";
 import { dictionaries, type Lang } from "@/lib/i18n/dictionaries";
 import { pick } from "@/lib/utils";
+import {
+  SITE_NAME,
+  absoluteUrl,
+  localeAlternates,
+  metaDescription,
+  openGraphFor,
+} from "@/lib/seo";
+import { breadcrumbSchema, rentalSchema } from "@/lib/schema";
+import { JsonLd } from "@/components/site/json-ld";
 import { RentalDetail } from "@/components/site/rental-detail";
 import { RentalCard } from "@/components/site/rental-card";
 import { ViewTracker } from "@/components/site/view-tracker";
@@ -23,12 +38,24 @@ export async function generateMetadata({
   const { lang, id } = await params;
   const l: Lang = isLocale(lang) ? lang : "ro";
   const pkg = await getRentalPackageById(Number(id));
-  if (!pkg) return { title: "Lampino" };
+  if (!pkg) return { title: SITE_NAME, robots: { index: false, follow: false } };
+
   const title = pick(l, pkg.title_ro, pkg.title_ru);
-  const description = pick(l, pkg.description_ro, pkg.description_ru);
+  const description = metaDescription(
+    `${title} — ${pick(l, "De la", "От")} ${pkg.price} lei. ${pick(l, pkg.description_ro, pkg.description_ru)}`,
+  );
+  const images = pkg.images.map((i) => absoluteUrl(i.imageUrl));
+
   return {
-    title: `${title} — Lampino`,
-    description: `${title} — ${pick(l, "De la", "От")} ${pkg.price} lei. ${description}`,
+    title,
+    description,
+    alternates: localeAlternates(l, rentalPath(pkg.id, pkg.title_ro)),
+    openGraph: openGraphFor(l, {
+      title,
+      description,
+      path: rentalPath(pkg.id, pkg.title_ro),
+      images,
+    }),
   };
 }
 
@@ -56,6 +83,19 @@ export default async function RentalPackagePage({
 
   return (
     <>
+      <JsonLd
+        data={[
+          rentalSchema(pkg, lang),
+          breadcrumbSchema([
+            { name: dictionaries[lang].nav.home, path: localePath(lang) },
+            { name: dictionaries[lang].nav.rental, path: rentalsHref(lang) },
+            {
+              name: pick(lang, pkg.title_ro, pkg.title_ru),
+              path: rentalHref(lang, pkg.id, pkg.title_ro),
+            },
+          ]),
+        ]}
+      />
       <ViewTracker kind="rental" id={pkg.id} />
       <RentalDetail pkg={pkg} contact={contact} />
 
