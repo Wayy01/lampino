@@ -8,8 +8,10 @@ import { useLang, useT } from "@/lib/i18n/provider";
 import { localePath, shopHref, rentalsHref } from "@/lib/i18n/routing";
 import { useCart } from "@/lib/cart/provider";
 import { LanguageToggle } from "./language-toggle";
+import { MobileNavMenu } from "./mobile-nav-menu";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, pick } from "@/lib/utils";
+import type { Category } from "@/lib/types";
 
 function CartButton({ className }: { className?: string }) {
   const t = useT();
@@ -33,7 +35,7 @@ function CartButton({ className }: { className?: string }) {
   );
 }
 
-export function Navbar() {
+export function Navbar({ categories = [] }: { categories?: Category[] }) {
   const t = useT();
   const { lang } = useLang();
   const [open, setOpen] = useState(false);
@@ -42,6 +44,14 @@ export function Navbar() {
     { href: shopHref(lang), label: t.nav.products },
     { href: rentalsHref(lang), label: t.nav.rental },
     { href: localePath(lang, "/about"), label: t.nav.about },
+  ];
+
+  const mobileItems = [
+    ...links,
+    ...categories.map((c) => ({
+      href: shopHref(lang, `category=${c.id}`),
+      label: pick(lang, c.name_ro, c.name_ru),
+    })),
   ];
 
   return (
@@ -93,18 +103,9 @@ export function Navbar() {
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="overflow-hidden border-b border-border bg-background md:hidden"
           >
-            <div className="flex flex-col gap-1 px-5 py-4">
-              {links.map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  onClick={() => setOpen(false)}
-                  className="font-display py-3 text-2xl tracking-tight"
-                >
-                  {l.label}
-                </Link>
-              ))}
-              <div className="mt-4 flex items-center justify-between">
+            <div className="flex flex-col gap-4 px-5 py-4">
+              <MobileNavMenu items={mobileItems} onNavigate={() => setOpen(false)} />
+              <div className="flex items-center justify-between">
                 <LanguageToggle />
                 <Button asChild size="sm" variant="ink">
                   <Link href={shopHref(lang)} onClick={() => setOpen(false)}>

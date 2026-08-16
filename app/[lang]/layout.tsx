@@ -11,6 +11,7 @@ import { PromoBanner } from "@/components/site/promo-banner";
 import { LOCALES, isLocale } from "@/lib/i18n/routing";
 import { dictionaries } from "@/lib/i18n/dictionaries";
 import { getProducts } from "@/lib/data/products";
+import { getCategories } from "@/lib/data/categories";
 import {
   getContactSettings,
   getDeliverySettings,
@@ -70,8 +71,9 @@ export default async function RootLayout({
   // The cart persists product ids in localStorage; the provider needs the
   // catalog to rehydrate those lines with live price/variant data. The contact
   // number powers the cart's WhatsApp checkout.
-  const [products, contact, delivery, banner, theme] = await Promise.all([
+  const [products, categories, contact, delivery, banner, theme] = await Promise.all([
     getProducts(),
+    getCategories(),
     getContactSettings(),
     getDeliverySettings(),
     getPromoBanner(),
@@ -103,7 +105,7 @@ export default async function RootLayout({
           <CartProvider products={products}>
             <Grain />
             {banner && <PromoBanner banner={banner} />}
-            <Navbar />
+            <Navbar categories={categories} />
             <main>{children}</main>
             <Footer contact={contact} />
             <CartDrawer delivery={delivery} />
