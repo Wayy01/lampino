@@ -59,10 +59,9 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   // Run on everything except Next internals, API routes, static assets and the
-  // metadata routes. `apple-icon` needs naming: it's the one crawler-facing
-  // route with no file extension, so the trailing `.*\..*` rule misses it and
-  // it would be redirected into a locale that has no such page.
+  // metadata routes. The icons are now static files, so the trailing `.*\..*`
+  // rule already covers them; they stay named for clarity.
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|icon.svg|apple-icon|manifest.webmanifest|robots.txt|sitemap.xml|.*\\..*).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|icon.png|apple-icon.png|manifest.webmanifest|robots.txt|sitemap.xml|.*\\..*).*)",
   ],
 };
