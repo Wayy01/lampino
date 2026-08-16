@@ -1,7 +1,7 @@
 import { prisma } from "../prisma";
 import { Prisma } from "../generated/prisma";
 import { normalizeSpecs } from "../specs";
-import type { Category, CategoryOption, Product } from "../types";
+import type { CatalogIndexEntry, Category, CategoryOption, Product } from "../types";
 
 export type { Product, CategoryOption } from "../types";
 
@@ -136,6 +136,20 @@ export async function getRelatedProducts(
     take: limit,
   });
   return rows.map(serializeProduct);
+}
+
+/** Every indexable product as a sitemap row — no relations, no serialization. */
+export async function getProductIndex(): Promise<CatalogIndexEntry[]> {
+  const rows = await prisma.product.findMany({
+    where: { isActive: true },
+    select: { id: true, name_ro: true, updatedAt: true },
+    orderBy: { id: "asc" },
+  });
+  return rows.map((r) => ({
+    id: r.id,
+    slugSource: r.name_ro,
+    updatedAt: r.updatedAt.toISOString(),
+  }));
 }
 
 /** Category options in display order for the catalog filter + magazin URL mapping. */

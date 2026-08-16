@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { Fraunces, Hanken_Grotesk, Geist_Mono } from "next/font/google";
 import { LanguageProvider } from "@/lib/i18n/provider";
@@ -8,8 +8,11 @@ import { Footer } from "@/components/site/footer";
 import { CartDrawer } from "@/components/site/cart-drawer";
 import { Grain } from "@/components/site/grain";
 import { PromoBanner } from "@/components/site/promo-banner";
+import { JsonLd } from "@/components/site/json-ld";
 import { LOCALES, isLocale } from "@/lib/i18n/routing";
 import { dictionaries } from "@/lib/i18n/dictionaries";
+import { storeSchema, websiteSchema } from "@/lib/schema";
+import { SITE_NAME, SITE_URL, localeAlternates, openGraphFor } from "@/lib/seo";
 import { getProducts } from "@/lib/data/products";
 import {
   getContactSettings,
@@ -44,17 +47,40 @@ export async function generateMetadata({
   params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
   const { lang } = await params;
-  const meta = dictionaries[isLocale(lang) ? lang : "ro"].meta;
+  const locale = isLocale(lang) ? lang : "ro";
+  const meta = dictionaries[locale].meta;
   return {
-    title: meta.title,
+    // Every relative URL below (canonicals, hreflang, OG images) resolves
+    // against this, so the whole storefront needs it set exactly once here.
+    metadataBase: new URL(SITE_URL),
+    // Child pages set a bare title; the suffix is appended for them.
+    title: { default: meta.title, template: `%s — ${SITE_NAME}` },
     description: meta.description,
-    openGraph: {
+    applicationName: SITE_NAME,
+    alternates: localeAlternates(locale),
+    openGraph: openGraphFor(locale, {
       title: meta.ogTitle,
       description: meta.ogDescription,
-      type: "website",
+    }),
+    // Card type only: Next fills the Twitter title/description/image from each
+    // page's own `openGraph`, and setting them here would be inherited by every
+    // child page and shadow that.
+    twitter: { card: "summary_large_image" },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
     },
+    // Set once the property is claimed in Search Console; unset renders nothing.
+    verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION },
+    formatDetection: { telephone: false },
   };
 }
+
+export const viewport: Viewport = {
+  themeColor: "#d0713e",
+  colorScheme: "light",
+};
 
 export function generateStaticParams() {
   return LOCALES.map((lang) => ({ lang }));
@@ -99,6 +125,13 @@ export default async function RootLayout({
       style={rootStyle}
     >
       <body className="min-h-screen" suppressHydrationWarning>
+        {/* Site-wide entities, referenced by @id from the per-page schema. */}
+        <JsonLd
+          data={[
+            storeSchema(lang, contact),
+            websiteSchema(lang, dictionaries[lang].meta.description),
+          ]}
+        />
         <LanguageProvider lang={lang}>
           <CartProvider products={products}>
             <Grain />

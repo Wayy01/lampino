@@ -9,6 +9,9 @@ import { getFeaturedProducts } from "@/lib/data/products";
 import { getFeaturedCategories } from "@/lib/data/categories";
 import { getFeaturedRentals } from "@/lib/data/rentals";
 import { isLocale } from "@/lib/i18n/routing";
+import { dictionaries } from "@/lib/i18n/dictionaries";
+import { JsonLd } from "@/components/site/json-ld";
+import { faqSchema } from "@/lib/schema";
 import { pick } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -41,6 +44,8 @@ export default async function Home({
 
   return (
     <>
+      {/* The homepage FAQ is the site's one shot at an FAQ rich result. */}
+      <JsonLd data={faqSchema(dictionaries[lang].faq.items)} />
       <HeroVideo
         videoUrl={hero.videoUrl}
         posterUrl={hero.posterUrl}

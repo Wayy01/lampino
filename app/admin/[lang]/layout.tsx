@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Fraunces, Hanken_Grotesk, Geist_Mono } from "next/font/google";
 import { isLocale, LOCALES } from "@/lib/i18n/routing";
 import { AdminLanguageProvider } from "@/lib/admin/i18n-provider";
+import { SITE_URL } from "@/lib/seo";
 import "../../globals.css";
 
 const fraunces = Fraunces({
@@ -25,6 +26,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Lampino Admin",
   description: "Administrare magazin Lampino",
   robots: { index: false, follow: false },

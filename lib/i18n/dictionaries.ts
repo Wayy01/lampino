@@ -7,6 +7,29 @@ export const ro = {
     ogDescription:
       "Lumină bună, preț corect, livrare rapidă. Magazinul tău de iluminat.",
   },
+  // Titles and descriptions for the <head> only — never rendered on the page.
+  // Kept apart from the on-page copy so they can carry search keywords without
+  // making the visible headings read like an ad.
+  seo: {
+    shopTitle: "Becuri și corpuri de iluminat",
+    shopDescription:
+      "Becuri LED, becuri smart, lumini de Crăciun, benzi LED și iluminat exterior. Livrare în 24 de ore în toată Moldova.",
+    rentalTitle: "Închiriere echipament de iluminat pentru evenimente",
+    rentalDescription:
+      "Pachete complete de iluminat pentru nunți, evenimente corporate și petreceri — montaj, tehnician și demontaj incluse.",
+    offersTitle: "Oferte speciale",
+    offersDescription:
+      "Produse și pachete de iluminat la preț redus, cât timp sunt disponibile.",
+    aboutTitle: "Despre noi",
+    aboutDescription:
+      "Aducem lumina bună la tine acasă: becuri și corpuri de iluminat alese cu grijă, preț corect și livrare rapidă în toată Moldova.",
+    termsTitle: "Termeni și condiții",
+    termsDescription:
+      "Termenii și condițiile pentru comenzile plasate în magazinul de iluminat Lampino.",
+    privacyTitle: "Politica de confidențialitate",
+    privacyDescription:
+      "Cum colectează, folosește și protejează Lampino datele tale când plasezi o comandă.",
+  },
   nav: {
     home: "Acasă",
     products: "Produse",
@@ -424,6 +447,26 @@ export const ru: typeof ro = {
     ogTitle: "Lampino — Освещение для дома",
     ogDescription:
       "Хороший свет, честная цена, быстрая доставка. Ваш магазин освещения.",
+  },
+  seo: {
+    shopTitle: "Лампы и светильники",
+    shopDescription:
+      "Светодиодные и умные лампы, новогодние гирлянды, LED-ленты и уличное освещение. Доставка за 24 часа по всей Молдове.",
+    rentalTitle: "Аренда осветительного оборудования для мероприятий",
+    rentalDescription:
+      "Комплексные пакеты освещения для свадеб, корпоративов и вечеринок — монтаж, техник и демонтаж включены.",
+    offersTitle: "Специальные предложения",
+    offersDescription:
+      "Товары и пакеты освещения по сниженной цене, пока они в наличии.",
+    aboutTitle: "О нас",
+    aboutDescription:
+      "Приносим хороший свет к вам домой: лампы и светильники, отобранные с заботой, честная цена и быстрая доставка по всей Молдове.",
+    termsTitle: "Условия использования",
+    termsDescription:
+      "Условия для заказов, оформленных в магазине освещения Lampino.",
+    privacyTitle: "Политика конфиденциальности",
+    privacyDescription:
+      "Как Lampino собирает, использует и защищает ваши данные при оформлении заказа.",
   },
   nav: {
     home: "Главная",

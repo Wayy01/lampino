@@ -2,7 +2,7 @@ import { prisma } from "../prisma";
 import { Prisma } from "../generated/prisma";
 import { normalizeSpecs } from "../specs";
 import { serializeCategory } from "./products";
-import type { RentalPackage } from "../types";
+import type { CatalogIndexEntry, RentalPackage } from "../types";
 
 export type { RentalPackage } from "../types";
 
@@ -70,6 +70,20 @@ export async function getFeaturedRentals(limit = 3): Promise<RentalPackage[]> {
     take: limit,
   });
   return rows.map(serializeRental);
+}
+
+/** Every indexable rental package as a sitemap row. */
+export async function getRentalIndex(): Promise<CatalogIndexEntry[]> {
+  const rows = await prisma.rentalPackage.findMany({
+    where: { isActive: true },
+    select: { id: true, title_ro: true, updatedAt: true },
+    orderBy: { id: "asc" },
+  });
+  return rows.map((r) => ({
+    id: r.id,
+    slugSource: r.title_ro,
+    updatedAt: r.updatedAt.toISOString(),
+  }));
 }
 
 export async function getRentalPackageById(id: number): Promise<RentalPackage | null> {
