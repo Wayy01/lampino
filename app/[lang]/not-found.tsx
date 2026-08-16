@@ -1,5 +1,13 @@
 // Shown for `notFound()` inside the storefront — a product id that no longer
-// resolves, an unpublished offers page, an unknown route under `/<lang>/`.
+// resolves, an unpublished offers page.
+//
+// KNOWN LIMITATION (Next 16.2.9): this renders into the RSC payload but never
+// gets a document — Next emits its own `<html id="__next_error__">` shell
+// instead, so visitors see the unstyled built-in 404. Verified to be unrelated
+// to this app's shape: it reproduces with a plain page under `app/`, a standard
+// `app/layout.tsx` and a root `app/not-found.tsx`, which is the most vanilla
+// configuration Next supports. Restructuring the layouts does not fix it.
+// Unmatched URLs are handled correctly by `app/global-not-found.tsx`.
 //
 // Must stay a Server Component: a client `not-found.tsx` is ignored and Next
 // renders its own bare 404 instead. It also gets no `params`, so the locale
