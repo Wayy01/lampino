@@ -15,6 +15,13 @@ const SEGMENTS = 10;
 const GRAVITY = 0.9;
 const DAMPING = 0.985;
 const ITERATIONS = 8;
+// How far past its length the cord will let itself be pulled. Resistance grows
+// exponentially toward this, so the last pixels are unreachable — the drag is
+// bounded by the cord, never by the layout.
+const MAX_STRETCH = 72;
+// Per-frame speed cap. Keeps a hard flick (or the snap back from a deep pull)
+// fast but survivable instead of launching the bulb off-screen.
+const MAX_SPEED = 24;
 const BULB_SCALE = 1.5;
 const BULB_W = 92 * BULB_SCALE;
 const BULB_H = 132 * BULB_SCALE;
@@ -38,6 +45,7 @@ export function HeroLightbulb() {
   const segLenRef = useRef(26);
   const draggingRef = useRef(false);
   const dragTargetRef = useRef({ x: 0, y: 0 });
+  const grabOffsetRef = useRef({ x: 0, y: 0 });
   const dragStateRef = useRef({ startX: 0, startY: 0, startTime: 0, moved: false });
 
   const [ready, setReady] = useState(false);
@@ -125,23 +133,27 @@ export function HeroLightbulb() {
       const ropeLen = ropeLenRef.current;
       const dragging = draggingRef.current;
 
-      points[0].x = anchor.x;
-      points[0].y = anchor.y;
-      points[0].ox = anchor.x;
-      points[0].oy = anchor.y;
+      // The ceiling point breathes a few pixels on a slow, non-repeating drift.
+      // Well below the cord's own swing frequency, so the bulb just follows it
+      // instead of resonating — a couple of pixels of life, never more.
+      const t = performance.now() / 1000;
+      points[0].x = anchor.x + Math.sin(t * 0.9) * 1.6 + Math.sin(t * 0.47 + 1.7) * 1.0;
+      points[0].y = anchor.y + Math.sin(t * 0.63 + 0.8) * 0.8;
+      points[0].ox = points[0].x;
+      points[0].oy = points[0].y;
 
       if (dragging) {
         const target = dragTargetRef.current;
-        const dx = target.x - anchor.x;
-        const dy = target.y - anchor.y;
+        const dx = target.x - points[0].x;
+        const dy = target.y - points[0].y;
         const dist = Math.hypot(dx, dy) || 0.0001;
-        const maxDist = ropeLen * 0.98;
         let tx = target.x;
         let ty = target.y;
-        if (dist > maxDist) {
-          const s = maxDist / dist;
-          tx = anchor.x + dx * s;
-          ty = anchor.y + dy * s;
+        if (dist > ropeLen) {
+          const eased = ropeLen + MAX_STRETCH * (1 - Math.exp(-(dist - ropeLen) / MAX_STRETCH));
+          const s = eased / dist;
+          tx = points[0].x + dx * s;
+          ty = points[0].y + dy * s;
         }
         const last = points[n];
         last.ox = last.x;
@@ -153,14 +165,17 @@ export function HeroLightbulb() {
       for (let i = 1; i <= n; i++) {
         if (dragging && i === n) continue;
         const p = points[i];
-        const vx = (p.x - p.ox) * DAMPING;
-        const vy = (p.y - p.oy) * DAMPING;
-        const nx = p.x + vx;
-        const ny = p.y + vy + GRAVITY;
+        let vx = (p.x - p.ox) * DAMPING;
+        let vy = (p.y - p.oy) * DAMPING;
+        const speed = Math.hypot(vx, vy);
+        if (speed > MAX_SPEED) {
+          vx = (vx / speed) * MAX_SPEED;
+          vy = (vy / speed) * MAX_SPEED;
+        }
         p.ox = p.x;
         p.oy = p.y;
-        p.x = nx;
-        p.y = ny;
+        p.x += vx;
+        p.y += vy + GRAVITY;
       }
 
       for (let iter = 0; iter < ITERATIONS; iter++) {
@@ -198,11 +213,20 @@ export function HeroLightbulb() {
   }, []);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!containerRef.current || pointsRef.current.length === 0) return;
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
     e.currentTarget.classList.add("cursor-grabbing");
     draggingRef.current = true;
     dragStateRef.current = { startX: e.clientX, startY: e.clientY, startTime: performance.now(), moved: false };
+
+    // Keep the grab point under the cursor instead of teleporting the cord's
+    // end to it — grabbing the glass shouldn't yank the bulb up by its cap.
+    const points = pointsRef.current;
+    const tip = points[points.length - 1];
+    const rect = containerRef.current.getBoundingClientRect();
+    grabOffsetRef.current = { x: tip.x - (e.clientX - rect.left), y: tip.y - (e.clientY - rect.top) };
+    dragTargetRef.current = { x: tip.x, y: tip.y };
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -211,7 +235,8 @@ export function HeroLightbulb() {
     const dy = e.clientY - dragStateRef.current.startY;
     if (Math.hypot(dx, dy) > 6) dragStateRef.current.moved = true;
     const rect = containerRef.current.getBoundingClientRect();
-    dragTargetRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    const grab = grabOffsetRef.current;
+    dragTargetRef.current = { x: e.clientX - rect.left + grab.x, y: e.clientY - rect.top + grab.y };
   };
 
   const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -237,7 +262,12 @@ export function HeroLightbulb() {
       <div className="absolute left-1/2 top-0 h-3 w-8 -translate-x-1/2 rounded-b-sm bg-foreground/15" />
 
       <svg
-        className={cn("absolute inset-0 h-full w-full transition-opacity duration-500", ready ? "opacity-100" : "opacity-0")}
+        className={cn(
+          // overflow-visible: the cord has to keep drawing once it's pulled
+          // past the bottom of its box.
+          "absolute inset-0 h-full w-full overflow-visible transition-opacity duration-500",
+          ready ? "opacity-100" : "opacity-0",
+        )}
         aria-hidden
       >
         <path ref={pathRef} d="" fill="none" stroke="var(--foreground)" strokeOpacity={0.28} strokeWidth={2.5} strokeLinecap="round" />
@@ -256,7 +286,7 @@ export function HeroLightbulb() {
         onPointerCancel={endDrag}
         onKeyDown={toggleOnKey}
         className={cn(
-          "absolute left-0 top-0 cursor-grab touch-none select-none outline-none transition-opacity duration-500",
+          "absolute left-0 top-0 z-20 cursor-grab touch-none select-none outline-none transition-opacity duration-500",
           ready ? "opacity-100" : "opacity-0",
         )}
         style={{ width: BULB_W, transformOrigin: "50% 8%" }}

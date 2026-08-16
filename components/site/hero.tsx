@@ -42,8 +42,12 @@ export function Hero({
   const ctaLabel = pick(lang, buttonText_ro, buttonText_ru) || t.hero.ctaPrimary;
   const ctaHref = buttonUrl ? withLocale(lang, buttonUrl) : shopHref(lang);
 
+  // overflow-x-clip, not overflow-hidden: the bulb's glow — and the bulb
+  // itself, once you drag it down — has to spill over the sections below,
+  // while a sideways swing still can't widen the page. z-10 keeps that spill
+  // painted above the later sections instead of under them.
   return (
-    <section className="relative overflow-hidden bg-background">
+    <section className="relative z-10 overflow-x-clip bg-background">
       <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-4 px-5 py-16 sm:px-8 lg:min-h-[640px] lg:grid-cols-2 lg:gap-8 lg:py-0">
         <motion.div
           initial={{ opacity: 0, y: 18 }}
