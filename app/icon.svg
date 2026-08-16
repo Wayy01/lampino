@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Lampino">
-  <rect width="32" height="32" rx="7" fill="#f6f4ef" />
-  <path
-    d="M16 5.2a7.2 7.2 0 0 0-4.4 12.9c.9.7 1.4 1.7 1.5 2.8l.1.9h5.6l.1-.9c.1-1.1.6-2.1 1.5-2.8A7.2 7.2 0 0 0 16 5.2Z"
-    fill="#d0713e"
-  />
-  <rect x="12.9" y="23.1" width="6.2" height="1.8" rx="0.9" fill="#14110f" />
-  <rect x="13.9" y="26" width="4.2" height="1.7" rx="0.85" fill="#14110f" />
-</svg>

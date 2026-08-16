@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
-import { AboutContent } from "@/components/site/about-content";
+import { ContactContent } from "@/components/site/contact-content";
 import { JsonLd } from "@/components/site/json-ld";
 import { breadcrumbSchema } from "@/lib/schema";
+import { getContactSettings } from "@/lib/data/settings";
 import { localeAlternates, openGraphFor } from "@/lib/seo";
 import { dictionaries, type Lang } from "@/lib/i18n/dictionaries";
 import { isLocale, localePath } from "@/lib/i18n/routing";
 
-// The shared storefront layout queries the catalog, so this route can't be
-// prerendered either, even though the page itself is pure dictionary copy.
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
@@ -19,33 +18,34 @@ export async function generateMetadata({
   const l: Lang = isLocale(lang) ? lang : "ro";
   const d = dictionaries[l].seo;
   return {
-    title: d.aboutTitle,
-    description: d.aboutDescription,
-    alternates: localeAlternates(l, "/about"),
+    title: d.contactTitle,
+    description: d.contactDescription,
+    alternates: localeAlternates(l, "/contact"),
     openGraph: openGraphFor(l, {
-      title: d.aboutTitle,
-      description: d.aboutDescription,
-      path: "/about",
+      title: d.contactTitle,
+      description: d.contactDescription,
+      path: "/contact",
     }),
   };
 }
 
-export default async function AboutPage({
+export default async function ContactPage({
   params,
 }: {
   params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
   const l: Lang = isLocale(lang) ? lang : "ro";
+  const contact = await getContactSettings();
   return (
     <>
       <JsonLd
         data={breadcrumbSchema([
           { name: dictionaries[l].nav.home, path: localePath(l) },
-          { name: dictionaries[l].nav.about, path: localePath(l, "/about") },
+          { name: dictionaries[l].nav.contact, path: localePath(l, "/contact") },
         ])}
       />
-      <AboutContent />
+      <ContactContent contact={contact} />
     </>
   );
 }

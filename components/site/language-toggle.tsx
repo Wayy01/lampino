@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n/provider";
 import { cn } from "@/lib/utils";
 
@@ -13,19 +14,22 @@ export function LanguageToggle({ className }: { className?: string }) {
       )}
     >
       {(["ro", "ru"] as const).map((code) => (
-        <button
+        <Button
           key={code}
+          variant="bare"
+          size="none"
+          pill
           onClick={() => setLang(code)}
           aria-pressed={lang === code}
           className={cn(
-            "rounded-full px-2.5 py-1 transition-colors cursor-pointer",
+            "px-2.5 py-1",
             lang === code
               ? "bg-primary text-primary-foreground"
               : "text-muted-foreground hover:text-foreground",
           )}
         >
           {code}
-        </button>
+        </Button>
       ))}
     </div>
   );

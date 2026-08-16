@@ -113,27 +113,31 @@ export function FastBuyDrawer({
               <div className="flex items-center justify-between">
                 <span className="label-mono text-muted-foreground">{t.product.quantity}</span>
                 <div className="flex items-center gap-1 rounded-full border border-border">
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setQty((q) => Math.max(1, q - 1))}
                     disabled={qty <= 1}
                     aria-label={t.cart.remove}
-                    className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                    className="text-muted-foreground hover:bg-transparent hover:text-foreground"
                   >
                     <Minus className="h-4 w-4" />
-                  </button>
+                  </Button>
                   <span className="min-w-7 text-center text-sm font-medium tabular-nums">
                     {qty}
                   </span>
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setQty((q) => Math.min(stock, q + 1))}
                     disabled={qty >= stock}
                     aria-label={t.cart.add}
-                    className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                    className="text-muted-foreground hover:bg-transparent hover:text-foreground"
                   >
                     <Plus className="h-4 w-4" />
-                  </button>
+                  </Button>
                 </div>
               </div>
 

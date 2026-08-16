@@ -150,13 +150,15 @@ export function CartDrawer({
                               </p>
                             )}
                           </div>
-                          <button
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
                             onClick={() => removeItem(item.product.id, variantId)}
                             aria-label={t.cart.remove}
-                            className="shrink-0 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-foreground/[0.05] hover:text-foreground cursor-pointer"
+                            className="shrink-0 text-muted-foreground hover:text-foreground"
                           >
                             <Trash2 className="h-4 w-4" />
-                          </button>
+                          </Button>
                         </div>
                         <div className="flex items-end justify-between gap-3">
                           <Stepper
@@ -245,23 +247,27 @@ function Stepper({
 }) {
   return (
     <div className="flex items-center gap-1 rounded-full border border-border">
-      <button
+      <Button
+        variant="ghost"
+        size="icon-sm"
         onClick={onDecrease}
         aria-label={decreaseLabel}
-        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
+        className="text-muted-foreground hover:bg-transparent hover:text-foreground"
       >
         <Minus className="h-3.5 w-3.5" />
-      </button>
+      </Button>
       <span className="min-w-6 text-center text-sm font-medium tabular-nums">
         {quantity}
       </span>
-      <button
+      <Button
+        variant="ghost"
+        size="icon-sm"
         onClick={onIncrease}
         aria-label={increaseLabel}
-        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
+        className="text-muted-foreground hover:bg-transparent hover:text-foreground"
       >
         <Plus className="h-3.5 w-3.5" />
-      </button>
+      </Button>
     </div>
   );
 }
@@ -292,13 +298,15 @@ function CheckoutView({
   return (
     <div className="flex flex-1 flex-col overflow-y-auto">
       <div className="px-6 pt-4">
-        <button
+        <Button
+          variant="quiet"
+          size="none"
           onClick={onBack}
-          className="group label-mono inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
+          className="group hover:no-underline"
         >
           <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
           {t.cart.backToCart}
-        </button>
+        </Button>
         <p className="mt-4 text-sm text-muted-foreground">{t.order.subtitle}</p>
       </div>
 

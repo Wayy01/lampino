@@ -5,6 +5,7 @@ import { MapPin, Store, Truck } from "lucide-react";
 import { useLang } from "@/lib/i18n/provider";
 import type { DeliveryRegion } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { Input, Textarea, Label } from "@/components/ui/input";
 
 // The customer portion shared by every checkout form (product buy-now, cart
@@ -164,11 +165,13 @@ export function MethodButton({
   onClick: () => void;
 }) {
   return (
-    <button
+    <Button
       type="button"
+      variant="bare"
+      size="none"
       onClick={onClick}
       className={cn(
-        "inline-flex h-12 items-center justify-center gap-2 rounded-[var(--radius-md)] border text-sm font-medium transition-colors cursor-pointer",
+        "h-12 rounded-[var(--radius-md)] border text-sm",
         active
           ? "border-primary bg-primary/10 text-foreground"
           : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground",
@@ -176,7 +179,7 @@ export function MethodButton({
     >
       {icon}
       {label}
-    </button>
+    </Button>
   );
 }
 

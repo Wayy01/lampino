@@ -11,6 +11,7 @@ import type {
   RentalPackage,
   RentalPackageVariant,
 } from "@/lib/types";
+import { Button } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n/provider";
 import { rentalsHref } from "@/lib/i18n/routing";
 import { pick, formatPrice, cn } from "@/lib/utils";
@@ -274,11 +275,13 @@ export function RentalDetail({
                         const vReduced =
                           v.reducedPrice != null && v.reducedPrice < v.price;
                         return (
-                          <button
+                          <Button
                             key={v.id}
+                            variant="bare"
+                            size="none"
                             onClick={() => setSelected(v)}
                             className={cn(
-                              "flex items-center justify-between gap-3 rounded-[var(--radius-md)] border px-4 py-3 text-left transition-colors cursor-pointer",
+                              "justify-between gap-3 rounded-[var(--radius-md)] border px-4 py-3 text-left",
                               isSelected
                                 ? "border-primary bg-primary/[0.06]"
                                 : "border-border hover:border-foreground/30",
@@ -310,7 +313,7 @@ export function RentalDetail({
                             <span className="font-display shrink-0 text-base tracking-tight">
                               {formatPrice(vReduced ? v.reducedPrice! : v.price)}
                             </span>
-                          </button>
+                          </Button>
                         );
                       })}
                     </div>
@@ -318,14 +321,15 @@ export function RentalDetail({
                 )}
 
                 {/* Primary CTA — opens the rental request form (RentalApplication) */}
-                <button
+                <Button
                   type="button"
+                  size="lg"
                   onClick={() => setInquiryOpen(true)}
-                  className="inline-flex h-14 w-full cursor-pointer items-center justify-center gap-2 rounded-[var(--radius)] bg-primary text-base font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
+                  className="w-full"
                 >
                   <FileText className="h-5 w-5" strokeWidth={1.75} />
                   {t.rental.requestQuote}
-                </button>
+                </Button>
 
                 {(contact?.whatsapp || contact?.phone) && (
                   <div className="mt-3 grid grid-cols-2 gap-3">

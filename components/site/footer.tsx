@@ -61,7 +61,7 @@ export function Footer({ contact }: { contact: ContactSettings | null }) {
               {t.footer.legal}
             </p>
             <ul className="space-y-3">
-              <FooterLink href={localePath(lang, "/about")}>
+              <FooterLink href={localePath(lang, "/contact")}>
                 {t.footer.links.contact}
               </FooterLink>
               <FooterLink href={localePath(lang, "/terms")}>

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
 import { Play, X, ChevronLeft, ChevronRight, Expand } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { MediaItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -46,8 +47,10 @@ export function ProductGallery({
   return (
     <div>
       {/* Main stage */}
-      <button
+      <Button
         type="button"
+        variant="bare"
+        size="none"
         onClick={() => setFullscreen(true)}
         aria-label={alt}
         className="group relative block aspect-[16/10] w-full cursor-zoom-in overflow-hidden rounded-[var(--radius-lg)] bg-foreground/90"
@@ -101,18 +104,20 @@ export function ProductGallery({
         <span className="pointer-events-none absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-foreground opacity-0 backdrop-blur transition-opacity duration-300 group-hover:opacity-100">
           <Expand className="h-4 w-4" />
         </span>
-      </button>
+      </Button>
 
       {/* Thumbnail strip */}
       {count > 1 && (
         <div className="mt-3 grid grid-cols-4 gap-3 sm:grid-cols-5">
           {media.map((item, i) => (
-            <button
+            <Button
               key={i}
+              variant="bare"
+              size="none"
               onClick={() => setActive(i)}
               aria-label={`${alt} ${i + 1}`}
               className={cn(
-                "relative aspect-square overflow-hidden rounded-[var(--radius-md)] bg-muted transition-all cursor-pointer",
+                "relative block aspect-square overflow-hidden rounded-[var(--radius-md)] bg-muted",
                 active === i
                   ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
                   : "opacity-65 hover:opacity-100",
@@ -151,7 +156,7 @@ export function ProductGallery({
                   className="object-cover"
                 />
               )}
-            </button>
+            </Button>
           ))}
         </div>
       )}
@@ -167,36 +172,42 @@ export function ProductGallery({
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95"
             onClick={() => setFullscreen(false)}
           >
-            <button
+            <Button
+              variant="overlay"
+              size="icon-lg"
               onClick={() => setFullscreen(false)}
               aria-label="Close"
-              className="absolute right-5 top-5 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 cursor-pointer"
+              className="absolute right-5 top-5 z-10"
             >
               <X className="h-5 w-5" />
-            </button>
+            </Button>
 
             {count > 1 && (
               <>
-                <button
+                <Button
+                  variant="overlay"
+                  size="icon-xl"
                   onClick={(e) => {
                     e.stopPropagation();
                     go(-1);
                   }}
                   aria-label="Previous"
-                  className="absolute left-3 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 cursor-pointer sm:left-6"
+                  className="absolute left-3 top-1/2 z-10 -translate-y-1/2 sm:left-6"
                 >
                   <ChevronLeft className="h-6 w-6" />
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="overlay"
+                  size="icon-xl"
                   onClick={(e) => {
                     e.stopPropagation();
                     go(1);
                   }}
                   aria-label="Next"
-                  className="absolute right-3 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 cursor-pointer sm:right-6"
+                  className="absolute right-3 top-1/2 z-10 -translate-y-1/2 sm:right-6"
                 >
                   <ChevronRight className="h-6 w-6" />
-                </button>
+                </Button>
               </>
             )}
 

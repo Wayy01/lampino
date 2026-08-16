@@ -223,19 +223,22 @@ export function ProductDetail({
                       .join(" · ");
                     const isSelected = selectedVariant?.id === v.id;
                     return (
-                      <button
+                      <Button
                         key={v.id}
+                        variant="bare"
+                        size="none"
+                        pill
                         onClick={() => selectVariant(v)}
                         disabled={v.stock <= 0}
                         className={cn(
-                          "rounded-full border px-4 py-2 text-sm transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-40",
+                          "border px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40",
                           isSelected
                             ? "border-primary bg-primary/10 text-foreground"
                             : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground",
                         )}
                       >
                         {label}
-                      </button>
+                      </Button>
                     );
                   })}
                 </div>
@@ -248,25 +251,29 @@ export function ProductDetail({
                 {t.product.quantity}
               </span>
               <div className="flex items-center gap-1 rounded-full border border-border">
-                <button
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={() => changeQuantity(-1)}
                   disabled={quantity <= 1}
                   aria-label={t.cart.remove}
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                  className="text-muted-foreground hover:bg-transparent hover:text-foreground"
                 >
                   <Minus className="h-4 w-4" />
-                </button>
+                </Button>
                 <span className="min-w-7 text-center text-sm font-medium tabular-nums">
                   {quantity}
                 </span>
-                <button
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={() => changeQuantity(1)}
                   disabled={quantity >= stock}
                   aria-label={t.cart.add}
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                  className="text-muted-foreground hover:bg-transparent hover:text-foreground"
                 >
                   <Plus className="h-4 w-4" />
-                </button>
+                </Button>
               </div>
             </div>
 

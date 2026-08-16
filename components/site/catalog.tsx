@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
 import type { ProductCategory } from "@/lib/data/products";
@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { ProductCard } from "./product-card";
 import type { Facets } from "@/lib/filters";
@@ -108,6 +109,21 @@ export function Catalog({
     () => new Set(initialLumens),
   );
   const [open, setOpen] = useState(false);
+  const resultsRef = useRef<HTMLDivElement>(null);
+
+  // Paging swaps the whole grid under the reader, so send them back to the top
+  // of the results. Only the pagination controls call this — a filter change
+  // also resets to page 1, but yanking the view while someone is working the
+  // filter panel would be worse than leaving it alone.
+  const goToPage = (p: number) => {
+    setPage(p);
+    resultsRef.current?.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+      block: "start",
+    });
+  };
 
   // Any filter change resets pagination to the first page. Wrap the raw setters
   // so callers (panel + chips) get this for free.
@@ -334,10 +350,13 @@ export function Catalog({
         <div className="min-w-0">
           {/* Toolbar: filters (mobile) · sort · reset · count */}
           <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-b border-border pb-6">
-            <button
+            <Button
+              variant="bare"
+              size="none"
+              pill
               onClick={() => setOpen(true)}
               className={cn(
-                "label-mono inline-flex items-center gap-2 rounded-full border px-4 py-1.5 transition-colors cursor-pointer lg:hidden",
+                "label-mono border px-4 py-1.5 lg:hidden",
                 advancedCount > 0
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-foreground/25 bg-foreground/[0.04] text-foreground hover:border-primary hover:text-primary",
@@ -359,7 +378,7 @@ export function Catalog({
               </svg>
               {t.catalog.filters}
               {advancedCount > 0 && ` (${advancedCount})`}
-            </button>
+            </Button>
 
             <div className="flex min-w-0 items-center gap-2">
               <span className="label-mono text-muted-foreground">
@@ -383,12 +402,9 @@ export function Catalog({
             </div>
 
             {isDirty && (
-              <button
-                onClick={reset}
-                className="label-mono text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline cursor-pointer"
-              >
+              <Button variant="quiet" size="none" onClick={reset}>
                 {t.catalog.reset}
-              </button>
+              </Button>
             )}
 
             <span className="label-mono ml-auto text-muted-foreground">
@@ -400,20 +416,23 @@ export function Catalog({
           {chips.length > 0 && (
             <div className="mt-5 flex flex-wrap items-center gap-2">
               {chips.map((chip) => (
-                <button
+                <Button
                   key={chip.key}
+                  variant="chip"
+                  size="chip"
+                  pill
                   onClick={chip.onRemove}
-                  className="label-mono inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/5 px-3 py-1.5 text-primary transition-colors hover:bg-primary/10 cursor-pointer"
                 >
                   {chip.label}
                   <span aria-hidden>✕</span>
-                </button>
+                </Button>
               ))}
             </div>
           )}
 
-          {/* Results */}
-          <div className="mt-10 min-h-[40vh]">
+          {/* Results. `scroll-mt-32` keeps the fixed navbar + promo banner from
+              covering the top row when `goToPage` scrolls back up. */}
+          <div ref={resultsRef} className="mt-10 min-h-[40vh] scroll-mt-32">
             {filtered.length === 0 ? (
               <p className="font-display py-20 text-center text-2xl text-muted-foreground">
                 {t.catalog.empty}
@@ -441,7 +460,7 @@ export function Catalog({
             >
               <PageButton
                 disabled={currentPage <= 1}
-                onClick={() => setPage(currentPage - 1)}
+                onClick={() => goToPage(currentPage - 1)}
                 aria-label={t.catalog.prevPage}
               >
                 ‹
@@ -458,7 +477,7 @@ export function Catalog({
                   <PageButton
                     key={p}
                     active={p === currentPage}
-                    onClick={() => setPage(p)}
+                    onClick={() => goToPage(p)}
                     aria-current={p === currentPage ? "page" : undefined}
                   >
                     {p}
@@ -467,7 +486,7 @@ export function Catalog({
               )}
               <PageButton
                 disabled={currentPage >= totalPages}
-                onClick={() => setPage(currentPage + 1)}
+                onClick={() => goToPage(currentPage + 1)}
                 aria-label={t.catalog.nextPage}
               >
                 ›
@@ -479,10 +498,12 @@ export function Catalog({
 
       {/* Mobile: filter panel behind a slide-in drawer */}
       <Sheet open={open} onOpenChange={setOpen}>
+        {/* Solid on phones — a translucent panel makes the filter text hard to
+            read over a scrolling product grid. Glass only from `lg` up. */}
         <SheetContent
           side="left"
           aria-describedby={undefined}
-          className="border-white/40 bg-surface/70 backdrop-blur-2xl sm:max-w-md"
+          className="border-border bg-surface sm:max-w-md lg:border-white/40 lg:bg-surface/70 lg:backdrop-blur-2xl"
         >
           <div className="flex items-center justify-between border-b border-border px-6 py-5 pr-14">
             <SheetTitle>{t.catalog.filters}</SheetTitle>
@@ -494,13 +515,15 @@ export function Catalog({
             <FiltersPanel {...panelProps} />
           </div>
           <div className="border-t border-border px-6 py-5">
-            <button
+            <Button
+              size="none"
+              pill
               onClick={() => setOpen(false)}
-              className="label-mono w-full rounded-full bg-primary px-6 py-3 text-primary-foreground transition-opacity hover:opacity-90 cursor-pointer"
+              className="label-mono w-full px-6 py-3"
             >
               {t.catalog.showResults}
               {` (${filtered.length})`}
-            </button>
+            </Button>
           </div>
         </SheetContent>
       </Sheet>
@@ -615,12 +638,9 @@ function FiltersPanel({
       )}
 
       {isDirty && (
-        <button
-          onClick={reset}
-          className="label-mono self-start pt-5 text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline cursor-pointer"
-        >
+        <Button variant="quiet" size="none" onClick={reset} className="self-start pt-5">
           {t.catalog.reset}
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -654,23 +674,24 @@ function PageButton({
   children: React.ReactNode;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
-    <button
+    <Button
+      variant="bare"
+      size="none"
+      pill
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "label-mono flex h-9 min-w-9 items-center justify-center rounded-full border px-3 transition-colors",
+        "label-mono h-9 min-w-9 border px-3",
         disabled
           ? "cursor-not-allowed border-foreground/10 text-muted-foreground/40"
-          : "cursor-pointer",
-        active
-          ? "border-primary bg-primary text-primary-foreground"
-          : !disabled &&
-              "border-foreground/20 text-foreground/70 hover:border-primary hover:text-primary",
+          : active
+            ? "border-primary bg-primary text-primary-foreground"
+            : "border-foreground/20 text-foreground/70 hover:border-primary hover:text-primary",
       )}
       {...rest}
     >
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -684,17 +705,20 @@ function Pill({
   children: React.ReactNode;
 }) {
   return (
-    <button
+    <Button
+      variant="bare"
+      size="chip"
+      pill
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "label-mono rounded-full border px-3 py-1.5 transition-colors cursor-pointer",
+        "label-mono border",
         active
           ? "border-primary bg-primary text-primary-foreground shadow-[0_1px_6px_-1px_var(--primary)]"
           : "border-foreground/20 text-foreground/70 hover:border-primary hover:text-primary",
       )}
     >
       {children}
-    </button>
+    </Button>
   );
 }

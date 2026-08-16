@@ -22,8 +22,10 @@ export function FeaturedProducts({
 
   if (featured.length === 0) return null;
 
+  // Tighter on top than the other sections: the hero's bulb glow already
+  // fills the space above this one.
   return (
-    <section className="mx-auto max-w-[1400px] px-5 py-24 sm:px-8 md:py-32">
+    <section className="mx-auto max-w-[1400px] px-5 pb-24 pt-12 sm:px-8 md:pb-32 md:pt-16">
       <div className="flex flex-wrap items-end justify-between gap-6">
         <SectionHeading
           index="01"

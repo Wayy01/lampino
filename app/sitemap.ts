@@ -66,7 +66,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...localized("/magazin", productsUpdated, "daily", 0.9),
     ...localized("/arenda", rentalsUpdated, "weekly", 0.8),
     ...(offers ? localized("/oferte-speciale", now, "weekly", 0.7) : []),
-    ...localized("/about", now, "yearly", 0.4),
+    ...localized("/contact", now, "yearly", 0.4),
     ...localized("/terms", now, "yearly", 0.2),
     ...localized("/privacy", now, "yearly", 0.2),
     ...products.flatMap((p) =>
