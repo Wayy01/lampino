@@ -143,7 +143,7 @@ export default async function RootLayout({
           <CartProvider products={products}>
             <Grain />
             {banner && <PromoBanner banner={banner} />}
-            <Navbar />
+            <Navbar phone={contact?.phone ?? null} />
             <main>{children}</main>
             <Footer contact={contact} />
             <CartDrawer delivery={delivery} />

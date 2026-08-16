@@ -173,19 +173,22 @@ export function RentalInquiryDrawer({
                 <Label>{f.eventType}</Label>
                 <div className="flex flex-wrap gap-2">
                   {EVENT_TYPES.map((key) => (
-                    <button
+                    <Button
                       key={key}
                       type="button"
+                      variant="bare"
+                      size="none"
+                      pill
                       onClick={() => setEventType(key)}
                       className={cn(
-                        "rounded-full border px-3.5 py-1.5 text-sm transition-colors cursor-pointer",
+                        "border px-3.5 py-1.5 text-sm",
                         eventType === key
                           ? "border-primary bg-primary/10 text-foreground"
                           : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground",
                       )}
                     >
                       {f.eventTypes[key]}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>

@@ -15,15 +15,33 @@ const buttonVariants = cva(
           "border border-foreground/15 text-foreground hover:border-foreground/40 hover:bg-foreground/[0.03]",
         ghost: "text-foreground hover:bg-foreground/[0.05]",
         link: "text-primary underline-offset-4 hover:underline p-0 h-auto",
+        /** Muted mono text — "clear filters", "continue shopping". */
+        quiet:
+          "label-mono text-muted-foreground underline-offset-4 hover:text-foreground hover:underline p-0 h-auto",
+        /** Soft accent fill that warms to primary — in-card actions. */
+        soft: "bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground",
+        /** Selected filter pill. */
+        chip: "label-mono border border-primary/40 bg-primary/5 text-primary hover:bg-primary/10",
+        /** Sits on top of imagery, so it can't use theme colours. */
+        overlay: "bg-white/10 text-white hover:bg-white/20",
+        /** Bare click target — navbar cart, gallery thumbnails. */
+        bare: "",
       },
       size: {
         sm: "h-10 px-4 text-sm rounded-[var(--radius-sm)]",
         md: "h-12 px-6 text-[0.95rem] rounded-[var(--radius-md)]",
         lg: "h-14 px-8 text-base rounded-[var(--radius)]",
-        icon: "h-11 w-11 rounded-full",
+        chip: "h-auto px-3 py-1.5 gap-1.5",
+        "icon-sm": "h-8 w-8 rounded-full",
+        icon: "h-9 w-9 rounded-full",
+        "icon-lg": "h-11 w-11 rounded-full",
+        "icon-xl": "h-12 w-12 rounded-full",
+        none: "",
       },
+      /** Fully rounded, overriding whatever radius the size sets. */
+      pill: { true: "rounded-full", false: "" },
     },
-    defaultVariants: { variant: "primary", size: "md" },
+    defaultVariants: { variant: "primary", size: "md", pill: false },
   },
 );
 
@@ -34,12 +52,12 @@ export interface ButtonProps
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, pill, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     return (
       <Comp
         ref={ref}
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(buttonVariants({ variant, size, pill, className }))}
         {...props}
       />
     );

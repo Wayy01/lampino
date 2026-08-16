@@ -47,8 +47,6 @@ export default async function Home({
       {/* The homepage FAQ is the site's one shot at an FAQ rich result. */}
       <JsonLd data={faqSchema(dictionaries[lang].faq.items)} />
       <Hero
-        heading_ro={hero.heading_ro}
-        heading_ru={hero.heading_ru}
         buttonText_ro={hero.buttonText_ro}
         buttonText_ru={hero.buttonText_ru}
         buttonUrl={hero.buttonUrl}

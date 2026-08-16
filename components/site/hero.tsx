@@ -1,13 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { SpecularButton } from "@/components/ui/specular-button";
 import { useLang, useT } from "@/lib/i18n/provider";
 import { shopHref, isLocale, localePath, type Locale } from "@/lib/i18n/routing";
 import { pick } from "@/lib/utils";
 import { HeroLightbulb } from "@/components/site/hero-lightbulb";
+import { BlurWord } from "@/components/site/blur-word";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -24,21 +24,16 @@ function withLocale(lang: Locale, url: string): string {
 // bulb hanging on a cord on the right. No video, no dark overlay — the page
 // stays on the site's single warm-white surface.
 export function Hero({
-  heading_ro,
-  heading_ru,
   buttonText_ro,
   buttonText_ru,
   buttonUrl,
 }: {
-  heading_ro?: string | null;
-  heading_ru?: string | null;
   buttonText_ro?: string | null;
   buttonText_ru?: string | null;
   buttonUrl?: string | null;
 }) {
   const t = useT();
   const { lang } = useLang();
-  const heading = pick(lang, heading_ro, heading_ru);
   const ctaLabel = pick(lang, buttonText_ro, buttonText_ru) || t.hero.ctaPrimary;
   const ctaHref = buttonUrl ? withLocale(lang, buttonUrl) : shopHref(lang);
 
@@ -60,21 +55,20 @@ export function Hero({
             <span>{t.hero.kicker}</span>
           </div>
 
-          <h1 className="font-display mt-7 text-[clamp(2.75rem,6.5vw,5.25rem)] font-light leading-[0.97] tracking-[-0.03em] text-foreground">
-            {heading || (
-              <>
-                {t.hero.titleA}{" "}
-                <span className="italic text-primary">{t.hero.titleB}</span>
-              </>
-            )}
+          {/* aria-label pins the heading's accessible name to the canonical
+              phrase while the last word cycles, without duplicating the word
+              in the DOM the way a visible + sr-only pair would. */}
+          <h1
+            aria-label={`${t.hero.titleStatic} ${t.hero.titleWords[0]}`}
+            className="font-display mt-7 text-[clamp(2.75rem,6.5vw,5.25rem)] font-light leading-[0.97] tracking-[-0.03em] text-foreground"
+          >
+            {t.hero.titleStatic} <BlurWord words={t.hero.titleWords} />
           </h1>
 
-          <Button asChild size="lg" className="group mt-9">
-            <Link href={ctaHref}>
-              {ctaLabel}
-              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </Button>
+          <SpecularButton href={ctaHref} className="mt-9">
+            {ctaLabel}
+            <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+          </SpecularButton>
         </motion.div>
 
         <div className="relative order-first h-[360px] sm:h-[440px] lg:order-last lg:h-[640px]">

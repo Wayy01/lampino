@@ -22,6 +22,13 @@ const MAX_STRETCH = 72;
 // Per-frame speed cap. Keeps a hard flick (or the snap back from a deep pull)
 // fast but survivable instead of launching the bulb off-screen.
 const MAX_SPEED = 24;
+// Hangs the bulb higher than the cord would otherwise reach, by shortening the
+// cord rather than shifting the whole rig — that way the ceiling mount stays
+// pinned to the top of the section. The tall `lg` hero gets more lift than the
+// short mobile one, which already sits where it should.
+const LIFT = 50;
+const LIFT_TALL = 80;
+const TALL_HERO = 560; // between the sm (440px) and lg (640px) container heights
 const BULB_SCALE = 1.5;
 const BULB_W = 92 * BULB_SCALE;
 const BULB_H = 132 * BULB_SCALE;
@@ -61,7 +68,8 @@ export function HeroLightbulb() {
       if (width <= 0 || height <= 0) return;
       const anchorX = width / 2;
       const anchorY = 8;
-      const ropeLen = Math.min(Math.max(height * 0.55, 150), 440);
+      const lift = height >= TALL_HERO ? LIFT_TALL : LIFT;
+      const ropeLen = Math.min(Math.max(height * 0.55, 150), 440) - lift;
       const segLen = ropeLen / SEGMENTS;
 
       anchorRef.current = { x: anchorX, y: anchorY };

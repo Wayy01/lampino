@@ -1,10 +1,13 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "motion/react";
 import { ArrowUpRight, ShoppingBag } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { Product } from "@/lib/data/products";
+import type { ProductVariant } from "@/lib/types";
 import { useLang } from "@/lib/i18n/provider";
 import { useCart } from "@/lib/cart/provider";
 import { track } from "@/lib/analytics/track";
@@ -34,14 +37,37 @@ export function ProductCard({
     .filter((c) => c.value)
     .slice(0, 3);
 
-  const hasDiscount =
-    product.reducedPrice !== null && product.reducedPrice < product.price;
-  const displayPrice = hasDiscount ? product.reducedPrice! : product.price;
+  // Same selection rules as the detail page, so a card and the page it links to
+  // never disagree about which variant is showing.
+  const variants = useMemo(
+    () => [...product.variants].sort((a, b) => a.sortOrder - b.sortOrder),
+    [product.variants],
+  );
+  const hasVariants = product.hasVariants && variants.length > 0;
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
+    hasVariants ? (variants.find((v) => v.isDefault) ?? variants[0]) : null,
+  );
+
+  const unitPrice = selectedVariant?.price ?? product.price;
+  const stock = selectedVariant?.stock ?? product.stock;
+  const reduced = selectedVariant
+    ? selectedVariant.reducedPrice
+    : product.reducedPrice;
+  const hasDiscount = reduced !== null && reduced < unitPrice;
+  const displayPrice = hasDiscount ? reduced! : unitPrice;
+
+  // The chips sit inside a card that is otherwise one big link, so every
+  // handler has to stop the click from navigating.
+  const selectVariant = (e: React.MouseEvent, variant: ProductVariant) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedVariant(variant);
+  };
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addItem(product);
+    addItem(product, selectedVariant ? { variant: selectedVariant } : undefined);
     track({ type: "add_to_cart", productId: product.id });
     openCart();
   };
@@ -52,11 +78,11 @@ export function ProductCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.6, delay: (index % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
-      className="h-full"
+      className="group flex h-full flex-col"
     >
       <Link
         href={productHref(lang, product.id, product.name_ro)}
-        className="group flex h-full flex-col"
+        className="flex flex-col"
       >
         <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--radius-lg)] bg-muted">
           <Image
@@ -69,7 +95,7 @@ export function ProductCard({
           {hasDiscount && (
             <div className="absolute right-4 top-4">
               <span className="label-mono rounded-full bg-primary px-3 py-1 text-primary-foreground">
-                −{Math.round((1 - displayPrice / product.price) * 100)}%
+                −{Math.round((1 - displayPrice / unitPrice) * 100)}%
               </span>
             </div>
           )}
@@ -95,7 +121,7 @@ export function ProductCard({
           <div className="shrink-0 text-right">
             {hasDiscount && (
               <div className="text-sm text-muted-foreground line-through">
-                {formatPrice(product.price)}
+                {formatPrice(unitPrice)}
               </div>
             )}
             <div
@@ -116,15 +142,57 @@ export function ProductCard({
             ))}
           </div>
         )}
+      </Link>
 
-        <button
+      {/* Pinned to the bottom of the card, so a card with a variant row and one
+          without still line their buttons up across a grid row. */}
+      <div className="mt-auto pt-3">
+        {hasVariants && (
+          <div
+            role="group"
+            aria-label={t.product.selectVariant}
+            className="mb-3 flex flex-wrap gap-1.5"
+          >
+            {variants.map((v) => {
+              const label = [pick(lang, v.name_ro, v.name_ru), v.size]
+                .filter(Boolean)
+                .join(" · ");
+              const isSelected = selectedVariant?.id === v.id;
+              return (
+                <Button
+                  key={v.id}
+                  variant="bare"
+                  size="none"
+                  pill
+                  aria-pressed={isSelected}
+                  disabled={v.stock <= 0}
+                  onClick={(e) => selectVariant(e, v)}
+                  className={cn(
+                    "border px-2.5 py-1 text-xs disabled:cursor-not-allowed disabled:opacity-40",
+                    isSelected
+                      ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground",
+                  )}
+                >
+                  {label}
+                </Button>
+              );
+            })}
+          </div>
+        )}
+
+        <Button
+          variant="soft"
+          size="none"
+          pill
+          disabled={stock <= 0}
           onClick={handleAdd}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-accent py-2.5 text-sm font-medium text-accent-foreground transition-colors hover:bg-primary hover:text-primary-foreground cursor-pointer"
+          className="w-full py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-50"
         >
           <ShoppingBag className="h-4 w-4" strokeWidth={1.75} />
-          {t.cart.add}
-        </button>
-      </Link>
+          {stock > 0 ? t.cart.add : t.product.outOfStock}
+        </Button>
+      </div>
     </motion.div>
   );
 }

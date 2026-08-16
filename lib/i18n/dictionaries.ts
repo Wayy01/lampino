@@ -34,9 +34,9 @@ export const ro = {
     offersTitle: "Oferte speciale",
     offersDescription:
       "Produse și pachete de iluminat la preț redus, cât timp sunt disponibile.",
-    aboutTitle: "Despre noi",
-    aboutDescription:
-      "Aducem lumina bună la tine acasă: becuri și corpuri de iluminat alese cu grijă, preț corect și livrare rapidă în toată Moldova.",
+    contactTitle: "Contact",
+    contactDescription:
+      "Telefon, email, adresa magazinului Lampino din Chișinău și programul de lucru — plus harta cu locația exactă.",
     termsTitle: "Termeni și condiții",
     termsDescription:
       "Termenii și condițiile pentru comenzile plasate în magazinul de iluminat Lampino.",
@@ -48,13 +48,16 @@ export const ro = {
     home: "Acasă",
     products: "Produse",
     rental: "Închiriere",
-    about: "Despre noi",
+    contact: "Contact",
     cta: "Vezi produsele",
   },
   hero: {
     kicker: "Moldova · Iluminat pentru casă",
     titleA: "Lumină care face casa",
     titleB: "acasă.",
+    // The homepage h1: `titleStatic` never changes, the last word cycles.
+    titleStatic: "Soluții Premium de",
+    titleWords: ["Iluminat", "Ambianță", "Confort", "Design"],
     subtitle:
       "Becuri, ghirlande și corpuri de iluminat alese cu grijă — pentru fiecare colț al casei tale.",
     priceFrom: "De la",
@@ -209,7 +212,6 @@ export const ro = {
     rights: "Toate drepturile rezervate.",
     links: {
       products: "Produse",
-      about: "Despre noi",
       contact: "Contact",
       terms: "Termeni",
       privacy: "Confidențialitate",
@@ -390,26 +392,17 @@ export const ro = {
     spot: "Spoturi",
     accessories: "Accesorii",
   },
-  about: {
-    kicker: "Despre noi",
-    title: "Aducem lumina bună la tine acasă.",
-    intro:
-      "Lampino este magazinul tău de iluminat: becuri, ghirlande, benzi LED și corpuri de exterior, alese cu grijă și livrate rapid.",
-    body: [
-      {
-        h: "Produse alese cu grijă",
-        p: "Nu umplem rafturile cu orice. Selectăm becuri și corpuri de la producători de încredere, testate pentru lumină bună și durată lungă.",
-      },
-      {
-        h: "Un preț corect, afișat clar",
-        p: "Fiecare produs are un singur preț, afișat direct — fără costuri ascunse și fără surprize la final.",
-      },
-      {
-        h: "Comandă simplă, livrare rapidă",
-        p: "Alegi produsele, trimiți comanda și noi le livrăm în 24 de ore în toată țara.",
-      },
-    ],
-    cta: "Vezi colecția",
+  contact: {
+    kicker: "Contact",
+    title: "Hai să vorbim.",
+    updated: "Scrie-ne sau treci pe la magazin.",
+    phone: "Telefon",
+    email: "Email",
+    address: "Adresă",
+    hours: "Program",
+    follow: "Urmărește-ne",
+    mapTitle: "Locația magazinului Lampino pe hartă",
+    directions: "Deschide în Google Maps",
   },
   terms: {
     kicker: "Legal",
@@ -514,9 +507,9 @@ export const ru: typeof ro = {
     offersTitle: "Специальные предложения",
     offersDescription:
       "Товары и пакеты освещения по сниженной цене, пока они в наличии.",
-    aboutTitle: "О нас",
-    aboutDescription:
-      "Приносим хороший свет к вам домой: лампы и светильники, отобранные с заботой, честная цена и быстрая доставка по всей Молдове.",
+    contactTitle: "Контакты",
+    contactDescription:
+      "Телефон, эл. почта, адрес магазина Lampino в Кишинёве и часы работы — а также карта с точным расположением.",
     termsTitle: "Условия использования",
     termsDescription:
       "Условия для заказов, оформленных в магазине освещения Lampino.",
@@ -528,13 +521,15 @@ export const ru: typeof ro = {
     home: "Главная",
     products: "Товары",
     rental: "Аренда",
-    about: "О нас",
+    contact: "Контакты",
     cta: "Смотреть товары",
   },
   hero: {
     kicker: "Молдова · Освещение для дома",
     titleA: "Свет, который делает дом",
     titleB: "домом.",
+    titleStatic: "Премиальные решения для",
+    titleWords: ["освещения", "атмосферы", "комфорта", "дизайна"],
     subtitle:
       "Лампы, гирлянды и светильники, отобранные с заботой — для каждого уголка вашего дома.",
     priceFrom: "От",
@@ -688,7 +683,6 @@ export const ru: typeof ro = {
     rights: "Все права защищены.",
     links: {
       products: "Товары",
-      about: "О нас",
       contact: "Контакты",
       terms: "Условия",
       privacy: "Конфиденциальность",
@@ -864,26 +858,17 @@ export const ru: typeof ro = {
     spot: "Споты",
     accessories: "Аксессуары",
   },
-  about: {
-    kicker: "О нас",
-    title: "Приносим хороший свет к вам домой.",
-    intro:
-      "Lampino — ваш магазин освещения: лампы, гирлянды, LED-ленты и уличные светильники, отобранные с заботой и доставленные быстро.",
-    body: [
-      {
-        h: "Товары, отобранные с заботой",
-        p: "Мы не заполняем полки чем попало. Отбираем лампы и светильники от надёжных производителей, проверенные на хороший свет и долгий срок службы.",
-      },
-      {
-        h: "Честная цена, указанная сразу",
-        p: "У каждого товара одна цена, указанная прямо — без скрытых расходов и сюрпризов на кассе.",
-      },
-      {
-        h: "Простой заказ, быстрая доставка",
-        p: "Вы выбираете товары, оформляете заказ, а мы доставляем его за 24 часа по всей стране.",
-      },
-    ],
-    cta: "Смотреть коллекцию",
+  contact: {
+    kicker: "Контакты",
+    title: "Давайте пообщаемся.",
+    updated: "Напишите нам или загляните в магазин.",
+    phone: "Телефон",
+    email: "Эл. почта",
+    address: "Адрес",
+    hours: "Часы работы",
+    follow: "Мы в соцсетях",
+    mapTitle: "Расположение магазина Lampino на карте",
+    directions: "Открыть в Google Картах",
   },
   terms: {
     kicker: "Правовое",

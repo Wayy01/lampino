@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
-import { Menu, X, ShoppingBag } from "lucide-react";
+import { Menu, X, ShoppingBag, Phone } from "lucide-react";
 import { useLang, useT } from "@/lib/i18n/provider";
 import { localePath, shopHref, rentalsHref } from "@/lib/i18n/routing";
 import { useCart } from "@/lib/cart/provider";
@@ -15,13 +15,12 @@ function CartButton({ className }: { className?: string }) {
   const t = useT();
   const { count, openCart } = useCart();
   return (
-    <button
+    <Button
+      variant="ghost"
+      size="icon"
       onClick={openCart}
       aria-label={t.cart.title}
-      className={cn(
-        "relative flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-foreground/[0.05] cursor-pointer",
-        className,
-      )}
+      className={cn("relative h-10 w-10", className)}
     >
       <ShoppingBag className="h-5 w-5" strokeWidth={1.75} />
       {count > 0 && (
@@ -29,11 +28,11 @@ function CartButton({ className }: { className?: string }) {
           {count}
         </span>
       )}
-    </button>
+    </Button>
   );
 }
 
-export function Navbar() {
+export function Navbar({ phone }: { phone?: string | null }) {
   const t = useT();
   const { lang } = useLang();
   const [open, setOpen] = useState(false);
@@ -41,7 +40,7 @@ export function Navbar() {
   const links = [
     { href: shopHref(lang), label: t.nav.products },
     { href: rentalsHref(lang), label: t.nav.rental },
-    { href: localePath(lang, "/about"), label: t.nav.about },
+    { href: localePath(lang, "/contact"), label: t.nav.contact },
   ];
 
   return (
@@ -74,13 +73,14 @@ export function Navbar() {
 
         <div className="flex items-center gap-1 md:hidden">
           <CartButton />
-          <button
-            className="flex items-center justify-center cursor-pointer"
+          <Button
+            variant="bare"
+            size="none"
             onClick={() => setOpen((v) => !v)}
             aria-label="Menu"
           >
             {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -104,13 +104,21 @@ export function Navbar() {
                   {l.label}
                 </Link>
               ))}
-              <div className="mt-4 flex items-center justify-between">
+              {/* One tap to call, rather than another route into the shop —
+                  the nav links above already cover that. */}
+              <div className="mt-4 flex items-center justify-between gap-3">
                 <LanguageToggle />
-                <Button asChild size="sm" variant="ink">
-                  <Link href={shopHref(lang)} onClick={() => setOpen(false)}>
-                    {t.nav.cta}
-                  </Link>
-                </Button>
+                {phone && (
+                  <Button asChild size="sm" variant="ink">
+                    <a
+                      href={`tel:${phone.replace(/\s/g, "")}`}
+                      onClick={() => setOpen(false)}
+                    >
+                      <Phone className="h-4 w-4" strokeWidth={1.75} />
+                      {phone}
+                    </a>
+                  </Button>
+                )}
               </div>
             </div>
           </motion.div>
