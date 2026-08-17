@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { ProductCard } from "./product-card";
+import { ProductCardTile } from "./product-card-tile";
 import type { Facets } from "@/lib/filters";
 
 const PAGE_SIZE = 9;
@@ -443,10 +443,10 @@ export function Catalog({
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                className="grid grid-cols-1 gap-x-8 gap-y-14 sm:grid-cols-2 xl:grid-cols-3"
+                className="grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-5 sm:gap-y-10 xl:grid-cols-3"
               >
                 {paged.map((product, i) => (
-                  <ProductCard key={product.id} product={product} index={i} />
+                  <ProductCardTile key={product.id} product={product} index={i} />
                 ))}
               </motion.div>
             )}
@@ -572,18 +572,24 @@ function FiltersPanel({
 }: FiltersPanelProps) {
   return (
     <div className="flex flex-col divide-y divide-border">
-      <FacetRow label={t.catalog.category}>
-        <Pill active={category === "all"} onClick={() => setCategory("all")}>
+      {/* Categories read as a plain vertical list: the names are real words in
+          two languages, so the uppercase mono pills used for the short facets
+          below were the hardest thing in the panel to scan. */}
+      <FacetRow label={t.catalog.category} stack>
+        <CategoryRow
+          active={category === "all"}
+          onClick={() => setCategory("all")}
+        >
           {t.catalog.all}
-        </Pill>
+        </CategoryRow>
         {categoryOptions.map((c) => (
-          <Pill
+          <CategoryRow
             key={c.id}
             active={category === c.slug}
             onClick={() => setCategory(c.slug)}
           >
             {pick(lang, c.name_ro, c.name_ru)}
-          </Pill>
+          </CategoryRow>
         ))}
       </FacetRow>
 
@@ -649,15 +655,58 @@ function FiltersPanel({
 function FacetRow({
   label,
   children,
+  stack = false,
 }: {
   label: string;
   children: React.ReactNode;
+  /** Full-width vertical list instead of wrapping pills. */
+  stack?: boolean;
 }) {
   return (
     <div className="flex flex-col gap-3 py-5 first:pt-0 last:pb-0">
-      <span className="label-mono text-foreground/80">{label}</span>
-      <div className="flex flex-wrap items-center gap-2">{children}</div>
+      <span className="label-mono text-foreground">{label}</span>
+      <div
+        className={cn(
+          stack
+            ? "-mx-1.5 flex flex-col gap-0.5"
+            : "flex flex-wrap items-center gap-2",
+        )}
+      >
+        {children}
+      </div>
     </div>
+  );
+}
+
+/**
+ * One line of the category list. Reads as text rather than as a chip: normal
+ * sentence case, sans-serif, and a solid fill when selected so the active
+ * category is unmistakable at a glance.
+ */
+function CategoryRow({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <Button
+      variant="bare"
+      size="none"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        "w-full justify-start rounded-[var(--radius-sm)] px-3 py-2 text-left text-sm font-normal leading-5 transition-colors",
+        active
+          ? "bg-primary font-medium text-primary-foreground"
+          : "text-foreground/75 hover:bg-foreground/[0.06] hover:text-foreground",
+      )}
+    >
+      <span className="min-w-0 truncate">{children}</span>
+    </Button>
   );
 }
 
@@ -715,7 +764,7 @@ function Pill({
         "label-mono border",
         active
           ? "border-primary bg-primary text-primary-foreground shadow-[0_1px_6px_-1px_var(--primary)]"
-          : "border-foreground/20 text-foreground/70 hover:border-primary hover:text-primary",
+          : "border-foreground/30 text-foreground/85 hover:border-primary hover:text-primary",
       )}
     >
       {children}

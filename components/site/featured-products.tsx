@@ -6,7 +6,7 @@ import type { Product } from "@/lib/types";
 import { useLang, useT } from "@/lib/i18n/provider";
 import { shopHref } from "@/lib/i18n/routing";
 import { SectionHeading } from "./section-heading";
-import { ProductCard } from "./product-card";
+import { ProductCardTile } from "./product-card-tile";
 import { Reveal } from "./reveal";
 
 export function FeaturedProducts({
@@ -43,9 +43,9 @@ export function FeaturedProducts({
         </Reveal>
       </div>
 
-      <div className="mt-14 grid grid-cols-1 gap-x-8 gap-y-14 sm:grid-cols-2 md:mt-16 lg:grid-cols-3">
+      <div className="mt-14 grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-5 sm:gap-y-10 md:mt-16 lg:grid-cols-3">
         {featured.map((product, i) => (
-          <ProductCard key={product.id} product={product} index={i} />
+          <ProductCardTile key={product.id} product={product} index={i} />
         ))}
       </div>
     </section>
