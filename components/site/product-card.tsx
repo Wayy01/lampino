@@ -183,7 +183,7 @@ export function ProductCard({
         )}
 
         <Button
-          variant="soft"
+          variant="primary"
           size="none"
           pill
           disabled={stock <= 0}
