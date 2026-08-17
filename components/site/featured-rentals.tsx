@@ -24,7 +24,7 @@ export function FeaturedRentals({
         title={heading || t.arenda.title}
       />
 
-      <div className="mt-14 grid gap-x-8 gap-y-14 sm:grid-cols-2 md:mt-16 lg:grid-cols-3">
+      <div className="mt-14 grid grid-cols-1 gap-x-8 gap-y-14 sm:grid-cols-2 md:mt-16 lg:grid-cols-3">
         {packages.map((pkg, i) => (
           <RentalCard key={pkg.id} pkg={pkg} index={i} />
         ))}

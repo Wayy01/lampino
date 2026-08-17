@@ -443,7 +443,7 @@ export function Catalog({
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                className="grid gap-x-8 gap-y-14 sm:grid-cols-2 xl:grid-cols-3"
+                className="grid grid-cols-1 gap-x-8 gap-y-14 sm:grid-cols-2 xl:grid-cols-3"
               >
                 {paged.map((product, i) => (
                   <ProductCard key={product.id} product={product} index={i} />

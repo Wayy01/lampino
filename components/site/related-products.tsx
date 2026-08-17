@@ -17,7 +17,7 @@ export function RelatedProducts({ products }: { products: Product[] }) {
           {t.product.similarTitle}
         </h2>
 
-        <div className="mt-10 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid grid-cols-1 gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
           {products.map((product, i) => (
             <ProductCard key={product.id} product={product} index={i} />
           ))}

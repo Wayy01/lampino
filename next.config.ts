@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "plus.unsplash.com" },
+      // Legacy product images imported from the old Tilda-built site.
+      { protocol: "https", hostname: "static.tildacdn.com" },
     ],
   },
   experimental: {

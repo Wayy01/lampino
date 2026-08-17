@@ -102,7 +102,7 @@ export function RentalDetail({
 
       {/* Editorial hero — text + featured image, framed differently from products */}
       <section className="mx-auto mt-8 max-w-[1400px] px-5 sm:px-8">
-        <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
           <div>
             <motion.h1
               initial={{ opacity: 0, y: 16 }}
@@ -167,7 +167,7 @@ export function RentalDetail({
 
       {/* Body: content + sticky inquiry aside */}
       <section className="mx-auto mt-16 max-w-[1400px] px-5 sm:px-8 md:mt-24">
-        <div className="grid gap-12 lg:grid-cols-[1.6fr_1fr] lg:gap-16">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.6fr_1fr] lg:gap-16">
           {/* Main column */}
           <div className="min-w-0">
             {/* About — the package description, moved out of the hero */}
@@ -190,7 +190,7 @@ export function RentalDetail({
                   <span className="h-px w-8 bg-border" />
                   {t.rental.includes}
                 </div>
-                <ul className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
+                <ul className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
                   {includes.map((item, i) => (
                     <li key={i} className="flex items-start gap-3">
                       <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground">
@@ -214,11 +214,11 @@ export function RentalDetail({
                 </div>
                 <div className="grid grid-cols-2 gap-px overflow-hidden rounded-[var(--radius-lg)] border border-border bg-border sm:grid-cols-4">
                   {specs.map(([id, entry]) => (
-                    <div key={id} className="bg-surface p-5">
-                      <div className="label-mono text-muted-foreground">
+                    <div key={id} className="min-w-0 bg-surface p-5">
+                      <div className="label-mono min-w-0 break-words text-muted-foreground">
                         {specLabel(entry, lang)}
                       </div>
-                      <div className="font-display mt-2 text-xl tracking-tight">
+                      <div className="font-display mt-2 min-w-0 break-words text-xl tracking-tight">
                         {specValue(entry, lang)}
                       </div>
                     </div>
@@ -281,13 +281,13 @@ export function RentalDetail({
                             size="none"
                             onClick={() => setSelected(v)}
                             className={cn(
-                              "justify-between gap-3 rounded-[var(--radius-md)] border px-4 py-3 text-left",
+                              "min-w-0 items-start justify-between gap-3 whitespace-normal rounded-[var(--radius-md)] border px-4 py-3 text-left",
                               isSelected
                                 ? "border-primary bg-primary/[0.06]"
                                 : "border-border hover:border-foreground/30",
                             )}
                           >
-                            <span className="flex items-center gap-3">
+                            <span className="flex min-w-0 items-center gap-3">
                               <span
                                 className={cn(
                                   "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border",
@@ -300,7 +300,7 @@ export function RentalDetail({
                                   <span className="h-2 w-2 rounded-full bg-primary" />
                                 )}
                               </span>
-                              <span className="text-sm font-medium">
+                              <span className="min-w-0 text-sm font-medium">
                                 {label}
                                 {v.size ? (
                                   <span className="text-muted-foreground">
@@ -384,7 +384,7 @@ export function RentalDetail({
           <h2 className="font-display mt-4 max-w-2xl text-[clamp(1.9rem,4.5vw,3.25rem)] font-light leading-[1.02] tracking-[-0.02em]">
             {t.rental.howTitle}
           </h2>
-          <div className="mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
+          <div className="mt-12 grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8">
             {t.rental.steps.map((step, i) => (
               <div key={i} className="border-t border-background/20 pt-6">
                 <div className="font-display text-3xl text-background/40">

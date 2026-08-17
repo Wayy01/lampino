@@ -38,7 +38,10 @@ export function shopHref(lang: Locale, query = ""): string {
  * so the sitemap and hreflang builders prefix this once per locale themselves.
  */
 export function productPath(id: number, name: string): string {
-  return `/product/${id}/${slugify(name) || "produs"}`;
+  // Percent-encode the slug: `slugify` allows Cyrillic (for stray characters
+  // in otherwise-Romanian names), and a raw non-Latin1 byte in a redirect's
+  // `Location` header crashes Node with ERR_INVALID_CHAR.
+  return `/product/${id}/${encodeURIComponent(slugify(name) || "produs")}`;
 }
 
 /**
@@ -57,7 +60,7 @@ export function rentalsHref(lang: Locale): string {
 
 /** Locale-less rental-package path (`/rental-package/<id>/<title-slug>`). */
 export function rentalPath(id: number, title: string): string {
-  return `/rental-package/${id}/${slugify(title) || "pachet"}`;
+  return `/rental-package/${id}/${encodeURIComponent(slugify(title) || "pachet")}`;
 }
 
 /**

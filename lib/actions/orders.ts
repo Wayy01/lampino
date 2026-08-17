@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma";
 import { getDeliverySettings } from "@/lib/data/settings";
 import { deliveryFee, type DeliveryRegion } from "@/lib/pricing";
+import { sendNewOrderAlert } from "@/lib/telegram";
 
 export type OrderItemInput = {
   productId: number;
@@ -181,8 +182,27 @@ export async function submitOrder(
           })),
         },
       },
-      select: { id: true },
+      select: {
+        id: true,
+        customerName: true,
+        customerPhone: true,
+        address: true,
+        city: true,
+        totalPrice: true,
+        items: {
+          select: {
+            quantity: true,
+            priceEach: true,
+            product: { select: { name_ro: true } },
+            productVariant: { select: { name_ro: true } },
+          },
+        },
+      },
     });
+
+    sendNewOrderAlert(order).catch((err) =>
+      console.error("Failed to send Telegram order alert", order.id, err),
+    );
 
     return { ok: true, orderId: order.id };
   } catch {

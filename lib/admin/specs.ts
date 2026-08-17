@@ -26,28 +26,60 @@ type SpecJsonEntry = {
 const roLabels = dictionaries.ro.specsLabels as Record<string, string>;
 const ruLabels = dictionaries.ru.specsLabels as Record<string, string>;
 
+// A third legacy shape from the old CMS import (most of the imported catalog):
+// each spec's four fields land as separate top-level keys instead of nested
+// under one id — `field_<id>_name_ro` / `_name_ru` / `_value_ro` / `_value_ru`.
+const FLATTENED_FIELD_KEY = /^field_(\d+)_(name_ro|name_ru|value_ro|value_ru)$/;
+type FlattenedPart = "name_ro" | "name_ru" | "value_ro" | "value_ru";
+const stripTrailingColon = (s: string): string => s.replace(/\s*:\s*$/, "").trim();
+
 export function specsFromJson(json: unknown): SpecRow[] {
   if (!json || typeof json !== "object" || Array.isArray(json)) return [];
-  return Object.entries(json as Record<string, unknown>).map(([id, entry]) => {
-    if (typeof entry === "string") {
-      // Legacy flat entry: dictionary label when the key is known, else the key.
+  const raw = json as Record<string, unknown>;
+
+  const grouped = new Map<string, Partial<Record<FlattenedPart, string>>>();
+  const consumed = new Set<string>();
+  for (const [key, value] of Object.entries(raw)) {
+    const match = key.match(FLATTENED_FIELD_KEY);
+    if (!match || typeof value !== "string") continue;
+    consumed.add(key);
+    const [, id, part] = match;
+    const parts = grouped.get(id) ?? {};
+    parts[part as FlattenedPart] = value;
+    grouped.set(id, parts);
+  }
+  const flattenedRows: SpecRow[] = Array.from(grouped, ([id, parts]) => ({
+    id: `field_${id}`,
+    label_ro: stripTrailingColon(parts.name_ro ?? "") || stripTrailingColon(parts.name_ru ?? ""),
+    label_ru: stripTrailingColon(parts.name_ru ?? "") || stripTrailingColon(parts.name_ro ?? ""),
+    value_ro: (parts.value_ro ?? parts.value_ru ?? "").trim(),
+    value_ru: (parts.value_ru ?? parts.value_ro ?? "").trim(),
+  }));
+
+  const rest = Object.entries(raw)
+    .filter(([id]) => !consumed.has(id))
+    .map(([id, entry]) => {
+      if (typeof entry === "string") {
+        // Legacy flat entry: dictionary label when the key is known, else the key.
+        return {
+          id,
+          label_ro: roLabels[id] ?? id,
+          label_ru: ruLabels[id] ?? id,
+          value_ro: entry,
+          value_ru: entry,
+        };
+      }
+      const spec = (entry ?? {}) as SpecJsonEntry;
       return {
         id,
-        label_ro: roLabels[id] ?? id,
-        label_ru: ruLabels[id] ?? id,
-        value_ro: entry,
-        value_ru: entry,
+        label_ro: spec.label_ro ?? "",
+        label_ru: spec.label_ru ?? "",
+        value_ro: spec.value_ro ?? "",
+        value_ru: spec.value_ru ?? "",
       };
-    }
-    const spec = (entry ?? {}) as SpecJsonEntry;
-    return {
-      id,
-      label_ro: spec.label_ro ?? "",
-      label_ru: spec.label_ru ?? "",
-      value_ro: spec.value_ro ?? "",
-      value_ru: spec.value_ru ?? "",
-    };
-  });
+    });
+
+  return [...flattenedRows, ...rest];
 }
 
 export function specsToJson(

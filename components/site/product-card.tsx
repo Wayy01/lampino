@@ -78,7 +78,7 @@ export function ProductCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.6, delay: (index % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
-      className="group flex h-full flex-col"
+      className="group flex h-full min-w-0 flex-col"
     >
       <Link
         href={productHref(lang, product.id, product.name_ro)}
@@ -167,8 +167,9 @@ export function ProductCard({
                   aria-pressed={isSelected}
                   disabled={v.stock <= 0}
                   onClick={(e) => selectVariant(e, v)}
+                  title={label}
                   className={cn(
-                    "border px-2.5 py-1 text-xs disabled:cursor-not-allowed disabled:opacity-40",
+                    "min-w-0 max-w-full truncate border px-2.5 py-1 text-xs disabled:cursor-not-allowed disabled:opacity-40",
                     isSelected
                       ? "border-primary bg-primary/10 text-foreground"
                       : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground",

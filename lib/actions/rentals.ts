@@ -4,6 +4,7 @@
 // WhatsApp), a rental is a *request*: it creates a `RentalApplication` row with
 // the event details, status "pending", for the team to follow up on.
 import { prisma } from "@/lib/prisma";
+import { sendNewRentalApplicationAlert } from "@/lib/telegram";
 
 export type RentalApplicationInput = {
   rentalPackageId: number;
@@ -96,7 +97,7 @@ export async function submitRentalApplication(
       }
     }
 
-    await prisma.rentalApplication.create({
+    const application = await prisma.rentalApplication.create({
       data: {
         customerName: name,
         customerEmail,
@@ -112,7 +113,15 @@ export async function submitRentalApplication(
         status: "pending",
         totalPrice,
       },
+      include: {
+        rentalPackage: { select: { title_ro: true } },
+        rentalPackageVariant: { select: { name_ro: true } },
+      },
     });
+
+    sendNewRentalApplicationAlert(application).catch((err) =>
+      console.error("Failed to send Telegram rental alert", application.id, err),
+    );
 
     return { ok: true };
   } catch {

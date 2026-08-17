@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getProductById, getRelatedProducts } from "@/lib/data/products";
 import { getContactSettings } from "@/lib/data/settings";
-import { slugify } from "@/lib/slug";
+import { decodeSlug, slugify } from "@/lib/slug";
 import {
   isLocale,
   localePath,
@@ -74,7 +74,7 @@ export default async function ProductPage({
   // Redirect to the canonical name slug when it doesn't match (renamed product,
   // stale link, or hand-typed URL) — the id is the source of truth.
   const canonical = slugify(product.name_ro) || "produs";
-  if (slug !== canonical) redirect(productHref(lang, product.id, product.name_ro));
+  if (decodeSlug(slug) !== canonical) redirect(productHref(lang, product.id, product.name_ro));
 
   const [contact, related] = await Promise.all([
     getContactSettings(),

@@ -139,7 +139,7 @@ export function ProductDetail({
         </div>
       </div>
 
-      <div className="mt-12 grid gap-10 lg:grid-cols-[1.5fr_1fr] lg:gap-14">
+      <div className="mt-12 grid grid-cols-1 gap-10 lg:grid-cols-[1.5fr_1fr] lg:gap-14">
         {/* Left: gallery + overview + specs */}
         <div>
           <motion.div
@@ -166,11 +166,13 @@ export function ProductDetail({
               </div>
               <div className="grid grid-cols-2 gap-px overflow-hidden rounded-[var(--radius-lg)] border border-border bg-border sm:grid-cols-3">
                 {specs.map((s) => (
-                  <div key={s.id} className="flex flex-col gap-1.5 bg-background p-5">
-                    <div className="label-mono text-muted-foreground">
+                  <div key={s.id} className="flex min-w-0 flex-col gap-1.5 bg-background p-5">
+                    <div className="label-mono min-w-0 break-words text-muted-foreground">
                       {s.label}
                     </div>
-                    <div className="font-medium leading-snug">{s.value}</div>
+                    <div className="min-w-0 break-words font-medium leading-snug">
+                      {s.value}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -216,7 +218,7 @@ export function ProductDetail({
                 <div className="label-mono mb-3 text-muted-foreground">
                   {t.product.selectVariant}
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex min-w-0 flex-wrap gap-2">
                   {variants.map((v) => {
                     const label = [pick(lang, v.name_ro, v.name_ru), v.size]
                       .filter(Boolean)
@@ -230,8 +232,9 @@ export function ProductDetail({
                         pill
                         onClick={() => selectVariant(v)}
                         disabled={v.stock <= 0}
+                        title={label}
                         className={cn(
-                          "border px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40",
+                          "min-w-0 max-w-full truncate border px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40",
                           isSelected
                             ? "border-primary bg-primary/10 text-foreground"
                             : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground",

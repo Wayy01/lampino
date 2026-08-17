@@ -28,3 +28,18 @@ export function parseId(slug: string): number | null {
   const id = Number.parseInt(slug, 10);
   return Number.isFinite(id) && id > 0 ? id : null;
 }
+
+/**
+ * Decode a URL slug segment for comparison against `slugify()`'s output.
+ * Next's dynamic route params aren't reliably pre-decoded, so a slug that was
+ * percent-encoded when built (see `productPath`/`rentalPath`) needs decoding
+ * back before a `===` check — otherwise the canonical-slug redirect never
+ * matches and loops forever. Falls back to the raw value on malformed input.
+ */
+export function decodeSlug(slug: string): string {
+  try {
+    return decodeURIComponent(slug);
+  } catch {
+    return slug;
+  }
+}

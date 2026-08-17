@@ -61,5 +61,37 @@ export async function getFeaturedCategories(): Promise<Category[]> {
     .filter((c): c is Category => Boolean(c));
 
   const list = chosen.length > 0 ? chosen : pool;
-  return list.slice(0, max);
+  return fillMissingImages(list.slice(0, max));
+}
+
+/**
+ * Categories with no admin-set image borrow one at random from one of their
+ * own active products' main image, matching the old site's homepage tiles.
+ */
+async function fillMissingImages(categories: Category[]): Promise<Category[]> {
+  const missingIds = categories.filter((c) => !c.imageUrl).map((c) => c.id);
+  if (missingIds.length === 0) return categories;
+
+  const products = await prisma.product.findMany({
+    where: { categoryId: { in: missingIds }, isActive: true },
+    select: {
+      categoryId: true,
+      images: { where: { isMain: true }, take: 1, select: { imageUrl: true } },
+    },
+  });
+
+  const imagesByCategory = new Map<number, string[]>();
+  for (const p of products) {
+    if (p.categoryId === null || p.images.length === 0) continue;
+    const list = imagesByCategory.get(p.categoryId) ?? [];
+    list.push(p.images[0].imageUrl);
+    imagesByCategory.set(p.categoryId, list);
+  }
+
+  return categories.map((c) => {
+    if (c.imageUrl) return c;
+    const images = imagesByCategory.get(c.id);
+    if (!images || images.length === 0) return c;
+    return { ...c, imageUrl: images[Math.floor(Math.random() * images.length)] };
+  });
 }

@@ -5,7 +5,7 @@ import {
   getRelatedRentals,
 } from "@/lib/data/rentals";
 import { getContactSettings } from "@/lib/data/settings";
-import { slugify } from "@/lib/slug";
+import { decodeSlug, slugify } from "@/lib/slug";
 import {
   isLocale,
   localePath,
@@ -72,7 +72,7 @@ export default async function RentalPackagePage({
 
   // Redirect to the canonical title slug — the id is the source of truth.
   const canonical = slugify(pkg.title_ro) || "pachet";
-  if (slug !== canonical) redirect(rentalHref(lang, pkg.id, pkg.title_ro));
+  if (decodeSlug(slug) !== canonical) redirect(rentalHref(lang, pkg.id, pkg.title_ro));
 
   const [contact, related] = await Promise.all([
     getContactSettings(),
