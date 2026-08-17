@@ -8,7 +8,6 @@ import { pick } from "@/lib/utils";
 import { localeAlternates, openGraphFor } from "@/lib/seo";
 import { breadcrumbSchema, itemListSchema } from "@/lib/schema";
 import { JsonLd } from "@/components/site/json-ld";
-import { PergolaViewer } from "@/components/site/pergola-viewer";
 import { RentalCard } from "@/components/site/rental-card";
 
 export const dynamic = "force-dynamic";
@@ -53,7 +52,7 @@ export default async function ArendaPage({
     packages.length === 1 ? d.resultsOne : d.resultsMany;
 
   return (
-    <div className="mx-auto max-w-[1400px] px-5 pb-28 pt-24 sm:px-8 md:pt-28">
+    <div className="mx-auto max-w-[1400px] px-5 pb-28 pt-28 sm:px-8 md:pt-36">
       <JsonLd
         data={[
           breadcrumbSchema([
@@ -68,14 +67,16 @@ export default async function ArendaPage({
           ),
         ]}
       />
-      {/* The 3D pergola is the header here. The heading copy stays in the DOM
-          for crawlers and screen readers — only the visual is replaced. */}
-      <div className="sr-only">
-        <p>{d.kicker}</p>
-        <h1>{heading || d.title}</h1>
-        <p>{d.subtitle}</p>
+      {/* Editorial header */}
+      <div className="max-w-2xl">
+        <div className="label-mono flex items-center gap-3 text-muted-foreground">
+          <span className="h-px w-8 bg-border" />
+          <span>{d.kicker}</span>
+        </div>
+        <h1 className="font-display mt-5 text-[clamp(2.5rem,7vw,5rem)] font-light leading-[0.95] tracking-[-0.03em]">
+          {heading || d.title}
+        </h1>
       </div>
-      <PergolaViewer />
 
       {packages.length === 0 ? (
         <p className="font-display py-24 text-center text-2xl text-muted-foreground">

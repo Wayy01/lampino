@@ -109,7 +109,7 @@ export const ro = {
     from: "De la",
     priceNote: "Preț orientativ — confirmat după detaliile evenimentului.",
     requestQuote: "Solicită ofertă",
-    whatsapp: "Întreabă pe WhatsApp",
+    whatsapp: "WhatsApp",
     callUs: "Sună-ne",
     whatsappIntro: "Bună! Sunt interesat(ă) de pachetul de închiriere",
     perks: [
@@ -584,7 +584,7 @@ export const ru: typeof ro = {
     from: "От",
     priceNote: "Ориентировочная цена — уточняется после деталей мероприятия.",
     requestQuote: "Запросить предложение",
-    whatsapp: "Спросить в WhatsApp",
+    whatsapp: "WhatsApp",
     callUs: "Позвонить",
     whatsappIntro: "Здравствуйте! Меня интересует пакет аренды",
     perks: [
