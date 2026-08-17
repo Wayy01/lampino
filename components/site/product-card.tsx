@@ -109,7 +109,7 @@ export function ProductCard({
             </span>
           </div>
 
-          <div className="absolute bottom-4 right-4 flex h-11 w-11 translate-y-2 items-center justify-center rounded-full bg-background text-foreground opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+          <div className="absolute bottom-4 right-4 flex h-11 w-11 translate-y-1 items-center justify-center rounded-full bg-background text-foreground opacity-80 shadow-sm transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
             <ArrowUpRight className="h-5 w-5" />
           </div>
         </div>

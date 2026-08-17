@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { BRAND_MARK_DATA_URI } from "@/lib/brand-mark";
+import { brandMarkDataUri } from "@/lib/brand-mark";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 import { LOCALES } from "@/lib/i18n/routing";
 
@@ -16,7 +16,9 @@ export function generateStaticParams() {
 // The share card for every route that doesn't set its own image (product and
 // rental pages point at their own photo). Wordmark only — Satori's bundled font
 // is Latin-basic, so no Romanian diacritics and no Cyrillic here.
-export default function OpengraphImage() {
+export default async function OpengraphImage() {
+  const mark = await brandMarkDataUri();
+
   return new ImageResponse(
     (
       <div
@@ -26,19 +28,21 @@ export default function OpengraphImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "#f6f4ef",
+          background: "#14110f",
+          backgroundImage:
+            "radial-gradient(circle at 16% 30%, rgba(240,179,82,0.26) 0%, rgba(240,179,82,0.09) 34%, rgba(20,17,15,0) 66%)",
           padding: 84,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
-          <img src={BRAND_MARK_DATA_URI} width={124} height={124} alt="" />
-          <div style={{ fontSize: 108, color: "#14110f", letterSpacing: "-0.04em" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 44 }}>
+          <img src={mark} width={220} height={220} alt="" />
+          <div style={{ fontSize: 116, color: "#f6f4ef", letterSpacing: "-0.04em" }}>
             {SITE_NAME}
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
           <div style={{ width: 180, height: 8, background: "#d0713e" }} />
-          <div style={{ fontSize: 40, color: "#6b6259", letterSpacing: "-0.01em" }}>
+          <div style={{ fontSize: 40, color: "#c9bcae", letterSpacing: "-0.01em" }}>
             {SITE_URL.replace(/^https?:\/\//, "")}
           </div>
         </div>
