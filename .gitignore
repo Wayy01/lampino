@@ -32,5 +32,10 @@ next-env.d.ts
 # large binaries / installers
 *.dmg
 
+# raw 3D exports — public/pergola-lights.{bin,png} are baked from the .glb by
+# `bun run build:pergola`, and the .obj/.mtl pair is a 55mb duplicate of it
+/assets/3d/*.obj
+/assets/3d/*.mtl
+
 # playwright mcp session artifacts
 /.playwright-mcp/

@@ -92,6 +92,9 @@ export const ro = {
     viewPackage: "Vezi pachetul",
     resultsOne: "pachet",
     resultsMany: "pachete",
+    modelAlt:
+      "Randare 3D a unei pergole hexagonale din lemn, decorată cu ghirlande de becuri, cu miri dedesubt",
+    modelHint: "Trage pentru a roti",
     goodForTitle: "Perfect pentru",
     goodFor: ["Nunți", "Evenimente corporate", "Petreceri private", "Aniversări"],
   },
@@ -564,6 +567,9 @@ export const ru: typeof ro = {
     viewPackage: "Смотреть пакет",
     resultsOne: "пакет",
     resultsMany: "пакетов",
+    modelAlt:
+      "3D-модель шестиугольной деревянной перголы с гирляндами лампочек и парой молодожёнов внутри",
+    modelHint: "Потяните, чтобы повернуть",
     goodForTitle: "Идеально для",
     goodFor: ["Свадеб", "Корпоративов", "Частных вечеринок", "Юбилеев"],
   },
