@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "motion/react";
 import { ArrowLeft, Check, MessageCircle, Phone, FileText } from "lucide-react";
 import type {
@@ -51,7 +50,9 @@ export function RentalDetail({
   const hasReduced = activeReduced != null && activeReduced < activePrice;
   const shownPrice = hasReduced ? activeReduced! : activePrice;
 
-  // Videos first, then images.
+  // Videos first, then images — one media block for the package, shown beside
+  // the title. A second gallery further down the page only split the same
+  // photos in two.
   const media: MediaItem[] = useMemo(
     () => [
       ...pkg.videos.map((v) => ({
@@ -63,11 +64,6 @@ export function RentalDetail({
     ],
     [pkg.videos, pkg.images],
   );
-  // Featured media next to the title: prefer a video (autoplaying), else the
-  // first image, else a warm gradient placeholder.
-  const heroVideo = pkg.videos[0];
-  const heroImage = pkg.images[0]?.imageUrl;
-  const showGallery = media.length > 1;
 
   const variantLabel = selected
     ? [pick(lang, selected.name_ro, selected.name_ru), selected.size]
@@ -102,7 +98,9 @@ export function RentalDetail({
 
       {/* Editorial hero — text + featured image, framed differently from products */}
       <section className="mx-auto mt-8 max-w-[1400px] px-5 sm:px-8">
-        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+        {/* Same track ratio and gap as the body grid below, so the media column
+            lines up edge-for-edge with the price aside under it. */}
+        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[1.6fr_1fr] lg:gap-16">
           <div>
             <motion.h1
               initial={{ opacity: 0, y: 16 }}
@@ -131,36 +129,20 @@ export function RentalDetail({
             </div>
           </div>
 
-          {/* Featured shot */}
+          {/* Every photo and clip the package has, in one place. */}
           <motion.div
             initial={{ opacity: 0, scale: 1.03 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: EASE }}
-            className="relative aspect-[4/5] overflow-hidden rounded-[var(--radius-lg)] bg-muted sm:aspect-[5/4] lg:aspect-[4/5]"
+            className="w-full min-w-0"
           >
-            {heroVideo ? (
-              <video
-                src={heroVideo.videoUrl}
-                poster={heroVideo.thumbnailUrl ?? undefined}
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-            ) : heroImage ? (
-              <Image
-                src={heroImage}
-                alt={title}
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 45vw"
-                className="object-cover"
-              />
+            {media.length > 0 ? (
+              <ProductGallery media={media} alt={title} />
             ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-accent via-muted to-background" />
+              <div className="relative aspect-[5/4] overflow-hidden rounded-[var(--radius-lg)] bg-gradient-to-br from-accent via-muted to-background">
+                <div className="absolute inset-0 ring-1 ring-inset ring-foreground/10" />
+              </div>
             )}
-            <div className="absolute inset-0 ring-1 ring-inset ring-foreground/10" />
           </motion.div>
         </div>
       </section>
@@ -227,16 +209,6 @@ export function RentalDetail({
               </div>
             )}
 
-            {/* Gallery */}
-            {showGallery && (
-              <div className="mt-14">
-                <div className="label-mono mb-6 flex items-center gap-3 text-muted-foreground">
-                  <span className="h-px w-8 bg-border" />
-                  {t.rental.gallery}
-                </div>
-                <ProductGallery media={media} alt={title} />
-              </div>
-            )}
           </div>
 
           {/* Sticky inquiry aside — no cart, no stock: request-a-quote flow */}

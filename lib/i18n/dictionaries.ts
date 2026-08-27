@@ -46,7 +46,7 @@ export const ro = {
   },
   nav: {
     home: "Acasă",
-    products: "Produse",
+    products: "Magazin",
     rental: "Închiriere",
     contact: "Contact",
     cta: "Vezi produsele",
@@ -54,7 +54,7 @@ export const ro = {
   hero: {
     kicker: "Moldova · Iluminat pentru casă",
     titleA: "Lumină care face casa",
-    titleB: "acasă.",
+    titleB: "acasă",
     // The homepage h1: `titleStatic` never changes, the last word cycles.
     titleStatic: "Soluții Premium de",
     titleWords: ["Iluminat", "Ambianță", "Confort", "Design"],
@@ -68,12 +68,12 @@ export const ro = {
   },
   featured: {
     kicker: "Selectate pentru tine",
-    title: "Lumină pentru fiecare cameră.",
+    title: "Lumină pentru fiecare cameră",
     viewAll: "Vezi toate produsele",
   },
   featuredCategories: {
     kicker: "Categorii",
-    title: "Găsește rapid ce cauți.",
+    title: "Găsește rapid ce cauți",
     subtitle:
       "Sari direct la colecția care te interesează — de la becuri de zi cu zi la iluminat de sărbătoare.",
     browse: "Vezi toate produsele",
@@ -81,7 +81,7 @@ export const ro = {
   },
   arenda: {
     kicker: "Închiriere · Evenimente",
-    title: "Lumină pentru evenimentul tău.",
+    title: "Lumină pentru evenimentul tău",
     subtitle:
       "Pachete complete de iluminat pentru nunți, evenimente corporate și petreceri — montaj, tehnician și demontaj incluse.",
     empty: "Momentan nu sunt pachete disponibile.",
@@ -118,7 +118,7 @@ export const ro = {
       "Consultanță gratuită înainte de rezervare",
     ],
     howKicker: "Cum funcționează",
-    howTitle: "De la idee la eveniment iluminat.",
+    howTitle: "De la idee la eveniment iluminat",
     steps: [
       {
         title: "Alege pachetul",
@@ -134,7 +134,7 @@ export const ro = {
       },
     ],
     relatedKicker: "Alte pachete",
-    relatedTitle: "S-ar putea să-ți placă.",
+    relatedTitle: "S-ar putea să-ți placă",
     form: {
       subtitle:
         "Completează detaliile evenimentului și revenim cu o ofertă personalizată.",
@@ -179,7 +179,7 @@ export const ro = {
   },
   faq: {
     kicker: "Bine de știut",
-    title: "Întrebări, cu răspuns.",
+    title: "Întrebări, cu răspuns",
     items: [
       {
         q: "Ce înseamnă temperatura de culoare (K)?",
@@ -222,7 +222,7 @@ export const ro = {
   },
   catalog: {
     kicker: "Magazin",
-    title: "Toate produsele.",
+    title: "Toate produsele",
     subtitle:
       "Fiecare bec, ghirlandă și corp de iluminat din colecția Lampino.",
     all: "Toate",
@@ -285,7 +285,7 @@ export const ro = {
     selectVariant: "Alege varianta",
     quantity: "Cantitate",
     similarKicker: "S-ar putea să-ți placă",
-    similarTitle: "Produse similare.",
+    similarTitle: "Produse similare",
     whatsappIntro: "Bună! Sunt interesat(ă) de",
   },
   order: {
@@ -317,7 +317,7 @@ export const ro = {
     // and checking out.
     removedTitle: "Am scos din coș produsele indisponibile:",
     stockLeft: "disponibil:",
-    successTitle: "Comandă trimisă.",
+    successTitle: "Comandă trimisă",
     successText:
       "Mulțumim — revenim în scurt timp cu confirmarea comenzii.",
     close: "Închide",
@@ -336,7 +336,7 @@ export const ro = {
     submit: "Trimite comanda",
     sending: "Se trimite…",
     error: "Ceva n-a mers. Verifică datele și încearcă din nou.",
-    successTitle: "Comandă trimisă.",
+    successTitle: "Comandă trimisă",
     successText:
       "Mulțumim — revenim în scurt timp cu confirmarea comenzii.",
     close: "Închide",
@@ -397,7 +397,7 @@ export const ro = {
   },
   contact: {
     kicker: "Contact",
-    title: "Hai să vorbim.",
+    title: "Hai să vorbim",
     updated: "Scrie-ne sau treci pe la magazin.",
     phone: "Telefon",
     email: "Email",
@@ -409,7 +409,7 @@ export const ro = {
   },
   terms: {
     kicker: "Legal",
-    title: "Termeni și condiții.",
+    title: "Termeni și condiții",
     updated: "Ultima actualizare: iulie 2026",
     intro:
       "Lampino este un magazin de iluminat. Acești termeni explică cum comanzi și cumperi de la noi.",
@@ -446,7 +446,7 @@ export const ro = {
   },
   privacy: {
     kicker: "Legal",
-    title: "Politica de confidențialitate.",
+    title: "Politica de confidențialitate",
     updated: "Ultima actualizare: iulie 2026",
     intro:
       "Colectăm doar ce ne trebuie ca să procesăm comanda ta — datele de contact și adresa de livrare. Iată exact ce păstrăm și de ce.",
@@ -522,7 +522,7 @@ export const ru: typeof ro = {
   },
   nav: {
     home: "Главная",
-    products: "Товары",
+    products: "Магазин",
     rental: "Аренда",
     contact: "Контакты",
     cta: "Смотреть товары",
@@ -530,7 +530,7 @@ export const ru: typeof ro = {
   hero: {
     kicker: "Молдова · Освещение для дома",
     titleA: "Свет, который делает дом",
-    titleB: "домом.",
+    titleB: "домом",
     titleStatic: "Премиальные решения для",
     titleWords: ["освещения", "атмосферы", "комфорта", "дизайна"],
     subtitle:
@@ -543,12 +543,12 @@ export const ru: typeof ro = {
   },
   featured: {
     kicker: "Выбрано для вас",
-    title: "Свет для каждой комнаты.",
+    title: "Свет для каждой комнаты",
     viewAll: "Смотреть все товары",
   },
   featuredCategories: {
     kicker: "Категории",
-    title: "Быстро найдите нужное.",
+    title: "Быстро найдите нужное",
     subtitle:
       "Переходите сразу к интересующей коллекции — от повседневных ламп до праздничного освещения.",
     browse: "Смотреть все товары",
@@ -556,7 +556,7 @@ export const ru: typeof ro = {
   },
   arenda: {
     kicker: "Аренда · Мероприятия",
-    title: "Свет для вашего события.",
+    title: "Свет для вашего события",
     subtitle:
       "Комплексные пакеты освещения для свадеб, корпоративов и вечеринок — монтаж, техник и демонтаж включены.",
     empty: "Сейчас нет доступных пакетов.",
@@ -593,7 +593,7 @@ export const ru: typeof ro = {
       "Бесплатная консультация перед бронированием",
     ],
     howKicker: "Как это работает",
-    howTitle: "От идеи до освещённого события.",
+    howTitle: "От идеи до освещённого события",
     steps: [
       {
         title: "Выберите пакет",
@@ -609,7 +609,7 @@ export const ru: typeof ro = {
       },
     ],
     relatedKicker: "Другие пакеты",
-    relatedTitle: "Вам может понравиться.",
+    relatedTitle: "Вам может понравиться",
     form: {
       subtitle:
         "Заполните детали мероприятия — и мы вернёмся с индивидуальным предложением.",
@@ -653,7 +653,7 @@ export const ru: typeof ro = {
   },
   faq: {
     kicker: "Полезно знать",
-    title: "Вопросы и ответы.",
+    title: "Вопросы и ответы",
     items: [
       {
         q: "Что означает цветовая температура (K)?",
@@ -696,7 +696,7 @@ export const ru: typeof ro = {
   },
   catalog: {
     kicker: "Магазин",
-    title: "Все товары.",
+    title: "Все товары",
     subtitle:
       "Каждая лампа, гирлянда и светильник из коллекции Lampino.",
     all: "Все",
@@ -759,7 +759,7 @@ export const ru: typeof ro = {
     selectVariant: "Выберите вариант",
     quantity: "Количество",
     similarKicker: "Вам может понравиться",
-    similarTitle: "Похожие товары.",
+    similarTitle: "Похожие товары",
     whatsappIntro: "Здравствуйте! Меня интересует",
   },
   order: {
@@ -786,7 +786,7 @@ export const ru: typeof ro = {
     },
     removedTitle: "Мы убрали из корзины недоступные товары:",
     stockLeft: "в наличии:",
-    successTitle: "Заказ отправлен.",
+    successTitle: "Заказ отправлен",
     successText:
       "Спасибо — мы скоро свяжемся с подтверждением заказа.",
     close: "Закрыть",
@@ -805,7 +805,7 @@ export const ru: typeof ro = {
     submit: "Отправить заказ",
     sending: "Отправка…",
     error: "Что-то пошло не так. Проверьте данные и попробуйте снова.",
-    successTitle: "Заказ отправлен.",
+    successTitle: "Заказ отправлен",
     successText:
       "Спасибо — мы скоро свяжемся с подтверждением заказа.",
     close: "Закрыть",
@@ -866,7 +866,7 @@ export const ru: typeof ro = {
   },
   contact: {
     kicker: "Контакты",
-    title: "Давайте пообщаемся.",
+    title: "Давайте пообщаемся",
     updated: "Напишите нам или загляните в магазин.",
     phone: "Телефон",
     email: "Эл. почта",
@@ -878,7 +878,7 @@ export const ru: typeof ro = {
   },
   terms: {
     kicker: "Правовое",
-    title: "Условия использования.",
+    title: "Условия использования",
     updated: "Последнее обновление: июль 2026",
     intro:
       "Lampino — это магазин освещения. Эти условия объясняют, как вы заказываете и покупаете у нас.",
@@ -915,7 +915,7 @@ export const ru: typeof ro = {
   },
   privacy: {
     kicker: "Правовое",
-    title: "Политика конфиденциальности.",
+    title: "Политика конфиденциальности",
     updated: "Последнее обновление: июль 2026",
     intro:
       "Мы собираем только то, что нужно для обработки вашего заказа — контактные данные и адрес доставки. Вот что именно мы храним и зачем.",

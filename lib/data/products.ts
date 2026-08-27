@@ -152,13 +152,32 @@ export async function getProductIndex(): Promise<CatalogIndexEntry[]> {
   }));
 }
 
-/** Category options in display order for the catalog filter + magazin URL mapping. */
+/**
+ * Category options in display order for the catalog filter + magazin URL
+ * mapping. Categories are shared with rental packages, so the ones holding no
+ * active product (venue categories, retired collections) are dropped — a filter
+ * that can only ever return an empty grid is noise.
+ */
 export async function getCategoryOptions(): Promise<CategoryOption[]> {
-  const rows = await prisma.category.findMany({ orderBy: { position: "asc" } });
-  return rows.map((c) => ({
-    id: c.id,
-    slug: c.slug,
-    name_ro: c.name_ro,
-    name_ru: c.name_ru,
-  }));
+  const [rows, counts] = await Promise.all([
+    prisma.category.findMany({ orderBy: { position: "asc" } }),
+    prisma.product.groupBy({
+      by: ["categoryId"],
+      where: { isActive: true },
+      _count: { _all: true },
+    }),
+  ]);
+  const stocked = new Set(
+    counts
+      .filter((g) => g.categoryId !== null && g._count._all > 0)
+      .map((g) => g.categoryId as number),
+  );
+  return rows
+    .filter((c) => stocked.has(c.id))
+    .map((c) => ({
+      id: c.id,
+      slug: c.slug,
+      name_ro: c.name_ro,
+      name_ru: c.name_ru,
+    }));
 }
