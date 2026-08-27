@@ -14,6 +14,7 @@ import { track } from "@/lib/analytics/track";
 import { formatPrice, pick, cn } from "@/lib/utils";
 import { productHref } from "@/lib/i18n/routing";
 import { specList, specValue } from "@/lib/specs";
+import { useDragScroll } from "@/lib/use-drag-scroll";
 
 const IMAGE_PLACEHOLDER =
   "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=1200&q=80";
@@ -25,7 +26,9 @@ const IMAGE_PLACEHOLDER =
  * Every region has a reserved height so a product with eight long variant
  * names occupies exactly as much space as one with none: the name clamps to
  * two lines, the spec line to one, and the variants sit in a fixed-height
- * strip that scrolls sideways instead of wrapping.
+ * strip that scrolls sideways (drag or swipe) instead of wrapping. Variant
+ * labels keep their full length in that strip — they are how you tell two
+ * otherwise identical options apart, so truncating them defeats the point.
  */
 export function ProductCardTile({
   product,
@@ -58,6 +61,7 @@ export function ProductCardTile({
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     hasVariants ? (variants.find((v) => v.isDefault) ?? variants[0]) : null,
   );
+  const variantStrip = useDragScroll<HTMLDivElement>();
 
   const unitPrice = selectedVariant?.price ?? product.price;
   const stock = selectedVariant?.stock ?? product.stock;
@@ -86,7 +90,11 @@ export function ProductCardTile({
         delay: (index % 4) * 0.06,
         ease: [0.22, 1, 0.36, 1],
       }}
-      className="group flex h-full min-w-0 flex-col overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-foreground/20 hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]"
+      // The lift is animated by motion rather than by a `hover:` utility: the
+      // in-view animation leaves an inline `transform` on the element, which a
+      // class-based translate can only fight, not ease.
+      whileHover={{ y: -6, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } }}
+      className="group flex h-full min-w-0 flex-col overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface transition-[border-color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-foreground/20 hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]"
     >
       <Link
         href={productHref(lang, product.id, product.name_ro)}
@@ -109,10 +117,10 @@ export function ProductCardTile({
         </div>
       </Link>
 
-      <div className="flex min-w-0 flex-1 flex-col p-2.5 sm:p-3">
+      <div className="flex min-w-0 flex-1 flex-col p-2.5 sm:p-3 lg:p-4">
         {/* Reserved single line — keeps the name baseline identical whether or
             not a product is filed under a category. */}
-        <div className="label-mono h-4 truncate text-[0.625rem] leading-4 text-muted-foreground sm:text-[0.6875rem]">
+        <div className="label-mono h-4 truncate text-[0.625rem] leading-4 text-muted-foreground sm:text-[0.6875rem] lg:text-xs">
           {category}
         </div>
 
@@ -120,13 +128,13 @@ export function ProductCardTile({
           href={productHref(lang, product.id, product.name_ro)}
           className="min-w-0"
         >
-          <h3 className="font-display line-clamp-2 h-[2lh] text-[0.9375rem] leading-snug tracking-tight transition-colors group-hover:text-primary sm:text-base">
+          <h3 className="font-display line-clamp-2 h-[2lh] text-[0.9375rem] leading-snug tracking-tight transition-colors group-hover:text-primary sm:text-base lg:text-[1.0625rem]">
             {name}
           </h3>
         </Link>
 
         {/* Reserved single line, always present so the price row never shifts. */}
-        <div className="mt-1 flex h-4 min-w-0 items-center gap-x-1.5 truncate text-[0.6875rem] leading-4 text-muted-foreground">
+        <div className="mt-1 flex h-4 min-w-0 items-center gap-x-1.5 truncate text-[0.6875rem] leading-4 text-muted-foreground lg:text-xs">
           {chips.map((chip, i) => (
             <span key={chip.id} className="flex min-w-0 items-center gap-1.5">
               {i > 0 && (
@@ -141,12 +149,14 @@ export function ProductCardTile({
         </div>
 
         {/* Fixed-height, non-wrapping strip: any number of variants with any
-            label length costs the same vertical space. */}
+            label length costs the same vertical space. Drag it (or swipe on a
+            phone) to reach the ones past the card's edge. */}
         {hasVariants && (
           <div
+            ref={variantStrip}
             role="group"
             aria-label={t.product.selectVariant}
-            className="no-scrollbar mt-2 flex h-7 shrink-0 snap-x snap-mandatory items-center gap-1 overflow-x-auto overflow-y-hidden"
+            className="no-scrollbar mt-2 flex h-7 shrink-0 cursor-grab select-none items-center gap-1 overflow-x-auto overflow-y-hidden overscroll-x-contain active:cursor-grabbing"
           >
             {variants.map((v) => {
               const label = [pick(lang, v.name_ro, v.name_ru), v.size]
@@ -165,7 +175,7 @@ export function ProductCardTile({
                   onClick={() => setSelectedVariant(v)}
                   title={label}
                   className={cn(
-                    "h-6 max-w-[7rem] shrink-0 snap-start truncate border px-2 text-[0.6875rem] leading-6 transition-colors",
+                    "h-6 shrink-0 whitespace-nowrap border px-2 text-[0.6875rem] leading-6 transition-colors lg:text-xs",
                     isSelected
                       ? "border-primary bg-primary/10 text-foreground"
                       : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground",
@@ -182,17 +192,17 @@ export function ProductCardTile({
 
         {/* Pinned to the bottom so buttons align across a grid row. */}
         <div className="mt-auto pt-2.5">
-          <div className="flex h-6 min-w-0 items-baseline gap-x-1.5 overflow-hidden">
+          <div className="flex h-6 min-w-0 items-baseline gap-x-1.5 overflow-hidden lg:h-7">
             <span
               className={cn(
-                "font-display shrink-0 text-base leading-6 tracking-tight sm:text-lg",
+                "font-display shrink-0 text-base leading-6 tracking-tight sm:text-lg lg:text-xl lg:leading-7",
                 hasDiscount && "text-primary",
               )}
             >
               {formatPrice(displayPrice)}
             </span>
             {hasDiscount && (
-              <span className="shrink-0 text-[0.6875rem] text-muted-foreground line-through">
+              <span className="shrink-0 text-[0.6875rem] text-muted-foreground line-through lg:text-xs">
                 {formatPrice(unitPrice)}
               </span>
             )}
@@ -203,9 +213,9 @@ export function ProductCardTile({
             size="none"
             disabled={stock <= 0}
             onClick={handleAdd}
-            className="mt-2 h-9 w-full gap-1.5 rounded-[var(--radius)] px-2 text-[0.6875rem] disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
+            className="mt-2 h-9 w-full gap-1.5 rounded-[var(--radius)] px-2 text-[0.6875rem] disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm lg:h-10 lg:text-[0.9375rem]"
           >
-            <ShoppingBag className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
+            <ShoppingBag className="h-3.5 w-3.5 shrink-0 lg:h-4 lg:w-4" strokeWidth={1.75} />
             <span className="truncate">
               {stock > 0 ? t.cart.add : t.product.outOfStock}
             </span>

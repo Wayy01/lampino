@@ -668,7 +668,7 @@ function FacetRow({
       <div
         className={cn(
           stack
-            ? "-mx-1.5 flex flex-col gap-0.5"
+            ? "flex flex-col gap-1.5"
             : "flex flex-wrap items-center gap-2",
         )}
       >
@@ -679,9 +679,10 @@ function FacetRow({
 }
 
 /**
- * One line of the category list. Reads as text rather than as a chip: normal
- * sentence case, sans-serif, and a solid fill when selected so the active
- * category is unmistakable at a glance.
+ * One line of the category list. Reads as text rather than as a chip — normal
+ * sentence case, sans-serif — but each line carries the same bordered surface
+ * as the facet pills below it, so the list scans as a set of controls instead
+ * of a paragraph. Selected is a solid primary fill.
  */
 function CategoryRow({
   active,
@@ -699,10 +700,10 @@ function CategoryRow({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "w-full justify-start rounded-[var(--radius-sm)] px-3 py-2 text-left text-sm font-normal leading-5 transition-colors",
+        "w-full justify-start rounded-[var(--radius-sm)] border px-3 py-2 text-left text-sm font-normal leading-5 transition-colors",
         active
-          ? "bg-primary font-medium text-primary-foreground"
-          : "text-foreground/75 hover:bg-foreground/[0.06] hover:text-foreground",
+          ? "border-primary bg-primary font-medium text-primary-foreground shadow-[0_1px_6px_-1px_var(--primary)]"
+          : "border-foreground/15 bg-foreground/[0.035] text-foreground hover:border-primary hover:bg-primary/[0.07] hover:text-primary",
       )}
     >
       <span className="min-w-0 truncate">{children}</span>

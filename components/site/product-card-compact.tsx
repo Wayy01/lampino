@@ -14,6 +14,7 @@ import { track } from "@/lib/analytics/track";
 import { formatPrice, pick, cn } from "@/lib/utils";
 import { productHref } from "@/lib/i18n/routing";
 import { specList, specValue } from "@/lib/specs";
+import { useDragScroll } from "@/lib/use-drag-scroll";
 
 const IMAGE_PLACEHOLDER =
   "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=1200&q=80";
@@ -56,6 +57,7 @@ export function ProductCardCompact({
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     hasVariants ? (variants.find((v) => v.isDefault) ?? variants[0]) : null,
   );
+  const variantStrip = useDragScroll<HTMLDivElement>();
 
   const unitPrice = selectedVariant?.price ?? product.price;
   const stock = selectedVariant?.stock ?? product.stock;
@@ -84,7 +86,11 @@ export function ProductCardCompact({
         delay: (index % 4) * 0.06,
         ease: [0.22, 1, 0.36, 1],
       }}
-      className="group flex h-full min-w-0 flex-col transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1"
+      // Animated by motion, not by a `hover:` utility — the in-view animation
+      // leaves an inline `transform` behind, and a class-based translate can
+      // only fight that, never ease into it.
+      whileHover={{ y: -6, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } }}
+      className="group flex h-full min-w-0 flex-col"
     >
       <Link
         href={productHref(lang, product.id, product.name_ro)}
@@ -131,10 +137,14 @@ export function ProductCardCompact({
           the card. `mt-auto` keeps the buttons aligned across a grid row. */}
       <div className="mt-auto pt-2.5">
         {hasVariants && (
+          // One line that scrolls sideways rather than a wrapping block: the
+          // labels stay whole and the card keeps its height whatever the
+          // product carries.
           <div
+            ref={variantStrip}
             role="group"
             aria-label={t.product.selectVariant}
-            className="mb-2 flex flex-wrap gap-1"
+            className="no-scrollbar mb-2 flex cursor-grab select-none gap-1 overflow-x-auto overscroll-x-contain active:cursor-grabbing"
           >
             {variants.map((v) => {
               const label = [pick(lang, v.name_ro, v.name_ru), v.size]
@@ -153,7 +163,7 @@ export function ProductCardCompact({
                   onClick={() => setSelectedVariant(v)}
                   title={label}
                   className={cn(
-                    "min-w-0 max-w-full truncate border px-2 py-0.5 text-[0.6875rem] leading-5 transition-colors sm:text-xs",
+                    "shrink-0 whitespace-nowrap border px-2 py-0.5 text-[0.6875rem] leading-5 transition-colors sm:text-xs",
                     isSelected
                       ? "border-primary bg-primary/10 text-foreground"
                       : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground",

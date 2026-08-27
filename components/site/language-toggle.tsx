@@ -21,14 +21,17 @@ export function LanguageToggle({ className }: { className?: string }) {
           pill
           onClick={() => setLang(code)}
           aria-pressed={lang === code}
+          // The wrapper's `label-mono` uppercases its text, but browsers don't
+          // pass text-transform down into form controls reliably — so the
+          // labels are capitalised here instead of being left to inherit it.
           className={cn(
-            "px-2.5 py-1",
+            "px-2.5 py-1 uppercase",
             lang === code
               ? "bg-primary text-primary-foreground"
               : "text-muted-foreground hover:text-foreground",
           )}
         >
-          {code}
+          {code.toUpperCase()}
         </Button>
       ))}
     </div>

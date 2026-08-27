@@ -18,7 +18,9 @@ export function FeaturedProducts({
 }) {
   const t = useT();
   const { lang } = useLang();
-  const featured = products.slice(0, 9);
+  // Eight, not nine: the desktop grid runs four across, so nine would leave a
+  // lone card on a row of its own.
+  const featured = products.slice(0, 8);
 
   if (featured.length === 0) return null;
 
@@ -43,7 +45,7 @@ export function FeaturedProducts({
         </Reveal>
       </div>
 
-      <div className="mt-14 grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-5 sm:gap-y-10 md:mt-16 lg:grid-cols-3">
+      <div className="mt-14 grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-5 sm:gap-y-10 md:mt-16 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-6">
         {featured.map((product, i) => (
           <ProductCardTile key={product.id} product={product} index={i} />
         ))}
