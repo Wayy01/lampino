@@ -10,9 +10,32 @@ export interface Category {
   name_ro: string;
   name_ru: string;
   slug: string;
+  /** Admin overrides of the landing-page URL slug; empty = derived from the name. */
+  urlSlug_ro: string;
+  urlSlug_ru: string;
   position: number;
   imageUrl: string | null;
   productCount?: number;
+}
+
+export type FaqItem = { q: string; a: string };
+
+/** Admin-written landing-page content for one language; empty strings = use the default. */
+export interface CategoryLandingCopy {
+  seoTitle: string;
+  seoDescription: string;
+  h1: string;
+  intro: string;
+  /** Markdown subset (`lib/markdown.ts`). */
+  body: string;
+  faq: FaqItem[];
+}
+
+export interface CategoryLanding {
+  ro: CategoryLandingCopy;
+  ru: CategoryLandingCopy;
+  ogImageUrl: string | null;
+  updatedAt: string;
 }
 
 export interface ProductImage {
@@ -74,6 +97,9 @@ export interface Product {
   name_ru: string;
   description_ro: string;
   description_ru: string;
+  /** Admin alt text for the images; empty = name + category (`productImageAlt`). */
+  imageAlt_ro: string;
+  imageAlt_ru: string;
   price: number;
   reducedPrice: number | null;
   stock: number;
@@ -112,6 +138,8 @@ export interface CategoryOption {
   slug: string;
   name_ro: string;
   name_ru: string;
+  urlSlug_ro: string;
+  urlSlug_ru: string;
 }
 
 export interface RentalPackageVariant {
@@ -242,6 +270,10 @@ export interface ContactSettings {
   facebookUrl: string;
   instagramUrl: string;
   tiktokUrl: string;
+  /** Google Business Profile link — listed in the Store markup's `sameAs`. */
+  googleBusinessUrl: string;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 export interface PromoBanner {

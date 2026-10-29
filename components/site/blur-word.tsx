@@ -36,9 +36,9 @@ function tint(index: number, total: number): string {
  */
 // One word's worth of letters. Mounted under `key={word}`, so a swap remounts
 // it and the tint starts over without an effect having to reset state.
-function Letters({ word, reduced }: { word: string; reduced: boolean }) {
+function Letters({ word, still }: { word: string; still: boolean }) {
   const letters = [...word];
-  const [settled, setSettled] = useState(false);
+  const [settled, setSettled] = useState(still);
 
   // Drop the per-letter tint once the last letter has finished arriving.
   useEffect(() => {
@@ -54,7 +54,7 @@ function Letters({ word, reduced }: { word: string; reduced: boolean }) {
       {letters.map((char, i) => (
         <motion.span
           key={i}
-          initial={reduced ? false : { opacity: 0, filter: "blur(16px)" }}
+          initial={still ? false : { opacity: 0, filter: "blur(16px)" }}
           animate={{ opacity: 1, filter: "blur(0px)" }}
           transition={{ duration: DURATION, delay: i * STAGGER, ease: EASE_OUT }}
           className="inline-block transition-colors duration-500"
@@ -70,10 +70,17 @@ function Letters({ word, reduced }: { word: string; reduced: boolean }) {
 export function BlurWord({ words }: { words: string[] }) {
   const reduced = useReducedMotion() ?? false;
   const [index, setIndex] = useState(0);
+  // The first word is part of the server HTML and shows as-is: the heading is
+  // the home page's LCP element, and letters at opacity 0 aren't painted until
+  // hydration. Only the words that follow it blur in.
+  const [cycled, setCycled] = useState(false);
 
   useEffect(() => {
     if (reduced) return;
-    const id = setInterval(() => setIndex((p) => (p + 1) % words.length), HOLD * 1000);
+    const id = setInterval(() => {
+      setCycled(true);
+      setIndex((p) => (p + 1) % words.length);
+    }, HOLD * 1000);
     return () => clearInterval(id);
   }, [reduced, words.length]);
 
@@ -86,7 +93,7 @@ export function BlurWord({ words }: { words: string[] }) {
         {widest}
       </span>
       <span className="absolute left-0 top-0 whitespace-nowrap">
-        <Letters key={word} word={word} reduced={reduced} />
+        <Letters key={word} word={word} still={reduced || !cycled} />
       </span>
     </span>
   );

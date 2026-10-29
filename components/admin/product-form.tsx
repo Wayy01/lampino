@@ -53,6 +53,8 @@ export type ProductFormData = {
   name_ru: string;
   description_ro: string;
   description_ru: string;
+  imageAlt_ro: string;
+  imageAlt_ru: string;
   price: number;
   reducedPrice: number | null;
   stock: number;
@@ -233,6 +235,12 @@ export function ProductForm({
               </Field>
               <Field label={t.products.descriptionRu} htmlFor="description_ru" className="sm:col-span-2">
                 <RichTextEditor id="description_ru" name="description_ru" defaultValue={product?.description_ru} />
+              </Field>
+              <Field label={t.products.imageAltRo} htmlFor="imageAlt_ro" hint={t.products.imageAltHint}>
+                <TextInput id="imageAlt_ro" name="imageAlt_ro" defaultValue={product?.imageAlt_ro} maxLength={200} />
+              </Field>
+              <Field label={t.products.imageAltRu} htmlFor="imageAlt_ru">
+                <TextInput id="imageAlt_ru" name="imageAlt_ru" defaultValue={product?.imageAlt_ru} maxLength={200} />
               </Field>
             </div>
           </SectionCard>

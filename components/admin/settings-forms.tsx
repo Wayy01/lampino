@@ -41,6 +41,9 @@ export type ContactData = {
   facebookUrl: string;
   instagramUrl: string;
   tiktokUrl: string;
+  googleBusinessUrl: string;
+  latitude: number | null;
+  longitude: number | null;
   isActive: boolean;
 };
 
@@ -151,6 +154,17 @@ export function ContactForm({ contact }: { contact: ContactData | null }) {
           <Field label={t.settings.tiktok} htmlFor="ct_tt">
             <TextInput id="ct_tt" name="tiktokUrl" defaultValue={contact?.tiktokUrl} />
           </Field>
+          <Field label={t.settings.googleBusiness} htmlFor="ct_gbp" hint={t.settings.googleBusinessHint}>
+            <TextInput id="ct_gbp" name="googleBusinessUrl" defaultValue={contact?.googleBusinessUrl} />
+          </Field>
+          <div className="grid grid-cols-2 gap-4">
+            <Field label={t.settings.latitude} htmlFor="ct_lat" hint={t.settings.geoHint}>
+              <TextInput id="ct_lat" name="latitude" inputMode="decimal" defaultValue={contact?.latitude ?? ""} />
+            </Field>
+            <Field label={t.settings.longitude} htmlFor="ct_lng">
+              <TextInput id="ct_lng" name="longitude" inputMode="decimal" defaultValue={contact?.longitude ?? ""} />
+            </Field>
+          </div>
         </div>
         <div className="mt-4">
           <Toggle name="isActive" label={t.settings.sectionEnabled} defaultChecked={contact?.isActive ?? true} />

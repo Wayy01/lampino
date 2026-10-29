@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
     // copy can live for a month. The 4h default sent every product nobody had
     // opened recently back through a slow cold resize.
     minimumCacheTTL: 2592000,
+    // AVIF first (about 20% smaller than WebP for photos), WebP for browsers
+    // without it. Encoded once per size and cached for the TTL above.
+    formats: ["image/avif", "image/webp"],
     // Keep in sync with REMOTE_IMAGE_HOSTS in lib/media-hosts.ts, which the
     // admin validates image URLs against. (Not imported: a project import here
     // makes output tracing pull in the whole tree.)

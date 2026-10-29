@@ -10,7 +10,7 @@ import type { ProductVariant } from "@/lib/types";
 import { useLang } from "@/lib/i18n/provider";
 import { useCart } from "@/lib/cart/provider";
 import { track } from "@/lib/analytics/track";
-import { formatPrice, pick, cn } from "@/lib/utils";
+import { formatPrice, pick, cn, productImageAlt } from "@/lib/utils";
 import { productHref } from "@/lib/i18n/routing";
 import { specList, specValue } from "@/lib/specs";
 import { useDragScroll } from "@/lib/use-drag-scroll";
@@ -33,9 +33,15 @@ const IMAGE_PLACEHOLDER =
 export function ProductCardTile({
   product,
   index = 0,
+  aboveFold = false,
+  lcp = false,
 }: {
   product: Product;
   index?: number;
+  /** In the first screenful: render visible from the server HTML, no fade-in. */
+  aboveFold?: boolean;
+  /** The likely LCP image: fetched eagerly at high priority. */
+  lcp?: boolean;
 }) {
   const { lang, t } = useLang();
   const { addItem, openCart } = useCart();
@@ -82,7 +88,9 @@ export function ProductCardTile({
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 16 }}
+      // A card at opacity 0 doesn't count as painted until hydration runs the
+      // in-view fade, which held the catalog's LCP back by seconds on phones.
+      initial={aboveFold ? false : { opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{
@@ -104,8 +112,9 @@ export function ProductCardTile({
         <div className="relative aspect-square overflow-hidden bg-muted">
           <SiteImage
             src={image}
-            alt={name}
+            alt={productImageAlt(lang, product)}
             sizes="(max-width: 1024px) 50vw, 33vw"
+            {...(lcp && { loading: "eager", fetchPriority: "high" })}
             className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
           />
           {hasDiscount && (

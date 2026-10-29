@@ -43,7 +43,8 @@ export default async function AdminSettingsPage({
 
   const [contact, delivery, theme, categories, products, rentals, productPage] =
     await Promise.all([
-      prisma.contactSettings.findFirst({ orderBy: { id: "asc" } }),
+      // The row the storefront shows (`getContactSettings`): active, newest.
+      prisma.contactSettings.findFirst({ orderBy: [{ isActive: "desc" }, { id: "desc" }] }),
       prisma.deliverySettings.findFirst({ orderBy: { id: "asc" } }),
       prisma.themeSettings.findFirst({ orderBy: { id: "asc" } }),
       prisma.category.findMany({ orderBy: { position: "asc" } }),
@@ -85,6 +86,9 @@ export default async function AdminSettingsPage({
     facebookUrl: contact.facebookUrl,
     instagramUrl: contact.instagramUrl,
     tiktokUrl: contact.tiktokUrl,
+    googleBusinessUrl: contact.googleBusinessUrl,
+    latitude: contact.latitude,
+    longitude: contact.longitude,
     isActive: contact.isActive,
   };
 

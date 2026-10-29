@@ -92,17 +92,22 @@ export function rentalHref(lang: Locale, r: Titled): string {
   return localePath(lang, rentalPaths(r)[lang]);
 }
 
+/** A category as URL builders need it: the admin slug overrides are optional. */
+type CategoryLike = { id: number; urlSlug_ro?: string; urlSlug_ru?: string } & Bilingual;
+
 /**
  * Category slug in the page's language (`ghirlande-de-exterior`,
- * `ulichnye-girlyandy`). Derived from the name rather than the admin `slug`
- * column, which holds legacy English keys the catalog filters on internally.
+ * `ulichnye-girlyandy`): the admin's URL override when set, otherwise derived
+ * from the name. Not the `slug` column, which holds legacy English keys the
+ * catalog filters on internally.
  */
-export function categorySlug(lang: Locale, c: { id: number } & Bilingual): string {
-  return slugify(localName(lang, c)) || `categorie-${c.id}`;
+export function categorySlug(lang: Locale, c: CategoryLike): string {
+  const override = lang === "ru" ? c.urlSlug_ru : c.urlSlug_ro;
+  return slugify(override || localName(lang, c)) || `categorie-${c.id}`;
 }
 
 /** Locale-less category landing path (`/magazin/<category-slug>`). */
-export function categoryPaths(c: { id: number } & Bilingual): Record<Locale, string> {
+export function categoryPaths(c: CategoryLike): Record<Locale, string> {
   return {
     ro: `/magazin/${categorySlug("ro", c)}`,
     ru: `/magazin/${categorySlug("ru", c)}`,
@@ -112,7 +117,7 @@ export function categoryPaths(c: { id: number } & Bilingual): Record<Locale, str
 /** Category landing page, optionally carrying the catalog's other filters. */
 export function categoryHref(
   lang: Locale,
-  c: { id: number } & Bilingual,
+  c: CategoryLike,
   query = "",
 ): string {
   return `${localePath(lang, categoryPaths(c)[lang])}${query ? `?${query}` : ""}`;

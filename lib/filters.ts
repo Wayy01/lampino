@@ -108,6 +108,9 @@ const PRICE_BUCKETS = [200, 500, 1200] as const;
  * At this value the max-price filter is effectively "no limit".
  */
 /** What the customer actually pays: the reduced price when one is set. */
+/** Products per catalog page — shared by the client grid and the server's JSON-LD/metadata. */
+export const PAGE_SIZE = 9;
+
 export function effectivePrice(p: { price: number; reducedPrice: number | null }): number {
   return p.reducedPrice ?? p.price;
 }

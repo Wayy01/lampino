@@ -9,18 +9,36 @@ datasource db {
 }
 
 model Category {
-  id             Int             @id @default(autoincrement())
-  name_ro        String
-  name_ru        String
-  slug           String          @unique
+  id                Int             @id @default(autoincrement())
+  name_ro           String
+  name_ru           String
+  slug              String          @unique
   // Storefront URL slugs (`categorySlug`) the category had before a rename; they 308 to the current one.
-  formerSlugs    String[]        @default([]) @map("former_slugs")
-  position       Int             @default(0)
-  imageUrl       String?         @map("image_url")
-  products       Product[]
-  rentalPackages RentalPackage[]
-  createdAt      DateTime        @default(now()) @map("created_at")
-  updatedAt      DateTime        @updatedAt @map("updated_at")
+  formerSlugs       String[]        @default([]) @map("former_slugs")
+  position          Int             @default(0)
+  imageUrl          String?         @map("image_url")
+  // Landing-page SEO content (`/<lang>/magazin/<slug>`). Every field is
+  // optional: empty falls back to a default built from the name.
+  urlSlug_ro        String          @default("") @map("url_slug_ro")
+  urlSlug_ru        String          @default("") @map("url_slug_ru")
+  seoTitle_ro       String          @default("") @map("seo_title_ro")
+  seoTitle_ru       String          @default("") @map("seo_title_ru")
+  seoDescription_ro String          @default("") @map("seo_description_ro")
+  seoDescription_ru String          @default("") @map("seo_description_ru")
+  h1_ro             String          @default("") @map("h1_ro")
+  h1_ru             String          @default("") @map("h1_ru")
+  intro_ro          String          @default("") @map("intro_ro") @db.Text
+  intro_ru          String          @default("") @map("intro_ru") @db.Text
+  body_ro           String          @default("") @map("body_ro") @db.Text
+  body_ru           String          @default("") @map("body_ru") @db.Text
+  // [{ q, a }] per language.
+  faq_ro            Json            @default("[]") @map("faq_ro")
+  faq_ru            Json            @default("[]") @map("faq_ru")
+  ogImageUrl        String?         @map("og_image_url")
+  products          Product[]
+  rentalPackages    RentalPackage[]
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
 
   @@map("categories")
 }
@@ -46,6 +64,10 @@ model Product {
   deletedAt      DateTime?        @map("deleted_at")
   createdAt      DateTime         @default(now()) @map("created_at")
   updatedAt      DateTime         @updatedAt @map("updated_at")
+  // Alt text for the product's images; empty falls back to name + category.
+  imageAlt_ro    String           @default("") @map("image_alt_ro")
+  imageAlt_ru    String           @default("") @map("image_alt_ru")
+  reviews        Review[]
   images         ProductImage[]
   videos         ProductVideo[]
   variants       ProductVariant[]
@@ -369,24 +391,28 @@ model ProductPageSettings {
 }
 
 model ContactSettings {
-  id               Int      @id @default(autoincrement())
-  phone            String   @default("+373 675 24 111") @map("phone")
-  email            String   @default("contact@lampino.md") @map("email")
-  whatsapp         String   @default("+373 675 24 111") @map("whatsapp")
-  address_ro       String   @default("Str. Exemplu 123") @map("address_ro")
-  address_ru       String   @default("ул. Примерная 123") @map("address_ru")
-  city_ro          String   @default("Chișinău") @map("city_ro")
-  city_ru          String   @default("Кишинев") @map("city_ru")
-  country_ro       String   @default("Moldova") @map("country_ro")
-  country_ru       String   @default("Молдова") @map("country_ru")
-  businessHours_ro String   @default("Lun-Vin: 9:00 - 18:00") @map("business_hours_ro")
-  businessHours_ru String   @default("Пн-Пт: 9:00 - 18:00") @map("business_hours_ru")
-  facebookUrl      String   @default("https://www.facebook.com/lampino.md") @map("facebook_url")
-  instagramUrl     String   @default("https://www.instagram.com/lampino.md") @map("instagram_url")
-  tiktokUrl        String   @default("") @map("tiktok_url")
-  isActive         Boolean  @default(true) @map("is_active")
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
+  id                Int      @id @default(autoincrement())
+  phone             String   @default("+373 675 24 111") @map("phone")
+  email             String   @default("contact@lampino.md") @map("email")
+  whatsapp          String   @default("+373 675 24 111") @map("whatsapp")
+  address_ro        String   @default("Str. Exemplu 123") @map("address_ro")
+  address_ru        String   @default("ул. Примерная 123") @map("address_ru")
+  city_ro           String   @default("Chișinău") @map("city_ro")
+  city_ru           String   @default("Кишинев") @map("city_ru")
+  country_ro        String   @default("Moldova") @map("country_ro")
+  country_ru        String   @default("Молдова") @map("country_ru")
+  businessHours_ro  String   @default("Lun-Vin: 9:00 - 18:00") @map("business_hours_ro")
+  businessHours_ru  String   @default("Пн-Пт: 9:00 - 18:00") @map("business_hours_ru")
+  facebookUrl       String   @default("https://www.facebook.com/lampino.md") @map("facebook_url")
+  instagramUrl      String   @default("https://www.instagram.com/lampino.md") @map("instagram_url")
+  tiktokUrl         String   @default("") @map("tiktok_url")
+  googleBusinessUrl String   @default("") @map("google_business_url")
+  // Shop coordinates for the LocalBusiness `geo` and the contact-page map.
+  latitude          Float?   @map("latitude")
+  longitude         Float?   @map("longitude")
+  isActive          Boolean  @default(true) @map("is_active")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
 
   @@map("contact_settings")
 }
@@ -451,4 +477,22 @@ model AnalyticsEvent {
   @@index([type, productId])
   @@index([type, rentalPackageId])
   @@map("analytics_events")
+}
+
+// Customer product reviews. Only `approved` ones are shown and counted in the
+// Product rating markup; new submissions wait for the admin as `pending`.
+model Review {
+  id         Int      @id @default(autoincrement())
+  productId  Int      @map("product_id")
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  authorName String   @map("author_name")
+  rating     Int
+  body       String   @db.Text
+  lang       String   @default("ro")
+  status     String   @default("pending")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([productId, status])
+  @@index([status])
+  @@map("reviews")
 }

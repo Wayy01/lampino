@@ -10,7 +10,7 @@ import type { ProductVariant } from "@/lib/types";
 import { useLang } from "@/lib/i18n/provider";
 import { useCart } from "@/lib/cart/provider";
 import { track } from "@/lib/analytics/track";
-import { formatPrice, pick, cn } from "@/lib/utils";
+import { formatPrice, pick, cn, productImageAlt } from "@/lib/utils";
 import { productHref } from "@/lib/i18n/routing";
 import { specList, specValue } from "@/lib/specs";
 import { useDragScroll } from "@/lib/use-drag-scroll";
@@ -99,7 +99,7 @@ export function ProductCardCompact({
         <div className="relative aspect-square overflow-hidden rounded-[var(--radius-md)] bg-muted">
           <SiteImage
             src={image}
-            alt={name}
+            alt={productImageAlt(lang, product)}
             sizes="(max-width: 1024px) 50vw, 33vw"
             className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
           />

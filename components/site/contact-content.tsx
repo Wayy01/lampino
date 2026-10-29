@@ -140,7 +140,7 @@ export function ContactContent({ contact }: { contact: ContactSettings | null })
           />
         </div>
         <a
-          href={MAP_LINK}
+          href={contact?.googleBusinessUrl || MAP_LINK}
           target="_blank"
           rel="noopener noreferrer"
           className="group label-mono mt-5 inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"

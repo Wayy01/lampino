@@ -5,7 +5,6 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { RichText } from "@/components/site/rich-text";
 import {
-  ArrowLeft,
   ShoppingBag,
   Zap,
   Check,
@@ -17,12 +16,13 @@ import {
 import type { Product } from "@/lib/data/products";
 import type { ContactInfo, MediaItem, ProductVariant } from "@/lib/types";
 import { useLang } from "@/lib/i18n/provider";
-import { categoryHref, shopHref } from "@/lib/i18n/routing";
+import { categoryHref, localePath, productHref, shopHref } from "@/lib/i18n/routing";
+import { Breadcrumbs } from "./breadcrumbs";
 import { useShopQuery } from "@/lib/shop-return";
 import { useCart } from "@/lib/cart/provider";
 import { track } from "@/lib/analytics/track";
 import { specList, specLabel, specValue } from "@/lib/specs";
-import { formatPrice, pick, cn } from "@/lib/utils";
+import { formatPrice, pick, cn, productImageAlt } from "@/lib/utils";
 import { ProductGallery } from "./product-gallery";
 import { FastBuyDrawer } from "./fast-buy-drawer";
 import { Button } from "@/components/ui/button";
@@ -43,15 +43,12 @@ export function ProductDetail({
   const { addItem, openCart } = useCart();
   const shopQuery = useShopQuery();
   // The remembered query carries the category as an id; when it's this
-  // product's own category, link its landing page instead of the legacy
-  // `?category=` form (which only redirects there).
+  // product's own category, its crumb returns to that filtered view, otherwise
+  // the "Magazin" crumb does.
   const backParams = new URLSearchParams(shopQuery);
   const backCategory = backParams.get("category");
   backParams.delete("category");
-  const backHref =
-    product.category && backCategory === String(product.category.id)
-      ? categoryHref(lang, product.category, backParams.toString())
-      : shopHref(lang, shopQuery);
+  const backToCategory = !!product.category && backCategory === String(product.category.id);
   const perkItems = perks ? perks[lang] : t.product.includedItems;
 
   const name = pick(lang, product.name_ro, product.name_ru);
@@ -128,19 +125,27 @@ export function ProductDetail({
 
   return (
     <div className="mx-auto max-w-[1400px] px-5 pb-28 pt-28 sm:px-8 md:pt-32">
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: EASE }}
-      >
-        <Link
-          href={backHref}
-          className="group label-mono inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-          {t.product.back}
-        </Link>
-      </motion.div>
+      {/* The trail is the way back, to the filtered view the visitor came from. */}
+      <Breadcrumbs
+        label={t.catalog.breadcrumb}
+        items={[
+          { name: t.nav.home, href: localePath(lang) },
+          { name: t.nav.products, href: backToCategory ? shopHref(lang) : shopHref(lang, shopQuery) },
+          ...(product.category
+            ? [
+                {
+                  name: pick(lang, product.category.name_ro, product.category.name_ru),
+                  href: categoryHref(
+                    lang,
+                    product.category,
+                    backToCategory ? backParams.toString() : "",
+                  ),
+                },
+              ]
+            : []),
+          { name, href: productHref(lang, product) },
+        ]}
+      />
 
       <div className="mt-8 flex flex-wrap items-end justify-between gap-4">
         <div>
@@ -175,7 +180,7 @@ export function ProductDetail({
           >
             <ProductGallery
               media={media}
-              alt={name}
+              alt={productImageAlt(lang, product)}
               // Picking a variant jumps to its first image (past the videos).
               focusKey={selectedVariant?.id}
               focusIndex={product.images.length ? product.videos.length : 0}

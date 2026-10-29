@@ -13,7 +13,8 @@ type MockProduct = Omit<Product, "specifications"> & {
 const img = (id: string, w = 1600) =>
   `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=80`;
 
-export const categories: Category[] = [
+export const categories: Category[] = (
+  [
   {
     id: 1,
     name_ro: "Becuri LED",
@@ -110,7 +111,9 @@ export const categories: Category[] = [
     position: 11,
     imageUrl: null,
   },
-];
+  ] as Omit<Category, "urlSlug_ro" | "urlSlug_ru">[]
+  // The landing-page URL overrides stay empty in the seed: slugs come from names.
+).map((c) => ({ ...c, urlSlug_ro: "", urlSlug_ru: "" }));
 
 const bySlug = (slug: string): Category =>
   categories.find((c) => c.slug === slug)!;
@@ -456,6 +459,8 @@ export const products: MockProduct[] = seeds.map((s) => {
     name_ru: s.name_ru,
     description_ro: s.description_ro,
     description_ru: s.description_ru,
+    imageAlt_ro: "",
+    imageAlt_ru: "",
     price: s.price,
     reducedPrice: null,
     stock: 2,

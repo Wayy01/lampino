@@ -37,14 +37,23 @@ const productInclude = {
 
 type ProductRow = Prisma.ProductGetPayload<{ include: typeof productInclude }>;
 
-export function serializeCategory(
-  category: { id: number; name_ro: string; name_ru: string; slug: string; position: number; imageUrl: string | null },
-): Category {
+export function serializeCategory(category: {
+  id: number;
+  name_ro: string;
+  name_ru: string;
+  slug: string;
+  urlSlug_ro: string;
+  urlSlug_ru: string;
+  position: number;
+  imageUrl: string | null;
+}): Category {
   return {
     id: category.id,
     name_ro: category.name_ro,
     name_ru: category.name_ru,
     slug: category.slug,
+    urlSlug_ro: category.urlSlug_ro,
+    urlSlug_ru: category.urlSlug_ru,
     position: category.position,
     imageUrl: category.imageUrl,
   };
@@ -78,6 +87,8 @@ function serializeProduct(row: ProductRow, now = new Date()): Product {
     name_ru: row.name_ru,
     description_ro: row.description_ro,
     description_ru: row.description_ru,
+    imageAlt_ro: row.imageAlt_ro,
+    imageAlt_ru: row.imageAlt_ru,
     price: Number(row.price),
     reducedPrice: effectiveReducedPrice(Number(row.price), decimalOrNull(row.reducedPrice), pct),
     stock: row.stock,
@@ -147,6 +158,24 @@ export async function getFeaturedProducts(limit = 9): Promise<Product[]> {
     take: limit - featured.length,
   });
   return [...featured, ...fill].map((r) => serializeProduct(r));
+}
+
+/**
+ * A product as a card renders it, for props that cross into client
+ * components: no descriptions or videos and only the cover image — the cards
+ * (and the cart a card adds to) use nothing else.
+ */
+export function forListing(p: Product): Product {
+  return { ...p, description_ro: "", description_ru: "", videos: [], images: p.images.slice(0, 1) };
+}
+
+/**
+ * A product as the cart needs it to rehydrate stored lines — names, prices,
+ * stock, variants, cover image. The layout sends the whole catalog to every
+ * page in this form; the full rows made each HTML document ~480 KB.
+ */
+export function forCart(p: Product): Product {
+  return { ...forListing(p), specifications: {} };
 }
 
 export async function getProductById(id: number): Promise<Product | null> {
@@ -253,5 +282,7 @@ export async function getCategoryOptions(): Promise<CategoryOption[]> {
       slug: c.slug,
       name_ro: c.name_ro,
       name_ru: c.name_ru,
+      urlSlug_ro: c.urlSlug_ro,
+      urlSlug_ru: c.urlSlug_ru,
     }));
 }

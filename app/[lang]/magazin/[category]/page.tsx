@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
-import { fill, localeAlternates, metaDescription, openGraphFor } from "@/lib/seo";
+import {
+  absoluteUrl,
+  fill,
+  localeAlternates,
+  metaDescription,
+  openGraphFor,
+} from "@/lib/seo";
 import {
   categoryHref,
   categoryPaths,
@@ -18,8 +24,9 @@ import {
   getProducts,
   getCategoryOptions,
 } from "@/lib/data/products";
-import type { CategoryOption } from "@/lib/types";
-import { ShopView, queryWithout, type ShopSearchParams } from "../shop";
+import { getCategoryImage, getCategoryLanding } from "@/lib/data/categories";
+import type { CategoryLanding, CategoryOption, Product } from "@/lib/types";
+import { ShopView, queryWithout, shopCanonical, type ShopSearchParams } from "../shop";
 
 export const dynamic = "force-dynamic";
 
@@ -47,7 +54,40 @@ function resolve(
   return loose ? { category: loose, exact: false } : null;
 }
 
-export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+/**
+ * Title and description: the admin's landing copy when written, otherwise
+ * built from the name and the lowest price — never empty.
+ */
+function headCopy(
+  lang: Locale,
+  category: CategoryOption,
+  landing: CategoryLanding | null,
+  products: Product[],
+): { title: string; description: string } {
+  const d = dictionaries[lang].seo;
+  const copy = landing?.[lang];
+  const name = pick(lang, category.name_ro, category.name_ru);
+  const prices = products
+    .filter((p) => p.category?.id === category.id)
+    .map(effectivePrice);
+  const title = copy?.seoTitle || fill(d.categoryTitle, { name });
+  const description = metaDescription(
+    copy?.seoDescription ||
+      fill(d.categoryDescription, {
+        name,
+        price: formatPrice(prices.length ? Math.min(...prices) : 0),
+      }),
+  );
+  return { title, description };
+}
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams: Promise<ShopSearchParams>;
+}): Promise<Metadata> {
   const { lang, category: segment } = await params;
   if (!isLocale(lang)) return {};
   const [options, products] = await Promise.all([getCategoryOptions(), getProducts()]);
@@ -55,25 +95,30 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   if (!match) return {};
 
   const { category } = match;
-  const d = dictionaries[lang].seo;
-  const name = pick(lang, category.name_ro, category.name_ru);
-  const prices = products
-    .filter((p) => p.category?.id === category.id)
-    .map(effectivePrice);
-  const title = fill(d.categoryTitle, { name });
-  const description = metaDescription(
-    fill(d.categoryDescription, {
-      name,
-      price: formatPrice(prices.length ? Math.min(...prices) : 0),
-    }),
+  const landing = await getCategoryLanding(category.id);
+  const head = headCopy(lang, category, landing, products);
+  // `?page=N` is self-canonical; sort/filter views canonicalize to the category.
+  const { path, titleSuffix, descriptionSuffix } = shopCanonical(
+    lang,
+    categoryPaths(category),
+    await searchParams,
   );
-  const paths = categoryPaths(category);
+  const title = `${head.title}${titleSuffix}`;
+  const description = `${head.description}${descriptionSuffix}`;
+  const firstImage = products.find((p) => p.category?.id === category.id && p.images[0])?.images[0];
+  const image =
+    landing?.ogImageUrl || (await getCategoryImage(category.id)) || firstImage?.imageUrl;
   return {
-    title,
+    // The layout appends "| Lampino" — unless the admin's title already names the shop.
+    title: /lampino/i.test(head.title) ? { absolute: title } : title,
     description,
-    // Filters on top of a category (sort, price, page) canonicalize to it.
-    alternates: localeAlternates(lang, paths),
-    openGraph: openGraphFor(lang, { title, description, path: paths }),
+    alternates: localeAlternates(lang, path),
+    openGraph: openGraphFor(lang, {
+      title,
+      description,
+      path,
+      ...(image && { images: [absoluteUrl(image)] }),
+    }),
   };
 }
 
@@ -104,6 +149,7 @@ export default async function CategoryPage({
   }
   if (!match.exact) permanentRedirect(categoryHref(lang, match.category, rest));
 
+  const landing = await getCategoryLanding(match.category.id);
   return (
     <ShopView
       lang={lang}
@@ -111,6 +157,8 @@ export default async function CategoryPage({
       products={products}
       categoryOptions={categoryOptions}
       category={match.category}
+      landing={landing?.[lang] ?? null}
+      description={headCopy(lang, match.category, landing, products).description}
     />
   );
 }

@@ -14,7 +14,7 @@ import { LOCALES, isLocale } from "@/lib/i18n/routing";
 import { dictionaries } from "@/lib/i18n/dictionaries";
 import { storeSchema, websiteSchema } from "@/lib/schema";
 import { SITE_NAME, SITE_URL, localeAlternates, openGraphFor } from "@/lib/seo";
-import { getProducts } from "@/lib/data/products";
+import { forCart, getCategoryOptions, getProducts } from "@/lib/data/products";
 import {
   getContactSettings,
   getDeliverySettings,
@@ -40,6 +40,9 @@ const geistMono = Geist_Mono({
   variable: "--font-mono-app",
   subsets: ["latin"],
   display: "swap",
+  // Small labels only, never the LCP text: don't let it compete with the
+  // display font and the hero/product image for the first bytes.
+  preload: false,
 });
 
 export async function generateMetadata({
@@ -104,8 +107,9 @@ export default async function RootLayout({
   // catalog still renders the navbar and footer, and the page inside is left to
   // fail into `app/[lang]/error.tsx`, which can explain itself and offer a
   // retry. The settings loaders already resolve to `null` on failure.
-  const [products, contact, delivery, banner, theme] = await Promise.all([
+  const [products, categories, contact, delivery, banner, theme] = await Promise.all([
     getProducts().catch(() => []),
+    getCategoryOptions().catch(() => []),
     getContactSettings(),
     getDeliverySettings(),
     getPromoBanner(),
@@ -145,12 +149,12 @@ export default async function RootLayout({
           ]}
         />
         <LanguageProvider lang={lang}>
-          <CartProvider products={products}>
+          <CartProvider products={products.map(forCart)}>
             <Grain />
             {banner && <PromoBanner banner={banner} />}
             <Navbar phone={contact?.phone ?? null} />
             <main>{children}</main>
-            <Footer contact={contact} />
+            <Footer contact={contact} categories={categories} />
             <CartDrawer delivery={delivery} />
           </CartProvider>
         </LanguageProvider>

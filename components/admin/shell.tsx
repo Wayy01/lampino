@@ -19,6 +19,7 @@ import {
   Menu,
   X,
   ExternalLink,
+  MessageSquareText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logout } from "@/lib/admin/actions/auth";
@@ -41,6 +42,7 @@ const NAV: {
   { path: "/orders", label: (t) => t.nav.orders, icon: ShoppingCart },
   { path: "/applications", label: (t) => t.nav.applications, icon: CalendarClock },
   { path: "/promotions", label: (t) => t.nav.promotions, icon: BadgePercent },
+  { path: "/reviews", label: (t) => t.nav.reviews, icon: MessageSquareText },
   { path: "/homepage", label: (t) => t.nav.homepage, icon: PanelsTopLeft },
   { path: "/users", label: (t) => t.nav.users, icon: Users },
   { path: "/settings", label: (t) => t.nav.settings, icon: Settings2 },

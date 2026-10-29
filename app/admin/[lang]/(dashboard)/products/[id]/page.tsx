@@ -50,6 +50,8 @@ export default async function EditProductPage({
     name_ru: product.name_ru,
     description_ro: product.description_ro,
     description_ru: product.description_ru,
+    imageAlt_ro: product.imageAlt_ro,
+    imageAlt_ru: product.imageAlt_ru,
     price: num(product.price),
     reducedPrice: num(product.reducedPrice),
     stock: product.stock,

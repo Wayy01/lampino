@@ -62,7 +62,10 @@ export async function getHeroMedia(): Promise<HeroMedia> {
 // simply hides those blocks.
 export async function getContactSettings(): Promise<ContactSettings | null> {
   try {
-    const s = await prisma.contactSettings.findFirst({ where: { isActive: true } });
+    const s = await prisma.contactSettings.findFirst({
+      where: { isActive: true },
+      orderBy: { id: "desc" },
+    });
     if (!s) return null;
     return {
       phone: s.phone,
@@ -79,6 +82,9 @@ export async function getContactSettings(): Promise<ContactSettings | null> {
       facebookUrl: s.facebookUrl,
       instagramUrl: s.instagramUrl,
       tiktokUrl: s.tiktokUrl,
+      googleBusinessUrl: s.googleBusinessUrl,
+      latitude: s.latitude,
+      longitude: s.longitude,
     };
   } catch {
     return null;

@@ -202,6 +202,8 @@ function parseProduct(fd: FormData): ParsedProduct | { error: string } {
       name_ru,
       description_ro: str(fd, "description_ro"),
       description_ru: str(fd, "description_ru"),
+      imageAlt_ro: str(fd, "imageAlt_ro").trim(),
+      imageAlt_ru: str(fd, "imageAlt_ru").trim(),
       price: new Prisma.Decimal(price),
       reducedPrice: reducedPrice === null ? null : new Prisma.Decimal(reducedPrice),
       stock,

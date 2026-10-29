@@ -4,27 +4,34 @@ import { localeAlternates, openGraphFor } from "@/lib/seo";
 import { categoryHref, isLocale, shopHref } from "@/lib/i18n/routing";
 import { dictionaries, type Lang } from "@/lib/i18n/dictionaries";
 import { getProducts, getCategoryOptions } from "@/lib/data/products";
-import { ShopView, firstParam, queryWithout, type ShopSearchParams } from "./shop";
+import {
+  ShopView,
+  firstParam,
+  queryWithout,
+  shopCanonical,
+  type ShopSearchParams,
+} from "./shop";
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ lang: string }>;
+  searchParams: Promise<ShopSearchParams>;
 }): Promise<Metadata> {
   const { lang } = await params;
   const l: Lang = isLocale(lang) ? lang : "ro";
   const d = dictionaries[l].seo;
+  // `?page=N` is its own canonical page; sort/filter views fold back to the
+  // bare catalog so the facets never compete with it in the index.
+  const { path, titleSuffix, descriptionSuffix } = shopCanonical(l, "/magazin", await searchParams);
+  const title = `${d.shopTitle}${titleSuffix}`;
+  const description = `${d.shopDescription}${descriptionSuffix}`;
   return {
-    title: d.shopTitle,
-    description: d.shopDescription,
-    // Filters live in the query string; every combination canonicalizes back
-    // to the bare catalog so the facets never compete with it in the index.
-    alternates: localeAlternates(l, "/magazin"),
-    openGraph: openGraphFor(l, {
-      title: d.shopTitle,
-      description: d.shopDescription,
-      path: "/magazin",
-    }),
+    title,
+    description,
+    alternates: localeAlternates(l, path),
+    openGraph: openGraphFor(l, { title, description, path }),
   };
 }
 
@@ -63,6 +70,8 @@ export default async function MagazinPage({
       products={products}
       categoryOptions={categoryOptions}
       category={null}
+      landing={null}
+      description={dictionaries[lang].seo.shopDescription}
     />
   );
 }

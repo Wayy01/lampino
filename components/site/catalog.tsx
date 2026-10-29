@@ -2,6 +2,7 @@
 
 import { rememberShopQuery } from "@/lib/shop-return";
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { motion } from "motion/react";
 import type { ProductCategory } from "@/lib/data/products";
 import type { CategoryOption, Locale, Product } from "@/lib/types";
@@ -15,6 +16,7 @@ import {
   priceSteps,
   sortProducts,
   DEFAULT_SORT,
+  PAGE_SIZE,
   SORT_KEYS,
   type ColorTempKey,
   type LumensKey,
@@ -37,8 +39,6 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { ProductCardTile } from "./product-card-tile";
 import type { Facets } from "@/lib/filters";
 
-const PAGE_SIZE = 9;
-
 type CatalogProps = {
   products: Product[];
   categoryOptions: CategoryOption[];
@@ -49,6 +49,9 @@ type CatalogProps = {
   initialColorTemps?: ColorTempKey[];
   initialSockets?: SocketKey[];
   initialLumens?: LumensKey[];
+  /** Landing-page H1 and intro, server-written; default to the catalog title. */
+  heading?: string;
+  intro?: string;
 };
 
 // Compact, ellipsis-aware page window: always shows first/last and a neighbour
@@ -85,6 +88,8 @@ export function Catalog({
   initialColorTemps = [],
   initialSockets = [],
   initialLumens = [],
+  heading,
+  intro,
 }: CatalogProps) {
   const t = useT();
   const { lang } = useLang();
@@ -94,9 +99,9 @@ export function Catalog({
   const priceCap = useMemo(() => priceCeiling(products), [products]);
   const steps = useMemo(() => priceSteps(priceCap), [priceCap]);
 
-  const [category, setCategory] = useState<ProductCategory | "all">(
-    initialCategory,
-  );
+  // The category is the page (`/magazin/<slug>`): picking another one navigates,
+  // and ShopView remounts the catalog per category, so it never changes here.
+  const category: ProductCategory | "all" = initialCategory;
   const [maxPrice, setMaxPrice] = useState<number>(initialMaxPrice ?? priceCap);
   const [sort, setSort] = useState<SortKey>(initialSort);
   const [page, setPage] = useState<number>(initialPage);
@@ -116,7 +121,9 @@ export function Catalog({
   // of the results. Only the pagination controls call this — a filter change
   // also resets to page 1, but yanking the view while someone is working the
   // filter panel would be worse than leaving it alone.
+  const [hasPaged, setHasPaged] = useState(false);
   const goToPage = (p: number) => {
+    setHasPaged(true);
     setPage(p);
     resultsRef.current?.scrollIntoView({
       behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -128,10 +135,6 @@ export function Catalog({
 
   // Any filter change resets pagination to the first page. Wrap the raw setters
   // so callers (panel + chips) get this for free.
-  const changeCategory = (c: ProductCategory | "all") => {
-    setCategory(c);
-    setPage(1);
-  };
   const changeMaxPrice = (p: number) => {
     setMaxPrice(p);
     setPage(1);
@@ -213,12 +216,10 @@ export function Catalog({
     if (sockets.size) params.set("socket", [...sockets].join(","));
     if (lumens.size) params.set("lumens", [...lumens].join(","));
 
-    const active =
-      params.toString().length > 0 || sort !== DEFAULT_SORT || pageNumber > 1;
-    if (active) {
-      params.set("sort", sort);
-      params.set("page", String(pageNumber));
-    }
+    // Defaults stay out of the URL, so page two is plainly `?page=2` — the
+    // self-canonical form the page's metadata declares.
+    if (sort !== DEFAULT_SORT) params.set("sort", sort);
+    if (pageNumber > 1) params.set("page", String(pageNumber));
     return params.toString();
   };
   const urlFor = (pageNumber: number) => {
@@ -257,13 +258,10 @@ export function Catalog({
     lumens.size +
     (maxPrice !== priceCap ? 1 : 0);
 
-  const isDirty =
-    category !== "all" ||
-    sort !== DEFAULT_SORT ||
-    advancedCount > 0;
+  // Reset clears the filters on top of the page; the category itself stays.
+  const isDirty = sort !== DEFAULT_SORT || advancedCount > 0;
 
   const reset = () => {
-    setCategory("all");
     setMaxPrice(priceCap);
     setSort(DEFAULT_SORT);
     setColorTemps(new Set());
@@ -309,7 +307,6 @@ export function Catalog({
     categoryOptions,
     facets,
     category,
-    setCategory: changeCategory,
     maxPrice,
     setMaxPrice: changeMaxPrice,
     priceSteps: steps,
@@ -332,10 +329,16 @@ export function Catalog({
           <span>{t.catalog.kicker}</span>
         </div>
         <h1 className="font-display mt-5 text-[clamp(2.5rem,7vw,5rem)] font-light leading-[0.95] tracking-[-0.03em]">
-          {activeCategory
-            ? pick(lang, activeCategory.name_ro, activeCategory.name_ru)
-            : t.catalog.title}
+          {heading ??
+            (activeCategory
+              ? pick(lang, activeCategory.name_ro, activeCategory.name_ru)
+              : t.catalog.title)}
         </h1>
+        {intro && (
+          <p className="mt-6 text-base leading-relaxed text-foreground/75 md:text-lg">
+            {intro}
+          </p>
+        )}
       </div>
 
       <div className="lg:grid lg:grid-cols-[320px_1fr] lg:items-start lg:gap-12">
@@ -367,14 +370,17 @@ export function Catalog({
         {/* Main column: toolbar + chips + results */}
         <div className="min-w-0">
           {/* Toolbar: filters (mobile) · sort · reset · count */}
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-b border-border pb-6">
+          {/* A fixed two-row grid on phones (filters · sort, then the count):
+              a free-wrapping row changed height when the web font swapped in,
+              shoving the whole product grid down (layout shift). */}
+          <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 border-b border-border pb-6 sm:flex sm:flex-wrap sm:gap-x-5">
             <Button
               variant="bare"
               size="none"
               pill
               onClick={() => setOpen(true)}
               className={cn(
-                "label-mono border px-4 py-1.5 lg:hidden",
+                "label-mono shrink-0 border px-4 py-1.5 lg:hidden",
                 advancedCount > 0
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-foreground/25 bg-foreground/[0.04] text-foreground hover:border-primary hover:text-primary",
@@ -398,15 +404,19 @@ export function Catalog({
               {advancedCount > 0 && ` (${advancedCount})`}
             </Button>
 
+            {/* No "Sort" label on phones: the row is too narrow for it. */}
             <div className="flex min-w-0 items-center gap-2">
-              <span className="label-mono text-muted-foreground">
+              <span className="label-mono hidden shrink-0 text-muted-foreground sm:inline">
                 {t.catalog.sort}
               </span>
               <Select
                 value={sort}
                 onValueChange={(v) => changeSort(v as SortKey)}
               >
-                <SelectTrigger className="label-mono h-auto w-auto max-w-full gap-2 rounded-full border-foreground/25 bg-foreground/[0.04] px-4 py-1.5 text-[0.72rem] text-foreground hover:border-primary focus:ring-0">
+                <SelectTrigger
+                  aria-label={t.catalog.sort}
+                  className="label-mono h-auto w-auto min-w-0 max-w-full gap-2 [&>span]:truncate rounded-full border-foreground/25 bg-foreground/[0.04] px-4 py-1.5 text-[0.72rem] text-foreground hover:border-primary focus:ring-0"
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -425,7 +435,7 @@ export function Catalog({
               </Button>
             )}
 
-            <span className="label-mono ml-auto text-muted-foreground">
+            <span className="label-mono col-span-2 text-muted-foreground sm:ml-auto">
               {filtered.length} {t.catalog.results}
             </span>
           </div>
@@ -458,13 +468,21 @@ export function Catalog({
             ) : (
               <motion.div
                 key={currentPage}
-                initial={{ opacity: 0, y: 12 }}
+                // The first grid is server HTML and must paint as-is; only a
+                // page change animates.
+                initial={hasPaged ? { opacity: 0, y: 12 } : false}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                 className="grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-5 sm:gap-y-10 xl:grid-cols-3"
               >
                 {paged.map((product, i) => (
-                  <ProductCardTile key={product.id} product={product} index={i} />
+                  <ProductCardTile
+                    key={product.id}
+                    product={product}
+                    index={i}
+                    aboveFold={!hasPaged && i < 4}
+                    lcp={!hasPaged && i < 2}
+                  />
                 ))}
               </motion.div>
             )}
@@ -557,7 +575,6 @@ type FiltersPanelProps = {
   categoryOptions: CategoryOption[];
   facets: Facets;
   category: ProductCategory | "all";
-  setCategory: (c: ProductCategory | "all") => void;
   maxPrice: number;
   setMaxPrice: (p: number) => void;
   priceSteps: number[];
@@ -577,7 +594,6 @@ function FiltersPanel({
   categoryOptions,
   facets,
   category,
-  setCategory,
   maxPrice,
   setMaxPrice,
   priceSteps,
@@ -596,11 +612,7 @@ function FiltersPanel({
           two languages, so the uppercase mono pills used for the short facets
           below were the hardest thing in the panel to scan. */}
       <FacetRow label={t.catalog.category} stack>
-        <CategoryRow
-          active={category === "all"}
-          href={shopHref(lang)}
-          onClick={() => setCategory("all")}
-        >
+        <CategoryRow active={category === "all"} href={shopHref(lang)}>
           {t.catalog.all}
         </CategoryRow>
         {categoryOptions.map((c) => (
@@ -608,7 +620,6 @@ function FiltersPanel({
             key={c.id}
             active={category === c.slug}
             href={categoryHref(lang, c)}
-            onClick={() => setCategory(c.slug)}
           >
             {pick(lang, c.name_ro, c.name_ru)}
           </CategoryRow>
@@ -706,27 +717,21 @@ function FacetRow({
  * as the facet pills below it, so the list scans as a set of controls instead
  * of a paragraph. Selected is a solid primary fill.
  */
-// A real link to the category's landing page, so crawlers can follow it, that
-// filters in place on a plain click (modified clicks still open a new tab).
+// A link to the category's landing page: each category has its own server-
+// rendered intro, description and FAQ, so picking one is a navigation.
 function CategoryRow({
   active,
   href,
-  onClick,
   children,
 }: {
   active: boolean;
   href: string;
-  onClick: () => void;
   children: React.ReactNode;
 }) {
   return (
-    <a
+    <Link
       href={href}
-      onClick={(e) => {
-        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-        e.preventDefault();
-        onClick();
-      }}
+      scroll={false}
       aria-current={active ? "page" : undefined}
       className={cn(
         "flex w-full items-center justify-start rounded-[var(--radius-sm)] border px-3 py-2 text-left text-sm font-normal leading-5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
@@ -736,7 +741,7 @@ function CategoryRow({
       )}
     >
       <span className="min-w-0 truncate">{children}</span>
-    </a>
+    </Link>
   );
 }
 

@@ -106,7 +106,7 @@ export function ProductGallery({
               <SiteImage
                 src={current.src}
                 alt={alt}
-                priority
+                preload
                 dark
                 sizes="(max-width: 1024px) 100vw, 60vw"
                 className="object-cover"

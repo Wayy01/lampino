@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { preload } from "react-dom";
 import { motion } from "motion/react";
@@ -46,12 +47,30 @@ export function Hero({
   // Without a preload the browser only finds it once it parses the <video>.
   if (posterUrl) preload(posterUrl, { as: "image", fetchPriority: "high" });
 
+  // The hero video (several MB) starts downloading only once the page has
+  // loaded, so it never competes with the HTML, fonts and scripts the first
+  // paint needs. Until then the section shows its poster or dark background.
+  const [videoReady, setVideoReady] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  // `autoPlay` isn't reliably honoured for a src set after mount; start it.
+  useEffect(() => {
+    if (videoReady) videoRef.current?.play().catch(() => {});
+  }, [videoReady]);
+  useEffect(() => {
+    if (!videoUrl) return;
+    const start = () => setVideoReady(true);
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
+    return () => window.removeEventListener("load", start);
+  }, [videoUrl]);
+
   return (
     <>
       <section className="relative h-[100svh] w-full overflow-hidden bg-foreground">
         {videoUrl ? (
           <video
-            src={videoUrl}
+            ref={videoRef}
+            src={videoReady ? videoUrl : undefined}
             poster={posterUrl ?? undefined}
             autoPlay
             muted

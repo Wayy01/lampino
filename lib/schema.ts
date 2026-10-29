@@ -9,6 +9,7 @@ import { CURRENCY, SITE_NAME, SITE_URL, absoluteUrl, metaDescription } from "@/l
 import { localePath, productHref, rentalHref, type Locale } from "@/lib/i18n/routing";
 import { pick } from "@/lib/utils";
 import type { ContactSettings, Product, RentalPackage } from "@/lib/types";
+import type { ProductReviews } from "@/lib/data/reviews";
 
 export type JsonLdNode = Record<string, unknown>;
 
@@ -61,7 +62,7 @@ export function openingHours(text: string): JsonLdNode[] | undefined {
  */
 export function storeSchema(lang: Locale, contact: ContactSettings | null): JsonLdNode {
   const socials = contact
-    ? [contact.facebookUrl, contact.instagramUrl, contact.tiktokUrl].filter(Boolean)
+    ? [contact.facebookUrl, contact.instagramUrl, contact.tiktokUrl, contact.googleBusinessUrl].filter(Boolean)
     : [];
   // Hours are parsed from the Romanian field: day names there are predictable.
   const hours = contact ? openingHours(contact.businessHours_ro) : undefined;
@@ -85,6 +86,11 @@ export function storeSchema(lang: Locale, contact: ContactSettings | null): Json
         addressCountry: "MD",
       },
       areaServed: { "@type": "Country", name: "Moldova" },
+      ...(contact.latitude !== null &&
+        contact.longitude !== null && {
+          geo: { "@type": "GeoCoordinates", latitude: contact.latitude, longitude: contact.longitude },
+        }),
+      ...(contact.googleBusinessUrl && { hasMap: contact.googleBusinessUrl }),
     }),
     ...(hours && { openingHoursSpecification: hours }),
     ...(socials.length > 0 && { sameAs: socials }),
@@ -145,34 +151,48 @@ export function productPrices(product: Product): number[] {
     : [product.reducedPrice ?? product.price];
 }
 
-export function productSchema(product: Product, lang: Locale): JsonLdNode {
-  const url = absoluteUrl(productHref(lang, product));
+/** The product's offer: an `AggregateOffer` over its variants, else a plain `Offer`. */
+function productOffer(product: Product, url: string): JsonLdNode {
   const hasVariants = product.hasVariants && product.variants.length > 0;
   const prices = productPrices(product);
   const inStock = hasVariants
     ? product.variants.some((v) => v.stock > 0)
     : product.stock > 0;
 
-  const offers =
-    prices.length > 1
-      ? {
-          "@type": "AggregateOffer",
-          url,
-          priceCurrency: CURRENCY,
-          lowPrice: Math.min(...prices),
-          highPrice: Math.max(...prices),
-          offerCount: prices.length,
-          availability: availabilityUrl(inStock),
-        }
-      : {
-          "@type": "Offer",
-          url,
-          priceCurrency: CURRENCY,
-          price: prices[0],
-          availability: availabilityUrl(inStock),
-          itemCondition: "https://schema.org/NewCondition",
-          seller: { "@id": ORGANIZATION_ID },
-        };
+  return prices.length > 1
+    ? {
+        "@type": "AggregateOffer",
+        url,
+        priceCurrency: CURRENCY,
+        lowPrice: Math.min(...prices),
+        highPrice: Math.max(...prices),
+        offerCount: prices.length,
+        availability: availabilityUrl(inStock),
+        itemCondition: "https://schema.org/NewCondition",
+      }
+    : {
+        "@type": "Offer",
+        url,
+        priceCurrency: CURRENCY,
+        price: prices[0],
+        availability: availabilityUrl(inStock),
+        itemCondition: "https://schema.org/NewCondition",
+        seller: { "@id": ORGANIZATION_ID },
+      };
+}
+
+/**
+ * `reviews` are the approved ones only. Rating markup appears only when there
+ * is at least one — Google treats invented or self-serving ratings as spam.
+ */
+export function productSchema(
+  product: Product,
+  lang: Locale,
+  reviews?: ProductReviews,
+): JsonLdNode {
+  const url = absoluteUrl(productHref(lang, product));
+  const offers = productOffer(product, url);
+  const rated = reviews && reviews.count > 0;
 
   return {
     "@context": "https://schema.org",
@@ -192,6 +212,22 @@ export function productSchema(product: Product, lang: Locale): JsonLdNode {
       category: pick(lang, product.category.name_ro, product.category.name_ru),
     }),
     offers,
+    ...(rated && {
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: reviews.average,
+        reviewCount: reviews.count,
+        bestRating: 5,
+        worstRating: 1,
+      },
+      review: reviews.reviews.slice(0, 5).map((r) => ({
+        "@type": "Review",
+        author: { "@type": "Person", name: r.authorName },
+        datePublished: r.createdAt.slice(0, 10),
+        reviewBody: r.body,
+        reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5, worstRating: 1 },
+      })),
+    }),
   };
 }
 
@@ -246,5 +282,45 @@ export function itemListSchema(
       name: item.name,
       url: absoluteUrl(item.path),
     })),
+  };
+}
+
+/**
+ * A category landing page: `CollectionPage` whose main entity is the list of
+ * products shown on it, each with its URL, image and offer.
+ */
+export function collectionPageSchema(
+  lang: Locale,
+  page: { name: string; description: string; path: string; products: Product[] },
+): JsonLdNode {
+  const url = absoluteUrl(page.path);
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": `${url}#page`,
+    url,
+    name: page.name,
+    description: page.description,
+    inLanguage: lang,
+    isPartOf: { "@id": WEBSITE_ID },
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: page.products.length,
+      itemListElement: page.products.map((p, i) => {
+        const productUrl = absoluteUrl(productHref(lang, p));
+        return {
+          "@type": "ListItem",
+          position: i + 1,
+          url: productUrl,
+          item: {
+            "@type": "Product",
+            name: pick(lang, p.name_ro, p.name_ru),
+            url: productUrl,
+            ...(p.images[0] && { image: absoluteUrl(p.images[0].imageUrl) }),
+            offers: productOffer(p, productUrl),
+          },
+        };
+      }),
+    },
   };
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
-import { getProductById, getRelatedProducts } from "@/lib/data/products";
+import { forListing, getProductById, getRelatedProducts } from "@/lib/data/products";
 import { getContactSettings, getProductPerks } from "@/lib/data/settings";
 import { decodeSlug } from "@/lib/slug";
 import {
@@ -26,6 +26,8 @@ import { redirectRetiredProduct } from "../retired";
 import { JsonLd } from "@/components/site/json-ld";
 import { ProductDetail } from "@/components/site/product-detail";
 import { RelatedProducts } from "@/components/site/related-products";
+import { ProductReviews } from "@/components/site/product-reviews";
+import { getProductReviews } from "@/lib/data/reviews";
 import { ViewTracker } from "@/components/site/view-tracker";
 
 export const dynamic = "force-dynamic";
@@ -95,10 +97,11 @@ export default async function ProductPage({
     permanentRedirect(canonical);
   }
 
-  const [contact, related, perks] = await Promise.all([
+  const [contact, related, perks, reviews] = await Promise.all([
     getContactSettings(),
-    getRelatedProducts(product, 3),
+    getRelatedProducts(product, 4),
     getProductPerks(),
+    getProductReviews(product.id),
   ]);
   const nav = dictionaries[lang].nav;
 
@@ -106,7 +109,7 @@ export default async function ProductPage({
     <>
       <JsonLd
         data={[
-          productSchema(product, lang),
+          productSchema(product, lang, reviews),
           breadcrumbSchema([
             { name: nav.home, path: localePath(lang) },
             { name: nav.products, path: shopHref(lang) },
@@ -127,7 +130,8 @@ export default async function ProductPage({
       />
       <ViewTracker kind="product" id={product.id} />
       <ProductDetail product={product} contact={contact} perks={perks} />
-      <RelatedProducts products={related} />
+      <ProductReviews productId={product.id} data={reviews} />
+      <RelatedProducts products={related.map(forListing)} />
     </>
   );
 }

@@ -33,3 +33,23 @@ export function parsePage(raw: unknown): number {
   const n = Math.floor(Number(raw));
   return Number.isFinite(n) && n >= 1 ? Math.min(n, 100_000) : 1;
 }
+
+/**
+ * Alt text for a product's images in the page's language: the admin's text,
+ * else "<name> – <category>".
+ */
+export function productImageAlt(
+  lang: Locale,
+  p: {
+    name_ro: string;
+    name_ru: string;
+    imageAlt_ro: string;
+    imageAlt_ru: string;
+    category: { name_ro: string; name_ru: string } | null;
+  },
+): string {
+  const custom = pick(lang, p.imageAlt_ro, p.imageAlt_ru);
+  if (custom) return custom;
+  const name = pick(lang, p.name_ro, p.name_ru);
+  return p.category ? `${name} – ${pick(lang, p.category.name_ro, p.category.name_ru)}` : name;
+}

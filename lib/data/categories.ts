@@ -1,5 +1,5 @@
 import { prisma } from "../prisma";
-import type { Category } from "../types";
+import type { Category, CategoryLanding, FaqItem } from "../types";
 import { serializeCategory } from "./products";
 
 /** Map of categoryId → count of active products, for the "N products" badges. */
@@ -94,4 +94,53 @@ async function fillMissingImages(categories: Category[]): Promise<Category[]> {
     if (!images || images.length === 0) return c;
     return { ...c, imageUrl: images[Math.floor(Math.random() * images.length)] };
   });
+}
+
+/** `[{ q, a }]` from the Json column, dropping malformed or half-empty rows. */
+export function parseFaq(raw: unknown): FaqItem[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((r) => ({
+      q: typeof r?.q === "string" ? r.q.trim() : "",
+      a: typeof r?.a === "string" ? r.a.trim() : "",
+    }))
+    .filter((r) => r.q && r.a);
+}
+
+/** The landing-page content of a category, or null if it doesn't exist. */
+export async function getCategoryLanding(id: number): Promise<CategoryLanding | null> {
+  const c = await prisma.category.findUnique({ where: { id } });
+  if (!c) return null;
+  return {
+    ro: {
+      seoTitle: c.seoTitle_ro,
+      seoDescription: c.seoDescription_ro,
+      h1: c.h1_ro,
+      intro: c.intro_ro,
+      body: c.body_ro,
+      faq: parseFaq(c.faq_ro),
+    },
+    ru: {
+      seoTitle: c.seoTitle_ru,
+      seoDescription: c.seoDescription_ru,
+      h1: c.h1_ru,
+      intro: c.intro_ru,
+      body: c.body_ru,
+      faq: parseFaq(c.faq_ru),
+    },
+    ogImageUrl: c.ogImageUrl,
+    updatedAt: c.updatedAt.toISOString(),
+  };
+}
+
+/** Last content edit per category, for the sitemap's lastmod. */
+export async function getCategoryUpdatedAt(): Promise<Map<number, string>> {
+  const rows = await prisma.category.findMany({ select: { id: true, updatedAt: true } });
+  return new Map(rows.map((r) => [r.id, r.updatedAt.toISOString()]));
+}
+
+/** The admin-set image of a category, if any. */
+export async function getCategoryImage(id: number): Promise<string | null> {
+  const row = await prisma.category.findUnique({ where: { id }, select: { imageUrl: true } });
+  return row?.imageUrl ?? null;
 }

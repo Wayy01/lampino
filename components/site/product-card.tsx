@@ -10,7 +10,7 @@ import type { ProductVariant } from "@/lib/types";
 import { useLang } from "@/lib/i18n/provider";
 import { useCart } from "@/lib/cart/provider";
 import { track } from "@/lib/analytics/track";
-import { formatPrice, pick, cn } from "@/lib/utils";
+import { formatPrice, pick, cn, productImageAlt } from "@/lib/utils";
 import { productHref } from "@/lib/i18n/routing";
 import { specList, specValue } from "@/lib/specs";
 import { SiteImage } from "@/components/site/site-image";
@@ -87,7 +87,7 @@ export function ProductCard({
         <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--radius-lg)] bg-muted">
           <SiteImage
             src={image}
-            alt={name}
+            alt={productImageAlt(lang, product)}
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
           />

@@ -30,6 +30,13 @@ function color(fd: FormData, key: string, fallback: string): string {
 
 const revalidate = () => revalidatePath("/admin/[lang]/settings", "page");
 
+/** A coordinate in ±`limit` degrees (comma decimals accepted), or null when blank/invalid. */
+function coordinate(fd: FormData, key: string, limit: number): number | null {
+  const raw = str(fd, key).replace(",", ".");
+  const n = Number(raw);
+  return raw && Number.isFinite(n) && Math.abs(n) <= limit ? n : null;
+}
+
 export async function updateContact(
   _prev: SettingsActionState,
   fd: FormData,
@@ -53,10 +60,16 @@ export async function updateContact(
       facebookUrl: str(fd, "facebookUrl"),
       instagramUrl: str(fd, "instagramUrl"),
       tiktokUrl: str(fd, "tiktokUrl"),
+      googleBusinessUrl: str(fd, "googleBusinessUrl"),
+      latitude: coordinate(fd, "latitude", 90),
+      longitude: coordinate(fd, "longitude", 180),
       isActive: fd.get("isActive") === "on",
     };
 
-    const existing = await prisma.contactSettings.findFirst({ orderBy: { id: "asc" } });
+    // Same row the settings page loaded and the storefront shows.
+    const existing = await prisma.contactSettings.findFirst({
+      orderBy: [{ isActive: "desc" }, { id: "desc" }],
+    });
     if (existing) {
       await prisma.contactSettings.update({ where: { id: existing.id }, data });
     } else {

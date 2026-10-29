@@ -2,12 +2,18 @@
 
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import type { ContactSettings } from "@/lib/types";
+import type { CategoryOption, ContactSettings } from "@/lib/types";
 import { useLang, useT } from "@/lib/i18n/provider";
-import { localePath, shopHref, rentalsHref } from "@/lib/i18n/routing";
+import { categoryHref, localePath, shopHref, rentalsHref } from "@/lib/i18n/routing";
 import { pick } from "@/lib/utils";
 
-export function Footer({ contact }: { contact: ContactSettings | null }) {
+export function Footer({
+  contact,
+  categories,
+}: {
+  contact: ContactSettings | null;
+  categories: CategoryOption[];
+}) {
   const t = useT();
   const { lang } = useLang();
   const year = new Date().getFullYear();
@@ -33,7 +39,7 @@ export function Footer({ contact }: { contact: ContactSettings | null }) {
   return (
     <footer className="border-t border-border bg-background">
       <div className="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 md:py-24">
-        <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr_1.2fr] md:gap-8">
+        <div className="grid gap-12 sm:grid-cols-2 md:grid-cols-[1.3fr_1fr_1.2fr_1fr_1.2fr] md:gap-8">
           <div className="max-w-sm">
             <Link
               href={localePath(lang)}
@@ -55,6 +61,22 @@ export function Footer({ contact }: { contact: ContactSettings | null }) {
               <FooterLink href={rentalsHref(lang)}>{t.nav.rental}</FooterLink>
             </ul>
           </div>
+
+          {/* Every category landing page, linked from every page of the shop. */}
+          {categories.length > 0 && (
+            <div>
+              <p className="label-mono mb-5 text-muted-foreground">
+                {t.footer.categories}
+              </p>
+              <ul className="space-y-3">
+                {categories.map((c) => (
+                  <FooterLink key={c.id} href={categoryHref(lang, c)}>
+                    {pick(lang, c.name_ro, c.name_ru)}
+                  </FooterLink>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <div>
             <p className="label-mono mb-5 text-muted-foreground">

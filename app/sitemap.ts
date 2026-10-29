@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getCategoryOptions, getProductIndex } from "@/lib/data/products";
+import { getCategoryUpdatedAt } from "@/lib/data/categories";
 import { getRentalIndex } from "@/lib/data/rentals";
 import { getSpecialOffersMeta } from "@/lib/data/offers";
 import { absoluteUrl, hreflangs, type LocalizedPath } from "@/lib/seo";
@@ -46,11 +47,12 @@ function newest(rows: CatalogIndexEntry[], fallback: string): string {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [products, rentals, offers, categories] = await Promise.all([
+  const [products, rentals, offers, categories, categoryEdits] = await Promise.all([
     getProductIndex(),
     getRentalIndex(),
     getSpecialOffersMeta(),
     getCategoryOptions(),
+    getCategoryUpdatedAt(),
   ]);
 
   const now = new Date().toISOString();
@@ -61,15 +63,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...localized("", productsUpdated, "daily", 1),
     ...localized("/magazin", productsUpdated, "daily", 0.9),
     // Only categories that list an active product — `getCategoryOptions` drops
-    // the rest, and their URLs redirect to /magazin.
-    ...categories.flatMap((c) =>
-      localized(
+    // the rest, and their URLs redirect to /magazin. Dated by whichever changed
+    // last: the landing-page content or one of its products.
+    ...categories.flatMap((c) => {
+      const productsEdit = newest(products.filter((p) => p.categoryId === c.id), productsUpdated);
+      const contentEdit = categoryEdits.get(c.id) ?? productsEdit;
+      return localized(
         categoryPaths(c),
-        newest(products.filter((p) => p.categoryId === c.id), productsUpdated),
+        contentEdit > productsEdit ? contentEdit : productsEdit,
         "daily",
         0.85,
-      ),
-    ),
+      );
+    }),
     ...localized("/arenda", rentalsUpdated, "weekly", 0.8),
     ...(offers ? localized("/oferte-speciale", now, "weekly", 0.7) : []),
     ...localized("/contact", now, "yearly", 0.4),
