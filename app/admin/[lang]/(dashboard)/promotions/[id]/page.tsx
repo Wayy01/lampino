@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin/session";
-import { pick } from "@/lib/utils";
+import { parseId, pick } from "@/lib/utils";
 import {
   getAdminDict,
   adminHref,
@@ -27,8 +27,8 @@ export default async function EditPromotionPage({
   await requireAdmin(lang);
   const t = getAdminDict(lang);
 
-  const promotionId = Number(id);
-  if (!Number.isInteger(promotionId)) notFound();
+  const promotionId = parseId(id);
+  if (promotionId === null) notFound();
 
   const [promotion, products, rentals] = await Promise.all([
     prisma.promotion.findUnique({
@@ -39,10 +39,12 @@ export default async function EditPromotionPage({
       },
     }),
     prisma.product.findMany({
+      where: { deletedAt: null },
       orderBy: { name_ro: "asc" },
       select: { id: true, name_ro: true, name_ru: true },
     }),
     prisma.rentalPackage.findMany({
+      where: { deletedAt: null },
       orderBy: { title_ro: "asc" },
       select: { id: true, title_ro: true, title_ru: true },
     }),

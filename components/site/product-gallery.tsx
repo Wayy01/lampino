@@ -1,27 +1,39 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
 import { Play, X, ChevronLeft, ChevronRight, Expand } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { MediaItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { SiteImage } from "@/components/site/site-image";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 export function ProductGallery({
   media,
   alt,
+  focusKey,
+  focusIndex = 0,
 }: {
   media: MediaItem[];
   alt: string;
+  /** When this changes (e.g. a new variant), the stage jumps to `focusIndex`. */
+  focusKey?: string | number;
+  focusIndex?: number;
 }) {
   const [active, setActive] = useState(0);
   const [fullscreen, setFullscreen] = useState(false);
+  const [lastFocusKey, setLastFocusKey] = useState(focusKey);
+  if (focusKey !== lastFocusKey) {
+    setLastFocusKey(focusKey);
+    setActive(focusIndex);
+  }
 
   const count = media.length;
-  const current = media[active];
+  // The media list can shrink under us (a variant with fewer images).
+  const safeActive = active < count ? active : 0;
+  const current = media[safeActive];
 
   const go = useCallback(
     (dir: number) => {
@@ -55,9 +67,11 @@ export function ProductGallery({
         aria-label={alt}
         className="group relative block aspect-[16/10] w-full cursor-zoom-in overflow-hidden rounded-[var(--radius-lg)] bg-foreground/90"
       >
-        <AnimatePresence mode="popLayout">
+        {/* `initial={false}`: the first image is the page's LCP element, so it
+            must paint from the server HTML rather than fade in after hydration. */}
+        <AnimatePresence mode="popLayout" initial={false}>
           <motion.div
-            key={active}
+            key={safeActive}
             initial={{ opacity: 0, scale: 1.04 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
@@ -68,7 +82,7 @@ export function ProductGallery({
               <>
                 {/* Blurred backdrop so vertical clips sit cleanly in the frame. */}
                 <video
-                  key={`bg-${active}`}
+                  key={`bg-${safeActive}`}
                   src={current.src}
                   muted
                   autoPlay
@@ -78,7 +92,7 @@ export function ProductGallery({
                   className="absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-2xl"
                 />
                 <video
-                  key={`main-${active}`}
+                  key={`main-${safeActive}`}
                   src={current.src}
                   poster={current.thumbnail ?? undefined}
                   muted
@@ -89,11 +103,11 @@ export function ProductGallery({
                 />
               </>
             ) : (
-              <Image
+              <SiteImage
                 src={current.src}
                 alt={alt}
-                fill
                 priority
+                dark
                 sizes="(max-width: 1024px) 100vw, 60vw"
                 className="object-cover"
               />
@@ -118,7 +132,7 @@ export function ProductGallery({
               aria-label={`${alt} ${i + 1}`}
               className={cn(
                 "relative block aspect-square overflow-hidden rounded-[var(--radius-md)] bg-muted",
-                active === i
+                safeActive === i
                   ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
                   : "opacity-65 hover:opacity-100",
               )}
@@ -148,11 +162,11 @@ export function ProductGallery({
                   </span>
                 </>
               ) : (
-                <Image
+                <SiteImage
                   src={item.src}
                   alt=""
-                  fill
-                  sizes="20vw"
+                  sizes="(max-width: 640px) 25vw, 160px"
+                  compact
                   className="object-cover"
                 />
               )}
@@ -217,7 +231,7 @@ export function ProductGallery({
             >
               {current.type === "video" ? (
                 <video
-                  key={`fs-${active}`}
+                  key={`fs-${safeActive}`}
                   src={current.src}
                   poster={current.thumbnail ?? undefined}
                   controls
@@ -227,18 +241,24 @@ export function ProductGallery({
                   className="max-h-[90vh] max-w-full rounded-[var(--radius-md)]"
                 />
               ) : (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={current.src}
-                  alt={alt}
-                  className="max-h-[90vh] max-w-full rounded-[var(--radius-md)] object-contain"
-                />
+                // Was a raw <img> of the full original; now a resized copy
+                // with the same loading/error states as the main stage.
+                <div className="relative h-[90vh] w-full">
+                  <SiteImage
+                    key={`fs-${safeActive}`}
+                    src={current.src}
+                    alt={alt}
+                    sizes="100vw"
+                    dark
+                    className="object-contain"
+                  />
+                </div>
               )}
             </div>
 
             {count > 1 && (
               <div className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white tabular-nums">
-                {active + 1} / {count}
+                {safeActive + 1} / {count}
               </div>
             )}
           </motion.div>

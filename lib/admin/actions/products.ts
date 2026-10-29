@@ -11,7 +11,19 @@ import {
   langFromForm,
   type AdminLang,
 } from "@/lib/admin/i18n";
-import { specsToJson, isEmptySpecRow, type SpecRow } from "@/lib/admin/specs";
+import {
+  specsToJson,
+  isEmptySpecRow,
+  hasDuplicateSpecKeys,
+  type SpecRow,
+} from "@/lib/admin/specs";
+import {
+  idOrNull,
+  isAllowedImageUrl,
+  isAllowedVideoUrl,
+  isIntInRange,
+} from "@/lib/admin/validate";
+import { promotionLinks, relationsExist } from "@/lib/admin/relations";
 import {
   ActionRefusal,
   runAction,
@@ -30,11 +42,14 @@ export type VariantPayload = {
   name_ro: string;
   name_ru: string;
   size: string | null;
-  price: number;
+  /** null when the field was left blank — refused on save, never stored as 0. */
+  price: number | null;
   reducedPrice: number | null;
   stock: number;
   isDefault: boolean;
   sortOrder: number;
+  /** Subset of the product's image URLs; empty = the variant shows them all. */
+  imageUrls: string[];
 };
 
 function str(fd: FormData, key: string): string {
@@ -53,16 +68,25 @@ function numOrNull(fd: FormData, key: string): number | null {
 const MAX_MONEY = 99_999_999.99;
 const overMoney = (n: number | null) => n !== null && (n < 0 || n > MAX_MONEY);
 
-function json<T>(fd: FormData, key: string, fallback: T): T {
+/** A hidden JSON field as an array of objects; anything else becomes `[]`. */
+function jsonRows(fd: FormData, key: string): Record<string, unknown>[] {
   try {
-    return JSON.parse(String(fd.get(key) ?? "")) as T;
+    const parsed: unknown = JSON.parse(String(fd.get(key) ?? ""));
+    return Array.isArray(parsed)
+      ? parsed.filter((r): r is Record<string, unknown> => !!r && typeof r === "object")
+      : [];
   } catch {
-    return fallback;
+    return [];
   }
 }
 
+const text = (v: unknown): string => (typeof v === "string" ? v : "");
+const finiteOrNull = (v: unknown): number | null =>
+  typeof v === "number" && Number.isFinite(v) ? v : null;
+
 type ParsedProduct = {
-  scalars: Omit<Prisma.ProductUncheckedCreateInput, "id" | "images" | "videos" | "variants">;
+  scalars: Omit<Prisma.ProductUncheckedCreateInput, "id" | "images" | "videos" | "variants" | "promotions">;
+  promotionIds: number[];
   images: ImagePayload[];
   videos: VideoPayload[];
   variants: VariantPayload[];
@@ -85,29 +109,89 @@ function parseProduct(fd: FormData): ParsedProduct | { error: string } {
   }
 
   const stock = numOrNull(fd, "stock") ?? 0;
-  if (!Number.isInteger(stock) || stock < 0) {
+  if (!isIntInRange(stock)) {
     return { error: errors.stockInvalid };
   }
+  const shared = getAdminDict(langFromForm(fd)).errors;
+  const featuredOrder = numOrNull(fd, "featuredOrder") ?? 0;
+  if (!isIntInRange(featuredOrder)) return { error: shared.invalidNumber };
+  const categoryId = numOrNull(fd, "categoryId");
+  if (categoryId !== null && idOrNull(categoryId) === null) {
+    return { error: shared.invalidNumber };
+  }
+  // Any number of promotions (one per campaign across the year).
+  const promotionIds = [
+    ...new Set(
+      fd
+        .getAll("promotionIds")
+        .map((v) => idOrNull(Number(v)))
+        .filter((v): v is number => v !== null),
+    ),
+  ];
 
-  const specRows = json<SpecRow[]>(fd, "specifications", []).filter(
-    (row) => !isEmptySpecRow(row),
-  );
-  const images = json<ImagePayload[]>(fd, "images", []).filter((i) => i.imageUrl.trim());
-  const videos = json<VideoPayload[]>(fd, "videos", []).filter((v) => v.videoUrl.trim());
-  const variants = json<VariantPayload[]>(fd, "variants", []).filter(
-    (v) => v.name_ro.trim() && v.name_ru.trim(),
-  );
+  const specRows: SpecRow[] = jsonRows(fd, "specifications")
+    .map((r) => ({
+      id: text(r.id),
+      label_ro: text(r.label_ro),
+      label_ru: text(r.label_ru),
+      value_ro: text(r.value_ro),
+      value_ru: text(r.value_ru),
+    }))
+    .filter((row) => !isEmptySpecRow(row));
+  if (hasDuplicateSpecKeys(specRows)) return { error: shared.duplicateSpecId };
+
+  const images: ImagePayload[] = jsonRows(fd, "images")
+    .map((r) => ({ imageUrl: text(r.imageUrl).trim(), isMain: r.isMain === true }))
+    .filter((i) => i.imageUrl);
+  const videos: VideoPayload[] = jsonRows(fd, "videos")
+    .map((r) => ({
+      videoUrl: text(r.videoUrl).trim(),
+      thumbnailUrl: text(r.thumbnailUrl).trim() || null,
+    }))
+    .filter((v) => v.videoUrl);
+  if (
+    images.some((i) => !isAllowedImageUrl(i.imageUrl)) ||
+    videos.some(
+      (v) =>
+        !isAllowedVideoUrl(v.videoUrl) ||
+        (v.thumbnailUrl !== null && !isAllowedImageUrl(v.thumbnailUrl)),
+    )
+  ) {
+    return { error: shared.invalidMediaUrl };
+  }
+
+  const variants: VariantPayload[] = jsonRows(fd, "variants")
+    .map((r, i) => ({
+      id: idOrNull(finiteOrNull(r.id)),
+      name_ro: text(r.name_ro).trim(),
+      name_ru: text(r.name_ru).trim(),
+      size: text(r.size).trim() || null,
+      price: finiteOrNull(r.price),
+      reducedPrice: finiteOrNull(r.reducedPrice),
+      stock: finiteOrNull(r.stock) ?? 0,
+      isDefault: r.isDefault === true,
+      sortOrder: i,
+      // Only URLs that are still product images; a removed image drops out.
+      imageUrls: Array.isArray(r.imageUrls)
+        ? [...new Set(r.imageUrls.filter((u): u is string => typeof u === "string"))].filter(
+            (u) => images.some((img) => img.imageUrl === u),
+          )
+        : [],
+    }))
+    .filter((v) => v.name_ro && v.name_ru);
 
   // Variants carry their own money and stock, and are just as capable of
   // overflowing the column or undercutting their own reduced price.
   for (const v of variants) {
+    // A blank variant price used to be saved as 0 lei and sold for free.
+    if (v.price === null || v.price < 0) return { error: errors.priceRequired };
     if (overMoney(v.price) || overMoney(v.reducedPrice)) {
       return { error: errors.priceTooLarge };
     }
     if (v.reducedPrice !== null && v.reducedPrice >= v.price) {
       return { error: errors.reducedBelowPrice };
     }
-    if (!Number.isInteger(v.stock) || v.stock < 0) {
+    if (!isIntInRange(v.stock)) {
       return { error: errors.stockInvalid };
     }
   }
@@ -123,12 +207,12 @@ function parseProduct(fd: FormData): ParsedProduct | { error: string } {
       stock,
       hasVariants: variants.length > 0,
       specifications: specsToJson(specRows),
-      categoryId: numOrNull(fd, "categoryId"),
-      promotionId: numOrNull(fd, "promotionId"),
+      categoryId,
       featured: fd.get("featured") === "on",
-      featuredOrder: numOrNull(fd, "featuredOrder") ?? 0,
+      featuredOrder,
       isActive: fd.get("isActive") === "on",
     },
+    promotionIds,
     images,
     videos,
     variants,
@@ -139,11 +223,13 @@ const variantData = (v: VariantPayload) => ({
   name_ro: v.name_ro.trim(),
   name_ru: v.name_ru.trim(),
   size: v.size?.trim() || null,
-  price: new Prisma.Decimal(v.price),
+  // Non-null by now: `parseProduct` refuses a variant without a price.
+  price: new Prisma.Decimal(v.price ?? 0),
   reducedPrice: v.reducedPrice === null ? null : new Prisma.Decimal(v.reducedPrice),
   stock: v.stock,
   isDefault: v.isDefault,
   sortOrder: v.sortOrder,
+  imageUrls: v.imageUrls,
 });
 
 export async function createProduct(
@@ -156,10 +242,13 @@ export async function createProduct(
   return runFormAction(lang, async () => {
     const parsed = parseProduct(fd);
     if ("error" in parsed) return { error: parsed.error };
+    await relationsExist(parsed.scalars.categoryId);
+    const promotions = await promotionLinks(parsed.promotionIds);
 
     const product = await prisma.product.create({
       data: {
         ...parsed.scalars,
+        promotions: { connect: promotions },
         images: { create: parsed.images },
         videos: { create: parsed.videos },
         variants: { create: parsed.variants.map(variantData) },
@@ -182,13 +271,18 @@ export async function updateProduct(
   return runFormAction(lang, async () => {
     const parsed = parseProduct(fd);
     if ("error" in parsed) return { error: parsed.error };
+    await relationsExist(parsed.scalars.categoryId);
+    const promotions = await promotionLinks(parsed.promotionIds);
 
     const keptVariantIds = parsed.variants
       .map((v) => v.id)
       .filter((v): v is number => v !== null);
 
     await prisma.$transaction([
-      prisma.product.update({ where: { id }, data: parsed.scalars }),
+      prisma.product.update({
+        where: { id },
+        data: { ...parsed.scalars, promotions: { set: promotions } },
+      }),
       // Images and videos carry no foreign keys — rebuild them wholesale.
       prisma.productImage.deleteMany({ where: { productId: id } }),
       prisma.productImage.createMany({
@@ -223,13 +317,25 @@ export async function updateProduct(
   });
 }
 
+/**
+ * "Delete" hides the product for good but keeps the row: its URL (already
+ * indexed, bookmarked, linked) then keeps redirecting to its category instead
+ * of turning into a 404, and order history keeps its product link.
+ */
+async function softDeleteProduct(id: number): Promise<void> {
+  await prisma.product.update({
+    where: { id },
+    data: { isActive: false, featured: false, deletedAt: new Date() },
+  });
+}
+
 export async function deleteProduct(
   lang: AdminLang,
   id: number,
 ): Promise<ActionResult> {
   await requireAdmin(lang);
   return runAction(lang, async () => {
-    await prisma.product.delete({ where: { id } });
+    await softDeleteProduct(id);
     revalidatePath("/admin/[lang]/products", "page");
     redirect(`/admin/${lang}/products`);
   });
@@ -277,7 +383,7 @@ export async function removeProduct(
 ): Promise<ActionResult> {
   await requireAdmin(lang);
   return runAction(lang, async () => {
-    await prisma.product.delete({ where: { id } });
+    await softDeleteProduct(id);
     revalidateProducts();
   });
 }
@@ -299,6 +405,7 @@ export async function duplicateProduct(
         images: { orderBy: { id: "asc" } },
         videos: { orderBy: { id: "asc" } },
         variants: { orderBy: { sortOrder: "asc" } },
+        promotions: { select: { id: true } },
       },
     });
     if (!source) throw new ActionRefusal("sourceMissing");
@@ -315,7 +422,7 @@ export async function duplicateProduct(
         hasVariants: source.hasVariants,
         specifications: (source.specifications ?? {}) as Prisma.InputJsonValue,
         categoryId: source.categoryId,
-        promotionId: source.promotionId,
+        promotions: { connect: source.promotions.map((p) => ({ id: p.id })) },
         featured: false,
         featuredOrder: source.featuredOrder,
         isActive: false,
@@ -341,6 +448,7 @@ export async function duplicateProduct(
             stock: v.stock,
             isDefault: v.isDefault,
             sortOrder: v.sortOrder,
+            imageUrls: v.imageUrls,
           })),
         },
       },

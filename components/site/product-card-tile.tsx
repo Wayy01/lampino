@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "motion/react";
 import { ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,7 @@ import { formatPrice, pick, cn } from "@/lib/utils";
 import { productHref } from "@/lib/i18n/routing";
 import { specList, specValue } from "@/lib/specs";
 import { useDragScroll } from "@/lib/use-drag-scroll";
+import { SiteImage } from "@/components/site/site-image";
 
 const IMAGE_PLACEHOLDER =
   "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=1200&q=80";
@@ -97,15 +97,14 @@ export function ProductCardTile({
       className="group flex h-full min-w-0 flex-col overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface transition-[border-color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-foreground/20 hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]"
     >
       <Link
-        href={productHref(lang, product.id, product.name_ro)}
+        href={productHref(lang, product)}
         className="block shrink-0"
         aria-label={name}
       >
         <div className="relative aspect-square overflow-hidden bg-muted">
-          <Image
+          <SiteImage
             src={image}
             alt={name}
-            fill
             sizes="(max-width: 1024px) 50vw, 33vw"
             className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
           />
@@ -125,7 +124,7 @@ export function ProductCardTile({
         </div>
 
         <Link
-          href={productHref(lang, product.id, product.name_ro)}
+          href={productHref(lang, product)}
           className="min-w-0"
         >
           <h3 className="font-display line-clamp-2 h-[2lh] text-[0.9375rem] leading-snug tracking-tight transition-colors group-hover:text-primary sm:text-base lg:text-[1.0625rem]">

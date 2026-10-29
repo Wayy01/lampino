@@ -4,7 +4,7 @@ export const ro = {
   errors: {
     pageTitle: "Ceva n-a mers",
     pageText:
-      "Pagina nu a putut fi încărcată. De obicei e ceva temporar — încearcă din nou.",
+      "Pagina nu a putut fi încărcată. De obicei e ceva temporar. Încearcă din nou.",
     retry: "Încearcă din nou",
     home: "Înapoi la pagina principală",
     shop: "Vezi produsele",
@@ -13,11 +13,17 @@ export const ro = {
       "Linkul e greșit sau produsul a fost între timp retras din magazin.",
     errorCode: "Cod eroare",
   },
+  // Loading / failure states drawn over product and rental photos.
+  image: {
+    loading: "Se încarcă imaginea…",
+    error: "Imaginea nu s-a putut încărca",
+    retry: "Reîncearcă",
+  },
   meta: {
-    title: "Lampino — Iluminat pentru casă, livrat rapid",
+    title: "Lampino – ghirlande, lumânări LED și iluminat decorativ în Chișinău",
     description:
-      "Becuri LED, becuri smart, lumini de Crăciun, benzi LED și iluminat exterior — alese cu grijă și livrate în 24 de ore. De la 79 lei.",
-    ogTitle: "Lampino — Iluminat pentru casă",
+      "Ghirlande de exterior și interior, perdele luminoase, lumânări LED și corpuri de iluminat decorative. Magazin în Chișinău, livrare în 24 de ore în toată Moldova.",
+    ogTitle: "Lampino | Iluminat pentru casă",
     ogDescription:
       "Lumină bună, preț corect, livrare rapidă. Magazinul tău de iluminat.",
   },
@@ -25,18 +31,32 @@ export const ro = {
   // Kept apart from the on-page copy so they can carry search keywords without
   // making the visible headings read like an ad.
   seo: {
-    shopTitle: "Becuri și corpuri de iluminat",
+    shopTitle: "Ghirlande, lumânări LED și lămpi decorative – Chișinău",
     shopDescription:
-      "Becuri LED, becuri smart, lumini de Crăciun, benzi LED și iluminat exterior. Livrare în 24 de ore în toată Moldova.",
-    rentalTitle: "Închiriere echipament de iluminat pentru evenimente",
+      "Ghirlande de exterior și interior, perdele luminoase, lumânări LED și lămpi decorative la prețuri de magazin din Chișinău. Livrare în 24 de ore în toată Moldova.",
+    // `{name}` / `{price}` / `{category}` / `{phone}` / `{hours}` are filled by `fill()` in lib/seo.ts.
+    categoryTitle: "{name} – cumpără în Chișinău",
+    categoryDescription:
+      "{name} în magazinul Lampino, de la {price}. Alege din colecție și primește comanda în 24 de ore în Chișinău și în toată Moldova.",
+    productTitle: "{name} – {category}, {price}",
+    productDescription:
+      "{name}: {price}. Livrare în 24 de ore în Chișinău și în toată Moldova. {description}",
+    priceFrom: "de la {price}",
+    rentalPackageTitle: "{name} – închiriere lumini pentru evenimente",
+    rentalPackageDescription:
+      "{name}: chirie ghirlande și decor luminos pentru evenimente, {price}. Montaj și demontaj incluse, în Chișinău și în toată Moldova. {description}",
+    rentalTitle: "Chirie ghirlande și închiriere lumini pentru evenimente – Chișinău",
     rentalDescription:
-      "Pachete complete de iluminat pentru nunți, evenimente corporate și petreceri — montaj, tehnician și demontaj incluse.",
+      "Închiriere lumini pentru evenimente, nunți și terase: chirie ghirlande, perdele luminoase și decor luminos, cu montaj și demontaj incluse. Chișinău și toată Moldova.",
     offersTitle: "Oferte speciale",
     offersDescription:
       "Produse și pachete de iluminat la preț redus, cât timp sunt disponibile.",
-    contactTitle: "Contact",
+    contactTitle: "Contact Lampino Chișinău – {phone}",
+    contactTitleFallback: "Contact – magazin de iluminat în Chișinău",
     contactDescription:
-      "Telefon, email, adresa magazinului Lampino din Chișinău și programul de lucru — plus harta cu locația exactă.",
+      "Sună la {phone} sau scrie-ne. Magazinul Lampino din Chișinău, program: {hours}. Ghirlande, lumânări LED și iluminat decorativ cu livrare în toată Moldova.",
+    contactDescriptionFallback:
+      "Telefon, email, adresa magazinului Lampino din Chișinău și programul de lucru, plus harta cu locația exactă.",
     termsTitle: "Termeni și condiții",
     termsDescription:
       "Termenii și condițiile pentru comenzile plasate în magazinul de iluminat Lampino.",
@@ -59,7 +79,7 @@ export const ro = {
     titleStatic: "Soluții Premium de",
     titleWords: ["Iluminat", "Ambianță", "Confort", "Design"],
     subtitle:
-      "Becuri, ghirlande și corpuri de iluminat alese cu grijă — pentru fiecare colț al casei tale.",
+      "Becuri, ghirlande și corpuri de iluminat alese cu grijă, pentru fiecare colț al casei tale.",
     priceFrom: "De la",
     perDay: "",
     ctaPrimary: "Vezi colecția",
@@ -75,7 +95,7 @@ export const ro = {
     kicker: "Categorii",
     title: "Găsește rapid ce cauți",
     subtitle:
-      "Sari direct la colecția care te interesează — de la becuri de zi cu zi la iluminat de sărbătoare.",
+      "Sari direct la colecția care te interesează, de la becuri de zi cu zi la iluminat de sărbătoare.",
     browse: "Vezi toate produsele",
     explore: "Explorează",
   },
@@ -83,7 +103,7 @@ export const ro = {
     kicker: "Închiriere · Evenimente",
     title: "Lumină pentru evenimentul tău",
     subtitle:
-      "Pachete complete de iluminat pentru nunți, evenimente corporate și petreceri — montaj, tehnician și demontaj incluse.",
+      "Pachete complete de iluminat pentru nunți, evenimente corporate și petreceri: montaj, tehnician și demontaj incluse.",
     empty: "Momentan nu sunt pachete disponibile.",
     from: "De la",
     includes: "Include",
@@ -107,7 +127,7 @@ export const ro = {
     gallery: "Galerie",
     selectOption: "Alege varianta",
     from: "De la",
-    priceNote: "Preț orientativ — confirmat după detaliile evenimentului.",
+    priceNote: "Preț orientativ, confirmat după detaliile evenimentului.",
     requestQuote: "Solicită ofertă",
     whatsapp: "WhatsApp",
     callUs: "Sună-ne",
@@ -122,7 +142,7 @@ export const ro = {
     steps: [
       {
         title: "Alege pachetul",
-        text: "Spune-ne tipul evenimentului și numărul de invitați — îți recomandăm varianta potrivită.",
+        text: "Spune-ne tipul evenimentului și numărul de invitați și îți recomandăm varianta potrivită.",
       },
       {
         title: "Rezervă data",
@@ -168,12 +188,17 @@ export const ro = {
           "Data de sfârșit nu poate fi înaintea datei de început.",
         package_not_found:
           "Acest pachet nu mai este disponibil. Alege altul din listă.",
+        invalid_email: "Adresa de email nu pare corectă.",
+        invalid_variant:
+          "Varianta aleasă nu mai este disponibilă. Alege alta din listă.",
+        too_many_requests:
+          "Ai trimis prea multe cereri într-un timp scurt. Încearcă din nou peste câteva minute.",
         server_error:
           "Cererea nu a putut fi trimisă. Încearcă din nou în câteva momente.",
       },
       successTitle: "Cerere trimisă!",
       successText:
-        "Mulțumim — revenim în curând cu o ofertă pentru evenimentul tău.",
+        "Mulțumim! Revenim în curând cu o ofertă pentru evenimentul tău.",
       close: "Închide",
     },
   },
@@ -187,7 +212,7 @@ export const ro = {
       },
       {
         q: "Cum aleg soclul potrivit?",
-        a: "Verifică soclul lămpii existente — cele mai comune sunt E27 (mare) și E14 (mic), plus GU10 pentru spoturi.",
+        a: "Verifică soclul lămpii existente: cele mai comune sunt E27 (mare) și E14 (mic), plus GU10 pentru spoturi.",
       },
       {
         q: "Becurile smart au nevoie de un hub?",
@@ -195,7 +220,7 @@ export const ro = {
       },
       {
         q: "Cât durează livrarea?",
-        a: "Comenzile sunt expediate în 24 de ore și ajung de obicei în 1–3 zile lucrătoare.",
+        a: "Comenzile sunt expediate în 24 de ore și ajung de obicei în 1-3 zile lucrătoare.",
       },
     ],
   },
@@ -231,7 +256,7 @@ export const ro = {
     empty: "Niciun produs nu se potrivește filtrelor.",
     category: "Categorie",
     maxPrice: "Preț max",
-    filters: "Filtre",
+    filters: "Categorii",
     sort: "Sortare",
     sortOptions: {
       featured: "Recomandate",
@@ -306,12 +331,14 @@ export const ro = {
       invalid_contact: "Completează numele și numărul de telefon.",
       invalid_address:
         "Pentru livrare la adresă trebuie completată adresa de livrare.",
-      empty_cart: "Coșul este gol — adaugă un produs înainte de a comanda.",
+      empty_cart: "Coșul este gol. Adaugă un produs înainte de a comanda.",
       unavailable:
         "Produsele din coș nu mai sunt disponibile. Scoate-le și încearcă din nou.",
       out_of_stock: "Stoc insuficient pentru unul dintre produse:",
+      too_many_requests:
+        "Ai trimis prea multe comenzi într-un timp scurt. Încearcă din nou peste câteva minute.",
       server_error:
-        "Comanda nu a putut fi înregistrată. Nu ai fost taxat — încearcă din nou în câteva momente.",
+        "Comanda nu a putut fi înregistrată. Nu ai fost taxat. Încearcă din nou în câteva momente.",
     },
     // Lines dropped because the product left the shop between adding to cart
     // and checking out.
@@ -319,7 +346,7 @@ export const ro = {
     stockLeft: "disponibil:",
     successTitle: "Comandă trimisă",
     successText:
-      "Mulțumim — revenim în scurt timp cu confirmarea comenzii.",
+      "Mulțumim! Revenim în scurt timp cu confirmarea comenzii.",
     close: "Închide",
   },
   fastBuy: {
@@ -338,7 +365,7 @@ export const ro = {
     error: "Ceva n-a mers. Verifică datele și încearcă din nou.",
     successTitle: "Comandă trimisă",
     successText:
-      "Mulțumim — revenim în scurt timp cu confirmarea comenzii.",
+      "Mulțumim! Revenim în scurt timp cu confirmarea comenzii.",
     close: "Închide",
   },
   cart: {
@@ -428,7 +455,7 @@ export const ro = {
       },
       {
         h: "Livrare",
-        p: "Comenzile sunt expediate în 24 de ore în zilele lucrătoare și ajung de obicei în 1–3 zile lucrătoare, în funcție de adresă.",
+        p: "Comenzile sunt expediate în 24 de ore în zilele lucrătoare și ajung de obicei în 1-3 zile lucrătoare, în funcție de adresă.",
       },
       {
         h: "Retur",
@@ -449,8 +476,12 @@ export const ro = {
     title: "Politica de confidențialitate",
     updated: "Ultima actualizare: iulie 2026",
     intro:
-      "Colectăm doar ce ne trebuie ca să procesăm comanda ta — datele de contact și adresa de livrare. Iată exact ce păstrăm și de ce.",
+      "Colectăm doar ce ne trebuie ca să procesăm comanda ta: datele de contact și adresa de livrare. Iată exact ce păstrăm și de ce.",
     body: [
+      {
+        h: "Operator de date",
+        p: "Operatorul datelor este S.R.L. „V.B. Lampino”, cod fiscal 1021600013947, plătitor TVA 0611542, cu sediul în Chișinău, 31 august 1989 nr.58. Cont bancar: MD35VI022241100001046mdl (BIC VICBMD2X).",
+      },
       {
         h: "Ce colectăm",
         p: "Când plasezi o comandă colectăm numele, emailul, numărul de telefon, adresa de livrare și eventualele note. Datele cardului sunt procesate securizat de furnizorul de plăți, nu de noi.",
@@ -461,7 +492,7 @@ export const ro = {
       },
       {
         h: "Partajare",
-        p: "Partajăm strictul necesar cu curierul care livrează comanda — de obicei numele și adresa. Nu vindem niciodată datele tale și nu le folosim pentru publicitate.",
+        p: "Partajăm strictul necesar cu curierul care livrează comanda, de obicei numele și adresa. Nu vindem niciodată datele tale și nu le folosim pentru publicitate.",
       },
       {
         h: "Cookie-uri",
@@ -483,7 +514,7 @@ export const ru: typeof ro = {
   errors: {
     pageTitle: "Что-то пошло не так",
     pageText:
-      "Страницу не удалось загрузить. Обычно это временно — попробуйте снова.",
+      "Страницу не удалось загрузить. Обычно это временно. Попробуйте снова.",
     retry: "Попробовать снова",
     home: "На главную",
     shop: "Смотреть товары",
@@ -492,27 +523,45 @@ export const ru: typeof ro = {
       "Ссылка неверна, либо товар уже снят с продажи.",
     errorCode: "Код ошибки",
   },
+  image: {
+    loading: "Загрузка изображения…",
+    error: "Не удалось загрузить изображение",
+    retry: "Повторить",
+  },
   meta: {
-    title: "Lampino — Освещение для дома с быстрой доставкой",
+    title: "Lampino – гирлянды, LED-свечи и декоративное освещение в Кишинёве",
     description:
-      "Светодиодные и умные лампы, новогодние гирлянды, LED-ленты и уличное освещение — тщательно отобранные и с доставкой за 24 часа. От 79 лей.",
-    ogTitle: "Lampino — Освещение для дома",
+      "Уличные и комнатные гирлянды, световые занавесы, LED-свечи и декоративные светильники. Магазин в Кишинёве, доставка за 24 часа по всей Молдове.",
+    ogTitle: "Lampino | Освещение для дома",
     ogDescription:
       "Хороший свет, честная цена, быстрая доставка. Ваш магазин освещения.",
   },
   seo: {
-    shopTitle: "Лампы и светильники",
+    shopTitle: "Гирлянды, LED-свечи и декоративные лампы – Кишинёв",
     shopDescription:
-      "Светодиодные и умные лампы, новогодние гирлянды, LED-ленты и уличное освещение. Доставка за 24 часа по всей Молдове.",
-    rentalTitle: "Аренда осветительного оборудования для мероприятий",
+      "Уличные и комнатные гирлянды, световые занавесы, LED-свечи и декоративные лампы по ценам магазина в Кишинёве. Доставка за 24 часа по всей Молдове.",
+    categoryTitle: "{name} – купить в Кишинёве",
+    categoryDescription:
+      "{name} в магазине Lampino, от {price}. Выберите из коллекции и получите заказ за 24 часа в Кишинёве и по всей Молдове.",
+    productTitle: "{name} – {category}, {price}",
+    productDescription:
+      "{name}: {price}. Доставка за 24 часа по Кишинёву и всей Молдове. {description}",
+    priceFrom: "от {price}",
+    rentalPackageTitle: "{name} – аренда освещения для мероприятий",
+    rentalPackageDescription:
+      "{name}: аренда гирлянд и декоративного света для мероприятий, {price}. Монтаж и демонтаж включены, Кишинёв и вся Молдова. {description}",
+    rentalTitle: "Аренда гирлянд и света для мероприятий – Кишинёв",
     rentalDescription:
-      "Комплексные пакеты освещения для свадеб, корпоративов и вечеринок — монтаж, техник и демонтаж включены.",
+      "Аренда гирлянд, световых занавесов и декоративного освещения для свадеб, мероприятий и террас: монтаж и демонтаж включены. Кишинёв и вся Молдова.",
     offersTitle: "Специальные предложения",
     offersDescription:
       "Товары и пакеты освещения по сниженной цене, пока они в наличии.",
-    contactTitle: "Контакты",
+    contactTitle: "Контакты Lampino в Кишинёве – {phone}",
+    contactTitleFallback: "Контакты – магазин освещения в Кишинёве",
     contactDescription:
-      "Телефон, эл. почта, адрес магазина Lampino в Кишинёве и часы работы — а также карта с точным расположением.",
+      "Звоните {phone} или пишите нам. Магазин Lampino в Кишинёве, часы работы: {hours}. Гирлянды, LED-свечи и декоративное освещение с доставкой по Молдове.",
+    contactDescriptionFallback:
+      "Телефон, эл. почта, адрес магазина Lampino в Кишинёве и часы работы, а также карта с точным расположением.",
     termsTitle: "Условия использования",
     termsDescription:
       "Условия для заказов, оформленных в магазине освещения Lampino.",
@@ -534,7 +583,7 @@ export const ru: typeof ro = {
     titleStatic: "Премиальные решения для",
     titleWords: ["освещения", "атмосферы", "комфорта", "дизайна"],
     subtitle:
-      "Лампы, гирлянды и светильники, отобранные с заботой — для каждого уголка вашего дома.",
+      "Лампы, гирлянды и светильники, отобранные с заботой, для каждого уголка вашего дома.",
     priceFrom: "От",
     perDay: "",
     ctaPrimary: "Смотреть коллекцию",
@@ -550,7 +599,7 @@ export const ru: typeof ro = {
     kicker: "Категории",
     title: "Быстро найдите нужное",
     subtitle:
-      "Переходите сразу к интересующей коллекции — от повседневных ламп до праздничного освещения.",
+      "Переходите сразу к интересующей коллекции, от повседневных ламп до праздничного освещения.",
     browse: "Смотреть все товары",
     explore: "Смотреть",
   },
@@ -558,7 +607,7 @@ export const ru: typeof ro = {
     kicker: "Аренда · Мероприятия",
     title: "Свет для вашего события",
     subtitle:
-      "Комплексные пакеты освещения для свадеб, корпоративов и вечеринок — монтаж, техник и демонтаж включены.",
+      "Комплексные пакеты освещения для свадеб, корпоративов и вечеринок: монтаж, техник и демонтаж включены.",
     empty: "Сейчас нет доступных пакетов.",
     from: "От",
     includes: "Включено",
@@ -582,7 +631,7 @@ export const ru: typeof ro = {
     gallery: "Галерея",
     selectOption: "Выберите вариант",
     from: "От",
-    priceNote: "Ориентировочная цена — уточняется после деталей мероприятия.",
+    priceNote: "Ориентировочная цена, уточняется после деталей мероприятия.",
     requestQuote: "Запросить предложение",
     whatsapp: "WhatsApp",
     callUs: "Позвонить",
@@ -597,7 +646,7 @@ export const ru: typeof ro = {
     steps: [
       {
         title: "Выберите пакет",
-        text: "Расскажите о типе мероприятия и числе гостей — мы подберём подходящий вариант.",
+        text: "Расскажите о типе мероприятия и числе гостей, и мы подберём подходящий вариант.",
       },
       {
         title: "Забронируйте дату",
@@ -612,7 +661,7 @@ export const ru: typeof ro = {
     relatedTitle: "Вам может понравиться",
     form: {
       subtitle:
-        "Заполните детали мероприятия — и мы вернёмся с индивидуальным предложением.",
+        "Заполните детали мероприятия, и мы вернёмся с индивидуальным предложением.",
       name: "Полное имя",
       email: "Email",
       phone: "Телефон",
@@ -642,12 +691,17 @@ export const ru: typeof ro = {
         invalid_end_date: "Дата окончания не может быть раньше даты начала.",
         package_not_found:
           "Этот пакет больше не доступен. Выберите другой из списка.",
+        invalid_email: "Адрес email выглядит некорректно.",
+        invalid_variant:
+          "Выбранный вариант больше не доступен. Выберите другой из списка.",
+        too_many_requests:
+          "Слишком много заявок за короткое время. Попробуйте снова через несколько минут.",
         server_error:
           "Заявку не удалось отправить. Попробуйте снова через несколько минут.",
       },
       successTitle: "Заявка отправлена!",
       successText:
-        "Спасибо — мы скоро вернёмся с предложением для вашего мероприятия.",
+        "Спасибо! Мы скоро вернёмся с предложением для вашего мероприятия.",
       close: "Закрыть",
     },
   },
@@ -657,11 +711,11 @@ export const ru: typeof ro = {
     items: [
       {
         q: "Что означает цветовая температура (K)?",
-        a: "Кельвины показывают оттенок света: 2700K — тёплый уютный белый, 4000K — нейтральный белый, а выше 5000K — холодный белый.",
+        a: "Кельвины показывают оттенок света: 2700K это тёплый уютный белый, 4000K нейтральный белый, а выше 5000K холодный белый.",
       },
       {
         q: "Как выбрать подходящий цоколь?",
-        a: "Проверьте цоколь текущей лампы — самые распространённые E27 (большой) и E14 (маленький), а также GU10 для спотов.",
+        a: "Проверьте цоколь текущей лампы: самые распространённые E27 (большой) и E14 (маленький), а также GU10 для спотов.",
       },
       {
         q: "Нужен ли умным лампам хаб?",
@@ -669,13 +723,13 @@ export const ru: typeof ro = {
       },
       {
         q: "Сколько идёт доставка?",
-        a: "Заказы отправляются за 24 часа и обычно приезжают в течение 1–3 рабочих дней.",
+        a: "Заказы отправляются за 24 часа и обычно приезжают в течение 1-3 рабочих дней.",
       },
     ],
   },
   ctaBand: {
     title: "Готовы зажечь свет?",
-    text: "Выберите товары — и мы быстро доставим их к вашей двери.",
+    text: "Выберите товары, и мы быстро доставим их к вашей двери.",
     button: "Смотреть товары",
   },
   footer: {
@@ -705,7 +759,7 @@ export const ru: typeof ro = {
     empty: "Нет товаров, соответствующих фильтрам.",
     category: "Категория",
     maxPrice: "Макс. цена",
-    filters: "Фильтры",
+    filters: "Категории",
     sort: "Сортировка",
     sortOptions: {
       featured: "Рекомендуемые",
@@ -777,18 +831,20 @@ export const ru: typeof ro = {
     errors: {
       invalid_contact: "Укажите имя и номер телефона.",
       invalid_address: "Для доставки укажите адрес.",
-      empty_cart: "Корзина пуста — добавьте товар перед заказом.",
+      empty_cart: "Корзина пуста. Добавьте товар перед заказом.",
       unavailable:
         "Товаров из корзины больше нет в наличии. Удалите их и попробуйте снова.",
       out_of_stock: "Недостаточно товара на складе:",
+      too_many_requests:
+        "Слишком много заказов за короткое время. Попробуйте снова через несколько минут.",
       server_error:
-        "Заказ не удалось оформить. Деньги не списаны — попробуйте снова через несколько минут.",
+        "Заказ не удалось оформить. Деньги не списаны. Попробуйте снова через несколько минут.",
     },
     removedTitle: "Мы убрали из корзины недоступные товары:",
     stockLeft: "в наличии:",
     successTitle: "Заказ отправлен",
     successText:
-      "Спасибо — мы скоро свяжемся с подтверждением заказа.",
+      "Спасибо! Мы скоро свяжемся с подтверждением заказа.",
     close: "Закрыть",
   },
   fastBuy: {
@@ -807,7 +863,7 @@ export const ru: typeof ro = {
     error: "Что-то пошло не так. Проверьте данные и попробуйте снова.",
     successTitle: "Заказ отправлен",
     successText:
-      "Спасибо — мы скоро свяжемся с подтверждением заказа.",
+      "Спасибо! Мы скоро свяжемся с подтверждением заказа.",
     close: "Закрыть",
   },
   cart: {
@@ -881,7 +937,7 @@ export const ru: typeof ro = {
     title: "Условия использования",
     updated: "Последнее обновление: июль 2026",
     intro:
-      "Lampino — это магазин освещения. Эти условия объясняют, как вы заказываете и покупаете у нас.",
+      "Lampino является магазином освещения. Эти условия объясняют, как вы заказываете и покупаете у нас.",
     body: [
       {
         h: "Чем мы занимаемся",
@@ -897,7 +953,7 @@ export const ru: typeof ro = {
       },
       {
         h: "Доставка",
-        p: "Заказы отправляются за 24 часа в рабочие дни и обычно приезжают в течение 1–3 рабочих дней в зависимости от адреса.",
+        p: "Заказы отправляются за 24 часа в рабочие дни и обычно приезжают в течение 1-3 рабочих дней в зависимости от адреса.",
       },
       {
         h: "Возврат",
@@ -918,8 +974,12 @@ export const ru: typeof ro = {
     title: "Политика конфиденциальности",
     updated: "Последнее обновление: июль 2026",
     intro:
-      "Мы собираем только то, что нужно для обработки вашего заказа — контактные данные и адрес доставки. Вот что именно мы храним и зачем.",
+      "Мы собираем только то, что нужно для обработки вашего заказа: контактные данные и адрес доставки. Вот что именно мы храним и зачем.",
     body: [
+      {
+        h: "Оператор данных",
+        p: "Оператором данных является S.R.L. „V.B. Lampino”, фискальный код 1021600013947, плательщик НДС 0611542, адрес: Кишинёв, ул. 31 августа 1989, № 58. Банковский счёт: MD35VI022241100001046mdl (BIC VICBMD2X).",
+      },
       {
         h: "Что мы собираем",
         p: "При оформлении заказа мы собираем имя, email, номер телефона, адрес доставки и возможные примечания. Данные карты обрабатываются безопасно платёжным провайдером, а не нами.",
@@ -930,7 +990,7 @@ export const ru: typeof ro = {
       },
       {
         h: "Передача",
-        p: "Мы передаём строго необходимое курьеру, доставляющему заказ — обычно имя и адрес. Мы никогда не продаём ваши данные и не используем их для рекламы.",
+        p: "Мы передаём строго необходимое курьеру, доставляющему заказ, обычно имя и адрес. Мы никогда не продаём ваши данные и не используем их для рекламы.",
       },
       {
         h: "Файлы cookie",

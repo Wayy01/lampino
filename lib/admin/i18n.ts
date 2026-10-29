@@ -67,6 +67,22 @@ const ro = {
     sortPriceDesc: "Preț descrescător",
     sortStockAsc: "Stoc crescător",
   },
+  richText: {
+    heading1: "Titlu 1",
+    heading2: "Titlu 2",
+    heading3: "Titlu 3",
+    bold: "Îngroșat",
+    italic: "Cursiv",
+    bulletList: "Listă cu puncte",
+    numberedList: "Listă numerotată",
+    autoFormat: "Formatare automată",
+    autoFormatHint: "Structurează automat textul (paragrafe, titluri, liste, cifre îngroșate). Poți edita rezultatul după.",
+    undo: "Anulează",
+    write: "Editare",
+    preview: "Previzualizare",
+    emptyPreview: "Nimic de previzualizat.",
+    syntaxHint: "# titlu · **îngroșat** · *cursiv* · - listă · rând gol = paragraf nou",
+  },
   media: {
     upload: "Încarcă",
     uploading: "Se încarcă…",
@@ -81,7 +97,13 @@ const ro = {
       "Fișierul nu a putut fi salvat pe server. Încearcă din nou; dacă persistă, spațiul pe disc poate fi plin.",
     networkFailed:
       "Încărcarea a fost întreruptă. Verifică conexiunea și încearcă din nou.",
-    allowedTypes: "Acceptate: JPG, PNG, WebP, GIF, AVIF, MP4, WebM, MOV.",
+    allowedTypes: "Acceptate: JPG, PNG, WebP, GIF, AVIF, HEIC (iPhone), MP4, MOV, WebM.",
+    unreadable: "Fișierul nu a putut fi citit sau convertit.",
+    processing: "Se procesează…",
+    imageLoading: "Se încarcă previzualizarea…",
+    imageLoaded: "Imaginea se încarcă corect",
+    imageError: "Imaginea nu se încarcă: fișierul lipsește sau linkul e greșit. Reîncearcă sau încarc-o din nou.",
+    imageRetry: "Reîncearcă",
   },
   // Failures from the layer under validation — the database, the filesystem,
   // the session. Rendered by `ActionNotice` and the action toast.
@@ -89,7 +111,7 @@ const ro = {
     unexpected:
       "Ceva n-a mers pe server. Încearcă din nou; dacă se repetă, reîncarcă pagina.",
     databaseUnreachable:
-      "Baza de date nu răspunde. Modificarea nu a fost salvată — încearcă din nou în câteva momente.",
+      "Baza de date nu răspunde. Modificarea nu a fost salvată. Încearcă din nou în câteva momente.",
     databaseTimeout:
       "Baza de date a răspuns prea greu și operațiunea a fost anulată. Încearcă din nou.",
     databaseBusy:
@@ -98,7 +120,7 @@ const ro = {
     stillReferenced:
       "Nu poate fi șters cât timp este folosit în altă parte. Elimină întâi legăturile.",
     recordMissing:
-      "Înregistrarea nu mai există — probabil a fost ștearsă în altă filă. Reîncarcă pagina.",
+      "Înregistrarea nu mai există, probabil a fost ștearsă în altă filă. Reîncarcă pagina.",
     missingRequired: "Un câmp obligatoriu a rămas gol.",
     valueTooLong: "O valoare depășește lungimea maximă permisă.",
     writeConflict:
@@ -106,10 +128,10 @@ const ro = {
     invalidQuery:
       "Cerere invalidă către baza de date. Reîncarcă pagina; dacă persistă, este o eroare a aplicației.",
     sessionExpired:
-      "Sesiunea a expirat. Autentifică-te din nou — datele completate se păstrează în această filă.",
+      "Sesiunea a expirat. Autentifică-te din nou. Datele completate se păstrează în această filă.",
     loadFailed: "Datele nu au putut fi încărcate.",
     loadFailedHint:
-      "Baza de date nu a răspuns. Încearcă din nou — nimic nu a fost modificat.",
+      "Baza de date nu a răspuns. Încearcă din nou. Nimic nu a fost modificat.",
     retry: "Încearcă din nou",
     reload: "Reîncarcă pagina",
     backToDashboard: "Înapoi la panou",
@@ -122,7 +144,16 @@ const ro = {
       "Înregistrarea sursă nu mai există, deci nu a putut fi duplicată.",
     cannotDeleteSelf: "Nu îți poți șterge propriul cont.",
     cannotDeleteLastAdmin:
-      "Nu poți șterge ultimul cont de administrator — ai rămâne fără acces.",
+      "Nu poți șterge ultimul cont de administrator, altfel ai rămâne fără acces.",
+    insufficientStock:
+      "Stocul nu mai ajunge pentru produsele din această comandă, deci nu poate fi reactivată.",
+    relationMissing:
+      "Categoria sau promoția aleasă nu mai există, probabil a fost ștearsă în altă filă. Reîncarcă pagina și alege din nou.",
+    invalidMediaUrl:
+      "Imaginile trebuie încărcate aici sau să provină de pe Unsplash; alte adrese nu se afișează în magazin.",
+    duplicateSpecId:
+      "Două specificații au același ID. Fiecare specificație are nevoie de un ID unic.",
+    invalidNumber: "Un număr introdus este în afara intervalului permis.",
   },
   statuses: {
     pending: "În așteptare",
@@ -221,6 +252,11 @@ const ro = {
     size: "Mărime",
     reduced: "Redus",
     defaultVariant: "Variantă implicită",
+    variantImages: "Imaginile variantei",
+    variantImagesHint:
+      "Bifează imaginile care aparțin acestei variante. Fără nicio bifă, varianta afișează toate imaginile.",
+    variantImagesAll: "Toate imaginile",
+    variantImagesUpload: "Încarcă și atribuie",
     specifications: "Specificații",
     addSpecification: "Adaugă specificație",
     specId: "ID specificație",
@@ -375,6 +411,11 @@ const ro = {
     costChisinau: "Cost Chișinău",
     costOutside: "Cost în afara orașului",
     saveDelivery: "Salvează livrarea",
+    productPage: "Pagina produsului",
+    productPerksHint:
+      "Lista cu bife de sub butoanele de cumpărare, pe fiecare pagină de produs. Un rând lăsat gol nu se afișează.",
+    perk: "Rândul",
+    saveProductPage: "Salvează pagina produsului",
     theme: "Culori temă",
     primary: "Primară",
     secondary: "Secundară",
@@ -467,6 +508,8 @@ const ro = {
     other: "Altele",
   },
   promotions: {
+    overlapHint:
+      "Se aplică automat între datele promoției. Dacă mai multe promoții bifate sunt active în aceeași zi, se aplică reducerea cea mai mare.",
     title: "Promoții",
     newPromotion: "Promoție nouă",
     searchPlaceholder: "Caută promoții…",
@@ -596,6 +639,22 @@ const ru: AdminDict = {
     sortPriceDesc: "Цена: по убыванию",
     sortStockAsc: "Запас: по возрастанию",
   },
+  richText: {
+    heading1: "Заголовок 1",
+    heading2: "Заголовок 2",
+    heading3: "Заголовок 3",
+    bold: "Жирный",
+    italic: "Курсив",
+    bulletList: "Маркированный список",
+    numberedList: "Нумерованный список",
+    autoFormat: "Автоформат",
+    autoFormatHint: "Автоматически структурирует текст (абзацы, заголовки, списки, выделение цифр). Результат можно редактировать.",
+    undo: "Отменить",
+    write: "Редактор",
+    preview: "Просмотр",
+    emptyPreview: "Нечего показать.",
+    syntaxHint: "# заголовок · **жирный** · *курсив* · - список · пустая строка = новый абзац",
+  },
   media: {
     upload: "Загрузить",
     uploading: "Загрузка…",
@@ -607,16 +666,22 @@ const ru: AdminDict = {
     noFile: "Файл не выбран.",
     emptyFile: "Файл пустой.",
     writeFailed:
-      "Не удалось сохранить файл на сервере. Попробуйте снова; если повторяется — возможно, закончилось место на диске.",
+      "Не удалось сохранить файл на сервере. Попробуйте снова; если повторяется, возможно, закончилось место на диске.",
     networkFailed:
       "Загрузка прервана. Проверьте соединение и попробуйте снова.",
-    allowedTypes: "Поддерживаются: JPG, PNG, WebP, GIF, AVIF, MP4, WebM, MOV.",
+    allowedTypes: "Поддерживаются: JPG, PNG, WebP, GIF, AVIF, HEIC (iPhone), MP4, MOV, WebM.",
+    unreadable: "Не удалось прочитать или конвертировать файл.",
+    processing: "Обработка…",
+    imageLoading: "Загрузка превью…",
+    imageLoaded: "Изображение загружается корректно",
+    imageError: "Изображение не загружается: файла нет или ссылка неверна. Повторите или загрузите заново.",
+    imageRetry: "Повторить",
   },
   errors: {
     unexpected:
-      "Что-то пошло не так на сервере. Попробуйте снова; если повторяется — перезагрузите страницу.",
+      "Что-то пошло не так на сервере. Попробуйте снова; если повторяется, перезагрузите страницу.",
     databaseUnreachable:
-      "База данных не отвечает. Изменения не сохранены — попробуйте через несколько секунд.",
+      "База данных не отвечает. Изменения не сохранены. Попробуйте через несколько секунд.",
     databaseTimeout:
       "База данных отвечала слишком долго, операция отменена. Попробуйте снова.",
     databaseBusy:
@@ -625,18 +690,18 @@ const ru: AdminDict = {
     stillReferenced:
       "Нельзя удалить, пока запись используется в другом месте. Сначала уберите связи.",
     recordMissing:
-      "Записи больше нет — вероятно, её удалили в другой вкладке. Перезагрузите страницу.",
+      "Записи больше нет, вероятно, её удалили в другой вкладке. Перезагрузите страницу.",
     missingRequired: "Обязательное поле осталось пустым.",
     valueTooLong: "Значение превышает максимальную длину.",
     writeConflict:
       "Одновременно прошло другое изменение. Перезагрузите страницу и попробуйте снова.",
     invalidQuery:
-      "Некорректный запрос к базе данных. Перезагрузите страницу; если повторяется — это ошибка приложения.",
+      "Некорректный запрос к базе данных. Перезагрузите страницу; если повторяется, это ошибка приложения.",
     sessionExpired:
-      "Сессия истекла. Войдите снова — введённые данные сохранятся в этой вкладке.",
+      "Сессия истекла. Войдите снова. Введённые данные сохранятся в этой вкладке.",
     loadFailed: "Не удалось загрузить данные.",
     loadFailedHint:
-      "База данных не ответила. Попробуйте снова — ничего не изменено.",
+      "База данных не ответила. Попробуйте снова. Ничего не изменено.",
     retry: "Попробовать снова",
     reload: "Перезагрузить страницу",
     backToDashboard: "Вернуться в панель",
@@ -647,7 +712,16 @@ const ru: AdminDict = {
     sourceMissing: "Исходной записи больше нет, дублировать нечего.",
     cannotDeleteSelf: "Нельзя удалить собственную учётную запись.",
     cannotDeleteLastAdmin:
-      "Нельзя удалить последнего администратора — вы потеряете доступ.",
+      "Нельзя удалить последнего администратора, иначе вы потеряете доступ.",
+    insufficientStock:
+      "Товара на складе больше не хватает для этого заказа, поэтому его нельзя вернуть в работу.",
+    relationMissing:
+      "Выбранная категория или акция больше не существует, вероятно, её удалили в другой вкладке. Перезагрузите страницу и выберите снова.",
+    invalidMediaUrl:
+      "Изображения нужно загружать здесь или брать с Unsplash; другие адреса в магазине не отображаются.",
+    duplicateSpecId:
+      "У двух характеристик одинаковый ID. Каждой характеристике нужен уникальный ID.",
+    invalidNumber: "Введённое число вне допустимого диапазона.",
   },
   statuses: {
     pending: "В ожидании",
@@ -746,6 +820,11 @@ const ru: AdminDict = {
     size: "Размер",
     reduced: "Скидка",
     defaultVariant: "Вариант по умолчанию",
+    variantImages: "Изображения варианта",
+    variantImagesHint:
+      "Отметьте изображения этого варианта. Если ничего не отмечено, вариант показывает все изображения.",
+    variantImagesAll: "Все изображения",
+    variantImagesUpload: "Загрузить и назначить",
     specifications: "Характеристики",
     addSpecification: "Добавить характеристику",
     specId: "ID характеристики",
@@ -900,6 +979,11 @@ const ru: AdminDict = {
     costChisinau: "Стоимость по Кишинёву",
     costOutside: "Стоимость за городом",
     saveDelivery: "Сохранить доставку",
+    productPage: "Страница товара",
+    productPerksHint:
+      "Список с галочками под кнопками покупки на каждой странице товара. Пустая строка не показывается.",
+    perk: "Строка",
+    saveProductPage: "Сохранить страницу товара",
     theme: "Цвета темы",
     primary: "Основной",
     secondary: "Вторичный",
@@ -990,6 +1074,8 @@ const ru: AdminDict = {
     other: "Другое",
   },
   promotions: {
+    overlapHint:
+      "Применяется автоматически в даты акции. Если в один день действуют несколько отмеченных акций, применяется наибольшая скидка.",
     title: "Акции",
     newPromotion: "Новая акция",
     searchPlaceholder: "Поиск акций…",

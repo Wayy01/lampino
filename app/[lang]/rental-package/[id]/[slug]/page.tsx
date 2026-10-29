@@ -1,23 +1,26 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import {
   getRentalPackageById,
   getRelatedRentals,
+  isRetiredRental,
 } from "@/lib/data/rentals";
 import { getContactSettings } from "@/lib/data/settings";
-import { decodeSlug, slugify } from "@/lib/slug";
+import { decodeSlug } from "@/lib/slug";
 import {
   isLocale,
   localePath,
   rentalHref,
-  rentalPath,
+  rentalPaths,
   rentalsHref,
 } from "@/lib/i18n/routing";
 import { dictionaries, type Lang } from "@/lib/i18n/dictionaries";
-import { pick } from "@/lib/utils";
+import { formatPrice, parseId, pick } from "@/lib/utils";
+import { DELETED_RENTALS } from "@/lib/legacy-redirects";
 import {
   SITE_NAME,
   absoluteUrl,
+  fill,
   localeAlternates,
   metaDescription,
   openGraphFor,
@@ -37,25 +40,31 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang, id } = await params;
   const l: Lang = isLocale(lang) ? lang : "ro";
-  const pkg = await getRentalPackageById(Number(id));
+  const pkg = await getRentalPackageById(parseId(id) ?? 0);
   if (!pkg) return { title: SITE_NAME, robots: { index: false, follow: false } };
 
-  const title = pick(l, pkg.title_ro, pkg.title_ru);
+  const d = dictionaries[l].seo;
+  const name = pick(l, pkg.title_ro, pkg.title_ru).trim();
+  const prices = pkg.variants.length
+    ? pkg.variants.map((v) => v.reducedPrice ?? v.price)
+    : [pkg.reducedPrice ?? pkg.price];
+  const price = fill(d.priceFrom, { price: formatPrice(Math.min(...prices)) });
+  const title = fill(d.rentalPackageTitle, { name });
   const description = metaDescription(
-    `${title} — ${pick(l, "De la", "От")} ${pkg.price} lei. ${pick(l, pkg.description_ro, pkg.description_ru)}`,
+    fill(d.rentalPackageDescription, {
+      name,
+      price,
+      description: pick(l, pkg.description_ro, pkg.description_ru),
+    }),
   );
   const images = pkg.images.map((i) => absoluteUrl(i.imageUrl));
+  const paths = rentalPaths(pkg);
 
   return {
     title,
     description,
-    alternates: localeAlternates(l, rentalPath(pkg.id, pkg.title_ro)),
-    openGraph: openGraphFor(l, {
-      title,
-      description,
-      path: rentalPath(pkg.id, pkg.title_ro),
-      images,
-    }),
+    alternates: localeAlternates(l, paths),
+    openGraph: openGraphFor(l, { title, description, path: paths, images }),
   };
 }
 
@@ -67,12 +76,21 @@ export default async function RentalPackagePage({
   const { lang, id, slug } = await params;
   if (!isLocale(lang)) notFound();
 
-  const pkg = await getRentalPackageById(Number(id));
-  if (!pkg) notFound();
+  const pkg = await getRentalPackageById(parseId(id) ?? 0);
+  if (!pkg) {
+    // A retired package's indexed URL moves to the rentals landing page.
+    const numericId = parseId(id) ?? 0;
+    if (DELETED_RENTALS[numericId] || (await isRetiredRental(numericId))) {
+      permanentRedirect(rentalsHref(lang));
+    }
+    notFound();
+  }
 
-  // Redirect to the canonical title slug — the id is the source of truth.
-  const canonical = slugify(pkg.title_ro) || "pachet";
-  if (decodeSlug(slug) !== canonical) redirect(rentalHref(lang, pkg.id, pkg.title_ro));
+  // Redirect permanently to the canonical title slug — the id is the source of truth.
+  const canonical = rentalHref(lang, pkg);
+  if (`/${lang}/rental-package/${id}/${encodeURIComponent(decodeSlug(slug))}` !== canonical) {
+    permanentRedirect(canonical);
+  }
 
   const [contact, related] = await Promise.all([
     getContactSettings(),
@@ -91,7 +109,7 @@ export default async function RentalPackagePage({
             { name: dictionaries[lang].nav.rental, path: rentalsHref(lang) },
             {
               name: pick(lang, pkg.title_ro, pkg.title_ru),
-              path: rentalHref(lang, pkg.id, pkg.title_ro),
+              path: canonical,
             },
           ]),
         ]}

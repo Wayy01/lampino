@@ -1,5 +1,5 @@
 // Seed source only. `prisma/seed.ts` is the single importer; no storefront or
-// admin code reads this file — every page goes through lib/data/*, which
+// admin code reads this file, every page goes through lib/data/*, which
 // queries Prisma. Shaped like the view models in lib/types.ts so the seed can
 // write it straight into the database.
 import type { Category, Product } from "./types";
@@ -192,7 +192,7 @@ const seeds: Seed[] = [
     specifications: {
       wattage: "9",
       lumens: "806",
-      colorTemp: "2700–6500K",
+      colorTemp: "2700-6500K",
       base: "E27",
       lifespan: "25000",
       energyClass: "A",
@@ -218,7 +218,7 @@ const seeds: Seed[] = [
       wattage: "4",
       lumens: "400",
       colorTemp: "3000K",
-      base: "—",
+      base: "-",
       lifespan: "20000",
       energyClass: "A",
     },
@@ -227,7 +227,7 @@ const seeds: Seed[] = [
     description_ro:
       "Zece metri de lumină caldă cu 100 de LED-uri și opt moduri de iluminare. Rezistentă la stropi, perfectă pentru brad, fereastră sau terasă.",
     description_ru:
-      "Десять метров тёплого света: 100 светодиодов и восемь режимов свечения. Брызгозащищённая — идеальна для ёлки, окна или террасы.",
+      "Десять метров тёплого света: 100 светодиодов и восемь режимов свечения. Брызгозащищённая, идеальна для ёлки, окна или террасы.",
   },
   {
     id: 4,
@@ -268,7 +268,7 @@ const seeds: Seed[] = [
       wattage: "24",
       lumens: "1200",
       colorTemp: "RGB",
-      base: "—",
+      base: "-",
       lifespan: "30000",
       energyClass: "A+",
     },
@@ -315,7 +315,7 @@ const seeds: Seed[] = [
     specifications: {
       wattage: "5",
       lumens: "400",
-      colorTemp: "2700–6500K",
+      colorTemp: "2700-6500K",
       base: "GU10",
       lifespan: "25000",
       energyClass: "A",
@@ -340,7 +340,7 @@ const seeds: Seed[] = [
       wattage: "24",
       lumens: "2400",
       colorTemp: "4000K",
-      base: "—",
+      base: "-",
       lifespan: "30000",
       energyClass: "A+",
     },
@@ -348,7 +348,7 @@ const seeds: Seed[] = [
     description_ro:
       "Panou slim cu lumină uniformă, fără pâlpâire, pentru bucătărie, baie sau birou. Alb neutru de 4000K, clar și odihnitor pentru ochi.",
     description_ru:
-      "Тонкая панель с равномерным светом без мерцания для кухни, ванной или офиса. Нейтральный белый 4000K — чёткий и комфортный для глаз.",
+      "Тонкая панель с равномерным светом без мерцания для кухни, ванной или офиса. Нейтральный белый 4000K, чёткий и комфортный для глаз.",
   },
   {
     id: 9,
@@ -364,7 +364,7 @@ const seeds: Seed[] = [
       wattage: "8",
       lumens: "600",
       colorTemp: "3000K",
-      base: "—",
+      base: "-",
       lifespan: "20000",
       energyClass: "A",
     },
@@ -372,7 +372,7 @@ const seeds: Seed[] = [
     description_ro:
       "Perdea de lumini de 3×3 metri cu 300 de LED-uri, ideală pentru ferestre și fundaluri festive. Opt moduri și cronometru integrat.",
     description_ru:
-      "Световая штора 3×3 метра с 300 светодиодами — идеальна для окон и праздничного фона. Восемь режимов и встроенный таймер.",
+      "Световая штора 3×3 метра с 300 светодиодами, идеальна для окон и праздничного фона. Восемь режимов и встроенный таймер.",
   },
   {
     id: 10,
@@ -412,7 +412,7 @@ const seeds: Seed[] = [
       wattage: "2",
       lumens: "120",
       colorTemp: "3000K",
-      base: "—",
+      base: "-",
       lifespan: "15000",
       energyClass: "A",
     },
@@ -420,7 +420,7 @@ const seeds: Seed[] = [
     description_ro:
       "Set de patru lămpi solare cu senzor de întuneric, fără cabluri și fără cost la curent. Se încarcă ziua și luminează aleea toată noaptea.",
     description_ru:
-      "Набор из четырёх солнечных светильников с датчиком темноты — без проводов и без счетов за электричество. Заряжаются днём и освещают дорожку всю ночь.",
+      "Набор из четырёх солнечных светильников с датчиком темноты, без проводов и без счетов за электричество. Заряжаются днём и освещают дорожку всю ночь.",
   },
   {
     id: 12,
@@ -436,7 +436,7 @@ const seeds: Seed[] = [
       wattage: "40",
       lumens: "2000",
       colorTemp: "2700K",
-      base: "—",
+      base: "-",
       lifespan: "30000",
       energyClass: "A+",
     },
@@ -486,6 +486,8 @@ export const products: MockProduct[] = seeds.map((s) => {
       stock: v.stock,
       isDefault: v.isDefault ?? i === 0,
       sortOrder: i,
+      imageUrls: [],
     })),
+    promotion: null,
   };
 });

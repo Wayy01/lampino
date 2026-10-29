@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { TRANSLATE_GUARD_SCRIPT } from "@/lib/translate-guard";
 import { notFound } from "next/navigation";
 import { Fraunces, Hanken_Grotesk, Geist_Mono } from "next/font/google";
 import { LanguageProvider } from "@/lib/i18n/provider";
@@ -54,7 +55,7 @@ export async function generateMetadata({
     // against this, so the whole storefront needs it set exactly once here.
     metadataBase: new URL(SITE_URL),
     // Child pages set a bare title; the suffix is appended for them.
-    title: { default: meta.title, template: `%s — ${SITE_NAME}` },
+    title: { default: meta.title, template: `%s | ${SITE_NAME}` },
     description: meta.description,
     applicationName: SITE_NAME,
     alternates: localeAlternates(locale),
@@ -128,9 +129,13 @@ export default async function RootLayout({
   return (
     <html
       lang={lang}
+      translate="no"
       className={`${fraunces.variable} ${hanken.variable} ${geistMono.variable} antialiased`}
       style={rootStyle}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: TRANSLATE_GUARD_SCRIPT }} />
+      </head>
       <body className="min-h-screen" suppressHydrationWarning>
         {/* Site-wide entities, referenced by @id from the per-page schema. */}
         <JsonLd

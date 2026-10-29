@@ -18,6 +18,42 @@ const WEBSITE_ID = `${SITE_URL}/#website`;
 const availabilityUrl = (inStock: boolean) =>
   `https://schema.org/${inStock ? "InStock" : "OutOfStock"}`;
 
+const DAYS: Record<string, string> = {
+  lun: "Monday", mar: "Tuesday", mie: "Wednesday", joi: "Thursday",
+  vin: "Friday", sam: "Saturday", sâm: "Saturday", dum: "Sunday",
+};
+const WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+/**
+ * `OpeningHoursSpecification` from the admin's free-text Romanian hours
+ * ("Lun-Vin: 9:00 - 18:00, Sâm: 10:00 - 14:00"). Returns nothing unless every
+ * segment parses ("Weekend" and "Zilnic" are understood too) — wrong hours in
+ * markup are worse than none.
+ */
+export function openingHours(text: string): JsonLdNode[] | undefined {
+  const pad = (t: string) => t.padStart(5, "0");
+  const specs: JsonLdNode[] = [];
+  for (const part of text.split(/[,;\n]+/).map((p) => p.trim()).filter(Boolean)) {
+    const m = part
+      .toLowerCase()
+      .replace(/^weekend\b/, "sâm-dum")
+      .replace(/^zilnic\b/, "lun-dum")
+      .match(/^(\p{L}{3})\p{L}*\.?\s*(?:[-–]\s*(\p{L}{3})\p{L}*\.?)?\s*:?\s*(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})$/u);
+    const from = m && DAYS[m[1]];
+    const to = m && (m[2] ? DAYS[m[2]] : from);
+    if (!m || !from || !to) return undefined;
+    const days = WEEK.slice(WEEK.indexOf(from), WEEK.indexOf(to) + 1);
+    if (days.length === 0) return undefined;
+    specs.push({
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: days.map((d) => `https://schema.org/${d}`),
+      opens: pad(m[3]),
+      closes: pad(m[4]),
+    });
+  }
+  return specs.length ? specs : undefined;
+}
+
 /**
  * The shop itself. `Store` is a `LocalBusiness`, which is what a Moldovan
  * storefront with a physical address should be. Contact fields come from the
@@ -27,6 +63,8 @@ export function storeSchema(lang: Locale, contact: ContactSettings | null): Json
   const socials = contact
     ? [contact.facebookUrl, contact.instagramUrl, contact.tiktokUrl].filter(Boolean)
     : [];
+  // Hours are parsed from the Romanian field: day names there are predictable.
+  const hours = contact ? openingHours(contact.businessHours_ro) : undefined;
 
   return {
     "@context": "https://schema.org",
@@ -34,8 +72,8 @@ export function storeSchema(lang: Locale, contact: ContactSettings | null): Json
     "@id": ORGANIZATION_ID,
     name: SITE_NAME,
     url: absoluteUrl(localePath(lang)),
-    logo: absoluteUrl("/icon.svg"),
-    image: absoluteUrl("/icon.svg"),
+    logo: absoluteUrl("/icon.png"),
+    image: absoluteUrl("/icon.png"),
     currenciesAccepted: CURRENCY,
     ...(contact && {
       telephone: contact.phone,
@@ -46,7 +84,9 @@ export function storeSchema(lang: Locale, contact: ContactSettings | null): Json
         addressLocality: pick(lang, contact.city_ro, contact.city_ru),
         addressCountry: "MD",
       },
+      areaServed: { "@type": "Country", name: "Moldova" },
     }),
+    ...(hours && { openingHoursSpecification: hours }),
     ...(socials.length > 0 && { sameAs: socials }),
   };
 }
@@ -98,12 +138,17 @@ export function faqSchema(items: readonly { q: string; a: string }[]): JsonLdNod
  * the ones the customer actually pays (reduced price wins), matching what the
  * page renders — Google flags mismatches between markup and visible price.
  */
-export function productSchema(product: Product, lang: Locale): JsonLdNode {
-  const url = absoluteUrl(productHref(lang, product.id, product.name_ro));
-  const hasVariants = product.hasVariants && product.variants.length > 0;
-  const prices = hasVariants
+/** The prices a customer can actually pay for a product (reduced wins), one per variant. */
+export function productPrices(product: Product): number[] {
+  return product.hasVariants && product.variants.length > 0
     ? product.variants.map((v) => v.reducedPrice ?? v.price)
     : [product.reducedPrice ?? product.price];
+}
+
+export function productSchema(product: Product, lang: Locale): JsonLdNode {
+  const url = absoluteUrl(productHref(lang, product));
+  const hasVariants = product.hasVariants && product.variants.length > 0;
+  const prices = productPrices(product);
   const inStock = hasVariants
     ? product.variants.some((v) => v.stock > 0)
     : product.stock > 0;
@@ -156,7 +201,7 @@ export function productSchema(product: Product, lang: Locale): JsonLdNode {
  * `Product` without availability just earns Search Console warnings.
  */
 export function rentalSchema(pkg: RentalPackage, lang: Locale): JsonLdNode {
-  const url = absoluteUrl(rentalHref(lang, pkg.id, pkg.title_ro));
+  const url = absoluteUrl(rentalHref(lang, pkg));
   const prices = pkg.variants.length
     ? pkg.variants.map((v) => v.reducedPrice ?? v.price)
     : [pkg.reducedPrice ?? pkg.price];

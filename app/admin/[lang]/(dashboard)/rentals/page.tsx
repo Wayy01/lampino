@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin/session";
 import { Prisma } from "@/lib/generated/prisma";
 import { num } from "@/lib/admin/serialize";
-import { pick } from "@/lib/utils";
+import { parseId, parsePage, pick } from "@/lib/utils";
 import { getAdminDict, adminHref, type AdminLang } from "@/lib/admin/i18n";
 import { isLocale } from "@/lib/i18n/routing";
 import { PageHeader } from "@/components/admin/page-header";
@@ -51,12 +51,13 @@ export default async function AdminRentalsPage({
 
   const sp = await searchParams;
   const q = typeof sp.q === "string" ? sp.q : "";
-  const category = typeof sp.category === "string" ? Number(sp.category) : null;
+  const category = typeof sp.category === "string" ? parseId(sp.category) : null;
   const status = typeof sp.status === "string" ? sp.status : "";
   const sort = typeof sp.sort === "string" ? sp.sort : "";
-  const page = Math.max(1, Number(sp.page) || 1);
+  const page = parsePage(sp.page);
 
   const where: Prisma.RentalPackageWhereInput = {
+    deletedAt: null,
     ...(q && {
       OR: [
         { title_ro: { contains: q, mode: "insensitive" } },

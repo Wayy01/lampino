@@ -12,7 +12,7 @@ import { EmptyState } from "@/components/admin/empty-state";
 
 /** views → intent conversion as a whole-percent string, or "—" without views. */
 function conversion(intent: number, views: number): string {
-  if (views <= 0) return "—";
+  if (views <= 0) return "-";
   return `${Math.round((intent / views) * 100)}%`;
 }
 
@@ -64,7 +64,7 @@ export function ProductAnalyticsTable({ rows }: { rows: ProductStat[] }) {
       cell: (p) => (
         <NameCell
           name={pick(lang, p.name_ro, p.name_ru)}
-          href={productHref(lang, p.id, pick(lang, p.name_ro, p.name_ru))}
+          href={productHref(lang, p)}
           isActive={p.isActive}
           inactiveLabel={t.statuses.inactive}
         />
@@ -139,7 +139,7 @@ export function RentalAnalyticsTable({ rows }: { rows: RentalStat[] }) {
       cell: (r) => (
         <NameCell
           name={pick(lang, r.title_ro, r.title_ru)}
-          href={rentalHref(lang, r.id, pick(lang, r.title_ro, r.title_ru))}
+          href={rentalHref(lang, r)}
           isActive={r.isActive}
           inactiveLabel={t.statuses.inactive}
         />

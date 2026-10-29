@@ -37,6 +37,8 @@ export interface ProductVariant {
   stock: number;
   isDefault: boolean;
   sortOrder: number;
+  /** Product image URLs shown for this variant; empty = all of them. */
+  imageUrls: string[];
 }
 
 /**
@@ -50,9 +52,21 @@ export interface SpecEntry {
   label_ru: string;
   value_ro: string;
   value_ru: string;
+  /** Saved display order; legacy entries have none. See `specList`. */
+  position?: number;
 }
 
 export type Specifications = Record<string, SpecEntry>;
+
+/** The promotion currently applied to a product / rental (see lib/promotions.ts). */
+export interface ActivePromotion {
+  id: number;
+  name_ro: string;
+  name_ru: string;
+  discountPercent: number;
+  /** ISO instant the promotion ends (last millisecond of its last day). */
+  endDate: string;
+}
 
 export interface Product {
   id: number;
@@ -73,6 +87,8 @@ export interface Product {
   images: ProductImage[];
   videos: ProductVideo[];
   variants: ProductVariant[];
+  /** Running promotion already folded into every `reducedPrice`; null if none. */
+  promotion: ActivePromotion | null;
 }
 
 /**
@@ -81,11 +97,16 @@ export interface Product {
  */
 export interface CatalogIndexEntry {
   id: number;
-  slugSource: string;
+  /** Locale-less detail path per locale (slugs are translated). */
+  paths: Record<Locale, string>;
   updatedAt: string;
+  /** Absolute-or-site-relative image URLs, main image first, for the image sitemap. */
+  images: string[];
+  /** Products only: dates the category landing page in the sitemap. */
+  categoryId?: number | null;
 }
 
-/** Category in display order, carrying the numeric id used in `/magazin?category=<id>` URLs. */
+/** Category in display order; `slug` is the catalog's internal filter key (URLs use `categoryHref`). */
 export interface CategoryOption {
   id: number;
   slug: string;
@@ -121,6 +142,8 @@ export interface RentalPackage {
   images: ProductImage[];
   videos: ProductVideo[];
   variants: RentalPackageVariant[];
+  /** Running promotion already folded into every `reducedPrice`; null if none. */
+  promotion: ActivePromotion | null;
 }
 
 export type MediaType = "image" | "video";

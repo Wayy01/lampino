@@ -15,7 +15,9 @@ export type RefusalKey =
   | "reorderStale"
   | "sourceMissing"
   | "cannotDeleteSelf"
-  | "cannotDeleteLastAdmin";
+  | "cannotDeleteLastAdmin"
+  | "insufficientStock"
+  | "relationMissing";
 
 /**
  * A deliberate refusal, thrown from inside an action body so it travels the

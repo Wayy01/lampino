@@ -1,10 +1,11 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Contact, Palette, Sparkles, Truck } from "lucide-react";
+import { Contact, ListChecks, Palette, Sparkles, Truck } from "lucide-react";
 import {
   updateContact,
   updateDelivery,
+  updateProductPage,
   updateTheme,
   updateSpecialOffers,
   type SettingsActionState,
@@ -194,6 +195,43 @@ export function DeliveryForm({ delivery }: { delivery: DeliveryData | null }) {
   );
 }
 
+export type ProductPageData = { perks_ro: string[]; perks_ru: string[] };
+
+const PERK_SLOTS = [0, 1, 2, 3];
+
+export function ProductPageForm({ data }: { data: ProductPageData }) {
+  const t = useAdminT();
+  const [state, formAction] = useActionState<SettingsActionState, FormData>(
+    updateProductPage,
+    null,
+  );
+
+  return (
+    <SectionCard
+      title={t.settings.productPage}
+      icon={<ListChecks className="h-4 w-4" strokeWidth={1.75} />}
+    >
+      <AdminForm action={formAction}>
+        <LangField />
+        <p className="mb-4 text-sm text-muted-foreground">{t.settings.productPerksHint}</p>
+        <div className="flex flex-col gap-3">
+          {PERK_SLOTS.map((i) => (
+            <div key={i} className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <Field label={`${t.settings.perk} ${i + 1} · RO`} htmlFor={`perk_ro_${i}`}>
+                <TextInput id={`perk_ro_${i}`} name={`perk_ro_${i}`} maxLength={120} defaultValue={data.perks_ro[i] ?? ""} />
+              </Field>
+              <Field label={`${t.settings.perk} ${i + 1} · RU`} htmlFor={`perk_ru_${i}`}>
+                <TextInput id={`perk_ru_${i}`} name={`perk_ru_${i}`} maxLength={120} defaultValue={data.perks_ru[i] ?? ""} />
+              </Field>
+            </div>
+          ))}
+        </div>
+        <FormFooter state={state} label={t.settings.saveProductPage} />
+      </AdminForm>
+    </SectionCard>
+  );
+}
+
 const THEME_FIELDS: {
   name: keyof Omit<ThemeData, "isActive">;
   label: (t: AdminDict) => string;
@@ -234,7 +272,7 @@ export function ThemeForm({ theme }: { theme: ThemeData | null }) {
                   className="h-10 w-14 shrink-0 cursor-pointer rounded-[var(--radius-sm)] border bg-background p-1"
                 />
                 <span className="font-mono text-xs text-muted-foreground">
-                  {theme?.[name] ?? "—"}
+                  {theme?.[name] ?? "-"}
                 </span>
               </div>
             </Field>

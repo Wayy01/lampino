@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { RichText } from "@/components/site/rich-text";
 import { ArrowLeft, Check, MessageCircle, Phone, FileText } from "lucide-react";
 import type {
   ContactInfo,
@@ -159,9 +160,7 @@ export function RentalDetail({
                   <span className="h-px w-8 bg-border" />
                   {t.rental.overview}
                 </div>
-                <p className="max-w-2xl text-lg leading-relaxed text-foreground/85 md:text-xl">
-                  {description}
-                </p>
+                <RichText source={description} />
               </div>
             )}
 

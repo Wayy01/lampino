@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getRentalPackages } from "@/lib/data/rentals";
 import { getHomepageSettings } from "@/lib/data/settings";
-import { isLocale, localePath, rentalPath, rentalsHref } from "@/lib/i18n/routing";
+import { isLocale, localePath, rentalHref, rentalsHref } from "@/lib/i18n/routing";
 import { dictionaries, type Lang } from "@/lib/i18n/dictionaries";
 import { pick } from "@/lib/utils";
 import { localeAlternates, openGraphFor } from "@/lib/seo";
@@ -34,11 +34,18 @@ export async function generateMetadata({
 
 export default async function ArendaPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ lang: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
+
+  // The rentals page has no category filter; old `?category=12` links only
+  // ever produced duplicates of it, so fold them in for good. Other params
+  // (utm_*, fbclid) are left alone — the canonical already covers them.
+  if ("category" in (await searchParams)) permanentRedirect(rentalsHref(lang));
 
   const d = dictionaries[lang].arenda;
   const [packages, settings] = await Promise.all([
@@ -62,7 +69,7 @@ export default async function ArendaPage({
           itemListSchema(
             packages.map((p) => ({
               name: pick(lang, p.title_ro, p.title_ru),
-              path: localePath(lang, rentalPath(p.id, p.title_ro)),
+              path: rentalHref(lang, p),
             })),
           ),
         ]}

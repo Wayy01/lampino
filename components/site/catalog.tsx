@@ -1,7 +1,7 @@
 "use client";
 
+import { rememberShopQuery } from "@/lib/shop-return";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
 import type { ProductCategory } from "@/lib/data/products";
 import type { CategoryOption, Locale, Product } from "@/lib/types";
@@ -10,6 +10,7 @@ import {
   classifyColorTemp,
   classifyLumens,
   classifySocket,
+  effectivePrice,
   priceCeiling,
   priceSteps,
   sortProducts,
@@ -22,6 +23,7 @@ import {
 } from "@/lib/filters";
 import { rawSpecValue } from "@/lib/specs";
 import { useLang, useT } from "@/lib/i18n/provider";
+import { categoryHref, shopHref } from "@/lib/i18n/routing";
 import { cn, formatPrice, pick } from "@/lib/utils";
 import {
   Select,
@@ -86,7 +88,6 @@ export function Catalog({
 }: CatalogProps) {
   const t = useT();
   const { lang } = useLang();
-  const pathname = usePathname();
 
   // The max-price ceiling and its pills are derived from the live catalog, so the
   // priciest product is always reachable — no hardcoded cap can hide it.
@@ -159,7 +160,7 @@ export function Catalog({
     const list = products.filter((product) => {
       if (category !== "all" && product.category?.slug !== category)
         return false;
-      if (product.price > maxPrice) return false;
+      if (effectivePrice(product) > maxPrice) return false;
       if (colorTemps.size) {
         const ct = classifyColorTemp(
           rawSpecValue(product.specifications, "colorTemp"),
@@ -191,39 +192,56 @@ export function Catalog({
     currentPage * PAGE_SIZE,
   );
 
-  // Reflect the active filters in the query string so the view survives refresh,
-  // back/forward, and can be shared. Category is addressed by its numeric id.
-  // When anything is active, sort + page are surfaced too so the URL is a
-  // complete snapshot (e.g. ?category=13&sort=featured&page=1).
+  const activeCategory =
+    category === "all" ? null : categoryOptions.find((c) => c.slug === category) ?? null;
+
+  // Reflect the active filters in the URL so the view survives refresh,
+  // back/forward, and can be shared. The category is the path — each one has its
+  // own landing page (`/magazin/<slug>`) — and everything else is the query.
+  // When any of those is active, sort + page are surfaced too so the URL is a
+  // complete snapshot (e.g. /magazin/ghirlande-de-interior?sort=featured&page=1).
   //
   // We update the URL with history.replaceState (a pure client-side history edit)
   // rather than router.replace: the catalog filters entirely on the client, so a
   // server round-trip is wasteful — and on a `force-dynamic` route it would also
   // hand back fresh `products`/`categoryOptions` arrays, re-firing this effect in
   // an endless replace loop. The guard skips no-op writes for good measure.
-  useEffect(() => {
+  const queryFor = (pageNumber: number) => {
     const params = new URLSearchParams();
-    const catId = categoryOptions.find((c) => c.slug === category)?.id;
-    if (category !== "all" && catId) params.set("category", String(catId));
     if (maxPrice !== priceCap) params.set("max", String(maxPrice));
     if (colorTemps.size) params.set("color", [...colorTemps].join(","));
     if (sockets.size) params.set("socket", [...sockets].join(","));
     if (lumens.size) params.set("lumens", [...lumens].join(","));
 
     const active =
-      params.toString().length > 0 || sort !== DEFAULT_SORT || currentPage > 1;
+      params.toString().length > 0 || sort !== DEFAULT_SORT || pageNumber > 1;
     if (active) {
       params.set("sort", sort);
-      params.set("page", String(currentPage));
+      params.set("page", String(pageNumber));
     }
+    return params.toString();
+  };
+  const urlFor = (pageNumber: number) => {
+    const qs = queryFor(pageNumber);
+    return activeCategory ? categoryHref(lang, activeCategory, qs) : shopHref(lang, qs);
+  };
 
-    const qs = params.toString();
-    const target = qs ? `${pathname}?${qs}` : pathname;
-    if (target !== `${pathname}${window.location.search}`) {
+  useEffect(() => {
+    const qs = queryFor(currentPage);
+    // "Back to store" rebuilds the URL from this, so the category rides along
+    // as an id: the slug differs per locale.
+    rememberShopQuery(
+      [activeCategory && `category=${activeCategory.id}`, qs].filter(Boolean).join("&"),
+    );
+    const target = urlFor(currentPage);
+    if (target !== `${window.location.pathname}${window.location.search}`) {
       window.history.replaceState(null, "", target);
     }
+    // queryFor/urlFor are re-created every render and read only the state below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    category,
+    activeCategory,
+    lang,
     maxPrice,
     priceCap,
     sort,
@@ -231,8 +249,6 @@ export function Catalog({
     colorTemps,
     sockets,
     lumens,
-    pathname,
-    categoryOptions,
   ]);
 
   const advancedCount =
@@ -316,7 +332,9 @@ export function Catalog({
           <span>{t.catalog.kicker}</span>
         </div>
         <h1 className="font-display mt-5 text-[clamp(2.5rem,7vw,5rem)] font-light leading-[0.95] tracking-[-0.03em]">
-          {t.catalog.title}
+          {activeCategory
+            ? pick(lang, activeCategory.name_ro, activeCategory.name_ru)
+            : t.catalog.title}
         </h1>
       </div>
 
@@ -477,6 +495,8 @@ export function Catalog({
                   <PageButton
                     key={p}
                     active={p === currentPage}
+                    // A real link so crawlers reach products past page one.
+                    href={urlFor(p)}
                     onClick={() => goToPage(p)}
                     aria-current={p === currentPage ? "page" : undefined}
                   >
@@ -578,6 +598,7 @@ function FiltersPanel({
       <FacetRow label={t.catalog.category} stack>
         <CategoryRow
           active={category === "all"}
+          href={shopHref(lang)}
           onClick={() => setCategory("all")}
         >
           {t.catalog.all}
@@ -586,6 +607,7 @@ function FiltersPanel({
           <CategoryRow
             key={c.id}
             active={category === c.slug}
+            href={categoryHref(lang, c)}
             onClick={() => setCategory(c.slug)}
           >
             {pick(lang, c.name_ro, c.name_ru)}
@@ -684,45 +706,82 @@ function FacetRow({
  * as the facet pills below it, so the list scans as a set of controls instead
  * of a paragraph. Selected is a solid primary fill.
  */
+// A real link to the category's landing page, so crawlers can follow it, that
+// filters in place on a plain click (modified clicks still open a new tab).
 function CategoryRow({
   active,
+  href,
   onClick,
   children,
 }: {
   active: boolean;
+  href: string;
   onClick: () => void;
   children: React.ReactNode;
 }) {
   return (
-    <Button
-      variant="bare"
-      size="none"
-      onClick={onClick}
-      aria-pressed={active}
+    <a
+      href={href}
+      onClick={(e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        e.preventDefault();
+        onClick();
+      }}
+      aria-current={active ? "page" : undefined}
       className={cn(
-        "w-full justify-start rounded-[var(--radius-sm)] border px-3 py-2 text-left text-sm font-normal leading-5 transition-colors",
+        "flex w-full items-center justify-start rounded-[var(--radius-sm)] border px-3 py-2 text-left text-sm font-normal leading-5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         active
           ? "border-primary bg-primary font-medium text-primary-foreground shadow-[0_1px_6px_-1px_var(--primary)]"
           : "border-foreground/15 bg-foreground/[0.035] text-foreground hover:border-primary hover:bg-primary/[0.07] hover:text-primary",
       )}
     >
       <span className="min-w-0 truncate">{children}</span>
-    </Button>
+    </a>
   );
 }
 
 function PageButton({
   active = false,
   disabled = false,
+  href,
   onClick,
   children,
   ...rest
 }: {
   active?: boolean;
   disabled?: boolean;
+  /** Renders a link (plain clicks still page in place). */
+  href?: string;
   onClick: () => void;
   children: React.ReactNode;
-} & React.ButtonHTMLAttributes<HTMLButtonElement>) {
+} & React.AriaAttributes) {
+  const className = cn(
+    "label-mono h-9 min-w-9 border px-3",
+    disabled
+      ? "cursor-not-allowed border-foreground/10 text-muted-foreground/40"
+      : active
+        ? "border-primary bg-primary text-primary-foreground"
+        : "border-foreground/20 text-foreground/70 hover:border-primary hover:text-primary",
+  );
+  if (href && !disabled) {
+    return (
+      <a
+        href={href}
+        onClick={(e) => {
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+          e.preventDefault();
+          onClick();
+        }}
+        className={cn(
+          "inline-flex items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          className,
+        )}
+        {...rest}
+      >
+        {children}
+      </a>
+    );
+  }
   return (
     <Button
       variant="bare"
@@ -730,14 +789,7 @@ function PageButton({
       pill
       onClick={onClick}
       disabled={disabled}
-      className={cn(
-        "label-mono h-9 min-w-9 border px-3",
-        disabled
-          ? "cursor-not-allowed border-foreground/10 text-muted-foreground/40"
-          : active
-            ? "border-primary bg-primary text-primary-foreground"
-            : "border-foreground/20 text-foreground/70 hover:border-primary hover:text-primary",
-      )}
+      className={className}
       {...rest}
     >
       {children}

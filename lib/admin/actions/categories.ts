@@ -2,8 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@/lib/generated/prisma";
 import { requireAdmin } from "@/lib/admin/session";
 import { slugify } from "@/lib/slug";
+import { categorySlug, LOCALES } from "@/lib/i18n/routing";
 import { getAdminDict, langFromForm, type AdminLang } from "@/lib/admin/i18n";
 import {
   ActionRefusal,
@@ -49,9 +51,21 @@ export async function saveCategory(
         },
       });
     } else {
+      // The storefront URL slug comes from the name, so a rename moves the
+      // category page. Remember the outgoing slugs; the page 308s them on.
+      const before = await prisma.category.findUnique({ where: { id } });
+      const current = new Set(LOCALES.map((l) => categorySlug(l, { id, name_ro, name_ru })));
+      const formerSlugs = before
+        ? [
+            ...new Set([
+              ...before.formerSlugs,
+              ...LOCALES.map((l) => categorySlug(l, before)),
+            ]),
+          ].filter((s) => !current.has(s))
+        : [];
       await prisma.category.update({
         where: { id },
-        data: { name_ro, name_ru, slug, imageUrl },
+        data: { name_ro, name_ru, slug, imageUrl, formerSlugs },
       });
     }
 
@@ -67,8 +81,40 @@ export async function deleteCategory(
   await requireAdmin(lang);
   return runAction(lang, async () => {
     // Products and rental packages keep existing but lose the category (SetNull).
-    await prisma.category.delete({ where: { id } });
+    // The homepage and special-offers settings hold category ids as plain
+    // columns with no foreign key, so clear them here in the same transaction —
+    // otherwise those sections filter by a dead id and render empty, and the
+    // admin selects keep re-posting it.
+    await prisma.$transaction(async (tx) => {
+      const settings = await tx.homepageSettings.findMany({
+        select: { id: true, featuredCategoryIds: true },
+      });
+      for (const s of settings) {
+        const ids = Array.isArray(s.featuredCategoryIds) ? s.featuredCategoryIds : [];
+        const kept = ids.filter((v) => Number(v) !== id);
+        if (kept.length !== ids.length) {
+          await tx.homepageSettings.update({
+            where: { id: s.id },
+            data: { featuredCategoryIds: kept as Prisma.InputJsonValue },
+          });
+        }
+      }
+      await tx.homepageSettings.updateMany({
+        where: { featuredProductsCategoryId: id },
+        data: { featuredProductsCategoryId: null },
+      });
+      await tx.homepageSettings.updateMany({
+        where: { featuredRentalsCategoryId: id },
+        data: { featuredRentalsCategoryId: null },
+      });
+      await tx.specialOffersPage.updateMany({
+        where: { filterByCategoryId: id },
+        data: { filterByCategoryId: null },
+      });
+      await tx.category.delete({ where: { id } });
+    });
     revalidatePath("/admin/[lang]/categories", "page");
+    revalidatePath("/admin/[lang]/homepage", "page");
   });
 }
 

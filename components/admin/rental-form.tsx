@@ -1,7 +1,9 @@
 "use client";
 
+import { PromotionPicker } from "@/components/admin/promotion-picker";
+import type { PromotionOption } from "@/lib/admin/promotion-status";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { useActionState, useState } from "react";
-import Image from "next/image";
 import {
   Film,
   Image as ImageIcon,
@@ -24,7 +26,7 @@ import {
   type VariantPayload,
 } from "@/lib/admin/actions/rentals";
 import type { SpecRow } from "@/lib/admin/specs";
-import { MediaField, UploadButton } from "@/components/admin/media";
+import { ImagePreview, MediaField, UploadButton } from "@/components/admin/media";
 import { useAdminLang } from "@/lib/admin/i18n-provider";
 import { SectionCard } from "@/components/admin/section-card";
 import { ConfirmButton } from "@/components/admin/confirm-button";
@@ -38,7 +40,6 @@ import {
 import {
   Field,
   TextInput,
-  TextArea,
   Toggle,
   SubmitButton,
   ActionNotice,
@@ -55,7 +56,7 @@ export type RentalFormData = {
   price: number;
   reducedPrice: number | null;
   categoryId: number | null;
-  promotionId: number | null;
+  promotionIds: number[];
   isActive: boolean;
   specifications: SpecRow[];
   includes_ro: string[];
@@ -68,6 +69,19 @@ export type RentalFormData = {
 };
 
 type Option = { id: number; name: string };
+
+// Video rows get a client-only id: an upload finishing after rows were added,
+// removed or reordered must land on the row it started from, not an index.
+type VideoRow = VideoPayload & { uid: number };
+let nextVideoUid = 0;
+const toVideoRow = (v: VideoPayload): VideoRow => ({ ...v, uid: nextVideoUid++ });
+
+/** Parse a numeric draft; blank or garbage becomes null so the server can refuse it. */
+const draftNumber = (s: string): number | null => {
+  if (s.trim() === "") return null;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
+};
 
 // Variant rows keep numeric fields as strings while editing; parsed on submit.
 type VariantDraft = {
@@ -162,7 +176,7 @@ export function RentalForm({
 }: {
   rental: RentalFormData | null;
   categories: Option[];
-  promotions: Option[];
+  promotions: PromotionOption[];
 }) {
   const { t, lang } = useAdminLang();
   const action = rental ? updateRental.bind(null, rental.id) : createRental;
@@ -178,7 +192,11 @@ export function RentalForm({
   const [includesRu, setIncludesRu] = useState<string[]>(rental?.includes_ru ?? []);
   const [images, setImages] = useState<ImagePayload[]>(rental?.images ?? []);
   const [newImageUrl, setNewImageUrl] = useState("");
-  const [videos, setVideos] = useState<VideoPayload[]>(rental?.videos ?? []);
+  const [videos, setVideos] = useState<VideoRow[]>(() =>
+    (rental?.videos ?? []).map(toVideoRow),
+  );
+  const patchVideo = (uid: number, patch: Partial<VideoPayload>) =>
+    setVideos((prev) => prev.map((v) => (v.uid === uid ? { ...v, ...patch } : v)));
   const [variants, setVariants] = useState<VariantDraft[]>(
     (rental?.variants ?? []).map((v) => ({
       id: v.id,
@@ -196,8 +214,8 @@ export function RentalForm({
     name_ro: v.name_ro,
     name_ru: v.name_ru,
     size: v.size || null,
-    price: Number(v.price) || 0,
-    reducedPrice: v.reducedPrice === "" ? null : Number(v.reducedPrice) || 0,
+    price: draftNumber(v.price),
+    reducedPrice: draftNumber(v.reducedPrice),
     isDefault: v.isDefault,
     sortOrder: i,
   }));
@@ -237,7 +255,11 @@ export function RentalForm({
       <input type="hidden" name="includes_ro" value={JSON.stringify(includesRo)} />
       <input type="hidden" name="includes_ru" value={JSON.stringify(includesRu)} />
       <input type="hidden" name="images" value={JSON.stringify(images)} />
-      <input type="hidden" name="videos" value={JSON.stringify(videos)} />
+      <input
+        type="hidden"
+        name="videos"
+        value={JSON.stringify(videos.map(({ videoUrl, thumbnailUrl }) => ({ videoUrl, thumbnailUrl })))}
+      />
       <input type="hidden" name="variants" value={JSON.stringify(variantsPayload)} />
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -254,10 +276,10 @@ export function RentalForm({
                 <TextInput id="title_ru" name="title_ru" defaultValue={rental?.title_ru} required />
               </Field>
               <Field label={t.products.descriptionRo} htmlFor="description_ro" className="sm:col-span-2">
-                <TextArea id="description_ro" name="description_ro" defaultValue={rental?.description_ro} />
+                <RichTextEditor id="description_ro" name="description_ro" defaultValue={rental?.description_ro} />
               </Field>
               <Field label={t.products.descriptionRu} htmlFor="description_ru" className="sm:col-span-2">
-                <TextArea id="description_ru" name="description_ru" defaultValue={rental?.description_ru} />
+                <RichTextEditor id="description_ru" name="description_ru" defaultValue={rental?.description_ru} />
               </Field>
             </div>
           </SectionCard>
@@ -301,12 +323,7 @@ export function RentalForm({
                         className="-ml-1"
                         {...imageOrder.handleProps(i)}
                       />
-                      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-[var(--radius-sm)] bg-muted">
-                        <Image src={img.imageUrl} alt="" fill sizes="48px" unoptimized className="object-cover" />
-                      </div>
-                      <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
-                        {img.imageUrl}
-                      </span>
+                      <ImagePreview url={img.imageUrl} />
                     </div>
                     <div className="mt-2 flex items-center justify-between gap-2">
                       <label className="flex shrink-0 cursor-pointer items-center gap-1.5 text-xs text-muted-foreground">
@@ -377,7 +394,7 @@ export function RentalForm({
               <ul className="mb-4 flex flex-col gap-2">
                 {videos.map((video, i) => (
                   <li
-                    key={i}
+                    key={video.uid}
                     {...videoOrder.itemProps(i)}
                     className={cn(
                       "rounded-[var(--radius-md)] border p-3",
@@ -388,21 +405,13 @@ export function RentalForm({
                       <MediaField
                         accept="video"
                         value={video.videoUrl}
-                        onChange={(url) =>
-                          setVideos(videos.map((v, j) => (j === i ? { ...v, videoUrl: url } : v)))
-                        }
+                        onChange={(url) => patchVideo(video.uid, { videoUrl: url })}
                         placeholder={t.products.videoUrl}
                       />
                       <MediaField
                         accept="image"
                         value={video.thumbnailUrl ?? ""}
-                        onChange={(url) =>
-                          setVideos(
-                            videos.map((v, j) =>
-                              j === i ? { ...v, thumbnailUrl: url || null } : v,
-                            ),
-                          )
-                        }
+                        onChange={(url) => patchVideo(video.uid, { thumbnailUrl: url || null })}
                         placeholder={t.products.thumbnailUrl}
                       />
                     </div>
@@ -412,7 +421,7 @@ export function RentalForm({
                         className="-ml-1"
                         {...videoOrder.handleProps(i)}
                       />
-                      <button type="button" onClick={() => setVideos(videos.filter((_, j) => j !== i))} aria-label={t.common.remove} className={iconBtn}>
+                      <button type="button" onClick={() => setVideos((prev) => prev.filter((v) => v.uid !== video.uid))} aria-label={t.common.remove} className={iconBtn}>
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
@@ -422,7 +431,9 @@ export function RentalForm({
             )}
             <button
               type="button"
-              onClick={() => setVideos([...videos, { videoUrl: "", thumbnailUrl: null }])}
+              onClick={() =>
+                setVideos((prev) => [...prev, toVideoRow({ videoUrl: "", thumbnailUrl: null })])
+              }
               className={ghostBtn}
             >
               <Plus className="h-4 w-4" />
@@ -656,16 +667,8 @@ export function RentalForm({
                   ]}
                 />
               </Field>
-              <Field label={t.products.promotion} htmlFor="promotionId">
-                <AdminSelect
-                  id="promotionId"
-                  name="promotionId"
-                  defaultValue={rental?.promotionId ? String(rental.promotionId) : ""}
-                  options={[
-                    { value: "", label: t.products.noPromotion },
-                    ...promotions.map((p) => ({ value: String(p.id), label: p.name })),
-                  ]}
-                />
+              <Field label={t.products.promotion}>
+                <PromotionPicker promotions={promotions} selected={rental?.promotionIds ?? []} />
               </Field>
             </div>
           </SectionCard>

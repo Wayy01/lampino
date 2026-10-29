@@ -130,7 +130,7 @@ export function Footer({ contact }: { contact: ContactSettings | null }) {
 
         <div className="mt-16 flex flex-col gap-3 border-t border-border pt-8 sm:flex-row sm:items-center sm:justify-between">
           <p className="label-mono text-muted-foreground">
-            © {year} Lampino — {t.footer.rights}
+            © {year} Lampino. {t.footer.rights}
           </p>
           <p className="label-mono text-muted-foreground">{t.footer.tagline}</p>
         </div>

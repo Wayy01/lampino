@@ -166,3 +166,18 @@ export async function getThemeSettings(): Promise<ThemeSettings | null> {
     return null;
   }
 }
+
+/**
+ * The perks list under the product buy buttons, per locale, blanks dropped.
+ * `null` (no row yet, or the DB is down) means "use the dictionary defaults".
+ */
+export async function getProductPerks(): Promise<{ ro: string[]; ru: string[] } | null> {
+  try {
+    const s = await prisma.productPageSettings.findFirst({ orderBy: { id: "asc" } });
+    if (!s) return null;
+    const clean = (list: string[]) => list.map((x) => x.trim()).filter(Boolean);
+    return { ro: clean(s.perks_ro), ru: clean(s.perks_ru) };
+  } catch {
+    return null;
+  }
+}

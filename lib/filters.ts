@@ -107,6 +107,11 @@ const PRICE_BUCKETS = [200, 500, 1200] as const;
  * catalog, rounded up to a clean hundred, and never below the top fixed bucket.
  * At this value the max-price filter is effectively "no limit".
  */
+/** What the customer actually pays: the reduced price when one is set. */
+export function effectivePrice(p: { price: number; reducedPrice: number | null }): number {
+  return p.reducedPrice ?? p.price;
+}
+
 export function priceCeiling(products: { price: number }[]): number {
   const max = products.reduce((m, p) => Math.max(m, p.price), 0);
   return Math.max(PRICE_BUCKETS.at(-1)!, Math.ceil(max / 100) * 100);
@@ -132,9 +137,9 @@ export function sortProducts(list: Product[], key: SortKey): Product[] {
   const copy = list.slice();
   switch (key) {
     case "price-asc":
-      return copy.sort((a, b) => a.price - b.price);
+      return copy.sort((a, b) => effectivePrice(a) - effectivePrice(b));
     case "price-desc":
-      return copy.sort((a, b) => b.price - a.price);
+      return copy.sort((a, b) => effectivePrice(b) - effectivePrice(a));
     case "featured":
     default:
       return copy.sort((a, b) => {

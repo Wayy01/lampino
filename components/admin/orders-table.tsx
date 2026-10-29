@@ -53,7 +53,7 @@ export function OrdersTable({
       key: "city",
       header: t.orders.city,
       hideOnMobile: true,
-      cell: (o) => <span className="text-muted-foreground">{o.city ?? "—"}</span>,
+      cell: (o) => <span className="text-muted-foreground">{o.city ?? "-"}</span>,
     },
     {
       key: "items",

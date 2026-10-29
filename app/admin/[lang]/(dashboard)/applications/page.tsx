@@ -1,3 +1,4 @@
+import { parsePage } from "@/lib/utils";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin/session";
 import { Prisma } from "@/lib/generated/prisma";
@@ -43,7 +44,7 @@ export default async function AdminApplicationsPage({
   const q = typeof sp.q === "string" ? sp.q : "";
   const status = typeof sp.status === "string" ? sp.status : "";
   const event = typeof sp.event === "string" ? sp.event : "";
-  const page = Math.max(1, Number(sp.page) || 1);
+  const page = parsePage(sp.page);
 
   const idQuery = /^#?\d+$/.test(q.trim())
     ? Number(q.trim().replace("#", ""))

@@ -3,7 +3,8 @@ import { ContactContent } from "@/components/site/contact-content";
 import { JsonLd } from "@/components/site/json-ld";
 import { breadcrumbSchema } from "@/lib/schema";
 import { getContactSettings } from "@/lib/data/settings";
-import { localeAlternates, openGraphFor } from "@/lib/seo";
+import { fill, localeAlternates, metaDescription, openGraphFor } from "@/lib/seo";
+import { pick } from "@/lib/utils";
 import { dictionaries, type Lang } from "@/lib/i18n/dictionaries";
 import { isLocale, localePath } from "@/lib/i18n/routing";
 
@@ -17,15 +18,22 @@ export async function generateMetadata({
   const { lang } = await params;
   const l: Lang = isLocale(lang) ? lang : "ro";
   const d = dictionaries[l].seo;
+  // Phone and hours are what people search the contact page for, so they go in
+  // the snippet itself — straight from the admin settings, never hardcoded.
+  const contact = await getContactSettings();
+  const vars = contact && {
+    phone: contact.phone,
+    hours: pick(l, contact.businessHours_ro, contact.businessHours_ru),
+  };
+  const title = vars ? fill(d.contactTitle, vars) : d.contactTitleFallback;
+  const description = vars
+    ? metaDescription(fill(d.contactDescription, vars))
+    : d.contactDescriptionFallback;
   return {
-    title: d.contactTitle,
-    description: d.contactDescription,
+    title,
+    description,
     alternates: localeAlternates(l, "/contact"),
-    openGraph: openGraphFor(l, {
-      title: d.contactTitle,
-      description: d.contactDescription,
-      path: "/contact",
-    }),
+    openGraph: openGraphFor(l, { title, description, path: "/contact" }),
   };
 }
 

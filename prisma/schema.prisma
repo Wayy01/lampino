@@ -13,6 +13,8 @@ id Int @id @default(autoincrement())
 name_ro String
 name_ru String
 slug String @unique
+// Storefront URL slugs (`categorySlug`) the category had before a rename; they 308 to the current one.
+formerSlugs String[] @default([]) @map("former_slugs")
 position Int @default(0)
 imageUrl String? @map("image_url")
 products Product[]
@@ -37,11 +39,12 @@ hasVariants Boolean @default(false) @map("has_variants")
 specifications Json? @default("{}") @map("specifications")
 categoryId Int? @map("category_id")
 category Category? @relation(fields: [categoryId], references: [id])
-promotionId Int?
-promotion Promotion? @relation(fields: [promotionId], references: [id])
+promotions Promotion[] @relation("ProductPromotions")
 featured Boolean @default(false)
 featuredOrder Int @default(0) @map("featured_order")
 isActive Boolean @default(true) @map("is_active")
+// Set by the admin "delete": the row stays so its old URLs keep redirecting (see `redirectRetiredProduct`).
+deletedAt DateTime? @map("deleted_at")
 createdAt DateTime @default(now()) @map("created_at")
 updatedAt DateTime @updatedAt @map("updated_at")
 images ProductImage[]
@@ -50,7 +53,6 @@ variants ProductVariant[]
 orderItems OrderItem[]
 
     @@index([categoryId])
-    @@index([promotionId])
     @@index([createdAt])
     @@index([price])
     @@index([categoryId, price])
@@ -95,6 +97,10 @@ reducedPrice Decimal? @db.Decimal(10, 2)
 stock Int @default(0)
 isDefault Boolean @default(false) @map("is_default")
 sortOrder Int @default(0) @map("sort_order")
+// Subset of the product's image URLs shown when this variant is selected;
+// empty = show every product image. By URL, because product images are
+// rebuilt wholesale (new ids) on every save.
+imageUrls String[] @default([]) @map("image_urls")
 createdAt DateTime @default(now()) @map("created_at")
 updatedAt DateTime @updatedAt @map("updated_at")
 product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -116,6 +122,9 @@ country String?
 specialInstructions String? @map("special_instructions") @db.Text
 status String @default("pending")
 totalPrice Decimal @map("total_price") @db.Decimal(10, 2)
+// True while this order's units are taken out of stock (see lib/stock.ts).
+// Orders placed before stock tracking existed stay false and never restock.
+stockReserved Boolean @default(false) @map("stock_reserved")
 createdAt DateTime @default(now()) @map("created_at")
 items OrderItem[]
 
@@ -177,9 +186,10 @@ includes_ro Json? @default("[]") @map("includes_ro")
 includes_ru Json? @default("[]") @map("includes_ru")
 categoryId Int? @map("category_id")
 category Category? @relation(fields: [categoryId], references: [id])
-promotionId Int?
-promotion Promotion? @relation(fields: [promotionId], references: [id])
+promotions Promotion[] @relation("RentalPromotions")
 isActive Boolean @default(true) @map("is_active")
+// Set by the admin "delete": the row stays so its old URLs keep redirecting (see `redirectRetiredProduct`).
+deletedAt DateTime? @map("deleted_at")
 createdAt DateTime @default(now()) @map("created_at")
 updatedAt DateTime @updatedAt @map("updated_at")
 images RentalPackageImage[]
@@ -189,7 +199,6 @@ orderItems OrderItem[]
 rentalApplications RentalApplication[]
 
     @@index([categoryId])
-    @@index([promotionId])
     @@index([createdAt])
     @@index([price])
     @@index([isActive])
@@ -279,8 +288,8 @@ startDate DateTime
 endDate DateTime
 discountPercent Float
 featured Boolean @default(false)
-products Product[]
-rentals RentalPackage[]
+products Product[] @relation("ProductPromotions")
+rentals RentalPackage[] @relation("RentalPromotions")
 
     @@map("promotions")
 
@@ -362,6 +371,18 @@ createdAt DateTime @default(now()) @map("created_at")
 updatedAt DateTime @updatedAt @map("updated_at")
 
     @@map("delivery_settings")
+
+}
+
+// The short "why buy here" list under the buy buttons on every product page.
+// Singleton; no row = the dictionary defaults.
+model ProductPageSettings {
+id Int @id @default(autoincrement())
+perks_ro String[] @default([]) @map("perks_ro")
+perks_ru String[] @default([]) @map("perks_ru")
+updatedAt DateTime @updatedAt @map("updated_at")
+
+    @@map("product_page_settings")
 
 }
 

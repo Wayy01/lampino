@@ -1,8 +1,11 @@
 "use client";
 
+import { PromotionPicker } from "@/components/admin/promotion-picker";
+import type { PromotionOption } from "@/lib/admin/promotion-status";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { useActionState, useState } from "react";
-import Image from "next/image";
 import {
+  Check,
   Film,
   Image as ImageIcon,
   Layers,
@@ -23,7 +26,7 @@ import {
   type VariantPayload,
 } from "@/lib/admin/actions/products";
 import type { SpecRow } from "@/lib/admin/specs";
-import { MediaField, UploadButton } from "@/components/admin/media";
+import { AdminImage, ImagePreview, MediaField, UploadButton } from "@/components/admin/media";
 import { useAdminLang } from "@/lib/admin/i18n-provider";
 import { SectionCard } from "@/components/admin/section-card";
 import { ConfirmButton } from "@/components/admin/confirm-button";
@@ -37,7 +40,6 @@ import {
 import {
   Field,
   TextInput,
-  TextArea,
   Toggle,
   SubmitButton,
   ActionNotice,
@@ -55,7 +57,7 @@ export type ProductFormData = {
   reducedPrice: number | null;
   stock: number;
   categoryId: number | null;
-  promotionId: number | null;
+  promotionIds: number[];
   featured: boolean;
   featuredOrder: number;
   isActive: boolean;
@@ -67,6 +69,19 @@ export type ProductFormData = {
 
 type Option = { id: number; name: string };
 
+// Video rows get a client-only id: an upload finishing after rows were added,
+// removed or reordered must land on the row it started from, not an index.
+type VideoRow = VideoPayload & { uid: number };
+let nextVideoUid = 0;
+const toVideoRow = (v: VideoPayload): VideoRow => ({ ...v, uid: nextVideoUid++ });
+
+/** Parse a numeric draft; blank or garbage becomes null so the server can refuse it. */
+const draftNumber = (s: string): number | null => {
+  if (s.trim() === "") return null;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
+};
+
 // Variant rows keep numeric fields as strings while editing; parsed on submit.
 type VariantDraft = {
   id: number | null;
@@ -77,6 +92,7 @@ type VariantDraft = {
   reducedPrice: string;
   stock: string;
   isDefault: boolean;
+  imageUrls: string[];
 };
 
 const iconBtn =
@@ -92,7 +108,7 @@ export function ProductForm({
 }: {
   product: ProductFormData | null;
   categories: Option[];
-  promotions: Option[];
+  promotions: PromotionOption[];
 }) {
   const { t, lang } = useAdminLang();
   const action = product ? updateProduct.bind(null, product.id) : createProduct;
@@ -106,7 +122,11 @@ export function ProductForm({
     setSpecs((prev) => prev.map((s, j) => (j === index ? { ...s, ...patch } : s)));
   const [images, setImages] = useState<ImagePayload[]>(product?.images ?? []);
   const [newImageUrl, setNewImageUrl] = useState("");
-  const [videos, setVideos] = useState<VideoPayload[]>(product?.videos ?? []);
+  const [videos, setVideos] = useState<VideoRow[]>(() =>
+    (product?.videos ?? []).map(toVideoRow),
+  );
+  const patchVideo = (uid: number, patch: Partial<VideoPayload>) =>
+    setVideos((prev) => prev.map((v) => (v.uid === uid ? { ...v, ...patch } : v)));
   const [variants, setVariants] = useState<VariantDraft[]>(
     (product?.variants ?? []).map((v) => ({
       id: v.id,
@@ -117,19 +137,42 @@ export function ProductForm({
       reducedPrice: v.reducedPrice === null ? "" : String(v.reducedPrice),
       stock: String(v.stock),
       isDefault: v.isDefault,
+      imageUrls: v.imageUrls,
     })),
   );
+  const toggleVariantImage = (index: number, url: string) =>
+    setVariants((prev) =>
+      prev.map((x, j) =>
+        j !== index
+          ? x
+          : {
+              ...x,
+              imageUrls: x.imageUrls.includes(url)
+                ? x.imageUrls.filter((u) => u !== url)
+                : [...x.imageUrls, url],
+            },
+      ),
+    );
+  // Upload straight into the product gallery and mark it for this variant.
+  const uploadVariantImage = (index: number, url: string) => {
+    setImages((prev) => [...prev, { imageUrl: url, isMain: prev.length === 0 }]);
+    setVariants((prev) =>
+      prev.map((x, j) => (j === index ? { ...x, imageUrls: [...x.imageUrls, url] } : x)),
+    );
+  };
 
   const variantsPayload: VariantPayload[] = variants.map((v, i) => ({
     id: v.id,
     name_ro: v.name_ro,
     name_ru: v.name_ru,
     size: v.size || null,
-    price: Number(v.price) || 0,
-    reducedPrice: v.reducedPrice === "" ? null : Number(v.reducedPrice) || 0,
-    stock: Number(v.stock) || 0,
+    price: draftNumber(v.price),
+    reducedPrice: draftNumber(v.reducedPrice),
+    stock: draftNumber(v.stock) ?? 0,
     isDefault: v.isDefault,
     sortOrder: i,
+    // An image removed from the gallery drops out of every variant too.
+    imageUrls: v.imageUrls.filter((u) => images.some((img) => img.imageUrl === u)),
   }));
 
   // Every sub-collection is ordered, and every one of them reorders by drag
@@ -165,7 +208,11 @@ export function ProductForm({
       <LangField />
       <input type="hidden" name="specifications" value={JSON.stringify(specs)} />
       <input type="hidden" name="images" value={JSON.stringify(images)} />
-      <input type="hidden" name="videos" value={JSON.stringify(videos)} />
+      <input
+        type="hidden"
+        name="videos"
+        value={JSON.stringify(videos.map(({ videoUrl, thumbnailUrl }) => ({ videoUrl, thumbnailUrl })))}
+      />
       <input type="hidden" name="variants" value={JSON.stringify(variantsPayload)} />
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -182,10 +229,10 @@ export function ProductForm({
                 <TextInput id="name_ru" name="name_ru" defaultValue={product?.name_ru} required />
               </Field>
               <Field label={t.products.descriptionRo} htmlFor="description_ro" className="sm:col-span-2">
-                <TextArea id="description_ro" name="description_ro" defaultValue={product?.description_ro} />
+                <RichTextEditor id="description_ro" name="description_ro" defaultValue={product?.description_ro} />
               </Field>
               <Field label={t.products.descriptionRu} htmlFor="description_ru" className="sm:col-span-2">
-                <TextArea id="description_ru" name="description_ru" defaultValue={product?.description_ru} />
+                <RichTextEditor id="description_ru" name="description_ru" defaultValue={product?.description_ru} />
               </Field>
             </div>
           </SectionCard>
@@ -211,12 +258,7 @@ export function ProductForm({
                         className="-ml-1"
                         {...imageOrder.handleProps(i)}
                       />
-                      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-[var(--radius-sm)] bg-muted">
-                        <Image src={img.imageUrl} alt="" fill sizes="48px" unoptimized className="object-cover" />
-                      </div>
-                      <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
-                        {img.imageUrl}
-                      </span>
+                      <ImagePreview url={img.imageUrl} />
                     </div>
                     <div className="mt-2 flex items-center justify-between gap-2">
                       <label className="flex shrink-0 cursor-pointer items-center gap-1.5 text-xs text-muted-foreground">
@@ -287,7 +329,7 @@ export function ProductForm({
               <ul className="mb-4 flex flex-col gap-2">
                 {videos.map((video, i) => (
                   <li
-                    key={i}
+                    key={video.uid}
                     {...videoOrder.itemProps(i)}
                     className={cn(
                       "rounded-[var(--radius-md)] border p-3",
@@ -298,21 +340,13 @@ export function ProductForm({
                       <MediaField
                         accept="video"
                         value={video.videoUrl}
-                        onChange={(url) =>
-                          setVideos(videos.map((v, j) => (j === i ? { ...v, videoUrl: url } : v)))
-                        }
+                        onChange={(url) => patchVideo(video.uid, { videoUrl: url })}
                         placeholder={t.products.videoUrl}
                       />
                       <MediaField
                         accept="image"
                         value={video.thumbnailUrl ?? ""}
-                        onChange={(url) =>
-                          setVideos(
-                            videos.map((v, j) =>
-                              j === i ? { ...v, thumbnailUrl: url || null } : v,
-                            ),
-                          )
-                        }
+                        onChange={(url) => patchVideo(video.uid, { thumbnailUrl: url || null })}
                         placeholder={t.products.thumbnailUrl}
                       />
                     </div>
@@ -322,7 +356,7 @@ export function ProductForm({
                         className="-ml-1"
                         {...videoOrder.handleProps(i)}
                       />
-                      <button type="button" onClick={() => setVideos(videos.filter((_, j) => j !== i))} aria-label={t.common.remove} className={iconBtn}>
+                      <button type="button" onClick={() => setVideos((prev) => prev.filter((v) => v.uid !== video.uid))} aria-label={t.common.remove} className={iconBtn}>
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
@@ -332,7 +366,9 @@ export function ProductForm({
             )}
             <button
               type="button"
-              onClick={() => setVideos([...videos, { videoUrl: "", thumbnailUrl: null }])}
+              onClick={() =>
+                setVideos((prev) => [...prev, toVideoRow({ videoUrl: "", thumbnailUrl: null })])
+              }
               className={ghostBtn}
             >
               <Plus className="h-4 w-4" />
@@ -408,6 +444,52 @@ export function ProductForm({
                         </Field>
                       </div>
                     </div>
+                    <div className="mt-3 border-t pt-3">
+                      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                        <span className="label-mono text-muted-foreground">
+                          {t.products.variantImages}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {variantsPayload[i].imageUrls.length === 0
+                            ? t.products.variantImagesAll
+                            : `${variantsPayload[i].imageUrls.length} / ${images.length}`}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">{t.products.variantImagesHint}</p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {images.map((img) => {
+                          const on = v.imageUrls.includes(img.imageUrl);
+                          return (
+                            <button
+                              key={img.imageUrl}
+                              type="button"
+                              aria-pressed={on}
+                              onClick={() => toggleVariantImage(i, img.imageUrl)}
+                              className={cn(
+                                "relative h-16 w-16 shrink-0 cursor-pointer overflow-hidden rounded-[var(--radius-sm)] bg-muted transition",
+                                on
+                                  ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                                  : "opacity-50 hover:opacity-100",
+                              )}
+                            >
+                              <AdminImage src={img.imageUrl} alt="" sizes="64px" unoptimized compact className="object-cover" />
+                              {on && (
+                                <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                                  <Check className="h-3 w-3" strokeWidth={3} />
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                        <UploadButton
+                          accept="image"
+                          compact
+                          label={t.products.variantImagesUpload}
+                          onUploaded={(url) => uploadVariantImage(i, url)}
+                          className="[&>button]:h-16 [&>button]:w-16 [&>button]:border-dashed"
+                        />
+                      </div>
+                    </div>
                     <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                       <label className="flex cursor-pointer items-center gap-1.5 text-xs text-muted-foreground">
                         <input
@@ -456,6 +538,7 @@ export function ProductForm({
                     reducedPrice: "",
                     stock: "0",
                     isDefault: variants.length === 0,
+                    imageUrls: [],
                   },
                 ])
               }
@@ -579,16 +662,8 @@ export function ProductForm({
                   ]}
                 />
               </Field>
-              <Field label={t.products.promotion} htmlFor="promotionId">
-                <AdminSelect
-                  id="promotionId"
-                  name="promotionId"
-                  defaultValue={product?.promotionId ? String(product.promotionId) : ""}
-                  options={[
-                    { value: "", label: t.products.noPromotion },
-                    ...promotions.map((p) => ({ value: String(p.id), label: p.name })),
-                  ]}
-                />
+              <Field label={t.products.promotion}>
+                <PromotionPicker promotions={promotions} selected={product?.promotionIds ?? []} />
               </Field>
             </div>
           </SectionCard>

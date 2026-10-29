@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin/session";
-import { formatPrice, pick } from "@/lib/utils";
+import { formatPrice, parseId, pick } from "@/lib/utils";
 import { num, formatDate, formatDateTime } from "@/lib/admin/serialize";
 import {
   getAdminDict,
@@ -36,8 +36,8 @@ export default async function AdminOrderDetailPage({
   await requireAdmin(lang);
   const t = getAdminDict(lang);
 
-  const orderId = Number(id);
-  if (!Number.isInteger(orderId)) notFound();
+  const orderId = parseId(id);
+  if (orderId === null) notFound();
 
   const order = await prisma.order.findUnique({
     where: { id: orderId },

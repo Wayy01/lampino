@@ -1,3 +1,4 @@
+import { parseId, parsePage } from "@/lib/utils";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin/session";
 import { Prisma } from "@/lib/generated/prisma";
@@ -31,16 +32,19 @@ export default async function AdminOrdersPage({
   const sp = await searchParams;
   const q = typeof sp.q === "string" ? sp.q : "";
   const status = typeof sp.status === "string" ? sp.status : "";
-  const page = Math.max(1, Number(sp.page) || 1);
+  const page = parsePage(sp.page);
 
+  // A long digit string is a phone number, not an order id — `parseId` drops
+  // anything that doesn't fit the Int column instead of erroring the page.
   const idQuery = /^#?\d+$/.test(q.trim())
-    ? Number(q.trim().replace("#", ""))
+    ? parseId(q.trim().replace("#", ""))
     : null;
   const where: Prisma.OrderWhereInput = {
     ...(q && {
       OR: [
         { customerName: { contains: q, mode: "insensitive" as const } },
         { customerEmail: { contains: q, mode: "insensitive" as const } },
+        { customerPhone: { contains: q, mode: "insensitive" as const } },
         ...(idQuery !== null ? [{ id: idQuery }] : []),
       ],
     }),

@@ -11,7 +11,18 @@ import {
   langFromForm,
   type AdminLang,
 } from "@/lib/admin/i18n";
-import { specsToJson, isEmptySpecRow, type SpecRow } from "@/lib/admin/specs";
+import {
+  specsToJson,
+  isEmptySpecRow,
+  hasDuplicateSpecKeys,
+  type SpecRow,
+} from "@/lib/admin/specs";
+import {
+  idOrNull,
+  isAllowedImageUrl,
+  isAllowedVideoUrl,
+} from "@/lib/admin/validate";
+import { promotionLinks, relationsExist } from "@/lib/admin/relations";
 import { includesToJson } from "@/lib/admin/includes";
 import {
   ActionRefusal,
@@ -32,7 +43,8 @@ export type VariantPayload = {
   name_ro: string;
   name_ru: string;
   size: string | null;
-  price: number;
+  /** null when the field was left blank — refused on save, never stored as 0. */
+  price: number | null;
   reducedPrice: number | null;
   isDefault: boolean;
   sortOrder: number;
@@ -62,11 +74,24 @@ function json<T>(fd: FormData, key: string, fallback: T): T {
   }
 }
 
+/** A hidden JSON field as an array of objects; anything else becomes `[]`. */
+function jsonRows(fd: FormData, key: string): Record<string, unknown>[] {
+  const parsed = json<unknown>(fd, key, []);
+  return Array.isArray(parsed)
+    ? parsed.filter((r): r is Record<string, unknown> => !!r && typeof r === "object")
+    : [];
+}
+
+const text = (v: unknown): string => (typeof v === "string" ? v : "");
+const finiteOrNull = (v: unknown): number | null =>
+  typeof v === "number" && Number.isFinite(v) ? v : null;
+
 type ParsedRental = {
   scalars: Omit<
     Prisma.RentalPackageUncheckedCreateInput,
-    "id" | "images" | "videos" | "variants"
+    "id" | "images" | "videos" | "variants" | "promotions"
   >;
+  promotionIds: number[];
   images: ImagePayload[];
   videos: VideoPayload[];
   variants: VariantPayload[];
@@ -88,18 +113,70 @@ function parseRental(fd: FormData): ParsedRental | { error: string } {
     return { error: errors.priceTooLarge };
   }
 
-  const specRows = json<SpecRow[]>(fd, "specifications", []).filter(
-    (row) => !isEmptySpecRow(row),
-  );
-  const images = json<ImagePayload[]>(fd, "images", []).filter((i) => i.imageUrl.trim());
-  const videos = json<VideoPayload[]>(fd, "videos", []).filter((v) => v.videoUrl.trim());
-  const variants = json<VariantPayload[]>(fd, "variants", []).filter(
-    (v) => v.name_ro.trim() && v.name_ru.trim(),
-  );
+  const shared = getAdminDict(langFromForm(fd)).errors;
+  const categoryId = numOrNull(fd, "categoryId");
+  if (categoryId !== null && idOrNull(categoryId) === null) {
+    return { error: shared.invalidNumber };
+  }
+  // Any number of promotions (one per campaign across the year).
+  const promotionIds = [
+    ...new Set(
+      fd
+        .getAll("promotionIds")
+        .map((v) => idOrNull(Number(v)))
+        .filter((v): v is number => v !== null),
+    ),
+  ];
+
+  const specRows: SpecRow[] = jsonRows(fd, "specifications")
+    .map((r) => ({
+      id: text(r.id),
+      label_ro: text(r.label_ro),
+      label_ru: text(r.label_ru),
+      value_ro: text(r.value_ro),
+      value_ru: text(r.value_ru),
+    }))
+    .filter((row) => !isEmptySpecRow(row));
+  if (hasDuplicateSpecKeys(specRows)) return { error: shared.duplicateSpecId };
+
+  const images: ImagePayload[] = jsonRows(fd, "images")
+    .map((r) => ({ imageUrl: text(r.imageUrl).trim(), isMain: r.isMain === true }))
+    .filter((i) => i.imageUrl);
+  const videos: VideoPayload[] = jsonRows(fd, "videos")
+    .map((r) => ({
+      videoUrl: text(r.videoUrl).trim(),
+      thumbnailUrl: text(r.thumbnailUrl).trim() || null,
+    }))
+    .filter((v) => v.videoUrl);
+  if (
+    images.some((i) => !isAllowedImageUrl(i.imageUrl)) ||
+    videos.some(
+      (v) =>
+        !isAllowedVideoUrl(v.videoUrl) ||
+        (v.thumbnailUrl !== null && !isAllowedImageUrl(v.thumbnailUrl)),
+    )
+  ) {
+    return { error: shared.invalidMediaUrl };
+  }
+
+  const variants: VariantPayload[] = jsonRows(fd, "variants")
+    .map((r, i) => ({
+      id: idOrNull(finiteOrNull(r.id)),
+      name_ro: text(r.name_ro).trim(),
+      name_ru: text(r.name_ru).trim(),
+      size: text(r.size).trim() || null,
+      price: finiteOrNull(r.price),
+      reducedPrice: finiteOrNull(r.reducedPrice),
+      isDefault: r.isDefault === true,
+      sortOrder: i,
+    }))
+    .filter((v) => v.name_ro && v.name_ru);
 
   // Variants carry their own money and are just as capable of overflowing the
   // column or undercutting their own reduced price.
   for (const v of variants) {
+    // A blank variant price used to be saved as 0 lei.
+    if (v.price === null || v.price < 0) return { error: errors.priceRequired };
     if (overMoney(v.price) || overMoney(v.reducedPrice)) {
       return { error: errors.priceTooLarge };
     }
@@ -120,10 +197,10 @@ function parseRental(fd: FormData): ParsedRental | { error: string } {
       specifications: specsToJson(specRows),
       includes_ro: includesToJson(json<string[]>(fd, "includes_ro", [])),
       includes_ru: includesToJson(json<string[]>(fd, "includes_ru", [])),
-      categoryId: numOrNull(fd, "categoryId"),
-      promotionId: numOrNull(fd, "promotionId"),
+      categoryId,
       isActive: fd.get("isActive") === "on",
     },
+    promotionIds,
     images,
     videos,
     variants,
@@ -134,7 +211,8 @@ const variantData = (v: VariantPayload) => ({
   name_ro: v.name_ro.trim(),
   name_ru: v.name_ru.trim(),
   size: v.size?.trim() || null,
-  price: new Prisma.Decimal(v.price),
+  // Non-null by now: `parseRental` refuses a variant without a price.
+  price: new Prisma.Decimal(v.price ?? 0),
   reducedPrice: v.reducedPrice === null ? null : new Prisma.Decimal(v.reducedPrice),
   isDefault: v.isDefault,
   sortOrder: v.sortOrder,
@@ -150,10 +228,13 @@ export async function createRental(
   return runFormAction(lang, async () => {
     const parsed = parseRental(fd);
     if ("error" in parsed) return { error: parsed.error };
+    await relationsExist(parsed.scalars.categoryId);
+    const promotions = await promotionLinks(parsed.promotionIds);
 
     const rental = await prisma.rentalPackage.create({
       data: {
         ...parsed.scalars,
+        promotions: { connect: promotions },
         images: { create: parsed.images },
         videos: { create: parsed.videos },
         variants: { create: parsed.variants.map(variantData) },
@@ -176,13 +257,18 @@ export async function updateRental(
   return runFormAction(lang, async () => {
     const parsed = parseRental(fd);
     if ("error" in parsed) return { error: parsed.error };
+    await relationsExist(parsed.scalars.categoryId);
+    const promotions = await promotionLinks(parsed.promotionIds);
 
     const keptVariantIds = parsed.variants
       .map((v) => v.id)
       .filter((v): v is number => v !== null);
 
     await prisma.$transaction([
-      prisma.rentalPackage.update({ where: { id }, data: parsed.scalars }),
+      prisma.rentalPackage.update({
+        where: { id },
+        data: { ...parsed.scalars, promotions: { set: promotions } },
+      }),
       // Images and videos carry no foreign keys — rebuild them wholesale.
       prisma.rentalPackageImage.deleteMany({ where: { rentalPackageId: id } }),
       prisma.rentalPackageImage.createMany({
@@ -223,10 +309,21 @@ export async function deleteRental(
 ): Promise<ActionResult> {
   await requireAdmin(lang);
   return runAction(lang, async () => {
-    // Rental applications cascade with the package — schema-defined behaviour.
-    await prisma.rentalPackage.delete({ where: { id } });
+    await softDeleteRental(id);
     revalidatePath("/admin/[lang]/rentals", "page");
     redirect(`/admin/${lang}/rentals`);
+  });
+}
+
+/**
+ * "Delete" hides the package for good but keeps the row: its URL keeps
+ * redirecting to /arenda instead of 404ing, and the customer applications that
+ * cascade with it in the schema are never lost.
+ */
+async function softDeleteRental(id: number): Promise<void> {
+  await prisma.rentalPackage.update({
+    where: { id },
+    data: { isActive: false, deletedAt: new Date() },
   });
 }
 
@@ -258,7 +355,7 @@ export async function removeRental(
 ): Promise<ActionResult> {
   await requireAdmin(lang);
   return runAction(lang, async () => {
-    await prisma.rentalPackage.delete({ where: { id } });
+    await softDeleteRental(id);
     revalidateRentals();
   });
 }
@@ -279,6 +376,7 @@ export async function duplicateRental(
         images: { orderBy: { id: "asc" } },
         videos: { orderBy: { id: "asc" } },
         variants: { orderBy: { sortOrder: "asc" } },
+        promotions: { select: { id: true } },
       },
     });
     if (!source) throw new ActionRefusal("sourceMissing");
@@ -296,7 +394,7 @@ export async function duplicateRental(
         includes_ro: (source.includes_ro ?? []) as Prisma.InputJsonValue,
         includes_ru: (source.includes_ru ?? []) as Prisma.InputJsonValue,
         categoryId: source.categoryId,
-        promotionId: source.promotionId,
+        promotions: { connect: source.promotions.map((p) => ({ id: p.id })) },
         isActive: false,
         images: {
           create: source.images.map((i) => ({

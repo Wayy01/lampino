@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import {
   Copy,
   Eye,
@@ -22,6 +21,7 @@ import { DataTable, type Column } from "@/components/admin/data-table";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { EmptyState } from "@/components/admin/empty-state";
 import { RowActions, type RowAction } from "@/components/admin/row-actions";
+import { AdminImage } from "@/components/admin/media";
 
 export type RentalRow = {
   id: number;
@@ -59,7 +59,7 @@ export function RentalsTable({
             key: "view",
             label: t.common.viewOnSite,
             icon: <ExternalLink className="h-4 w-4" />,
-            externalHref: rentalHref(lang, r.id, r.title),
+            externalHref: rentalHref(lang, { id: r.id, title_ro: r.title, title_ru: r.title }),
           },
         ]
       : []),
@@ -101,11 +101,11 @@ export function RentalsTable({
         <div className="flex items-center gap-3">
           <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-[var(--radius-sm)] bg-muted">
             {r.imageUrl && (
-              <Image
+              <AdminImage
                 src={r.imageUrl}
                 alt=""
-                fill
                 sizes="40px"
+                compact
                 unoptimized
                 className="object-cover"
               />
@@ -137,7 +137,7 @@ export function RentalsTable({
       header: t.products.category,
       hideOnMobile: true,
       cell: (r) => (
-        <span className="text-muted-foreground">{r.categoryName ?? "—"}</span>
+        <span className="text-muted-foreground">{r.categoryName ?? "-"}</span>
       ),
     },
     {
@@ -191,7 +191,7 @@ export function RentalsTable({
         <div className="flex justify-end">
           <RowActions
             actions={actions(r)}
-            label={`${t.common.actions} — ${r.title}`}
+            label={`${t.common.actions}: ${r.title}`}
           />
         </div>
       ),

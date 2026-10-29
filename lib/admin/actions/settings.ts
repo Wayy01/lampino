@@ -93,6 +93,36 @@ export async function updateDelivery(
   });
 }
 
+// Keep in sync with ProductPageForm (a "use server" file can only export actions).
+const PRODUCT_PERK_SLOTS = 4;
+
+export async function updateProductPage(
+  _prev: SettingsActionState,
+  fd: FormData,
+): Promise<SettingsActionState> {
+  const lang = langFromForm(fd);
+  await requireAdmin(lang);
+
+  return runFormAction(lang, async () => {
+    const slots = Array.from({ length: PRODUCT_PERK_SLOTS }, (_, i) => i);
+    // Positions are kept (blanks included) so RO and RU rows stay paired;
+    // the storefront drops the blanks.
+    const data = {
+      perks_ro: slots.map((i) => str(fd, `perk_ro_${i}`).slice(0, 120)),
+      perks_ru: slots.map((i) => str(fd, `perk_ru_${i}`).slice(0, 120)),
+    };
+
+    const existing = await prisma.productPageSettings.findFirst({ orderBy: { id: "asc" } });
+    if (existing) {
+      await prisma.productPageSettings.update({ where: { id: existing.id }, data });
+    } else {
+      await prisma.productPageSettings.create({ data });
+    }
+    revalidate();
+    return { ok: true };
+  });
+}
+
 export async function updateTheme(
   _prev: SettingsActionState,
   fd: FormData,

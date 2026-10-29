@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Raw media sources, never markup. Tailwind's auto-detection doesn't know the
+   .glb extension and reads the 11 MB model as text, which can take gigabytes
+   of memory and get the build OOM-killed. */
+@source not "../assets";
+@source not "../videos";
+
 /* =========================================================
    LAMPINO — home lighting shop (light-only)
    Warm ivory paper · ink · single warm terracotta accent
@@ -52,6 +58,27 @@
   --animate-marquee: marquee 38s linear infinite;
   --animate-ken-burns: kenBurns 18s ease-in-out infinite alternate;
   --animate-float-slow: floatSlow 9s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+  /* Holds a "still loading" label back so fast loads never flash it. */
+  --animate-fade-in-late: fadeIn 0.3s ease-out 0.9s both;
+
+  @keyframes shimmer {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 
   @keyframes marquee {
     from {

@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "motion/react";
 import { ArrowUpRight, Check } from "lucide-react";
 import type { RentalPackage } from "@/lib/types";
 import { useLang } from "@/lib/i18n/provider";
 import { pick, formatPrice } from "@/lib/utils";
 import { rentalHref } from "@/lib/i18n/routing";
+import { SiteImage } from "@/components/site/site-image";
 
 export function RentalCard({
   pkg,
@@ -43,16 +43,15 @@ export function RentalCard({
       className="h-full"
     >
       <Link
-        href={rentalHref(lang, pkg.id, pkg.title_ro)}
+        href={rentalHref(lang, pkg)}
         className="group flex h-full flex-col overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface transition-shadow duration-500 hover:shadow-[0_24px_60px_-28px_rgba(20,17,15,0.4)]"
       >
         {/* Magazine-cover header */}
         <div className="relative aspect-[16/11] overflow-hidden bg-muted">
           {image ? (
-            <Image
+            <SiteImage
               src={image}
               alt={title}
-              fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
             />

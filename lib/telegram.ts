@@ -81,7 +81,7 @@ export async function sendNewOrderAlert(order: OrderForTelegram): Promise<void> 
   for (const item of order.items) {
     const price = toNum(item.priceEach);
     lines.push(
-      `— ${escape(itemName(item))} x${item.quantity} — ${(price * item.quantity).toFixed(2)} MDL`,
+      `• ${escape(itemName(item))} x${item.quantity}: ${(price * item.quantity).toFixed(2)} MDL`,
     );
   }
   lines.push("");
@@ -93,7 +93,7 @@ export async function sendNewOrderAlert(order: OrderForTelegram): Promise<void> 
 export async function sendNewRentalApplicationAlert(app: RentalAppForTelegram): Promise<void> {
   const total = toNum(app.totalPrice);
   const packageName = app.rentalPackageVariant
-    ? `${app.rentalPackage.title_ro} — ${app.rentalPackageVariant.name_ro}`
+    ? `${app.rentalPackage.title_ro} / ${app.rentalPackageVariant.name_ro}`
     : app.rentalPackage.title_ro;
   const eventDate = app.eventDate.toLocaleDateString("ro-MD");
 
@@ -103,7 +103,7 @@ export async function sendNewRentalApplicationAlert(app: RentalAppForTelegram): 
   lines.push(`<b>Telefon:</b> ${escape(app.customerPhone)}`);
   lines.push(`<b>Email:</b> ${escape(app.customerEmail)}`);
   lines.push(`<b>Pachet:</b> ${escape(packageName)}`);
-  lines.push(`<b>Eveniment:</b> ${escape(app.eventType)} — ${eventDate}`);
+  lines.push(`<b>Eveniment:</b> ${escape(app.eventType)}, ${eventDate}`);
   lines.push(`<b>Locație:</b> ${escape(app.eventLocation)}`);
   lines.push(`<b>Invitați:</b> ${app.guestCount}`);
   lines.push(`<b>Total: ${total.toFixed(2)} MDL</b>`);
