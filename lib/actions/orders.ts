@@ -24,7 +24,9 @@ export type SubmitOrderInput = {
   customerPhone: string;
   method: "pickup" | "delivery";
   region: DeliveryRegion;
+  city: string | null;
   address: string | null;
+  postalCode: string | null;
   notes: string | null;
 };
 
@@ -91,7 +93,13 @@ export async function submitOrder(
     }
 
     const address = typeof input.address === "string" ? input.address.trim() : "";
-    if (input.method === "delivery" && (!address || address.length > MAX_ADDRESS)) {
+    const city = typeof input.city === "string" ? input.city.trim() : "";
+    const postalCode =
+      typeof input.postalCode === "string" ? input.postalCode.trim().slice(0, 20) : "";
+    if (
+      input.method === "delivery" &&
+      (!address || address.length > MAX_ADDRESS || !city || city.length > MAX_ADDRESS)
+    ) {
       return { ok: false, error: "invalid_address" };
     }
     const notes =
@@ -236,12 +244,8 @@ export async function submitOrder(
           customerEmail: contact?.email?.trim() || FALLBACK_EMAIL,
           customerPhone: phone,
           address: input.method === "delivery" ? address : null,
-          city:
-            input.method === "delivery"
-              ? input.region === "chisinau"
-                ? "Chișinău"
-                : null
-              : null,
+          city: input.method === "delivery" ? city || null : null,
+          postalCode: input.method === "delivery" ? postalCode || null : null,
           country: input.method === "delivery" ? "Moldova" : null,
           specialInstructions: notes || null,
           status: "pending",
@@ -262,6 +266,7 @@ export async function submitOrder(
           customerPhone: true,
           address: true,
           city: true,
+          postalCode: true,
           totalPrice: true,
           items: {
             select: {

@@ -15,6 +15,7 @@ import {
   PanelsTopLeft,
   Users,
   Settings2,
+  Plug,
   LogOut,
   Menu,
   X,
@@ -45,6 +46,7 @@ const NAV: {
   { path: "/reviews", label: (t) => t.nav.reviews, icon: MessageSquareText },
   { path: "/homepage", label: (t) => t.nav.homepage, icon: PanelsTopLeft },
   { path: "/users", label: (t) => t.nav.users, icon: Users },
+  { path: "/integrations", label: (t) => t.nav.integrations, icon: Plug },
   { path: "/settings", label: (t) => t.nav.settings, icon: Settings2 },
 ];
 

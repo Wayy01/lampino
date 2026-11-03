@@ -49,6 +49,11 @@ export type Order = $Result.DefaultSelection<Prisma.$OrderPayload>
  */
 export type OrderItem = $Result.DefaultSelection<Prisma.$OrderItemPayload>
 /**
+ * Model Shipment
+ * 
+ */
+export type Shipment = $Result.DefaultSelection<Prisma.$ShipmentPayload>
+/**
  * Model AdminUser
  * 
  */
@@ -108,6 +113,11 @@ export type DeliverySettings = $Result.DefaultSelection<Prisma.$DeliverySettings
  * 
  */
 export type ProductPageSettings = $Result.DefaultSelection<Prisma.$ProductPageSettingsPayload>
+/**
+ * Model ShippingSettings
+ * 
+ */
+export type ShippingSettings = $Result.DefaultSelection<Prisma.$ShippingSettingsPayload>
 /**
  * Model ContactSettings
  * 
@@ -323,6 +333,16 @@ export class PrismaClient<
   get orderItem(): Prisma.OrderItemDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.shipment`: Exposes CRUD operations for the **Shipment** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Shipments
+    * const shipments = await prisma.shipment.findMany()
+    * ```
+    */
+  get shipment(): Prisma.ShipmentDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.adminUser`: Exposes CRUD operations for the **AdminUser** model.
     * Example usage:
     * ```ts
@@ -441,6 +461,16 @@ export class PrismaClient<
     * ```
     */
   get productPageSettings(): Prisma.ProductPageSettingsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.shippingSettings`: Exposes CRUD operations for the **ShippingSettings** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ShippingSettings
+    * const shippingSettings = await prisma.shippingSettings.findMany()
+    * ```
+    */
+  get shippingSettings(): Prisma.ShippingSettingsDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.contactSettings`: Exposes CRUD operations for the **ContactSettings** model.
@@ -939,6 +969,7 @@ export namespace Prisma {
     ProductVariant: 'ProductVariant',
     Order: 'Order',
     OrderItem: 'OrderItem',
+    Shipment: 'Shipment',
     AdminUser: 'AdminUser',
     RentalPackage: 'RentalPackage',
     RentalPackageImage: 'RentalPackageImage',
@@ -951,6 +982,7 @@ export namespace Prisma {
     HomepageSettings: 'HomepageSettings',
     DeliverySettings: 'DeliverySettings',
     ProductPageSettings: 'ProductPageSettings',
+    ShippingSettings: 'ShippingSettings',
     ContactSettings: 'ContactSettings',
     PromoBanner: 'PromoBanner',
     SpecialOffersPage: 'SpecialOffersPage',
@@ -974,7 +1006,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "category" | "product" | "productImage" | "productVideo" | "productVariant" | "order" | "orderItem" | "adminUser" | "rentalPackage" | "rentalPackageImage" | "rentalPackageVideo" | "rentalPackageVariant" | "rentalApplication" | "promotion" | "themeSettings" | "heroContent" | "homepageSettings" | "deliverySettings" | "productPageSettings" | "contactSettings" | "promoBanner" | "specialOffersPage" | "analyticsEvent" | "review"
+      modelProps: "category" | "product" | "productImage" | "productVideo" | "productVariant" | "order" | "orderItem" | "shipment" | "adminUser" | "rentalPackage" | "rentalPackageImage" | "rentalPackageVideo" | "rentalPackageVariant" | "rentalApplication" | "promotion" | "themeSettings" | "heroContent" | "homepageSettings" | "deliverySettings" | "productPageSettings" | "shippingSettings" | "contactSettings" | "promoBanner" | "specialOffersPage" | "analyticsEvent" | "review"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1493,6 +1525,80 @@ export namespace Prisma {
           count: {
             args: Prisma.OrderItemCountArgs<ExtArgs>
             result: $Utils.Optional<OrderItemCountAggregateOutputType> | number
+          }
+        }
+      }
+      Shipment: {
+        payload: Prisma.$ShipmentPayload<ExtArgs>
+        fields: Prisma.ShipmentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ShipmentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ShipmentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentPayload>
+          }
+          findFirst: {
+            args: Prisma.ShipmentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ShipmentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentPayload>
+          }
+          findMany: {
+            args: Prisma.ShipmentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentPayload>[]
+          }
+          create: {
+            args: Prisma.ShipmentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentPayload>
+          }
+          createMany: {
+            args: Prisma.ShipmentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ShipmentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentPayload>[]
+          }
+          delete: {
+            args: Prisma.ShipmentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentPayload>
+          }
+          update: {
+            args: Prisma.ShipmentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentPayload>
+          }
+          deleteMany: {
+            args: Prisma.ShipmentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ShipmentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ShipmentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentPayload>[]
+          }
+          upsert: {
+            args: Prisma.ShipmentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShipmentPayload>
+          }
+          aggregate: {
+            args: Prisma.ShipmentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateShipment>
+          }
+          groupBy: {
+            args: Prisma.ShipmentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ShipmentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ShipmentCountArgs<ExtArgs>
+            result: $Utils.Optional<ShipmentCountAggregateOutputType> | number
           }
         }
       }
@@ -2384,6 +2490,80 @@ export namespace Prisma {
           }
         }
       }
+      ShippingSettings: {
+        payload: Prisma.$ShippingSettingsPayload<ExtArgs>
+        fields: Prisma.ShippingSettingsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ShippingSettingsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShippingSettingsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ShippingSettingsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShippingSettingsPayload>
+          }
+          findFirst: {
+            args: Prisma.ShippingSettingsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShippingSettingsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ShippingSettingsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShippingSettingsPayload>
+          }
+          findMany: {
+            args: Prisma.ShippingSettingsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShippingSettingsPayload>[]
+          }
+          create: {
+            args: Prisma.ShippingSettingsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShippingSettingsPayload>
+          }
+          createMany: {
+            args: Prisma.ShippingSettingsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ShippingSettingsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShippingSettingsPayload>[]
+          }
+          delete: {
+            args: Prisma.ShippingSettingsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShippingSettingsPayload>
+          }
+          update: {
+            args: Prisma.ShippingSettingsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShippingSettingsPayload>
+          }
+          deleteMany: {
+            args: Prisma.ShippingSettingsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ShippingSettingsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ShippingSettingsUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShippingSettingsPayload>[]
+          }
+          upsert: {
+            args: Prisma.ShippingSettingsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShippingSettingsPayload>
+          }
+          aggregate: {
+            args: Prisma.ShippingSettingsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateShippingSettings>
+          }
+          groupBy: {
+            args: Prisma.ShippingSettingsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ShippingSettingsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ShippingSettingsCountArgs<ExtArgs>
+            result: $Utils.Optional<ShippingSettingsCountAggregateOutputType> | number
+          }
+        }
+      }
       ContactSettings: {
         payload: Prisma.$ContactSettingsPayload<ExtArgs>
         fields: Prisma.ContactSettingsFieldRefs
@@ -2857,6 +3037,7 @@ export namespace Prisma {
     productVariant?: ProductVariantOmit
     order?: OrderOmit
     orderItem?: OrderItemOmit
+    shipment?: ShipmentOmit
     adminUser?: AdminUserOmit
     rentalPackage?: RentalPackageOmit
     rentalPackageImage?: RentalPackageImageOmit
@@ -2869,6 +3050,7 @@ export namespace Prisma {
     homepageSettings?: HomepageSettingsOmit
     deliverySettings?: DeliverySettingsOmit
     productPageSettings?: ProductPageSettingsOmit
+    shippingSettings?: ShippingSettingsOmit
     contactSettings?: ContactSettingsOmit
     promoBanner?: PromoBannerOmit
     specialOffersPage?: SpecialOffersPageOmit
@@ -3102,10 +3284,12 @@ export namespace Prisma {
 
   export type OrderCountOutputType = {
     items: number
+    shipments: number
   }
 
   export type OrderCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     items?: boolean | OrderCountOutputTypeCountItemsArgs
+    shipments?: boolean | OrderCountOutputTypeCountShipmentsArgs
   }
 
   // Custom InputTypes
@@ -3124,6 +3308,13 @@ export namespace Prisma {
    */
   export type OrderCountOutputTypeCountItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OrderItemWhereInput
+  }
+
+  /**
+   * OrderCountOutputType without action
+   */
+  export type OrderCountOutputTypeCountShipmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ShipmentWhereInput
   }
 
 
@@ -4675,6 +4866,10 @@ export namespace Prisma {
     price: Decimal | null
     reducedPrice: Decimal | null
     stock: number | null
+    weightGrams: number | null
+    lengthMm: number | null
+    widthMm: number | null
+    heightMm: number | null
     categoryId: number | null
     featuredOrder: number | null
   }
@@ -4684,6 +4879,10 @@ export namespace Prisma {
     price: Decimal | null
     reducedPrice: Decimal | null
     stock: number | null
+    weightGrams: number | null
+    lengthMm: number | null
+    widthMm: number | null
+    heightMm: number | null
     categoryId: number | null
     featuredOrder: number | null
   }
@@ -4698,6 +4897,10 @@ export namespace Prisma {
     reducedPrice: Decimal | null
     stock: number | null
     hasVariants: boolean | null
+    weightGrams: number | null
+    lengthMm: number | null
+    widthMm: number | null
+    heightMm: number | null
     categoryId: number | null
     featured: boolean | null
     featuredOrder: number | null
@@ -4719,6 +4922,10 @@ export namespace Prisma {
     reducedPrice: Decimal | null
     stock: number | null
     hasVariants: boolean | null
+    weightGrams: number | null
+    lengthMm: number | null
+    widthMm: number | null
+    heightMm: number | null
     categoryId: number | null
     featured: boolean | null
     featuredOrder: number | null
@@ -4741,6 +4948,10 @@ export namespace Prisma {
     stock: number
     hasVariants: number
     specifications: number
+    weightGrams: number
+    lengthMm: number
+    widthMm: number
+    heightMm: number
     categoryId: number
     featured: number
     featuredOrder: number
@@ -4759,6 +4970,10 @@ export namespace Prisma {
     price?: true
     reducedPrice?: true
     stock?: true
+    weightGrams?: true
+    lengthMm?: true
+    widthMm?: true
+    heightMm?: true
     categoryId?: true
     featuredOrder?: true
   }
@@ -4768,6 +4983,10 @@ export namespace Prisma {
     price?: true
     reducedPrice?: true
     stock?: true
+    weightGrams?: true
+    lengthMm?: true
+    widthMm?: true
+    heightMm?: true
     categoryId?: true
     featuredOrder?: true
   }
@@ -4782,6 +5001,10 @@ export namespace Prisma {
     reducedPrice?: true
     stock?: true
     hasVariants?: true
+    weightGrams?: true
+    lengthMm?: true
+    widthMm?: true
+    heightMm?: true
     categoryId?: true
     featured?: true
     featuredOrder?: true
@@ -4803,6 +5026,10 @@ export namespace Prisma {
     reducedPrice?: true
     stock?: true
     hasVariants?: true
+    weightGrams?: true
+    lengthMm?: true
+    widthMm?: true
+    heightMm?: true
     categoryId?: true
     featured?: true
     featuredOrder?: true
@@ -4825,6 +5052,10 @@ export namespace Prisma {
     stock?: true
     hasVariants?: true
     specifications?: true
+    weightGrams?: true
+    lengthMm?: true
+    widthMm?: true
+    heightMm?: true
     categoryId?: true
     featured?: true
     featuredOrder?: true
@@ -4934,6 +5165,10 @@ export namespace Prisma {
     stock: number
     hasVariants: boolean
     specifications: JsonValue | null
+    weightGrams: number | null
+    lengthMm: number | null
+    widthMm: number | null
+    heightMm: number | null
     categoryId: number | null
     featured: boolean
     featuredOrder: number
@@ -4975,6 +5210,10 @@ export namespace Prisma {
     stock?: boolean
     hasVariants?: boolean
     specifications?: boolean
+    weightGrams?: boolean
+    lengthMm?: boolean
+    widthMm?: boolean
+    heightMm?: boolean
     categoryId?: boolean
     featured?: boolean
     featuredOrder?: boolean
@@ -5005,6 +5244,10 @@ export namespace Prisma {
     stock?: boolean
     hasVariants?: boolean
     specifications?: boolean
+    weightGrams?: boolean
+    lengthMm?: boolean
+    widthMm?: boolean
+    heightMm?: boolean
     categoryId?: boolean
     featured?: boolean
     featuredOrder?: boolean
@@ -5028,6 +5271,10 @@ export namespace Prisma {
     stock?: boolean
     hasVariants?: boolean
     specifications?: boolean
+    weightGrams?: boolean
+    lengthMm?: boolean
+    widthMm?: boolean
+    heightMm?: boolean
     categoryId?: boolean
     featured?: boolean
     featuredOrder?: boolean
@@ -5051,6 +5298,10 @@ export namespace Prisma {
     stock?: boolean
     hasVariants?: boolean
     specifications?: boolean
+    weightGrams?: boolean
+    lengthMm?: boolean
+    widthMm?: boolean
+    heightMm?: boolean
     categoryId?: boolean
     featured?: boolean
     featuredOrder?: boolean
@@ -5062,7 +5313,7 @@ export namespace Prisma {
     imageAlt_ru?: boolean
   }
 
-  export type ProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name_ro" | "name_ru" | "description_ro" | "description_ru" | "price" | "reducedPrice" | "stock" | "hasVariants" | "specifications" | "categoryId" | "featured" | "featuredOrder" | "isActive" | "deletedAt" | "createdAt" | "updatedAt" | "imageAlt_ro" | "imageAlt_ru", ExtArgs["result"]["product"]>
+  export type ProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name_ro" | "name_ru" | "description_ro" | "description_ru" | "price" | "reducedPrice" | "stock" | "hasVariants" | "specifications" | "weightGrams" | "lengthMm" | "widthMm" | "heightMm" | "categoryId" | "featured" | "featuredOrder" | "isActive" | "deletedAt" | "createdAt" | "updatedAt" | "imageAlt_ro" | "imageAlt_ru", ExtArgs["result"]["product"]>
   export type ProductInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     category?: boolean | Product$categoryArgs<ExtArgs>
     promotions?: boolean | Product$promotionsArgs<ExtArgs>
@@ -5102,6 +5353,10 @@ export namespace Prisma {
       stock: number
       hasVariants: boolean
       specifications: Prisma.JsonValue | null
+      weightGrams: number | null
+      lengthMm: number | null
+      widthMm: number | null
+      heightMm: number | null
       categoryId: number | null
       featured: boolean
       featuredOrder: number
@@ -5551,6 +5806,10 @@ export namespace Prisma {
     readonly stock: FieldRef<"Product", 'Int'>
     readonly hasVariants: FieldRef<"Product", 'Boolean'>
     readonly specifications: FieldRef<"Product", 'Json'>
+    readonly weightGrams: FieldRef<"Product", 'Int'>
+    readonly lengthMm: FieldRef<"Product", 'Int'>
+    readonly widthMm: FieldRef<"Product", 'Int'>
+    readonly heightMm: FieldRef<"Product", 'Int'>
     readonly categoryId: FieldRef<"Product", 'Int'>
     readonly featured: FieldRef<"Product", 'Boolean'>
     readonly featuredOrder: FieldRef<"Product", 'Int'>
@@ -8321,6 +8580,10 @@ export namespace Prisma {
     price: Decimal | null
     reducedPrice: Decimal | null
     stock: number | null
+    weightGrams: number | null
+    lengthMm: number | null
+    widthMm: number | null
+    heightMm: number | null
     sortOrder: number | null
   }
 
@@ -8330,6 +8593,10 @@ export namespace Prisma {
     price: Decimal | null
     reducedPrice: Decimal | null
     stock: number | null
+    weightGrams: number | null
+    lengthMm: number | null
+    widthMm: number | null
+    heightMm: number | null
     sortOrder: number | null
   }
 
@@ -8342,6 +8609,10 @@ export namespace Prisma {
     price: Decimal | null
     reducedPrice: Decimal | null
     stock: number | null
+    weightGrams: number | null
+    lengthMm: number | null
+    widthMm: number | null
+    heightMm: number | null
     isDefault: boolean | null
     sortOrder: number | null
     createdAt: Date | null
@@ -8357,6 +8628,10 @@ export namespace Prisma {
     price: Decimal | null
     reducedPrice: Decimal | null
     stock: number | null
+    weightGrams: number | null
+    lengthMm: number | null
+    widthMm: number | null
+    heightMm: number | null
     isDefault: boolean | null
     sortOrder: number | null
     createdAt: Date | null
@@ -8372,6 +8647,10 @@ export namespace Prisma {
     price: number
     reducedPrice: number
     stock: number
+    weightGrams: number
+    lengthMm: number
+    widthMm: number
+    heightMm: number
     isDefault: number
     sortOrder: number
     imageUrls: number
@@ -8387,6 +8666,10 @@ export namespace Prisma {
     price?: true
     reducedPrice?: true
     stock?: true
+    weightGrams?: true
+    lengthMm?: true
+    widthMm?: true
+    heightMm?: true
     sortOrder?: true
   }
 
@@ -8396,6 +8679,10 @@ export namespace Prisma {
     price?: true
     reducedPrice?: true
     stock?: true
+    weightGrams?: true
+    lengthMm?: true
+    widthMm?: true
+    heightMm?: true
     sortOrder?: true
   }
 
@@ -8408,6 +8695,10 @@ export namespace Prisma {
     price?: true
     reducedPrice?: true
     stock?: true
+    weightGrams?: true
+    lengthMm?: true
+    widthMm?: true
+    heightMm?: true
     isDefault?: true
     sortOrder?: true
     createdAt?: true
@@ -8423,6 +8714,10 @@ export namespace Prisma {
     price?: true
     reducedPrice?: true
     stock?: true
+    weightGrams?: true
+    lengthMm?: true
+    widthMm?: true
+    heightMm?: true
     isDefault?: true
     sortOrder?: true
     createdAt?: true
@@ -8438,6 +8733,10 @@ export namespace Prisma {
     price?: true
     reducedPrice?: true
     stock?: true
+    weightGrams?: true
+    lengthMm?: true
+    widthMm?: true
+    heightMm?: true
     isDefault?: true
     sortOrder?: true
     imageUrls?: true
@@ -8541,6 +8840,10 @@ export namespace Prisma {
     price: Decimal
     reducedPrice: Decimal | null
     stock: number
+    weightGrams: number | null
+    lengthMm: number | null
+    widthMm: number | null
+    heightMm: number | null
     isDefault: boolean
     sortOrder: number
     imageUrls: string[]
@@ -8576,6 +8879,10 @@ export namespace Prisma {
     price?: boolean
     reducedPrice?: boolean
     stock?: boolean
+    weightGrams?: boolean
+    lengthMm?: boolean
+    widthMm?: boolean
+    heightMm?: boolean
     isDefault?: boolean
     sortOrder?: boolean
     imageUrls?: boolean
@@ -8595,6 +8902,10 @@ export namespace Prisma {
     price?: boolean
     reducedPrice?: boolean
     stock?: boolean
+    weightGrams?: boolean
+    lengthMm?: boolean
+    widthMm?: boolean
+    heightMm?: boolean
     isDefault?: boolean
     sortOrder?: boolean
     imageUrls?: boolean
@@ -8612,6 +8923,10 @@ export namespace Prisma {
     price?: boolean
     reducedPrice?: boolean
     stock?: boolean
+    weightGrams?: boolean
+    lengthMm?: boolean
+    widthMm?: boolean
+    heightMm?: boolean
     isDefault?: boolean
     sortOrder?: boolean
     imageUrls?: boolean
@@ -8629,6 +8944,10 @@ export namespace Prisma {
     price?: boolean
     reducedPrice?: boolean
     stock?: boolean
+    weightGrams?: boolean
+    lengthMm?: boolean
+    widthMm?: boolean
+    heightMm?: boolean
     isDefault?: boolean
     sortOrder?: boolean
     imageUrls?: boolean
@@ -8636,7 +8955,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type ProductVariantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "name_ro" | "name_ru" | "size" | "price" | "reducedPrice" | "stock" | "isDefault" | "sortOrder" | "imageUrls" | "createdAt" | "updatedAt", ExtArgs["result"]["productVariant"]>
+  export type ProductVariantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "name_ro" | "name_ru" | "size" | "price" | "reducedPrice" | "stock" | "weightGrams" | "lengthMm" | "widthMm" | "heightMm" | "isDefault" | "sortOrder" | "imageUrls" | "createdAt" | "updatedAt", ExtArgs["result"]["productVariant"]>
   export type ProductVariantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     product?: boolean | ProductDefaultArgs<ExtArgs>
     orderItems?: boolean | ProductVariant$orderItemsArgs<ExtArgs>
@@ -8664,6 +8983,10 @@ export namespace Prisma {
       price: Prisma.Decimal
       reducedPrice: Prisma.Decimal | null
       stock: number
+      weightGrams: number | null
+      lengthMm: number | null
+      widthMm: number | null
+      heightMm: number | null
       isDefault: boolean
       sortOrder: number
       imageUrls: string[]
@@ -9102,6 +9425,10 @@ export namespace Prisma {
     readonly price: FieldRef<"ProductVariant", 'Decimal'>
     readonly reducedPrice: FieldRef<"ProductVariant", 'Decimal'>
     readonly stock: FieldRef<"ProductVariant", 'Int'>
+    readonly weightGrams: FieldRef<"ProductVariant", 'Int'>
+    readonly lengthMm: FieldRef<"ProductVariant", 'Int'>
+    readonly widthMm: FieldRef<"ProductVariant", 'Int'>
+    readonly heightMm: FieldRef<"ProductVariant", 'Int'>
     readonly isDefault: FieldRef<"ProductVariant", 'Boolean'>
     readonly sortOrder: FieldRef<"ProductVariant", 'Int'>
     readonly imageUrls: FieldRef<"ProductVariant", 'String[]'>
@@ -9812,6 +10139,7 @@ export namespace Prisma {
     stockReserved?: boolean
     createdAt?: boolean
     items?: boolean | Order$itemsArgs<ExtArgs>
+    shipments?: boolean | Order$shipmentsArgs<ExtArgs>
     _count?: boolean | OrderCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["order"]>
 
@@ -9866,6 +10194,7 @@ export namespace Prisma {
   export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "customerName" | "customerEmail" | "customerPhone" | "address" | "city" | "postalCode" | "country" | "specialInstructions" | "status" | "totalPrice" | "stockReserved" | "createdAt", ExtArgs["result"]["order"]>
   export type OrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     items?: boolean | Order$itemsArgs<ExtArgs>
+    shipments?: boolean | Order$shipmentsArgs<ExtArgs>
     _count?: boolean | OrderCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type OrderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -9875,6 +10204,7 @@ export namespace Prisma {
     name: "Order"
     objects: {
       items: Prisma.$OrderItemPayload<ExtArgs>[]
+      shipments: Prisma.$ShipmentPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -10285,6 +10615,7 @@ export namespace Prisma {
   export interface Prisma__OrderClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     items<T extends Order$itemsArgs<ExtArgs> = {}>(args?: Subset<T, Order$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    shipments<T extends Order$shipmentsArgs<ExtArgs> = {}>(args?: Subset<T, Order$shipmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShipmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10736,6 +11067,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: OrderItemScalarFieldEnum | OrderItemScalarFieldEnum[]
+  }
+
+  /**
+   * Order.shipments
+   */
+  export type Order$shipmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shipment
+     */
+    select?: ShipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Shipment
+     */
+    omit?: ShipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShipmentInclude<ExtArgs> | null
+    where?: ShipmentWhereInput
+    orderBy?: ShipmentOrderByWithRelationInput | ShipmentOrderByWithRelationInput[]
+    cursor?: ShipmentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ShipmentScalarFieldEnum | ShipmentScalarFieldEnum[]
   }
 
   /**
@@ -12047,6 +12402,1193 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: OrderItemInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Shipment
+   */
+
+  export type AggregateShipment = {
+    _count: ShipmentCountAggregateOutputType | null
+    _avg: ShipmentAvgAggregateOutputType | null
+    _sum: ShipmentSumAggregateOutputType | null
+    _min: ShipmentMinAggregateOutputType | null
+    _max: ShipmentMaxAggregateOutputType | null
+  }
+
+  export type ShipmentAvgAggregateOutputType = {
+    id: number | null
+    orderId: number | null
+    codAmount: Decimal | null
+  }
+
+  export type ShipmentSumAggregateOutputType = {
+    id: number | null
+    orderId: number | null
+    codAmount: Decimal | null
+  }
+
+  export type ShipmentMinAggregateOutputType = {
+    id: number | null
+    orderId: number | null
+    carrier: string | null
+    carrierTitle: string | null
+    trackingNumber: string | null
+    courierShipmentId: string | null
+    status: string | null
+    codAmount: Decimal | null
+    labelUrl: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ShipmentMaxAggregateOutputType = {
+    id: number | null
+    orderId: number | null
+    carrier: string | null
+    carrierTitle: string | null
+    trackingNumber: string | null
+    courierShipmentId: string | null
+    status: string | null
+    codAmount: Decimal | null
+    labelUrl: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ShipmentCountAggregateOutputType = {
+    id: number
+    orderId: number
+    carrier: number
+    carrierTitle: number
+    trackingNumber: number
+    courierShipmentId: number
+    status: number
+    codAmount: number
+    labelUrl: number
+    payload: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ShipmentAvgAggregateInputType = {
+    id?: true
+    orderId?: true
+    codAmount?: true
+  }
+
+  export type ShipmentSumAggregateInputType = {
+    id?: true
+    orderId?: true
+    codAmount?: true
+  }
+
+  export type ShipmentMinAggregateInputType = {
+    id?: true
+    orderId?: true
+    carrier?: true
+    carrierTitle?: true
+    trackingNumber?: true
+    courierShipmentId?: true
+    status?: true
+    codAmount?: true
+    labelUrl?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ShipmentMaxAggregateInputType = {
+    id?: true
+    orderId?: true
+    carrier?: true
+    carrierTitle?: true
+    trackingNumber?: true
+    courierShipmentId?: true
+    status?: true
+    codAmount?: true
+    labelUrl?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ShipmentCountAggregateInputType = {
+    id?: true
+    orderId?: true
+    carrier?: true
+    carrierTitle?: true
+    trackingNumber?: true
+    courierShipmentId?: true
+    status?: true
+    codAmount?: true
+    labelUrl?: true
+    payload?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ShipmentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Shipment to aggregate.
+     */
+    where?: ShipmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Shipments to fetch.
+     */
+    orderBy?: ShipmentOrderByWithRelationInput | ShipmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ShipmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Shipments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Shipments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Shipments
+    **/
+    _count?: true | ShipmentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ShipmentAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ShipmentSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ShipmentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ShipmentMaxAggregateInputType
+  }
+
+  export type GetShipmentAggregateType<T extends ShipmentAggregateArgs> = {
+        [P in keyof T & keyof AggregateShipment]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateShipment[P]>
+      : GetScalarType<T[P], AggregateShipment[P]>
+  }
+
+
+
+
+  export type ShipmentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ShipmentWhereInput
+    orderBy?: ShipmentOrderByWithAggregationInput | ShipmentOrderByWithAggregationInput[]
+    by: ShipmentScalarFieldEnum[] | ShipmentScalarFieldEnum
+    having?: ShipmentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ShipmentCountAggregateInputType | true
+    _avg?: ShipmentAvgAggregateInputType
+    _sum?: ShipmentSumAggregateInputType
+    _min?: ShipmentMinAggregateInputType
+    _max?: ShipmentMaxAggregateInputType
+  }
+
+  export type ShipmentGroupByOutputType = {
+    id: number
+    orderId: number
+    carrier: string
+    carrierTitle: string | null
+    trackingNumber: string
+    courierShipmentId: string | null
+    status: string
+    codAmount: Decimal | null
+    labelUrl: string | null
+    payload: JsonValue | null
+    createdAt: Date
+    updatedAt: Date
+    _count: ShipmentCountAggregateOutputType | null
+    _avg: ShipmentAvgAggregateOutputType | null
+    _sum: ShipmentSumAggregateOutputType | null
+    _min: ShipmentMinAggregateOutputType | null
+    _max: ShipmentMaxAggregateOutputType | null
+  }
+
+  type GetShipmentGroupByPayload<T extends ShipmentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ShipmentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ShipmentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ShipmentGroupByOutputType[P]>
+            : GetScalarType<T[P], ShipmentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ShipmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orderId?: boolean
+    carrier?: boolean
+    carrierTitle?: boolean
+    trackingNumber?: boolean
+    courierShipmentId?: boolean
+    status?: boolean
+    codAmount?: boolean
+    labelUrl?: boolean
+    payload?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["shipment"]>
+
+  export type ShipmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orderId?: boolean
+    carrier?: boolean
+    carrierTitle?: boolean
+    trackingNumber?: boolean
+    courierShipmentId?: boolean
+    status?: boolean
+    codAmount?: boolean
+    labelUrl?: boolean
+    payload?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["shipment"]>
+
+  export type ShipmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orderId?: boolean
+    carrier?: boolean
+    carrierTitle?: boolean
+    trackingNumber?: boolean
+    courierShipmentId?: boolean
+    status?: boolean
+    codAmount?: boolean
+    labelUrl?: boolean
+    payload?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["shipment"]>
+
+  export type ShipmentSelectScalar = {
+    id?: boolean
+    orderId?: boolean
+    carrier?: boolean
+    carrierTitle?: boolean
+    trackingNumber?: boolean
+    courierShipmentId?: boolean
+    status?: boolean
+    codAmount?: boolean
+    labelUrl?: boolean
+    payload?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ShipmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderId" | "carrier" | "carrierTitle" | "trackingNumber" | "courierShipmentId" | "status" | "codAmount" | "labelUrl" | "payload" | "createdAt" | "updatedAt", ExtArgs["result"]["shipment"]>
+  export type ShipmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+  }
+  export type ShipmentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+  }
+  export type ShipmentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+  }
+
+  export type $ShipmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Shipment"
+    objects: {
+      order: Prisma.$OrderPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      orderId: number
+      carrier: string
+      carrierTitle: string | null
+      trackingNumber: string
+      courierShipmentId: string | null
+      status: string
+      codAmount: Prisma.Decimal | null
+      labelUrl: string | null
+      payload: Prisma.JsonValue | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["shipment"]>
+    composites: {}
+  }
+
+  type ShipmentGetPayload<S extends boolean | null | undefined | ShipmentDefaultArgs> = $Result.GetResult<Prisma.$ShipmentPayload, S>
+
+  type ShipmentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ShipmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ShipmentCountAggregateInputType | true
+    }
+
+  export interface ShipmentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Shipment'], meta: { name: 'Shipment' } }
+    /**
+     * Find zero or one Shipment that matches the filter.
+     * @param {ShipmentFindUniqueArgs} args - Arguments to find a Shipment
+     * @example
+     * // Get one Shipment
+     * const shipment = await prisma.shipment.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ShipmentFindUniqueArgs>(args: SelectSubset<T, ShipmentFindUniqueArgs<ExtArgs>>): Prisma__ShipmentClient<$Result.GetResult<Prisma.$ShipmentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Shipment that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ShipmentFindUniqueOrThrowArgs} args - Arguments to find a Shipment
+     * @example
+     * // Get one Shipment
+     * const shipment = await prisma.shipment.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ShipmentFindUniqueOrThrowArgs>(args: SelectSubset<T, ShipmentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ShipmentClient<$Result.GetResult<Prisma.$ShipmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Shipment that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShipmentFindFirstArgs} args - Arguments to find a Shipment
+     * @example
+     * // Get one Shipment
+     * const shipment = await prisma.shipment.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ShipmentFindFirstArgs>(args?: SelectSubset<T, ShipmentFindFirstArgs<ExtArgs>>): Prisma__ShipmentClient<$Result.GetResult<Prisma.$ShipmentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Shipment that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShipmentFindFirstOrThrowArgs} args - Arguments to find a Shipment
+     * @example
+     * // Get one Shipment
+     * const shipment = await prisma.shipment.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ShipmentFindFirstOrThrowArgs>(args?: SelectSubset<T, ShipmentFindFirstOrThrowArgs<ExtArgs>>): Prisma__ShipmentClient<$Result.GetResult<Prisma.$ShipmentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Shipments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShipmentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Shipments
+     * const shipments = await prisma.shipment.findMany()
+     * 
+     * // Get first 10 Shipments
+     * const shipments = await prisma.shipment.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const shipmentWithIdOnly = await prisma.shipment.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ShipmentFindManyArgs>(args?: SelectSubset<T, ShipmentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShipmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Shipment.
+     * @param {ShipmentCreateArgs} args - Arguments to create a Shipment.
+     * @example
+     * // Create one Shipment
+     * const Shipment = await prisma.shipment.create({
+     *   data: {
+     *     // ... data to create a Shipment
+     *   }
+     * })
+     * 
+     */
+    create<T extends ShipmentCreateArgs>(args: SelectSubset<T, ShipmentCreateArgs<ExtArgs>>): Prisma__ShipmentClient<$Result.GetResult<Prisma.$ShipmentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Shipments.
+     * @param {ShipmentCreateManyArgs} args - Arguments to create many Shipments.
+     * @example
+     * // Create many Shipments
+     * const shipment = await prisma.shipment.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ShipmentCreateManyArgs>(args?: SelectSubset<T, ShipmentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Shipments and returns the data saved in the database.
+     * @param {ShipmentCreateManyAndReturnArgs} args - Arguments to create many Shipments.
+     * @example
+     * // Create many Shipments
+     * const shipment = await prisma.shipment.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Shipments and only return the `id`
+     * const shipmentWithIdOnly = await prisma.shipment.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ShipmentCreateManyAndReturnArgs>(args?: SelectSubset<T, ShipmentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShipmentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Shipment.
+     * @param {ShipmentDeleteArgs} args - Arguments to delete one Shipment.
+     * @example
+     * // Delete one Shipment
+     * const Shipment = await prisma.shipment.delete({
+     *   where: {
+     *     // ... filter to delete one Shipment
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ShipmentDeleteArgs>(args: SelectSubset<T, ShipmentDeleteArgs<ExtArgs>>): Prisma__ShipmentClient<$Result.GetResult<Prisma.$ShipmentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Shipment.
+     * @param {ShipmentUpdateArgs} args - Arguments to update one Shipment.
+     * @example
+     * // Update one Shipment
+     * const shipment = await prisma.shipment.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ShipmentUpdateArgs>(args: SelectSubset<T, ShipmentUpdateArgs<ExtArgs>>): Prisma__ShipmentClient<$Result.GetResult<Prisma.$ShipmentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Shipments.
+     * @param {ShipmentDeleteManyArgs} args - Arguments to filter Shipments to delete.
+     * @example
+     * // Delete a few Shipments
+     * const { count } = await prisma.shipment.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ShipmentDeleteManyArgs>(args?: SelectSubset<T, ShipmentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Shipments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShipmentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Shipments
+     * const shipment = await prisma.shipment.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ShipmentUpdateManyArgs>(args: SelectSubset<T, ShipmentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Shipments and returns the data updated in the database.
+     * @param {ShipmentUpdateManyAndReturnArgs} args - Arguments to update many Shipments.
+     * @example
+     * // Update many Shipments
+     * const shipment = await prisma.shipment.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Shipments and only return the `id`
+     * const shipmentWithIdOnly = await prisma.shipment.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ShipmentUpdateManyAndReturnArgs>(args: SelectSubset<T, ShipmentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShipmentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Shipment.
+     * @param {ShipmentUpsertArgs} args - Arguments to update or create a Shipment.
+     * @example
+     * // Update or create a Shipment
+     * const shipment = await prisma.shipment.upsert({
+     *   create: {
+     *     // ... data to create a Shipment
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Shipment we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ShipmentUpsertArgs>(args: SelectSubset<T, ShipmentUpsertArgs<ExtArgs>>): Prisma__ShipmentClient<$Result.GetResult<Prisma.$ShipmentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Shipments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShipmentCountArgs} args - Arguments to filter Shipments to count.
+     * @example
+     * // Count the number of Shipments
+     * const count = await prisma.shipment.count({
+     *   where: {
+     *     // ... the filter for the Shipments we want to count
+     *   }
+     * })
+    **/
+    count<T extends ShipmentCountArgs>(
+      args?: Subset<T, ShipmentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ShipmentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Shipment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShipmentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ShipmentAggregateArgs>(args: Subset<T, ShipmentAggregateArgs>): Prisma.PrismaPromise<GetShipmentAggregateType<T>>
+
+    /**
+     * Group by Shipment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShipmentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ShipmentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ShipmentGroupByArgs['orderBy'] }
+        : { orderBy?: ShipmentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ShipmentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetShipmentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Shipment model
+   */
+  readonly fields: ShipmentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Shipment.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ShipmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    order<T extends OrderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrderDefaultArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Shipment model
+   */
+  interface ShipmentFieldRefs {
+    readonly id: FieldRef<"Shipment", 'Int'>
+    readonly orderId: FieldRef<"Shipment", 'Int'>
+    readonly carrier: FieldRef<"Shipment", 'String'>
+    readonly carrierTitle: FieldRef<"Shipment", 'String'>
+    readonly trackingNumber: FieldRef<"Shipment", 'String'>
+    readonly courierShipmentId: FieldRef<"Shipment", 'String'>
+    readonly status: FieldRef<"Shipment", 'String'>
+    readonly codAmount: FieldRef<"Shipment", 'Decimal'>
+    readonly labelUrl: FieldRef<"Shipment", 'String'>
+    readonly payload: FieldRef<"Shipment", 'Json'>
+    readonly createdAt: FieldRef<"Shipment", 'DateTime'>
+    readonly updatedAt: FieldRef<"Shipment", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Shipment findUnique
+   */
+  export type ShipmentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shipment
+     */
+    select?: ShipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Shipment
+     */
+    omit?: ShipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShipmentInclude<ExtArgs> | null
+    /**
+     * Filter, which Shipment to fetch.
+     */
+    where: ShipmentWhereUniqueInput
+  }
+
+  /**
+   * Shipment findUniqueOrThrow
+   */
+  export type ShipmentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shipment
+     */
+    select?: ShipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Shipment
+     */
+    omit?: ShipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShipmentInclude<ExtArgs> | null
+    /**
+     * Filter, which Shipment to fetch.
+     */
+    where: ShipmentWhereUniqueInput
+  }
+
+  /**
+   * Shipment findFirst
+   */
+  export type ShipmentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shipment
+     */
+    select?: ShipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Shipment
+     */
+    omit?: ShipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShipmentInclude<ExtArgs> | null
+    /**
+     * Filter, which Shipment to fetch.
+     */
+    where?: ShipmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Shipments to fetch.
+     */
+    orderBy?: ShipmentOrderByWithRelationInput | ShipmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Shipments.
+     */
+    cursor?: ShipmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Shipments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Shipments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Shipments.
+     */
+    distinct?: ShipmentScalarFieldEnum | ShipmentScalarFieldEnum[]
+  }
+
+  /**
+   * Shipment findFirstOrThrow
+   */
+  export type ShipmentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shipment
+     */
+    select?: ShipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Shipment
+     */
+    omit?: ShipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShipmentInclude<ExtArgs> | null
+    /**
+     * Filter, which Shipment to fetch.
+     */
+    where?: ShipmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Shipments to fetch.
+     */
+    orderBy?: ShipmentOrderByWithRelationInput | ShipmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Shipments.
+     */
+    cursor?: ShipmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Shipments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Shipments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Shipments.
+     */
+    distinct?: ShipmentScalarFieldEnum | ShipmentScalarFieldEnum[]
+  }
+
+  /**
+   * Shipment findMany
+   */
+  export type ShipmentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shipment
+     */
+    select?: ShipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Shipment
+     */
+    omit?: ShipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShipmentInclude<ExtArgs> | null
+    /**
+     * Filter, which Shipments to fetch.
+     */
+    where?: ShipmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Shipments to fetch.
+     */
+    orderBy?: ShipmentOrderByWithRelationInput | ShipmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Shipments.
+     */
+    cursor?: ShipmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Shipments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Shipments.
+     */
+    skip?: number
+    distinct?: ShipmentScalarFieldEnum | ShipmentScalarFieldEnum[]
+  }
+
+  /**
+   * Shipment create
+   */
+  export type ShipmentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shipment
+     */
+    select?: ShipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Shipment
+     */
+    omit?: ShipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShipmentInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Shipment.
+     */
+    data: XOR<ShipmentCreateInput, ShipmentUncheckedCreateInput>
+  }
+
+  /**
+   * Shipment createMany
+   */
+  export type ShipmentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Shipments.
+     */
+    data: ShipmentCreateManyInput | ShipmentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Shipment createManyAndReturn
+   */
+  export type ShipmentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shipment
+     */
+    select?: ShipmentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Shipment
+     */
+    omit?: ShipmentOmit<ExtArgs> | null
+    /**
+     * The data used to create many Shipments.
+     */
+    data: ShipmentCreateManyInput | ShipmentCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShipmentIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Shipment update
+   */
+  export type ShipmentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shipment
+     */
+    select?: ShipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Shipment
+     */
+    omit?: ShipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShipmentInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Shipment.
+     */
+    data: XOR<ShipmentUpdateInput, ShipmentUncheckedUpdateInput>
+    /**
+     * Choose, which Shipment to update.
+     */
+    where: ShipmentWhereUniqueInput
+  }
+
+  /**
+   * Shipment updateMany
+   */
+  export type ShipmentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Shipments.
+     */
+    data: XOR<ShipmentUpdateManyMutationInput, ShipmentUncheckedUpdateManyInput>
+    /**
+     * Filter which Shipments to update
+     */
+    where?: ShipmentWhereInput
+    /**
+     * Limit how many Shipments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Shipment updateManyAndReturn
+   */
+  export type ShipmentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shipment
+     */
+    select?: ShipmentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Shipment
+     */
+    omit?: ShipmentOmit<ExtArgs> | null
+    /**
+     * The data used to update Shipments.
+     */
+    data: XOR<ShipmentUpdateManyMutationInput, ShipmentUncheckedUpdateManyInput>
+    /**
+     * Filter which Shipments to update
+     */
+    where?: ShipmentWhereInput
+    /**
+     * Limit how many Shipments to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShipmentIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Shipment upsert
+   */
+  export type ShipmentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shipment
+     */
+    select?: ShipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Shipment
+     */
+    omit?: ShipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShipmentInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Shipment to update in case it exists.
+     */
+    where: ShipmentWhereUniqueInput
+    /**
+     * In case the Shipment found by the `where` argument doesn't exist, create a new Shipment with this data.
+     */
+    create: XOR<ShipmentCreateInput, ShipmentUncheckedCreateInput>
+    /**
+     * In case the Shipment was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ShipmentUpdateInput, ShipmentUncheckedUpdateInput>
+  }
+
+  /**
+   * Shipment delete
+   */
+  export type ShipmentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shipment
+     */
+    select?: ShipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Shipment
+     */
+    omit?: ShipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShipmentInclude<ExtArgs> | null
+    /**
+     * Filter which Shipment to delete.
+     */
+    where: ShipmentWhereUniqueInput
+  }
+
+  /**
+   * Shipment deleteMany
+   */
+  export type ShipmentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Shipments to delete
+     */
+    where?: ShipmentWhereInput
+    /**
+     * Limit how many Shipments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Shipment without action
+   */
+  export type ShipmentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shipment
+     */
+    select?: ShipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Shipment
+     */
+    omit?: ShipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShipmentInclude<ExtArgs> | null
   }
 
 
@@ -26018,6 +27560,1470 @@ export namespace Prisma {
 
 
   /**
+   * Model ShippingSettings
+   */
+
+  export type AggregateShippingSettings = {
+    _count: ShippingSettingsCountAggregateOutputType | null
+    _avg: ShippingSettingsAvgAggregateOutputType | null
+    _sum: ShippingSettingsSumAggregateOutputType | null
+    _min: ShippingSettingsMinAggregateOutputType | null
+    _max: ShippingSettingsMaxAggregateOutputType | null
+  }
+
+  export type ShippingSettingsAvgAggregateOutputType = {
+    id: number | null
+    novapostParcelWeightG: number | null
+    novapostParcelLengthMm: number | null
+    novapostParcelWidthMm: number | null
+    novapostParcelHeightMm: number | null
+    fancourierParcelWeightKg: Decimal | null
+    fancourierParcelLengthCm: number | null
+    fancourierParcelWidthCm: number | null
+    fancourierParcelHeightCm: number | null
+  }
+
+  export type ShippingSettingsSumAggregateOutputType = {
+    id: number | null
+    novapostParcelWeightG: number | null
+    novapostParcelLengthMm: number | null
+    novapostParcelWidthMm: number | null
+    novapostParcelHeightMm: number | null
+    fancourierParcelWeightKg: Decimal | null
+    fancourierParcelLengthCm: number | null
+    fancourierParcelWidthCm: number | null
+    fancourierParcelHeightCm: number | null
+  }
+
+  export type ShippingSettingsMinAggregateOutputType = {
+    id: number | null
+    novapostEnabled: boolean | null
+    novapostSandbox: boolean | null
+    novapostApiKey: string | null
+    novapostSenderCompanyTin: string | null
+    novapostSenderDivisionId: string | null
+    novapostSenderDivisionName: string | null
+    novapostSenderCountryCode: string | null
+    novapostDefaultCategory: string | null
+    novapostSenderName: string | null
+    novapostSenderPhone: string | null
+    novapostSenderEmail: string | null
+    novapostParcelWeightG: number | null
+    novapostParcelLengthMm: number | null
+    novapostParcelWidthMm: number | null
+    novapostParcelHeightMm: number | null
+    fancourierEnabled: boolean | null
+    fancourierApiKey: string | null
+    fancourierUseDefaultSender: boolean | null
+    fancourierServiceType: string | null
+    fancourierSenderCounty: string | null
+    fancourierSenderCity: string | null
+    fancourierSenderStreet: string | null
+    fancourierSenderNr: string | null
+    fancourierSenderZipcode: string | null
+    fancourierDefaultCategory: string | null
+    fancourierSenderName: string | null
+    fancourierSenderPhone: string | null
+    fancourierSenderEmail: string | null
+    fancourierParcelWeightKg: Decimal | null
+    fancourierParcelLengthCm: number | null
+    fancourierParcelWidthCm: number | null
+    fancourierParcelHeightCm: number | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ShippingSettingsMaxAggregateOutputType = {
+    id: number | null
+    novapostEnabled: boolean | null
+    novapostSandbox: boolean | null
+    novapostApiKey: string | null
+    novapostSenderCompanyTin: string | null
+    novapostSenderDivisionId: string | null
+    novapostSenderDivisionName: string | null
+    novapostSenderCountryCode: string | null
+    novapostDefaultCategory: string | null
+    novapostSenderName: string | null
+    novapostSenderPhone: string | null
+    novapostSenderEmail: string | null
+    novapostParcelWeightG: number | null
+    novapostParcelLengthMm: number | null
+    novapostParcelWidthMm: number | null
+    novapostParcelHeightMm: number | null
+    fancourierEnabled: boolean | null
+    fancourierApiKey: string | null
+    fancourierUseDefaultSender: boolean | null
+    fancourierServiceType: string | null
+    fancourierSenderCounty: string | null
+    fancourierSenderCity: string | null
+    fancourierSenderStreet: string | null
+    fancourierSenderNr: string | null
+    fancourierSenderZipcode: string | null
+    fancourierDefaultCategory: string | null
+    fancourierSenderName: string | null
+    fancourierSenderPhone: string | null
+    fancourierSenderEmail: string | null
+    fancourierParcelWeightKg: Decimal | null
+    fancourierParcelLengthCm: number | null
+    fancourierParcelWidthCm: number | null
+    fancourierParcelHeightCm: number | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ShippingSettingsCountAggregateOutputType = {
+    id: number
+    novapostEnabled: number
+    novapostSandbox: number
+    novapostApiKey: number
+    novapostSenderCompanyTin: number
+    novapostSenderDivisionId: number
+    novapostSenderDivisionName: number
+    novapostSenderCountryCode: number
+    novapostDefaultCategory: number
+    novapostSenderName: number
+    novapostSenderPhone: number
+    novapostSenderEmail: number
+    novapostParcelWeightG: number
+    novapostParcelLengthMm: number
+    novapostParcelWidthMm: number
+    novapostParcelHeightMm: number
+    fancourierEnabled: number
+    fancourierApiKey: number
+    fancourierUseDefaultSender: number
+    fancourierServiceType: number
+    fancourierSenderCounty: number
+    fancourierSenderCity: number
+    fancourierSenderStreet: number
+    fancourierSenderNr: number
+    fancourierSenderZipcode: number
+    fancourierDefaultCategory: number
+    fancourierSenderName: number
+    fancourierSenderPhone: number
+    fancourierSenderEmail: number
+    fancourierParcelWeightKg: number
+    fancourierParcelLengthCm: number
+    fancourierParcelWidthCm: number
+    fancourierParcelHeightCm: number
+    isActive: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ShippingSettingsAvgAggregateInputType = {
+    id?: true
+    novapostParcelWeightG?: true
+    novapostParcelLengthMm?: true
+    novapostParcelWidthMm?: true
+    novapostParcelHeightMm?: true
+    fancourierParcelWeightKg?: true
+    fancourierParcelLengthCm?: true
+    fancourierParcelWidthCm?: true
+    fancourierParcelHeightCm?: true
+  }
+
+  export type ShippingSettingsSumAggregateInputType = {
+    id?: true
+    novapostParcelWeightG?: true
+    novapostParcelLengthMm?: true
+    novapostParcelWidthMm?: true
+    novapostParcelHeightMm?: true
+    fancourierParcelWeightKg?: true
+    fancourierParcelLengthCm?: true
+    fancourierParcelWidthCm?: true
+    fancourierParcelHeightCm?: true
+  }
+
+  export type ShippingSettingsMinAggregateInputType = {
+    id?: true
+    novapostEnabled?: true
+    novapostSandbox?: true
+    novapostApiKey?: true
+    novapostSenderCompanyTin?: true
+    novapostSenderDivisionId?: true
+    novapostSenderDivisionName?: true
+    novapostSenderCountryCode?: true
+    novapostDefaultCategory?: true
+    novapostSenderName?: true
+    novapostSenderPhone?: true
+    novapostSenderEmail?: true
+    novapostParcelWeightG?: true
+    novapostParcelLengthMm?: true
+    novapostParcelWidthMm?: true
+    novapostParcelHeightMm?: true
+    fancourierEnabled?: true
+    fancourierApiKey?: true
+    fancourierUseDefaultSender?: true
+    fancourierServiceType?: true
+    fancourierSenderCounty?: true
+    fancourierSenderCity?: true
+    fancourierSenderStreet?: true
+    fancourierSenderNr?: true
+    fancourierSenderZipcode?: true
+    fancourierDefaultCategory?: true
+    fancourierSenderName?: true
+    fancourierSenderPhone?: true
+    fancourierSenderEmail?: true
+    fancourierParcelWeightKg?: true
+    fancourierParcelLengthCm?: true
+    fancourierParcelWidthCm?: true
+    fancourierParcelHeightCm?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ShippingSettingsMaxAggregateInputType = {
+    id?: true
+    novapostEnabled?: true
+    novapostSandbox?: true
+    novapostApiKey?: true
+    novapostSenderCompanyTin?: true
+    novapostSenderDivisionId?: true
+    novapostSenderDivisionName?: true
+    novapostSenderCountryCode?: true
+    novapostDefaultCategory?: true
+    novapostSenderName?: true
+    novapostSenderPhone?: true
+    novapostSenderEmail?: true
+    novapostParcelWeightG?: true
+    novapostParcelLengthMm?: true
+    novapostParcelWidthMm?: true
+    novapostParcelHeightMm?: true
+    fancourierEnabled?: true
+    fancourierApiKey?: true
+    fancourierUseDefaultSender?: true
+    fancourierServiceType?: true
+    fancourierSenderCounty?: true
+    fancourierSenderCity?: true
+    fancourierSenderStreet?: true
+    fancourierSenderNr?: true
+    fancourierSenderZipcode?: true
+    fancourierDefaultCategory?: true
+    fancourierSenderName?: true
+    fancourierSenderPhone?: true
+    fancourierSenderEmail?: true
+    fancourierParcelWeightKg?: true
+    fancourierParcelLengthCm?: true
+    fancourierParcelWidthCm?: true
+    fancourierParcelHeightCm?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ShippingSettingsCountAggregateInputType = {
+    id?: true
+    novapostEnabled?: true
+    novapostSandbox?: true
+    novapostApiKey?: true
+    novapostSenderCompanyTin?: true
+    novapostSenderDivisionId?: true
+    novapostSenderDivisionName?: true
+    novapostSenderCountryCode?: true
+    novapostDefaultCategory?: true
+    novapostSenderName?: true
+    novapostSenderPhone?: true
+    novapostSenderEmail?: true
+    novapostParcelWeightG?: true
+    novapostParcelLengthMm?: true
+    novapostParcelWidthMm?: true
+    novapostParcelHeightMm?: true
+    fancourierEnabled?: true
+    fancourierApiKey?: true
+    fancourierUseDefaultSender?: true
+    fancourierServiceType?: true
+    fancourierSenderCounty?: true
+    fancourierSenderCity?: true
+    fancourierSenderStreet?: true
+    fancourierSenderNr?: true
+    fancourierSenderZipcode?: true
+    fancourierDefaultCategory?: true
+    fancourierSenderName?: true
+    fancourierSenderPhone?: true
+    fancourierSenderEmail?: true
+    fancourierParcelWeightKg?: true
+    fancourierParcelLengthCm?: true
+    fancourierParcelWidthCm?: true
+    fancourierParcelHeightCm?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ShippingSettingsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ShippingSettings to aggregate.
+     */
+    where?: ShippingSettingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ShippingSettings to fetch.
+     */
+    orderBy?: ShippingSettingsOrderByWithRelationInput | ShippingSettingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ShippingSettingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ShippingSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ShippingSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ShippingSettings
+    **/
+    _count?: true | ShippingSettingsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ShippingSettingsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ShippingSettingsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ShippingSettingsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ShippingSettingsMaxAggregateInputType
+  }
+
+  export type GetShippingSettingsAggregateType<T extends ShippingSettingsAggregateArgs> = {
+        [P in keyof T & keyof AggregateShippingSettings]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateShippingSettings[P]>
+      : GetScalarType<T[P], AggregateShippingSettings[P]>
+  }
+
+
+
+
+  export type ShippingSettingsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ShippingSettingsWhereInput
+    orderBy?: ShippingSettingsOrderByWithAggregationInput | ShippingSettingsOrderByWithAggregationInput[]
+    by: ShippingSettingsScalarFieldEnum[] | ShippingSettingsScalarFieldEnum
+    having?: ShippingSettingsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ShippingSettingsCountAggregateInputType | true
+    _avg?: ShippingSettingsAvgAggregateInputType
+    _sum?: ShippingSettingsSumAggregateInputType
+    _min?: ShippingSettingsMinAggregateInputType
+    _max?: ShippingSettingsMaxAggregateInputType
+  }
+
+  export type ShippingSettingsGroupByOutputType = {
+    id: number
+    novapostEnabled: boolean
+    novapostSandbox: boolean
+    novapostApiKey: string
+    novapostSenderCompanyTin: string
+    novapostSenderDivisionId: string
+    novapostSenderDivisionName: string
+    novapostSenderCountryCode: string
+    novapostDefaultCategory: string
+    novapostSenderName: string
+    novapostSenderPhone: string
+    novapostSenderEmail: string
+    novapostParcelWeightG: number
+    novapostParcelLengthMm: number
+    novapostParcelWidthMm: number
+    novapostParcelHeightMm: number
+    fancourierEnabled: boolean
+    fancourierApiKey: string
+    fancourierUseDefaultSender: boolean
+    fancourierServiceType: string
+    fancourierSenderCounty: string
+    fancourierSenderCity: string
+    fancourierSenderStreet: string
+    fancourierSenderNr: string
+    fancourierSenderZipcode: string
+    fancourierDefaultCategory: string
+    fancourierSenderName: string
+    fancourierSenderPhone: string
+    fancourierSenderEmail: string
+    fancourierParcelWeightKg: Decimal
+    fancourierParcelLengthCm: number
+    fancourierParcelWidthCm: number
+    fancourierParcelHeightCm: number
+    isActive: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: ShippingSettingsCountAggregateOutputType | null
+    _avg: ShippingSettingsAvgAggregateOutputType | null
+    _sum: ShippingSettingsSumAggregateOutputType | null
+    _min: ShippingSettingsMinAggregateOutputType | null
+    _max: ShippingSettingsMaxAggregateOutputType | null
+  }
+
+  type GetShippingSettingsGroupByPayload<T extends ShippingSettingsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ShippingSettingsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ShippingSettingsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ShippingSettingsGroupByOutputType[P]>
+            : GetScalarType<T[P], ShippingSettingsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ShippingSettingsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    novapostEnabled?: boolean
+    novapostSandbox?: boolean
+    novapostApiKey?: boolean
+    novapostSenderCompanyTin?: boolean
+    novapostSenderDivisionId?: boolean
+    novapostSenderDivisionName?: boolean
+    novapostSenderCountryCode?: boolean
+    novapostDefaultCategory?: boolean
+    novapostSenderName?: boolean
+    novapostSenderPhone?: boolean
+    novapostSenderEmail?: boolean
+    novapostParcelWeightG?: boolean
+    novapostParcelLengthMm?: boolean
+    novapostParcelWidthMm?: boolean
+    novapostParcelHeightMm?: boolean
+    fancourierEnabled?: boolean
+    fancourierApiKey?: boolean
+    fancourierUseDefaultSender?: boolean
+    fancourierServiceType?: boolean
+    fancourierSenderCounty?: boolean
+    fancourierSenderCity?: boolean
+    fancourierSenderStreet?: boolean
+    fancourierSenderNr?: boolean
+    fancourierSenderZipcode?: boolean
+    fancourierDefaultCategory?: boolean
+    fancourierSenderName?: boolean
+    fancourierSenderPhone?: boolean
+    fancourierSenderEmail?: boolean
+    fancourierParcelWeightKg?: boolean
+    fancourierParcelLengthCm?: boolean
+    fancourierParcelWidthCm?: boolean
+    fancourierParcelHeightCm?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["shippingSettings"]>
+
+  export type ShippingSettingsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    novapostEnabled?: boolean
+    novapostSandbox?: boolean
+    novapostApiKey?: boolean
+    novapostSenderCompanyTin?: boolean
+    novapostSenderDivisionId?: boolean
+    novapostSenderDivisionName?: boolean
+    novapostSenderCountryCode?: boolean
+    novapostDefaultCategory?: boolean
+    novapostSenderName?: boolean
+    novapostSenderPhone?: boolean
+    novapostSenderEmail?: boolean
+    novapostParcelWeightG?: boolean
+    novapostParcelLengthMm?: boolean
+    novapostParcelWidthMm?: boolean
+    novapostParcelHeightMm?: boolean
+    fancourierEnabled?: boolean
+    fancourierApiKey?: boolean
+    fancourierUseDefaultSender?: boolean
+    fancourierServiceType?: boolean
+    fancourierSenderCounty?: boolean
+    fancourierSenderCity?: boolean
+    fancourierSenderStreet?: boolean
+    fancourierSenderNr?: boolean
+    fancourierSenderZipcode?: boolean
+    fancourierDefaultCategory?: boolean
+    fancourierSenderName?: boolean
+    fancourierSenderPhone?: boolean
+    fancourierSenderEmail?: boolean
+    fancourierParcelWeightKg?: boolean
+    fancourierParcelLengthCm?: boolean
+    fancourierParcelWidthCm?: boolean
+    fancourierParcelHeightCm?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["shippingSettings"]>
+
+  export type ShippingSettingsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    novapostEnabled?: boolean
+    novapostSandbox?: boolean
+    novapostApiKey?: boolean
+    novapostSenderCompanyTin?: boolean
+    novapostSenderDivisionId?: boolean
+    novapostSenderDivisionName?: boolean
+    novapostSenderCountryCode?: boolean
+    novapostDefaultCategory?: boolean
+    novapostSenderName?: boolean
+    novapostSenderPhone?: boolean
+    novapostSenderEmail?: boolean
+    novapostParcelWeightG?: boolean
+    novapostParcelLengthMm?: boolean
+    novapostParcelWidthMm?: boolean
+    novapostParcelHeightMm?: boolean
+    fancourierEnabled?: boolean
+    fancourierApiKey?: boolean
+    fancourierUseDefaultSender?: boolean
+    fancourierServiceType?: boolean
+    fancourierSenderCounty?: boolean
+    fancourierSenderCity?: boolean
+    fancourierSenderStreet?: boolean
+    fancourierSenderNr?: boolean
+    fancourierSenderZipcode?: boolean
+    fancourierDefaultCategory?: boolean
+    fancourierSenderName?: boolean
+    fancourierSenderPhone?: boolean
+    fancourierSenderEmail?: boolean
+    fancourierParcelWeightKg?: boolean
+    fancourierParcelLengthCm?: boolean
+    fancourierParcelWidthCm?: boolean
+    fancourierParcelHeightCm?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["shippingSettings"]>
+
+  export type ShippingSettingsSelectScalar = {
+    id?: boolean
+    novapostEnabled?: boolean
+    novapostSandbox?: boolean
+    novapostApiKey?: boolean
+    novapostSenderCompanyTin?: boolean
+    novapostSenderDivisionId?: boolean
+    novapostSenderDivisionName?: boolean
+    novapostSenderCountryCode?: boolean
+    novapostDefaultCategory?: boolean
+    novapostSenderName?: boolean
+    novapostSenderPhone?: boolean
+    novapostSenderEmail?: boolean
+    novapostParcelWeightG?: boolean
+    novapostParcelLengthMm?: boolean
+    novapostParcelWidthMm?: boolean
+    novapostParcelHeightMm?: boolean
+    fancourierEnabled?: boolean
+    fancourierApiKey?: boolean
+    fancourierUseDefaultSender?: boolean
+    fancourierServiceType?: boolean
+    fancourierSenderCounty?: boolean
+    fancourierSenderCity?: boolean
+    fancourierSenderStreet?: boolean
+    fancourierSenderNr?: boolean
+    fancourierSenderZipcode?: boolean
+    fancourierDefaultCategory?: boolean
+    fancourierSenderName?: boolean
+    fancourierSenderPhone?: boolean
+    fancourierSenderEmail?: boolean
+    fancourierParcelWeightKg?: boolean
+    fancourierParcelLengthCm?: boolean
+    fancourierParcelWidthCm?: boolean
+    fancourierParcelHeightCm?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ShippingSettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "novapostEnabled" | "novapostSandbox" | "novapostApiKey" | "novapostSenderCompanyTin" | "novapostSenderDivisionId" | "novapostSenderDivisionName" | "novapostSenderCountryCode" | "novapostDefaultCategory" | "novapostSenderName" | "novapostSenderPhone" | "novapostSenderEmail" | "novapostParcelWeightG" | "novapostParcelLengthMm" | "novapostParcelWidthMm" | "novapostParcelHeightMm" | "fancourierEnabled" | "fancourierApiKey" | "fancourierUseDefaultSender" | "fancourierServiceType" | "fancourierSenderCounty" | "fancourierSenderCity" | "fancourierSenderStreet" | "fancourierSenderNr" | "fancourierSenderZipcode" | "fancourierDefaultCategory" | "fancourierSenderName" | "fancourierSenderPhone" | "fancourierSenderEmail" | "fancourierParcelWeightKg" | "fancourierParcelLengthCm" | "fancourierParcelWidthCm" | "fancourierParcelHeightCm" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["shippingSettings"]>
+
+  export type $ShippingSettingsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ShippingSettings"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      novapostEnabled: boolean
+      novapostSandbox: boolean
+      novapostApiKey: string
+      novapostSenderCompanyTin: string
+      novapostSenderDivisionId: string
+      novapostSenderDivisionName: string
+      novapostSenderCountryCode: string
+      novapostDefaultCategory: string
+      novapostSenderName: string
+      novapostSenderPhone: string
+      novapostSenderEmail: string
+      novapostParcelWeightG: number
+      novapostParcelLengthMm: number
+      novapostParcelWidthMm: number
+      novapostParcelHeightMm: number
+      fancourierEnabled: boolean
+      fancourierApiKey: string
+      fancourierUseDefaultSender: boolean
+      fancourierServiceType: string
+      fancourierSenderCounty: string
+      fancourierSenderCity: string
+      fancourierSenderStreet: string
+      fancourierSenderNr: string
+      fancourierSenderZipcode: string
+      fancourierDefaultCategory: string
+      fancourierSenderName: string
+      fancourierSenderPhone: string
+      fancourierSenderEmail: string
+      fancourierParcelWeightKg: Prisma.Decimal
+      fancourierParcelLengthCm: number
+      fancourierParcelWidthCm: number
+      fancourierParcelHeightCm: number
+      isActive: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["shippingSettings"]>
+    composites: {}
+  }
+
+  type ShippingSettingsGetPayload<S extends boolean | null | undefined | ShippingSettingsDefaultArgs> = $Result.GetResult<Prisma.$ShippingSettingsPayload, S>
+
+  type ShippingSettingsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ShippingSettingsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ShippingSettingsCountAggregateInputType | true
+    }
+
+  export interface ShippingSettingsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ShippingSettings'], meta: { name: 'ShippingSettings' } }
+    /**
+     * Find zero or one ShippingSettings that matches the filter.
+     * @param {ShippingSettingsFindUniqueArgs} args - Arguments to find a ShippingSettings
+     * @example
+     * // Get one ShippingSettings
+     * const shippingSettings = await prisma.shippingSettings.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ShippingSettingsFindUniqueArgs>(args: SelectSubset<T, ShippingSettingsFindUniqueArgs<ExtArgs>>): Prisma__ShippingSettingsClient<$Result.GetResult<Prisma.$ShippingSettingsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ShippingSettings that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ShippingSettingsFindUniqueOrThrowArgs} args - Arguments to find a ShippingSettings
+     * @example
+     * // Get one ShippingSettings
+     * const shippingSettings = await prisma.shippingSettings.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ShippingSettingsFindUniqueOrThrowArgs>(args: SelectSubset<T, ShippingSettingsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ShippingSettingsClient<$Result.GetResult<Prisma.$ShippingSettingsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ShippingSettings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShippingSettingsFindFirstArgs} args - Arguments to find a ShippingSettings
+     * @example
+     * // Get one ShippingSettings
+     * const shippingSettings = await prisma.shippingSettings.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ShippingSettingsFindFirstArgs>(args?: SelectSubset<T, ShippingSettingsFindFirstArgs<ExtArgs>>): Prisma__ShippingSettingsClient<$Result.GetResult<Prisma.$ShippingSettingsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ShippingSettings that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShippingSettingsFindFirstOrThrowArgs} args - Arguments to find a ShippingSettings
+     * @example
+     * // Get one ShippingSettings
+     * const shippingSettings = await prisma.shippingSettings.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ShippingSettingsFindFirstOrThrowArgs>(args?: SelectSubset<T, ShippingSettingsFindFirstOrThrowArgs<ExtArgs>>): Prisma__ShippingSettingsClient<$Result.GetResult<Prisma.$ShippingSettingsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ShippingSettings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShippingSettingsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ShippingSettings
+     * const shippingSettings = await prisma.shippingSettings.findMany()
+     * 
+     * // Get first 10 ShippingSettings
+     * const shippingSettings = await prisma.shippingSettings.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const shippingSettingsWithIdOnly = await prisma.shippingSettings.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ShippingSettingsFindManyArgs>(args?: SelectSubset<T, ShippingSettingsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShippingSettingsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ShippingSettings.
+     * @param {ShippingSettingsCreateArgs} args - Arguments to create a ShippingSettings.
+     * @example
+     * // Create one ShippingSettings
+     * const ShippingSettings = await prisma.shippingSettings.create({
+     *   data: {
+     *     // ... data to create a ShippingSettings
+     *   }
+     * })
+     * 
+     */
+    create<T extends ShippingSettingsCreateArgs>(args: SelectSubset<T, ShippingSettingsCreateArgs<ExtArgs>>): Prisma__ShippingSettingsClient<$Result.GetResult<Prisma.$ShippingSettingsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ShippingSettings.
+     * @param {ShippingSettingsCreateManyArgs} args - Arguments to create many ShippingSettings.
+     * @example
+     * // Create many ShippingSettings
+     * const shippingSettings = await prisma.shippingSettings.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ShippingSettingsCreateManyArgs>(args?: SelectSubset<T, ShippingSettingsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ShippingSettings and returns the data saved in the database.
+     * @param {ShippingSettingsCreateManyAndReturnArgs} args - Arguments to create many ShippingSettings.
+     * @example
+     * // Create many ShippingSettings
+     * const shippingSettings = await prisma.shippingSettings.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ShippingSettings and only return the `id`
+     * const shippingSettingsWithIdOnly = await prisma.shippingSettings.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ShippingSettingsCreateManyAndReturnArgs>(args?: SelectSubset<T, ShippingSettingsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShippingSettingsPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ShippingSettings.
+     * @param {ShippingSettingsDeleteArgs} args - Arguments to delete one ShippingSettings.
+     * @example
+     * // Delete one ShippingSettings
+     * const ShippingSettings = await prisma.shippingSettings.delete({
+     *   where: {
+     *     // ... filter to delete one ShippingSettings
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ShippingSettingsDeleteArgs>(args: SelectSubset<T, ShippingSettingsDeleteArgs<ExtArgs>>): Prisma__ShippingSettingsClient<$Result.GetResult<Prisma.$ShippingSettingsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ShippingSettings.
+     * @param {ShippingSettingsUpdateArgs} args - Arguments to update one ShippingSettings.
+     * @example
+     * // Update one ShippingSettings
+     * const shippingSettings = await prisma.shippingSettings.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ShippingSettingsUpdateArgs>(args: SelectSubset<T, ShippingSettingsUpdateArgs<ExtArgs>>): Prisma__ShippingSettingsClient<$Result.GetResult<Prisma.$ShippingSettingsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ShippingSettings.
+     * @param {ShippingSettingsDeleteManyArgs} args - Arguments to filter ShippingSettings to delete.
+     * @example
+     * // Delete a few ShippingSettings
+     * const { count } = await prisma.shippingSettings.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ShippingSettingsDeleteManyArgs>(args?: SelectSubset<T, ShippingSettingsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ShippingSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShippingSettingsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ShippingSettings
+     * const shippingSettings = await prisma.shippingSettings.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ShippingSettingsUpdateManyArgs>(args: SelectSubset<T, ShippingSettingsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ShippingSettings and returns the data updated in the database.
+     * @param {ShippingSettingsUpdateManyAndReturnArgs} args - Arguments to update many ShippingSettings.
+     * @example
+     * // Update many ShippingSettings
+     * const shippingSettings = await prisma.shippingSettings.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ShippingSettings and only return the `id`
+     * const shippingSettingsWithIdOnly = await prisma.shippingSettings.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ShippingSettingsUpdateManyAndReturnArgs>(args: SelectSubset<T, ShippingSettingsUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShippingSettingsPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ShippingSettings.
+     * @param {ShippingSettingsUpsertArgs} args - Arguments to update or create a ShippingSettings.
+     * @example
+     * // Update or create a ShippingSettings
+     * const shippingSettings = await prisma.shippingSettings.upsert({
+     *   create: {
+     *     // ... data to create a ShippingSettings
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ShippingSettings we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ShippingSettingsUpsertArgs>(args: SelectSubset<T, ShippingSettingsUpsertArgs<ExtArgs>>): Prisma__ShippingSettingsClient<$Result.GetResult<Prisma.$ShippingSettingsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ShippingSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShippingSettingsCountArgs} args - Arguments to filter ShippingSettings to count.
+     * @example
+     * // Count the number of ShippingSettings
+     * const count = await prisma.shippingSettings.count({
+     *   where: {
+     *     // ... the filter for the ShippingSettings we want to count
+     *   }
+     * })
+    **/
+    count<T extends ShippingSettingsCountArgs>(
+      args?: Subset<T, ShippingSettingsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ShippingSettingsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ShippingSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShippingSettingsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ShippingSettingsAggregateArgs>(args: Subset<T, ShippingSettingsAggregateArgs>): Prisma.PrismaPromise<GetShippingSettingsAggregateType<T>>
+
+    /**
+     * Group by ShippingSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShippingSettingsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ShippingSettingsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ShippingSettingsGroupByArgs['orderBy'] }
+        : { orderBy?: ShippingSettingsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ShippingSettingsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetShippingSettingsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ShippingSettings model
+   */
+  readonly fields: ShippingSettingsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ShippingSettings.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ShippingSettingsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ShippingSettings model
+   */
+  interface ShippingSettingsFieldRefs {
+    readonly id: FieldRef<"ShippingSettings", 'Int'>
+    readonly novapostEnabled: FieldRef<"ShippingSettings", 'Boolean'>
+    readonly novapostSandbox: FieldRef<"ShippingSettings", 'Boolean'>
+    readonly novapostApiKey: FieldRef<"ShippingSettings", 'String'>
+    readonly novapostSenderCompanyTin: FieldRef<"ShippingSettings", 'String'>
+    readonly novapostSenderDivisionId: FieldRef<"ShippingSettings", 'String'>
+    readonly novapostSenderDivisionName: FieldRef<"ShippingSettings", 'String'>
+    readonly novapostSenderCountryCode: FieldRef<"ShippingSettings", 'String'>
+    readonly novapostDefaultCategory: FieldRef<"ShippingSettings", 'String'>
+    readonly novapostSenderName: FieldRef<"ShippingSettings", 'String'>
+    readonly novapostSenderPhone: FieldRef<"ShippingSettings", 'String'>
+    readonly novapostSenderEmail: FieldRef<"ShippingSettings", 'String'>
+    readonly novapostParcelWeightG: FieldRef<"ShippingSettings", 'Int'>
+    readonly novapostParcelLengthMm: FieldRef<"ShippingSettings", 'Int'>
+    readonly novapostParcelWidthMm: FieldRef<"ShippingSettings", 'Int'>
+    readonly novapostParcelHeightMm: FieldRef<"ShippingSettings", 'Int'>
+    readonly fancourierEnabled: FieldRef<"ShippingSettings", 'Boolean'>
+    readonly fancourierApiKey: FieldRef<"ShippingSettings", 'String'>
+    readonly fancourierUseDefaultSender: FieldRef<"ShippingSettings", 'Boolean'>
+    readonly fancourierServiceType: FieldRef<"ShippingSettings", 'String'>
+    readonly fancourierSenderCounty: FieldRef<"ShippingSettings", 'String'>
+    readonly fancourierSenderCity: FieldRef<"ShippingSettings", 'String'>
+    readonly fancourierSenderStreet: FieldRef<"ShippingSettings", 'String'>
+    readonly fancourierSenderNr: FieldRef<"ShippingSettings", 'String'>
+    readonly fancourierSenderZipcode: FieldRef<"ShippingSettings", 'String'>
+    readonly fancourierDefaultCategory: FieldRef<"ShippingSettings", 'String'>
+    readonly fancourierSenderName: FieldRef<"ShippingSettings", 'String'>
+    readonly fancourierSenderPhone: FieldRef<"ShippingSettings", 'String'>
+    readonly fancourierSenderEmail: FieldRef<"ShippingSettings", 'String'>
+    readonly fancourierParcelWeightKg: FieldRef<"ShippingSettings", 'Decimal'>
+    readonly fancourierParcelLengthCm: FieldRef<"ShippingSettings", 'Int'>
+    readonly fancourierParcelWidthCm: FieldRef<"ShippingSettings", 'Int'>
+    readonly fancourierParcelHeightCm: FieldRef<"ShippingSettings", 'Int'>
+    readonly isActive: FieldRef<"ShippingSettings", 'Boolean'>
+    readonly createdAt: FieldRef<"ShippingSettings", 'DateTime'>
+    readonly updatedAt: FieldRef<"ShippingSettings", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ShippingSettings findUnique
+   */
+  export type ShippingSettingsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShippingSettings
+     */
+    select?: ShippingSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShippingSettings
+     */
+    omit?: ShippingSettingsOmit<ExtArgs> | null
+    /**
+     * Filter, which ShippingSettings to fetch.
+     */
+    where: ShippingSettingsWhereUniqueInput
+  }
+
+  /**
+   * ShippingSettings findUniqueOrThrow
+   */
+  export type ShippingSettingsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShippingSettings
+     */
+    select?: ShippingSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShippingSettings
+     */
+    omit?: ShippingSettingsOmit<ExtArgs> | null
+    /**
+     * Filter, which ShippingSettings to fetch.
+     */
+    where: ShippingSettingsWhereUniqueInput
+  }
+
+  /**
+   * ShippingSettings findFirst
+   */
+  export type ShippingSettingsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShippingSettings
+     */
+    select?: ShippingSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShippingSettings
+     */
+    omit?: ShippingSettingsOmit<ExtArgs> | null
+    /**
+     * Filter, which ShippingSettings to fetch.
+     */
+    where?: ShippingSettingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ShippingSettings to fetch.
+     */
+    orderBy?: ShippingSettingsOrderByWithRelationInput | ShippingSettingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ShippingSettings.
+     */
+    cursor?: ShippingSettingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ShippingSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ShippingSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ShippingSettings.
+     */
+    distinct?: ShippingSettingsScalarFieldEnum | ShippingSettingsScalarFieldEnum[]
+  }
+
+  /**
+   * ShippingSettings findFirstOrThrow
+   */
+  export type ShippingSettingsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShippingSettings
+     */
+    select?: ShippingSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShippingSettings
+     */
+    omit?: ShippingSettingsOmit<ExtArgs> | null
+    /**
+     * Filter, which ShippingSettings to fetch.
+     */
+    where?: ShippingSettingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ShippingSettings to fetch.
+     */
+    orderBy?: ShippingSettingsOrderByWithRelationInput | ShippingSettingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ShippingSettings.
+     */
+    cursor?: ShippingSettingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ShippingSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ShippingSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ShippingSettings.
+     */
+    distinct?: ShippingSettingsScalarFieldEnum | ShippingSettingsScalarFieldEnum[]
+  }
+
+  /**
+   * ShippingSettings findMany
+   */
+  export type ShippingSettingsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShippingSettings
+     */
+    select?: ShippingSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShippingSettings
+     */
+    omit?: ShippingSettingsOmit<ExtArgs> | null
+    /**
+     * Filter, which ShippingSettings to fetch.
+     */
+    where?: ShippingSettingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ShippingSettings to fetch.
+     */
+    orderBy?: ShippingSettingsOrderByWithRelationInput | ShippingSettingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ShippingSettings.
+     */
+    cursor?: ShippingSettingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ShippingSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ShippingSettings.
+     */
+    skip?: number
+    distinct?: ShippingSettingsScalarFieldEnum | ShippingSettingsScalarFieldEnum[]
+  }
+
+  /**
+   * ShippingSettings create
+   */
+  export type ShippingSettingsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShippingSettings
+     */
+    select?: ShippingSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShippingSettings
+     */
+    omit?: ShippingSettingsOmit<ExtArgs> | null
+    /**
+     * The data needed to create a ShippingSettings.
+     */
+    data: XOR<ShippingSettingsCreateInput, ShippingSettingsUncheckedCreateInput>
+  }
+
+  /**
+   * ShippingSettings createMany
+   */
+  export type ShippingSettingsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ShippingSettings.
+     */
+    data: ShippingSettingsCreateManyInput | ShippingSettingsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ShippingSettings createManyAndReturn
+   */
+  export type ShippingSettingsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShippingSettings
+     */
+    select?: ShippingSettingsSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShippingSettings
+     */
+    omit?: ShippingSettingsOmit<ExtArgs> | null
+    /**
+     * The data used to create many ShippingSettings.
+     */
+    data: ShippingSettingsCreateManyInput | ShippingSettingsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ShippingSettings update
+   */
+  export type ShippingSettingsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShippingSettings
+     */
+    select?: ShippingSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShippingSettings
+     */
+    omit?: ShippingSettingsOmit<ExtArgs> | null
+    /**
+     * The data needed to update a ShippingSettings.
+     */
+    data: XOR<ShippingSettingsUpdateInput, ShippingSettingsUncheckedUpdateInput>
+    /**
+     * Choose, which ShippingSettings to update.
+     */
+    where: ShippingSettingsWhereUniqueInput
+  }
+
+  /**
+   * ShippingSettings updateMany
+   */
+  export type ShippingSettingsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ShippingSettings.
+     */
+    data: XOR<ShippingSettingsUpdateManyMutationInput, ShippingSettingsUncheckedUpdateManyInput>
+    /**
+     * Filter which ShippingSettings to update
+     */
+    where?: ShippingSettingsWhereInput
+    /**
+     * Limit how many ShippingSettings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ShippingSettings updateManyAndReturn
+   */
+  export type ShippingSettingsUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShippingSettings
+     */
+    select?: ShippingSettingsSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShippingSettings
+     */
+    omit?: ShippingSettingsOmit<ExtArgs> | null
+    /**
+     * The data used to update ShippingSettings.
+     */
+    data: XOR<ShippingSettingsUpdateManyMutationInput, ShippingSettingsUncheckedUpdateManyInput>
+    /**
+     * Filter which ShippingSettings to update
+     */
+    where?: ShippingSettingsWhereInput
+    /**
+     * Limit how many ShippingSettings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ShippingSettings upsert
+   */
+  export type ShippingSettingsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShippingSettings
+     */
+    select?: ShippingSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShippingSettings
+     */
+    omit?: ShippingSettingsOmit<ExtArgs> | null
+    /**
+     * The filter to search for the ShippingSettings to update in case it exists.
+     */
+    where: ShippingSettingsWhereUniqueInput
+    /**
+     * In case the ShippingSettings found by the `where` argument doesn't exist, create a new ShippingSettings with this data.
+     */
+    create: XOR<ShippingSettingsCreateInput, ShippingSettingsUncheckedCreateInput>
+    /**
+     * In case the ShippingSettings was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ShippingSettingsUpdateInput, ShippingSettingsUncheckedUpdateInput>
+  }
+
+  /**
+   * ShippingSettings delete
+   */
+  export type ShippingSettingsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShippingSettings
+     */
+    select?: ShippingSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShippingSettings
+     */
+    omit?: ShippingSettingsOmit<ExtArgs> | null
+    /**
+     * Filter which ShippingSettings to delete.
+     */
+    where: ShippingSettingsWhereUniqueInput
+  }
+
+  /**
+   * ShippingSettings deleteMany
+   */
+  export type ShippingSettingsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ShippingSettings to delete
+     */
+    where?: ShippingSettingsWhereInput
+    /**
+     * Limit how many ShippingSettings to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ShippingSettings without action
+   */
+  export type ShippingSettingsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShippingSettings
+     */
+    select?: ShippingSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShippingSettings
+     */
+    omit?: ShippingSettingsOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model ContactSettings
    */
 
@@ -31798,6 +34804,10 @@ export namespace Prisma {
     stock: 'stock',
     hasVariants: 'hasVariants',
     specifications: 'specifications',
+    weightGrams: 'weightGrams',
+    lengthMm: 'lengthMm',
+    widthMm: 'widthMm',
+    heightMm: 'heightMm',
     categoryId: 'categoryId',
     featured: 'featured',
     featuredOrder: 'featuredOrder',
@@ -31841,6 +34851,10 @@ export namespace Prisma {
     price: 'price',
     reducedPrice: 'reducedPrice',
     stock: 'stock',
+    weightGrams: 'weightGrams',
+    lengthMm: 'lengthMm',
+    widthMm: 'widthMm',
+    heightMm: 'heightMm',
     isDefault: 'isDefault',
     sortOrder: 'sortOrder',
     imageUrls: 'imageUrls',
@@ -31884,6 +34898,24 @@ export namespace Prisma {
   };
 
   export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
+
+
+  export const ShipmentScalarFieldEnum: {
+    id: 'id',
+    orderId: 'orderId',
+    carrier: 'carrier',
+    carrierTitle: 'carrierTitle',
+    trackingNumber: 'trackingNumber',
+    courierShipmentId: 'courierShipmentId',
+    status: 'status',
+    codAmount: 'codAmount',
+    labelUrl: 'labelUrl',
+    payload: 'payload',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ShipmentScalarFieldEnum = (typeof ShipmentScalarFieldEnum)[keyof typeof ShipmentScalarFieldEnum]
 
 
   export const AdminUserScalarFieldEnum: {
@@ -32083,6 +35115,48 @@ export namespace Prisma {
   };
 
   export type ProductPageSettingsScalarFieldEnum = (typeof ProductPageSettingsScalarFieldEnum)[keyof typeof ProductPageSettingsScalarFieldEnum]
+
+
+  export const ShippingSettingsScalarFieldEnum: {
+    id: 'id',
+    novapostEnabled: 'novapostEnabled',
+    novapostSandbox: 'novapostSandbox',
+    novapostApiKey: 'novapostApiKey',
+    novapostSenderCompanyTin: 'novapostSenderCompanyTin',
+    novapostSenderDivisionId: 'novapostSenderDivisionId',
+    novapostSenderDivisionName: 'novapostSenderDivisionName',
+    novapostSenderCountryCode: 'novapostSenderCountryCode',
+    novapostDefaultCategory: 'novapostDefaultCategory',
+    novapostSenderName: 'novapostSenderName',
+    novapostSenderPhone: 'novapostSenderPhone',
+    novapostSenderEmail: 'novapostSenderEmail',
+    novapostParcelWeightG: 'novapostParcelWeightG',
+    novapostParcelLengthMm: 'novapostParcelLengthMm',
+    novapostParcelWidthMm: 'novapostParcelWidthMm',
+    novapostParcelHeightMm: 'novapostParcelHeightMm',
+    fancourierEnabled: 'fancourierEnabled',
+    fancourierApiKey: 'fancourierApiKey',
+    fancourierUseDefaultSender: 'fancourierUseDefaultSender',
+    fancourierServiceType: 'fancourierServiceType',
+    fancourierSenderCounty: 'fancourierSenderCounty',
+    fancourierSenderCity: 'fancourierSenderCity',
+    fancourierSenderStreet: 'fancourierSenderStreet',
+    fancourierSenderNr: 'fancourierSenderNr',
+    fancourierSenderZipcode: 'fancourierSenderZipcode',
+    fancourierDefaultCategory: 'fancourierDefaultCategory',
+    fancourierSenderName: 'fancourierSenderName',
+    fancourierSenderPhone: 'fancourierSenderPhone',
+    fancourierSenderEmail: 'fancourierSenderEmail',
+    fancourierParcelWeightKg: 'fancourierParcelWeightKg',
+    fancourierParcelLengthCm: 'fancourierParcelLengthCm',
+    fancourierParcelWidthCm: 'fancourierParcelWidthCm',
+    fancourierParcelHeightCm: 'fancourierParcelHeightCm',
+    isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ShippingSettingsScalarFieldEnum = (typeof ShippingSettingsScalarFieldEnum)[keyof typeof ShippingSettingsScalarFieldEnum]
 
 
   export const ContactSettingsScalarFieldEnum: {
@@ -32494,6 +35568,10 @@ export namespace Prisma {
     stock?: IntFilter<"Product"> | number
     hasVariants?: BoolFilter<"Product"> | boolean
     specifications?: JsonNullableFilter<"Product">
+    weightGrams?: IntNullableFilter<"Product"> | number | null
+    lengthMm?: IntNullableFilter<"Product"> | number | null
+    widthMm?: IntNullableFilter<"Product"> | number | null
+    heightMm?: IntNullableFilter<"Product"> | number | null
     categoryId?: IntNullableFilter<"Product"> | number | null
     featured?: BoolFilter<"Product"> | boolean
     featuredOrder?: IntFilter<"Product"> | number
@@ -32523,6 +35601,10 @@ export namespace Prisma {
     stock?: SortOrder
     hasVariants?: SortOrder
     specifications?: SortOrderInput | SortOrder
+    weightGrams?: SortOrderInput | SortOrder
+    lengthMm?: SortOrderInput | SortOrder
+    widthMm?: SortOrderInput | SortOrder
+    heightMm?: SortOrderInput | SortOrder
     categoryId?: SortOrderInput | SortOrder
     featured?: SortOrder
     featuredOrder?: SortOrder
@@ -32555,6 +35637,10 @@ export namespace Prisma {
     stock?: IntFilter<"Product"> | number
     hasVariants?: BoolFilter<"Product"> | boolean
     specifications?: JsonNullableFilter<"Product">
+    weightGrams?: IntNullableFilter<"Product"> | number | null
+    lengthMm?: IntNullableFilter<"Product"> | number | null
+    widthMm?: IntNullableFilter<"Product"> | number | null
+    heightMm?: IntNullableFilter<"Product"> | number | null
     categoryId?: IntNullableFilter<"Product"> | number | null
     featured?: BoolFilter<"Product"> | boolean
     featuredOrder?: IntFilter<"Product"> | number
@@ -32584,6 +35670,10 @@ export namespace Prisma {
     stock?: SortOrder
     hasVariants?: SortOrder
     specifications?: SortOrderInput | SortOrder
+    weightGrams?: SortOrderInput | SortOrder
+    lengthMm?: SortOrderInput | SortOrder
+    widthMm?: SortOrderInput | SortOrder
+    heightMm?: SortOrderInput | SortOrder
     categoryId?: SortOrderInput | SortOrder
     featured?: SortOrder
     featuredOrder?: SortOrder
@@ -32614,6 +35704,10 @@ export namespace Prisma {
     stock?: IntWithAggregatesFilter<"Product"> | number
     hasVariants?: BoolWithAggregatesFilter<"Product"> | boolean
     specifications?: JsonNullableWithAggregatesFilter<"Product">
+    weightGrams?: IntNullableWithAggregatesFilter<"Product"> | number | null
+    lengthMm?: IntNullableWithAggregatesFilter<"Product"> | number | null
+    widthMm?: IntNullableWithAggregatesFilter<"Product"> | number | null
+    heightMm?: IntNullableWithAggregatesFilter<"Product"> | number | null
     categoryId?: IntNullableWithAggregatesFilter<"Product"> | number | null
     featured?: BoolWithAggregatesFilter<"Product"> | boolean
     featuredOrder?: IntWithAggregatesFilter<"Product"> | number
@@ -32741,6 +35835,10 @@ export namespace Prisma {
     price?: DecimalFilter<"ProductVariant"> | Decimal | DecimalJsLike | number | string
     reducedPrice?: DecimalNullableFilter<"ProductVariant"> | Decimal | DecimalJsLike | number | string | null
     stock?: IntFilter<"ProductVariant"> | number
+    weightGrams?: IntNullableFilter<"ProductVariant"> | number | null
+    lengthMm?: IntNullableFilter<"ProductVariant"> | number | null
+    widthMm?: IntNullableFilter<"ProductVariant"> | number | null
+    heightMm?: IntNullableFilter<"ProductVariant"> | number | null
     isDefault?: BoolFilter<"ProductVariant"> | boolean
     sortOrder?: IntFilter<"ProductVariant"> | number
     imageUrls?: StringNullableListFilter<"ProductVariant">
@@ -32759,6 +35857,10 @@ export namespace Prisma {
     price?: SortOrder
     reducedPrice?: SortOrderInput | SortOrder
     stock?: SortOrder
+    weightGrams?: SortOrderInput | SortOrder
+    lengthMm?: SortOrderInput | SortOrder
+    widthMm?: SortOrderInput | SortOrder
+    heightMm?: SortOrderInput | SortOrder
     isDefault?: SortOrder
     sortOrder?: SortOrder
     imageUrls?: SortOrder
@@ -32780,6 +35882,10 @@ export namespace Prisma {
     price?: DecimalFilter<"ProductVariant"> | Decimal | DecimalJsLike | number | string
     reducedPrice?: DecimalNullableFilter<"ProductVariant"> | Decimal | DecimalJsLike | number | string | null
     stock?: IntFilter<"ProductVariant"> | number
+    weightGrams?: IntNullableFilter<"ProductVariant"> | number | null
+    lengthMm?: IntNullableFilter<"ProductVariant"> | number | null
+    widthMm?: IntNullableFilter<"ProductVariant"> | number | null
+    heightMm?: IntNullableFilter<"ProductVariant"> | number | null
     isDefault?: BoolFilter<"ProductVariant"> | boolean
     sortOrder?: IntFilter<"ProductVariant"> | number
     imageUrls?: StringNullableListFilter<"ProductVariant">
@@ -32798,6 +35904,10 @@ export namespace Prisma {
     price?: SortOrder
     reducedPrice?: SortOrderInput | SortOrder
     stock?: SortOrder
+    weightGrams?: SortOrderInput | SortOrder
+    lengthMm?: SortOrderInput | SortOrder
+    widthMm?: SortOrderInput | SortOrder
+    heightMm?: SortOrderInput | SortOrder
     isDefault?: SortOrder
     sortOrder?: SortOrder
     imageUrls?: SortOrder
@@ -32822,6 +35932,10 @@ export namespace Prisma {
     price?: DecimalWithAggregatesFilter<"ProductVariant"> | Decimal | DecimalJsLike | number | string
     reducedPrice?: DecimalNullableWithAggregatesFilter<"ProductVariant"> | Decimal | DecimalJsLike | number | string | null
     stock?: IntWithAggregatesFilter<"ProductVariant"> | number
+    weightGrams?: IntNullableWithAggregatesFilter<"ProductVariant"> | number | null
+    lengthMm?: IntNullableWithAggregatesFilter<"ProductVariant"> | number | null
+    widthMm?: IntNullableWithAggregatesFilter<"ProductVariant"> | number | null
+    heightMm?: IntNullableWithAggregatesFilter<"ProductVariant"> | number | null
     isDefault?: BoolWithAggregatesFilter<"ProductVariant"> | boolean
     sortOrder?: IntWithAggregatesFilter<"ProductVariant"> | number
     imageUrls?: StringNullableListFilter<"ProductVariant">
@@ -32847,6 +35961,7 @@ export namespace Prisma {
     stockReserved?: BoolFilter<"Order"> | boolean
     createdAt?: DateTimeFilter<"Order"> | Date | string
     items?: OrderItemListRelationFilter
+    shipments?: ShipmentListRelationFilter
   }
 
   export type OrderOrderByWithRelationInput = {
@@ -32864,6 +35979,7 @@ export namespace Prisma {
     stockReserved?: SortOrder
     createdAt?: SortOrder
     items?: OrderItemOrderByRelationAggregateInput
+    shipments?: ShipmentOrderByRelationAggregateInput
   }
 
   export type OrderWhereUniqueInput = Prisma.AtLeast<{
@@ -32884,6 +36000,7 @@ export namespace Prisma {
     stockReserved?: BoolFilter<"Order"> | boolean
     createdAt?: DateTimeFilter<"Order"> | Date | string
     items?: OrderItemListRelationFilter
+    shipments?: ShipmentListRelationFilter
   }, "id">
 
   export type OrderOrderByWithAggregationInput = {
@@ -33018,6 +36135,98 @@ export namespace Prisma {
     priceEach?: DecimalWithAggregatesFilter<"OrderItem"> | Decimal | DecimalJsLike | number | string
     rentalStart?: DateTimeNullableWithAggregatesFilter<"OrderItem"> | Date | string | null
     rentalEnd?: DateTimeNullableWithAggregatesFilter<"OrderItem"> | Date | string | null
+  }
+
+  export type ShipmentWhereInput = {
+    AND?: ShipmentWhereInput | ShipmentWhereInput[]
+    OR?: ShipmentWhereInput[]
+    NOT?: ShipmentWhereInput | ShipmentWhereInput[]
+    id?: IntFilter<"Shipment"> | number
+    orderId?: IntFilter<"Shipment"> | number
+    carrier?: StringFilter<"Shipment"> | string
+    carrierTitle?: StringNullableFilter<"Shipment"> | string | null
+    trackingNumber?: StringFilter<"Shipment"> | string
+    courierShipmentId?: StringNullableFilter<"Shipment"> | string | null
+    status?: StringFilter<"Shipment"> | string
+    codAmount?: DecimalNullableFilter<"Shipment"> | Decimal | DecimalJsLike | number | string | null
+    labelUrl?: StringNullableFilter<"Shipment"> | string | null
+    payload?: JsonNullableFilter<"Shipment">
+    createdAt?: DateTimeFilter<"Shipment"> | Date | string
+    updatedAt?: DateTimeFilter<"Shipment"> | Date | string
+    order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
+  }
+
+  export type ShipmentOrderByWithRelationInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    carrier?: SortOrder
+    carrierTitle?: SortOrderInput | SortOrder
+    trackingNumber?: SortOrder
+    courierShipmentId?: SortOrderInput | SortOrder
+    status?: SortOrder
+    codAmount?: SortOrderInput | SortOrder
+    labelUrl?: SortOrderInput | SortOrder
+    payload?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    order?: OrderOrderByWithRelationInput
+  }
+
+  export type ShipmentWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: ShipmentWhereInput | ShipmentWhereInput[]
+    OR?: ShipmentWhereInput[]
+    NOT?: ShipmentWhereInput | ShipmentWhereInput[]
+    orderId?: IntFilter<"Shipment"> | number
+    carrier?: StringFilter<"Shipment"> | string
+    carrierTitle?: StringNullableFilter<"Shipment"> | string | null
+    trackingNumber?: StringFilter<"Shipment"> | string
+    courierShipmentId?: StringNullableFilter<"Shipment"> | string | null
+    status?: StringFilter<"Shipment"> | string
+    codAmount?: DecimalNullableFilter<"Shipment"> | Decimal | DecimalJsLike | number | string | null
+    labelUrl?: StringNullableFilter<"Shipment"> | string | null
+    payload?: JsonNullableFilter<"Shipment">
+    createdAt?: DateTimeFilter<"Shipment"> | Date | string
+    updatedAt?: DateTimeFilter<"Shipment"> | Date | string
+    order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
+  }, "id">
+
+  export type ShipmentOrderByWithAggregationInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    carrier?: SortOrder
+    carrierTitle?: SortOrderInput | SortOrder
+    trackingNumber?: SortOrder
+    courierShipmentId?: SortOrderInput | SortOrder
+    status?: SortOrder
+    codAmount?: SortOrderInput | SortOrder
+    labelUrl?: SortOrderInput | SortOrder
+    payload?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ShipmentCountOrderByAggregateInput
+    _avg?: ShipmentAvgOrderByAggregateInput
+    _max?: ShipmentMaxOrderByAggregateInput
+    _min?: ShipmentMinOrderByAggregateInput
+    _sum?: ShipmentSumOrderByAggregateInput
+  }
+
+  export type ShipmentScalarWhereWithAggregatesInput = {
+    AND?: ShipmentScalarWhereWithAggregatesInput | ShipmentScalarWhereWithAggregatesInput[]
+    OR?: ShipmentScalarWhereWithAggregatesInput[]
+    NOT?: ShipmentScalarWhereWithAggregatesInput | ShipmentScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"Shipment"> | number
+    orderId?: IntWithAggregatesFilter<"Shipment"> | number
+    carrier?: StringWithAggregatesFilter<"Shipment"> | string
+    carrierTitle?: StringNullableWithAggregatesFilter<"Shipment"> | string | null
+    trackingNumber?: StringWithAggregatesFilter<"Shipment"> | string
+    courierShipmentId?: StringNullableWithAggregatesFilter<"Shipment"> | string | null
+    status?: StringWithAggregatesFilter<"Shipment"> | string
+    codAmount?: DecimalNullableWithAggregatesFilter<"Shipment"> | Decimal | DecimalJsLike | number | string | null
+    labelUrl?: StringNullableWithAggregatesFilter<"Shipment"> | string | null
+    payload?: JsonNullableWithAggregatesFilter<"Shipment">
+    createdAt?: DateTimeWithAggregatesFilter<"Shipment"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Shipment"> | Date | string
   }
 
   export type AdminUserWhereInput = {
@@ -34051,6 +37260,215 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"ProductPageSettings"> | Date | string
   }
 
+  export type ShippingSettingsWhereInput = {
+    AND?: ShippingSettingsWhereInput | ShippingSettingsWhereInput[]
+    OR?: ShippingSettingsWhereInput[]
+    NOT?: ShippingSettingsWhereInput | ShippingSettingsWhereInput[]
+    id?: IntFilter<"ShippingSettings"> | number
+    novapostEnabled?: BoolFilter<"ShippingSettings"> | boolean
+    novapostSandbox?: BoolFilter<"ShippingSettings"> | boolean
+    novapostApiKey?: StringFilter<"ShippingSettings"> | string
+    novapostSenderCompanyTin?: StringFilter<"ShippingSettings"> | string
+    novapostSenderDivisionId?: StringFilter<"ShippingSettings"> | string
+    novapostSenderDivisionName?: StringFilter<"ShippingSettings"> | string
+    novapostSenderCountryCode?: StringFilter<"ShippingSettings"> | string
+    novapostDefaultCategory?: StringFilter<"ShippingSettings"> | string
+    novapostSenderName?: StringFilter<"ShippingSettings"> | string
+    novapostSenderPhone?: StringFilter<"ShippingSettings"> | string
+    novapostSenderEmail?: StringFilter<"ShippingSettings"> | string
+    novapostParcelWeightG?: IntFilter<"ShippingSettings"> | number
+    novapostParcelLengthMm?: IntFilter<"ShippingSettings"> | number
+    novapostParcelWidthMm?: IntFilter<"ShippingSettings"> | number
+    novapostParcelHeightMm?: IntFilter<"ShippingSettings"> | number
+    fancourierEnabled?: BoolFilter<"ShippingSettings"> | boolean
+    fancourierApiKey?: StringFilter<"ShippingSettings"> | string
+    fancourierUseDefaultSender?: BoolFilter<"ShippingSettings"> | boolean
+    fancourierServiceType?: StringFilter<"ShippingSettings"> | string
+    fancourierSenderCounty?: StringFilter<"ShippingSettings"> | string
+    fancourierSenderCity?: StringFilter<"ShippingSettings"> | string
+    fancourierSenderStreet?: StringFilter<"ShippingSettings"> | string
+    fancourierSenderNr?: StringFilter<"ShippingSettings"> | string
+    fancourierSenderZipcode?: StringFilter<"ShippingSettings"> | string
+    fancourierDefaultCategory?: StringFilter<"ShippingSettings"> | string
+    fancourierSenderName?: StringFilter<"ShippingSettings"> | string
+    fancourierSenderPhone?: StringFilter<"ShippingSettings"> | string
+    fancourierSenderEmail?: StringFilter<"ShippingSettings"> | string
+    fancourierParcelWeightKg?: DecimalFilter<"ShippingSettings"> | Decimal | DecimalJsLike | number | string
+    fancourierParcelLengthCm?: IntFilter<"ShippingSettings"> | number
+    fancourierParcelWidthCm?: IntFilter<"ShippingSettings"> | number
+    fancourierParcelHeightCm?: IntFilter<"ShippingSettings"> | number
+    isActive?: BoolFilter<"ShippingSettings"> | boolean
+    createdAt?: DateTimeFilter<"ShippingSettings"> | Date | string
+    updatedAt?: DateTimeFilter<"ShippingSettings"> | Date | string
+  }
+
+  export type ShippingSettingsOrderByWithRelationInput = {
+    id?: SortOrder
+    novapostEnabled?: SortOrder
+    novapostSandbox?: SortOrder
+    novapostApiKey?: SortOrder
+    novapostSenderCompanyTin?: SortOrder
+    novapostSenderDivisionId?: SortOrder
+    novapostSenderDivisionName?: SortOrder
+    novapostSenderCountryCode?: SortOrder
+    novapostDefaultCategory?: SortOrder
+    novapostSenderName?: SortOrder
+    novapostSenderPhone?: SortOrder
+    novapostSenderEmail?: SortOrder
+    novapostParcelWeightG?: SortOrder
+    novapostParcelLengthMm?: SortOrder
+    novapostParcelWidthMm?: SortOrder
+    novapostParcelHeightMm?: SortOrder
+    fancourierEnabled?: SortOrder
+    fancourierApiKey?: SortOrder
+    fancourierUseDefaultSender?: SortOrder
+    fancourierServiceType?: SortOrder
+    fancourierSenderCounty?: SortOrder
+    fancourierSenderCity?: SortOrder
+    fancourierSenderStreet?: SortOrder
+    fancourierSenderNr?: SortOrder
+    fancourierSenderZipcode?: SortOrder
+    fancourierDefaultCategory?: SortOrder
+    fancourierSenderName?: SortOrder
+    fancourierSenderPhone?: SortOrder
+    fancourierSenderEmail?: SortOrder
+    fancourierParcelWeightKg?: SortOrder
+    fancourierParcelLengthCm?: SortOrder
+    fancourierParcelWidthCm?: SortOrder
+    fancourierParcelHeightCm?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ShippingSettingsWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: ShippingSettingsWhereInput | ShippingSettingsWhereInput[]
+    OR?: ShippingSettingsWhereInput[]
+    NOT?: ShippingSettingsWhereInput | ShippingSettingsWhereInput[]
+    novapostEnabled?: BoolFilter<"ShippingSettings"> | boolean
+    novapostSandbox?: BoolFilter<"ShippingSettings"> | boolean
+    novapostApiKey?: StringFilter<"ShippingSettings"> | string
+    novapostSenderCompanyTin?: StringFilter<"ShippingSettings"> | string
+    novapostSenderDivisionId?: StringFilter<"ShippingSettings"> | string
+    novapostSenderDivisionName?: StringFilter<"ShippingSettings"> | string
+    novapostSenderCountryCode?: StringFilter<"ShippingSettings"> | string
+    novapostDefaultCategory?: StringFilter<"ShippingSettings"> | string
+    novapostSenderName?: StringFilter<"ShippingSettings"> | string
+    novapostSenderPhone?: StringFilter<"ShippingSettings"> | string
+    novapostSenderEmail?: StringFilter<"ShippingSettings"> | string
+    novapostParcelWeightG?: IntFilter<"ShippingSettings"> | number
+    novapostParcelLengthMm?: IntFilter<"ShippingSettings"> | number
+    novapostParcelWidthMm?: IntFilter<"ShippingSettings"> | number
+    novapostParcelHeightMm?: IntFilter<"ShippingSettings"> | number
+    fancourierEnabled?: BoolFilter<"ShippingSettings"> | boolean
+    fancourierApiKey?: StringFilter<"ShippingSettings"> | string
+    fancourierUseDefaultSender?: BoolFilter<"ShippingSettings"> | boolean
+    fancourierServiceType?: StringFilter<"ShippingSettings"> | string
+    fancourierSenderCounty?: StringFilter<"ShippingSettings"> | string
+    fancourierSenderCity?: StringFilter<"ShippingSettings"> | string
+    fancourierSenderStreet?: StringFilter<"ShippingSettings"> | string
+    fancourierSenderNr?: StringFilter<"ShippingSettings"> | string
+    fancourierSenderZipcode?: StringFilter<"ShippingSettings"> | string
+    fancourierDefaultCategory?: StringFilter<"ShippingSettings"> | string
+    fancourierSenderName?: StringFilter<"ShippingSettings"> | string
+    fancourierSenderPhone?: StringFilter<"ShippingSettings"> | string
+    fancourierSenderEmail?: StringFilter<"ShippingSettings"> | string
+    fancourierParcelWeightKg?: DecimalFilter<"ShippingSettings"> | Decimal | DecimalJsLike | number | string
+    fancourierParcelLengthCm?: IntFilter<"ShippingSettings"> | number
+    fancourierParcelWidthCm?: IntFilter<"ShippingSettings"> | number
+    fancourierParcelHeightCm?: IntFilter<"ShippingSettings"> | number
+    isActive?: BoolFilter<"ShippingSettings"> | boolean
+    createdAt?: DateTimeFilter<"ShippingSettings"> | Date | string
+    updatedAt?: DateTimeFilter<"ShippingSettings"> | Date | string
+  }, "id">
+
+  export type ShippingSettingsOrderByWithAggregationInput = {
+    id?: SortOrder
+    novapostEnabled?: SortOrder
+    novapostSandbox?: SortOrder
+    novapostApiKey?: SortOrder
+    novapostSenderCompanyTin?: SortOrder
+    novapostSenderDivisionId?: SortOrder
+    novapostSenderDivisionName?: SortOrder
+    novapostSenderCountryCode?: SortOrder
+    novapostDefaultCategory?: SortOrder
+    novapostSenderName?: SortOrder
+    novapostSenderPhone?: SortOrder
+    novapostSenderEmail?: SortOrder
+    novapostParcelWeightG?: SortOrder
+    novapostParcelLengthMm?: SortOrder
+    novapostParcelWidthMm?: SortOrder
+    novapostParcelHeightMm?: SortOrder
+    fancourierEnabled?: SortOrder
+    fancourierApiKey?: SortOrder
+    fancourierUseDefaultSender?: SortOrder
+    fancourierServiceType?: SortOrder
+    fancourierSenderCounty?: SortOrder
+    fancourierSenderCity?: SortOrder
+    fancourierSenderStreet?: SortOrder
+    fancourierSenderNr?: SortOrder
+    fancourierSenderZipcode?: SortOrder
+    fancourierDefaultCategory?: SortOrder
+    fancourierSenderName?: SortOrder
+    fancourierSenderPhone?: SortOrder
+    fancourierSenderEmail?: SortOrder
+    fancourierParcelWeightKg?: SortOrder
+    fancourierParcelLengthCm?: SortOrder
+    fancourierParcelWidthCm?: SortOrder
+    fancourierParcelHeightCm?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ShippingSettingsCountOrderByAggregateInput
+    _avg?: ShippingSettingsAvgOrderByAggregateInput
+    _max?: ShippingSettingsMaxOrderByAggregateInput
+    _min?: ShippingSettingsMinOrderByAggregateInput
+    _sum?: ShippingSettingsSumOrderByAggregateInput
+  }
+
+  export type ShippingSettingsScalarWhereWithAggregatesInput = {
+    AND?: ShippingSettingsScalarWhereWithAggregatesInput | ShippingSettingsScalarWhereWithAggregatesInput[]
+    OR?: ShippingSettingsScalarWhereWithAggregatesInput[]
+    NOT?: ShippingSettingsScalarWhereWithAggregatesInput | ShippingSettingsScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"ShippingSettings"> | number
+    novapostEnabled?: BoolWithAggregatesFilter<"ShippingSettings"> | boolean
+    novapostSandbox?: BoolWithAggregatesFilter<"ShippingSettings"> | boolean
+    novapostApiKey?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    novapostSenderCompanyTin?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    novapostSenderDivisionId?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    novapostSenderDivisionName?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    novapostSenderCountryCode?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    novapostDefaultCategory?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    novapostSenderName?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    novapostSenderPhone?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    novapostSenderEmail?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    novapostParcelWeightG?: IntWithAggregatesFilter<"ShippingSettings"> | number
+    novapostParcelLengthMm?: IntWithAggregatesFilter<"ShippingSettings"> | number
+    novapostParcelWidthMm?: IntWithAggregatesFilter<"ShippingSettings"> | number
+    novapostParcelHeightMm?: IntWithAggregatesFilter<"ShippingSettings"> | number
+    fancourierEnabled?: BoolWithAggregatesFilter<"ShippingSettings"> | boolean
+    fancourierApiKey?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    fancourierUseDefaultSender?: BoolWithAggregatesFilter<"ShippingSettings"> | boolean
+    fancourierServiceType?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    fancourierSenderCounty?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    fancourierSenderCity?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    fancourierSenderStreet?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    fancourierSenderNr?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    fancourierSenderZipcode?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    fancourierDefaultCategory?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    fancourierSenderName?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    fancourierSenderPhone?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    fancourierSenderEmail?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    fancourierParcelWeightKg?: DecimalWithAggregatesFilter<"ShippingSettings"> | Decimal | DecimalJsLike | number | string
+    fancourierParcelLengthCm?: IntWithAggregatesFilter<"ShippingSettings"> | number
+    fancourierParcelWidthCm?: IntWithAggregatesFilter<"ShippingSettings"> | number
+    fancourierParcelHeightCm?: IntWithAggregatesFilter<"ShippingSettings"> | number
+    isActive?: BoolWithAggregatesFilter<"ShippingSettings"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"ShippingSettings"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ShippingSettings"> | Date | string
+  }
+
   export type ContactSettingsWhereInput = {
     AND?: ContactSettingsWhereInput | ContactSettingsWhereInput[]
     OR?: ContactSettingsWhereInput[]
@@ -34718,6 +38136,10 @@ export namespace Prisma {
     stock?: number
     hasVariants?: boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     featured?: boolean
     featuredOrder?: number
     isActive?: boolean
@@ -34746,6 +38168,10 @@ export namespace Prisma {
     stock?: number
     hasVariants?: boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     categoryId?: number | null
     featured?: boolean
     featuredOrder?: number
@@ -34773,6 +38199,10 @@ export namespace Prisma {
     stock?: IntFieldUpdateOperationsInput | number
     hasVariants?: BoolFieldUpdateOperationsInput | boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -34801,6 +38231,10 @@ export namespace Prisma {
     stock?: IntFieldUpdateOperationsInput | number
     hasVariants?: BoolFieldUpdateOperationsInput | boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
@@ -34829,6 +38263,10 @@ export namespace Prisma {
     stock?: number
     hasVariants?: boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     categoryId?: number | null
     featured?: boolean
     featuredOrder?: number
@@ -34850,6 +38288,10 @@ export namespace Prisma {
     stock?: IntFieldUpdateOperationsInput | number
     hasVariants?: BoolFieldUpdateOperationsInput | boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -34871,6 +38313,10 @@ export namespace Prisma {
     stock?: IntFieldUpdateOperationsInput | number
     hasVariants?: BoolFieldUpdateOperationsInput | boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
@@ -34979,6 +38425,10 @@ export namespace Prisma {
     price: Decimal | DecimalJsLike | number | string
     reducedPrice?: Decimal | DecimalJsLike | number | string | null
     stock?: number
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     isDefault?: boolean
     sortOrder?: number
     imageUrls?: ProductVariantCreateimageUrlsInput | string[]
@@ -34997,6 +38447,10 @@ export namespace Prisma {
     price: Decimal | DecimalJsLike | number | string
     reducedPrice?: Decimal | DecimalJsLike | number | string | null
     stock?: number
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     isDefault?: boolean
     sortOrder?: number
     imageUrls?: ProductVariantCreateimageUrlsInput | string[]
@@ -35012,6 +38466,10 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     reducedPrice?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     stock?: IntFieldUpdateOperationsInput | number
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     isDefault?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     imageUrls?: ProductVariantUpdateimageUrlsInput | string[]
@@ -35030,6 +38488,10 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     reducedPrice?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     stock?: IntFieldUpdateOperationsInput | number
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     isDefault?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     imageUrls?: ProductVariantUpdateimageUrlsInput | string[]
@@ -35047,6 +38509,10 @@ export namespace Prisma {
     price: Decimal | DecimalJsLike | number | string
     reducedPrice?: Decimal | DecimalJsLike | number | string | null
     stock?: number
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     isDefault?: boolean
     sortOrder?: number
     imageUrls?: ProductVariantCreateimageUrlsInput | string[]
@@ -35061,6 +38527,10 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     reducedPrice?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     stock?: IntFieldUpdateOperationsInput | number
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     isDefault?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     imageUrls?: ProductVariantUpdateimageUrlsInput | string[]
@@ -35077,6 +38547,10 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     reducedPrice?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     stock?: IntFieldUpdateOperationsInput | number
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     isDefault?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     imageUrls?: ProductVariantUpdateimageUrlsInput | string[]
@@ -35098,6 +38572,7 @@ export namespace Prisma {
     stockReserved?: boolean
     createdAt?: Date | string
     items?: OrderItemCreateNestedManyWithoutOrderInput
+    shipments?: ShipmentCreateNestedManyWithoutOrderInput
   }
 
   export type OrderUncheckedCreateInput = {
@@ -35115,6 +38590,7 @@ export namespace Prisma {
     stockReserved?: boolean
     createdAt?: Date | string
     items?: OrderItemUncheckedCreateNestedManyWithoutOrderInput
+    shipments?: ShipmentUncheckedCreateNestedManyWithoutOrderInput
   }
 
   export type OrderUpdateInput = {
@@ -35131,6 +38607,7 @@ export namespace Prisma {
     stockReserved?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: OrderItemUpdateManyWithoutOrderNestedInput
+    shipments?: ShipmentUpdateManyWithoutOrderNestedInput
   }
 
   export type OrderUncheckedUpdateInput = {
@@ -35148,6 +38625,7 @@ export namespace Prisma {
     stockReserved?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: OrderItemUncheckedUpdateManyWithoutOrderNestedInput
+    shipments?: ShipmentUncheckedUpdateManyWithoutOrderNestedInput
   }
 
   export type OrderCreateManyInput = {
@@ -35278,6 +38756,107 @@ export namespace Prisma {
     priceEach?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     rentalStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     rentalEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ShipmentCreateInput = {
+    carrier: string
+    carrierTitle?: string | null
+    trackingNumber: string
+    courierShipmentId?: string | null
+    status?: string
+    codAmount?: Decimal | DecimalJsLike | number | string | null
+    labelUrl?: string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    order: OrderCreateNestedOneWithoutShipmentsInput
+  }
+
+  export type ShipmentUncheckedCreateInput = {
+    id?: number
+    orderId: number
+    carrier: string
+    carrierTitle?: string | null
+    trackingNumber: string
+    courierShipmentId?: string | null
+    status?: string
+    codAmount?: Decimal | DecimalJsLike | number | string | null
+    labelUrl?: string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ShipmentUpdateInput = {
+    carrier?: StringFieldUpdateOperationsInput | string
+    carrierTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: StringFieldUpdateOperationsInput | string
+    courierShipmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    codAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    labelUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    order?: OrderUpdateOneRequiredWithoutShipmentsNestedInput
+  }
+
+  export type ShipmentUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    orderId?: IntFieldUpdateOperationsInput | number
+    carrier?: StringFieldUpdateOperationsInput | string
+    carrierTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: StringFieldUpdateOperationsInput | string
+    courierShipmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    codAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    labelUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShipmentCreateManyInput = {
+    id?: number
+    orderId: number
+    carrier: string
+    carrierTitle?: string | null
+    trackingNumber: string
+    courierShipmentId?: string | null
+    status?: string
+    codAmount?: Decimal | DecimalJsLike | number | string | null
+    labelUrl?: string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ShipmentUpdateManyMutationInput = {
+    carrier?: StringFieldUpdateOperationsInput | string
+    carrierTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: StringFieldUpdateOperationsInput | string
+    courierShipmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    codAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    labelUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShipmentUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    orderId?: IntFieldUpdateOperationsInput | number
+    carrier?: StringFieldUpdateOperationsInput | string
+    carrierTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: StringFieldUpdateOperationsInput | string
+    courierShipmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    codAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    labelUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AdminUserCreateInput = {
@@ -36419,6 +39998,276 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ShippingSettingsCreateInput = {
+    novapostEnabled?: boolean
+    novapostSandbox?: boolean
+    novapostApiKey?: string
+    novapostSenderCompanyTin?: string
+    novapostSenderDivisionId?: string
+    novapostSenderDivisionName?: string
+    novapostSenderCountryCode?: string
+    novapostDefaultCategory?: string
+    novapostSenderName?: string
+    novapostSenderPhone?: string
+    novapostSenderEmail?: string
+    novapostParcelWeightG?: number
+    novapostParcelLengthMm?: number
+    novapostParcelWidthMm?: number
+    novapostParcelHeightMm?: number
+    fancourierEnabled?: boolean
+    fancourierApiKey?: string
+    fancourierUseDefaultSender?: boolean
+    fancourierServiceType?: string
+    fancourierSenderCounty?: string
+    fancourierSenderCity?: string
+    fancourierSenderStreet?: string
+    fancourierSenderNr?: string
+    fancourierSenderZipcode?: string
+    fancourierDefaultCategory?: string
+    fancourierSenderName?: string
+    fancourierSenderPhone?: string
+    fancourierSenderEmail?: string
+    fancourierParcelWeightKg?: Decimal | DecimalJsLike | number | string
+    fancourierParcelLengthCm?: number
+    fancourierParcelWidthCm?: number
+    fancourierParcelHeightCm?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ShippingSettingsUncheckedCreateInput = {
+    id?: number
+    novapostEnabled?: boolean
+    novapostSandbox?: boolean
+    novapostApiKey?: string
+    novapostSenderCompanyTin?: string
+    novapostSenderDivisionId?: string
+    novapostSenderDivisionName?: string
+    novapostSenderCountryCode?: string
+    novapostDefaultCategory?: string
+    novapostSenderName?: string
+    novapostSenderPhone?: string
+    novapostSenderEmail?: string
+    novapostParcelWeightG?: number
+    novapostParcelLengthMm?: number
+    novapostParcelWidthMm?: number
+    novapostParcelHeightMm?: number
+    fancourierEnabled?: boolean
+    fancourierApiKey?: string
+    fancourierUseDefaultSender?: boolean
+    fancourierServiceType?: string
+    fancourierSenderCounty?: string
+    fancourierSenderCity?: string
+    fancourierSenderStreet?: string
+    fancourierSenderNr?: string
+    fancourierSenderZipcode?: string
+    fancourierDefaultCategory?: string
+    fancourierSenderName?: string
+    fancourierSenderPhone?: string
+    fancourierSenderEmail?: string
+    fancourierParcelWeightKg?: Decimal | DecimalJsLike | number | string
+    fancourierParcelLengthCm?: number
+    fancourierParcelWidthCm?: number
+    fancourierParcelHeightCm?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ShippingSettingsUpdateInput = {
+    novapostEnabled?: BoolFieldUpdateOperationsInput | boolean
+    novapostSandbox?: BoolFieldUpdateOperationsInput | boolean
+    novapostApiKey?: StringFieldUpdateOperationsInput | string
+    novapostSenderCompanyTin?: StringFieldUpdateOperationsInput | string
+    novapostSenderDivisionId?: StringFieldUpdateOperationsInput | string
+    novapostSenderDivisionName?: StringFieldUpdateOperationsInput | string
+    novapostSenderCountryCode?: StringFieldUpdateOperationsInput | string
+    novapostDefaultCategory?: StringFieldUpdateOperationsInput | string
+    novapostSenderName?: StringFieldUpdateOperationsInput | string
+    novapostSenderPhone?: StringFieldUpdateOperationsInput | string
+    novapostSenderEmail?: StringFieldUpdateOperationsInput | string
+    novapostParcelWeightG?: IntFieldUpdateOperationsInput | number
+    novapostParcelLengthMm?: IntFieldUpdateOperationsInput | number
+    novapostParcelWidthMm?: IntFieldUpdateOperationsInput | number
+    novapostParcelHeightMm?: IntFieldUpdateOperationsInput | number
+    fancourierEnabled?: BoolFieldUpdateOperationsInput | boolean
+    fancourierApiKey?: StringFieldUpdateOperationsInput | string
+    fancourierUseDefaultSender?: BoolFieldUpdateOperationsInput | boolean
+    fancourierServiceType?: StringFieldUpdateOperationsInput | string
+    fancourierSenderCounty?: StringFieldUpdateOperationsInput | string
+    fancourierSenderCity?: StringFieldUpdateOperationsInput | string
+    fancourierSenderStreet?: StringFieldUpdateOperationsInput | string
+    fancourierSenderNr?: StringFieldUpdateOperationsInput | string
+    fancourierSenderZipcode?: StringFieldUpdateOperationsInput | string
+    fancourierDefaultCategory?: StringFieldUpdateOperationsInput | string
+    fancourierSenderName?: StringFieldUpdateOperationsInput | string
+    fancourierSenderPhone?: StringFieldUpdateOperationsInput | string
+    fancourierSenderEmail?: StringFieldUpdateOperationsInput | string
+    fancourierParcelWeightKg?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    fancourierParcelLengthCm?: IntFieldUpdateOperationsInput | number
+    fancourierParcelWidthCm?: IntFieldUpdateOperationsInput | number
+    fancourierParcelHeightCm?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShippingSettingsUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    novapostEnabled?: BoolFieldUpdateOperationsInput | boolean
+    novapostSandbox?: BoolFieldUpdateOperationsInput | boolean
+    novapostApiKey?: StringFieldUpdateOperationsInput | string
+    novapostSenderCompanyTin?: StringFieldUpdateOperationsInput | string
+    novapostSenderDivisionId?: StringFieldUpdateOperationsInput | string
+    novapostSenderDivisionName?: StringFieldUpdateOperationsInput | string
+    novapostSenderCountryCode?: StringFieldUpdateOperationsInput | string
+    novapostDefaultCategory?: StringFieldUpdateOperationsInput | string
+    novapostSenderName?: StringFieldUpdateOperationsInput | string
+    novapostSenderPhone?: StringFieldUpdateOperationsInput | string
+    novapostSenderEmail?: StringFieldUpdateOperationsInput | string
+    novapostParcelWeightG?: IntFieldUpdateOperationsInput | number
+    novapostParcelLengthMm?: IntFieldUpdateOperationsInput | number
+    novapostParcelWidthMm?: IntFieldUpdateOperationsInput | number
+    novapostParcelHeightMm?: IntFieldUpdateOperationsInput | number
+    fancourierEnabled?: BoolFieldUpdateOperationsInput | boolean
+    fancourierApiKey?: StringFieldUpdateOperationsInput | string
+    fancourierUseDefaultSender?: BoolFieldUpdateOperationsInput | boolean
+    fancourierServiceType?: StringFieldUpdateOperationsInput | string
+    fancourierSenderCounty?: StringFieldUpdateOperationsInput | string
+    fancourierSenderCity?: StringFieldUpdateOperationsInput | string
+    fancourierSenderStreet?: StringFieldUpdateOperationsInput | string
+    fancourierSenderNr?: StringFieldUpdateOperationsInput | string
+    fancourierSenderZipcode?: StringFieldUpdateOperationsInput | string
+    fancourierDefaultCategory?: StringFieldUpdateOperationsInput | string
+    fancourierSenderName?: StringFieldUpdateOperationsInput | string
+    fancourierSenderPhone?: StringFieldUpdateOperationsInput | string
+    fancourierSenderEmail?: StringFieldUpdateOperationsInput | string
+    fancourierParcelWeightKg?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    fancourierParcelLengthCm?: IntFieldUpdateOperationsInput | number
+    fancourierParcelWidthCm?: IntFieldUpdateOperationsInput | number
+    fancourierParcelHeightCm?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShippingSettingsCreateManyInput = {
+    id?: number
+    novapostEnabled?: boolean
+    novapostSandbox?: boolean
+    novapostApiKey?: string
+    novapostSenderCompanyTin?: string
+    novapostSenderDivisionId?: string
+    novapostSenderDivisionName?: string
+    novapostSenderCountryCode?: string
+    novapostDefaultCategory?: string
+    novapostSenderName?: string
+    novapostSenderPhone?: string
+    novapostSenderEmail?: string
+    novapostParcelWeightG?: number
+    novapostParcelLengthMm?: number
+    novapostParcelWidthMm?: number
+    novapostParcelHeightMm?: number
+    fancourierEnabled?: boolean
+    fancourierApiKey?: string
+    fancourierUseDefaultSender?: boolean
+    fancourierServiceType?: string
+    fancourierSenderCounty?: string
+    fancourierSenderCity?: string
+    fancourierSenderStreet?: string
+    fancourierSenderNr?: string
+    fancourierSenderZipcode?: string
+    fancourierDefaultCategory?: string
+    fancourierSenderName?: string
+    fancourierSenderPhone?: string
+    fancourierSenderEmail?: string
+    fancourierParcelWeightKg?: Decimal | DecimalJsLike | number | string
+    fancourierParcelLengthCm?: number
+    fancourierParcelWidthCm?: number
+    fancourierParcelHeightCm?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ShippingSettingsUpdateManyMutationInput = {
+    novapostEnabled?: BoolFieldUpdateOperationsInput | boolean
+    novapostSandbox?: BoolFieldUpdateOperationsInput | boolean
+    novapostApiKey?: StringFieldUpdateOperationsInput | string
+    novapostSenderCompanyTin?: StringFieldUpdateOperationsInput | string
+    novapostSenderDivisionId?: StringFieldUpdateOperationsInput | string
+    novapostSenderDivisionName?: StringFieldUpdateOperationsInput | string
+    novapostSenderCountryCode?: StringFieldUpdateOperationsInput | string
+    novapostDefaultCategory?: StringFieldUpdateOperationsInput | string
+    novapostSenderName?: StringFieldUpdateOperationsInput | string
+    novapostSenderPhone?: StringFieldUpdateOperationsInput | string
+    novapostSenderEmail?: StringFieldUpdateOperationsInput | string
+    novapostParcelWeightG?: IntFieldUpdateOperationsInput | number
+    novapostParcelLengthMm?: IntFieldUpdateOperationsInput | number
+    novapostParcelWidthMm?: IntFieldUpdateOperationsInput | number
+    novapostParcelHeightMm?: IntFieldUpdateOperationsInput | number
+    fancourierEnabled?: BoolFieldUpdateOperationsInput | boolean
+    fancourierApiKey?: StringFieldUpdateOperationsInput | string
+    fancourierUseDefaultSender?: BoolFieldUpdateOperationsInput | boolean
+    fancourierServiceType?: StringFieldUpdateOperationsInput | string
+    fancourierSenderCounty?: StringFieldUpdateOperationsInput | string
+    fancourierSenderCity?: StringFieldUpdateOperationsInput | string
+    fancourierSenderStreet?: StringFieldUpdateOperationsInput | string
+    fancourierSenderNr?: StringFieldUpdateOperationsInput | string
+    fancourierSenderZipcode?: StringFieldUpdateOperationsInput | string
+    fancourierDefaultCategory?: StringFieldUpdateOperationsInput | string
+    fancourierSenderName?: StringFieldUpdateOperationsInput | string
+    fancourierSenderPhone?: StringFieldUpdateOperationsInput | string
+    fancourierSenderEmail?: StringFieldUpdateOperationsInput | string
+    fancourierParcelWeightKg?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    fancourierParcelLengthCm?: IntFieldUpdateOperationsInput | number
+    fancourierParcelWidthCm?: IntFieldUpdateOperationsInput | number
+    fancourierParcelHeightCm?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShippingSettingsUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    novapostEnabled?: BoolFieldUpdateOperationsInput | boolean
+    novapostSandbox?: BoolFieldUpdateOperationsInput | boolean
+    novapostApiKey?: StringFieldUpdateOperationsInput | string
+    novapostSenderCompanyTin?: StringFieldUpdateOperationsInput | string
+    novapostSenderDivisionId?: StringFieldUpdateOperationsInput | string
+    novapostSenderDivisionName?: StringFieldUpdateOperationsInput | string
+    novapostSenderCountryCode?: StringFieldUpdateOperationsInput | string
+    novapostDefaultCategory?: StringFieldUpdateOperationsInput | string
+    novapostSenderName?: StringFieldUpdateOperationsInput | string
+    novapostSenderPhone?: StringFieldUpdateOperationsInput | string
+    novapostSenderEmail?: StringFieldUpdateOperationsInput | string
+    novapostParcelWeightG?: IntFieldUpdateOperationsInput | number
+    novapostParcelLengthMm?: IntFieldUpdateOperationsInput | number
+    novapostParcelWidthMm?: IntFieldUpdateOperationsInput | number
+    novapostParcelHeightMm?: IntFieldUpdateOperationsInput | number
+    fancourierEnabled?: BoolFieldUpdateOperationsInput | boolean
+    fancourierApiKey?: StringFieldUpdateOperationsInput | string
+    fancourierUseDefaultSender?: BoolFieldUpdateOperationsInput | boolean
+    fancourierServiceType?: StringFieldUpdateOperationsInput | string
+    fancourierSenderCounty?: StringFieldUpdateOperationsInput | string
+    fancourierSenderCity?: StringFieldUpdateOperationsInput | string
+    fancourierSenderStreet?: StringFieldUpdateOperationsInput | string
+    fancourierSenderNr?: StringFieldUpdateOperationsInput | string
+    fancourierSenderZipcode?: StringFieldUpdateOperationsInput | string
+    fancourierDefaultCategory?: StringFieldUpdateOperationsInput | string
+    fancourierSenderName?: StringFieldUpdateOperationsInput | string
+    fancourierSenderPhone?: StringFieldUpdateOperationsInput | string
+    fancourierSenderEmail?: StringFieldUpdateOperationsInput | string
+    fancourierParcelWeightKg?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    fancourierParcelLengthCm?: IntFieldUpdateOperationsInput | number
+    fancourierParcelWidthCm?: IntFieldUpdateOperationsInput | number
+    fancourierParcelHeightCm?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ContactSettingsCreateInput = {
     phone?: string
     email?: string
@@ -37382,6 +41231,10 @@ export namespace Prisma {
     stock?: SortOrder
     hasVariants?: SortOrder
     specifications?: SortOrder
+    weightGrams?: SortOrder
+    lengthMm?: SortOrder
+    widthMm?: SortOrder
+    heightMm?: SortOrder
     categoryId?: SortOrder
     featured?: SortOrder
     featuredOrder?: SortOrder
@@ -37398,6 +41251,10 @@ export namespace Prisma {
     price?: SortOrder
     reducedPrice?: SortOrder
     stock?: SortOrder
+    weightGrams?: SortOrder
+    lengthMm?: SortOrder
+    widthMm?: SortOrder
+    heightMm?: SortOrder
     categoryId?: SortOrder
     featuredOrder?: SortOrder
   }
@@ -37412,6 +41269,10 @@ export namespace Prisma {
     reducedPrice?: SortOrder
     stock?: SortOrder
     hasVariants?: SortOrder
+    weightGrams?: SortOrder
+    lengthMm?: SortOrder
+    widthMm?: SortOrder
+    heightMm?: SortOrder
     categoryId?: SortOrder
     featured?: SortOrder
     featuredOrder?: SortOrder
@@ -37433,6 +41294,10 @@ export namespace Prisma {
     reducedPrice?: SortOrder
     stock?: SortOrder
     hasVariants?: SortOrder
+    weightGrams?: SortOrder
+    lengthMm?: SortOrder
+    widthMm?: SortOrder
+    heightMm?: SortOrder
     categoryId?: SortOrder
     featured?: SortOrder
     featuredOrder?: SortOrder
@@ -37449,6 +41314,10 @@ export namespace Prisma {
     price?: SortOrder
     reducedPrice?: SortOrder
     stock?: SortOrder
+    weightGrams?: SortOrder
+    lengthMm?: SortOrder
+    widthMm?: SortOrder
+    heightMm?: SortOrder
     categoryId?: SortOrder
     featuredOrder?: SortOrder
   }
@@ -37625,6 +41494,10 @@ export namespace Prisma {
     price?: SortOrder
     reducedPrice?: SortOrder
     stock?: SortOrder
+    weightGrams?: SortOrder
+    lengthMm?: SortOrder
+    widthMm?: SortOrder
+    heightMm?: SortOrder
     isDefault?: SortOrder
     sortOrder?: SortOrder
     imageUrls?: SortOrder
@@ -37638,6 +41511,10 @@ export namespace Prisma {
     price?: SortOrder
     reducedPrice?: SortOrder
     stock?: SortOrder
+    weightGrams?: SortOrder
+    lengthMm?: SortOrder
+    widthMm?: SortOrder
+    heightMm?: SortOrder
     sortOrder?: SortOrder
   }
 
@@ -37650,6 +41527,10 @@ export namespace Prisma {
     price?: SortOrder
     reducedPrice?: SortOrder
     stock?: SortOrder
+    weightGrams?: SortOrder
+    lengthMm?: SortOrder
+    widthMm?: SortOrder
+    heightMm?: SortOrder
     isDefault?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
@@ -37665,6 +41546,10 @@ export namespace Prisma {
     price?: SortOrder
     reducedPrice?: SortOrder
     stock?: SortOrder
+    weightGrams?: SortOrder
+    lengthMm?: SortOrder
+    widthMm?: SortOrder
+    heightMm?: SortOrder
     isDefault?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
@@ -37677,7 +41562,21 @@ export namespace Prisma {
     price?: SortOrder
     reducedPrice?: SortOrder
     stock?: SortOrder
+    weightGrams?: SortOrder
+    lengthMm?: SortOrder
+    widthMm?: SortOrder
+    heightMm?: SortOrder
     sortOrder?: SortOrder
+  }
+
+  export type ShipmentListRelationFilter = {
+    every?: ShipmentWhereInput
+    some?: ShipmentWhereInput
+    none?: ShipmentWhereInput
+  }
+
+  export type ShipmentOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type OrderCountOrderByAggregateInput = {
@@ -37822,6 +41721,61 @@ export namespace Prisma {
     rentalPackageVariantId?: SortOrder
     quantity?: SortOrder
     priceEach?: SortOrder
+  }
+
+  export type ShipmentCountOrderByAggregateInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    carrier?: SortOrder
+    carrierTitle?: SortOrder
+    trackingNumber?: SortOrder
+    courierShipmentId?: SortOrder
+    status?: SortOrder
+    codAmount?: SortOrder
+    labelUrl?: SortOrder
+    payload?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ShipmentAvgOrderByAggregateInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    codAmount?: SortOrder
+  }
+
+  export type ShipmentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    carrier?: SortOrder
+    carrierTitle?: SortOrder
+    trackingNumber?: SortOrder
+    courierShipmentId?: SortOrder
+    status?: SortOrder
+    codAmount?: SortOrder
+    labelUrl?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ShipmentMinOrderByAggregateInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    carrier?: SortOrder
+    carrierTitle?: SortOrder
+    trackingNumber?: SortOrder
+    courierShipmentId?: SortOrder
+    status?: SortOrder
+    codAmount?: SortOrder
+    labelUrl?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ShipmentSumOrderByAggregateInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    codAmount?: SortOrder
   }
 
   export type AdminUserCountOrderByAggregateInput = {
@@ -38509,6 +42463,147 @@ export namespace Prisma {
     id?: SortOrder
   }
 
+  export type ShippingSettingsCountOrderByAggregateInput = {
+    id?: SortOrder
+    novapostEnabled?: SortOrder
+    novapostSandbox?: SortOrder
+    novapostApiKey?: SortOrder
+    novapostSenderCompanyTin?: SortOrder
+    novapostSenderDivisionId?: SortOrder
+    novapostSenderDivisionName?: SortOrder
+    novapostSenderCountryCode?: SortOrder
+    novapostDefaultCategory?: SortOrder
+    novapostSenderName?: SortOrder
+    novapostSenderPhone?: SortOrder
+    novapostSenderEmail?: SortOrder
+    novapostParcelWeightG?: SortOrder
+    novapostParcelLengthMm?: SortOrder
+    novapostParcelWidthMm?: SortOrder
+    novapostParcelHeightMm?: SortOrder
+    fancourierEnabled?: SortOrder
+    fancourierApiKey?: SortOrder
+    fancourierUseDefaultSender?: SortOrder
+    fancourierServiceType?: SortOrder
+    fancourierSenderCounty?: SortOrder
+    fancourierSenderCity?: SortOrder
+    fancourierSenderStreet?: SortOrder
+    fancourierSenderNr?: SortOrder
+    fancourierSenderZipcode?: SortOrder
+    fancourierDefaultCategory?: SortOrder
+    fancourierSenderName?: SortOrder
+    fancourierSenderPhone?: SortOrder
+    fancourierSenderEmail?: SortOrder
+    fancourierParcelWeightKg?: SortOrder
+    fancourierParcelLengthCm?: SortOrder
+    fancourierParcelWidthCm?: SortOrder
+    fancourierParcelHeightCm?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ShippingSettingsAvgOrderByAggregateInput = {
+    id?: SortOrder
+    novapostParcelWeightG?: SortOrder
+    novapostParcelLengthMm?: SortOrder
+    novapostParcelWidthMm?: SortOrder
+    novapostParcelHeightMm?: SortOrder
+    fancourierParcelWeightKg?: SortOrder
+    fancourierParcelLengthCm?: SortOrder
+    fancourierParcelWidthCm?: SortOrder
+    fancourierParcelHeightCm?: SortOrder
+  }
+
+  export type ShippingSettingsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    novapostEnabled?: SortOrder
+    novapostSandbox?: SortOrder
+    novapostApiKey?: SortOrder
+    novapostSenderCompanyTin?: SortOrder
+    novapostSenderDivisionId?: SortOrder
+    novapostSenderDivisionName?: SortOrder
+    novapostSenderCountryCode?: SortOrder
+    novapostDefaultCategory?: SortOrder
+    novapostSenderName?: SortOrder
+    novapostSenderPhone?: SortOrder
+    novapostSenderEmail?: SortOrder
+    novapostParcelWeightG?: SortOrder
+    novapostParcelLengthMm?: SortOrder
+    novapostParcelWidthMm?: SortOrder
+    novapostParcelHeightMm?: SortOrder
+    fancourierEnabled?: SortOrder
+    fancourierApiKey?: SortOrder
+    fancourierUseDefaultSender?: SortOrder
+    fancourierServiceType?: SortOrder
+    fancourierSenderCounty?: SortOrder
+    fancourierSenderCity?: SortOrder
+    fancourierSenderStreet?: SortOrder
+    fancourierSenderNr?: SortOrder
+    fancourierSenderZipcode?: SortOrder
+    fancourierDefaultCategory?: SortOrder
+    fancourierSenderName?: SortOrder
+    fancourierSenderPhone?: SortOrder
+    fancourierSenderEmail?: SortOrder
+    fancourierParcelWeightKg?: SortOrder
+    fancourierParcelLengthCm?: SortOrder
+    fancourierParcelWidthCm?: SortOrder
+    fancourierParcelHeightCm?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ShippingSettingsMinOrderByAggregateInput = {
+    id?: SortOrder
+    novapostEnabled?: SortOrder
+    novapostSandbox?: SortOrder
+    novapostApiKey?: SortOrder
+    novapostSenderCompanyTin?: SortOrder
+    novapostSenderDivisionId?: SortOrder
+    novapostSenderDivisionName?: SortOrder
+    novapostSenderCountryCode?: SortOrder
+    novapostDefaultCategory?: SortOrder
+    novapostSenderName?: SortOrder
+    novapostSenderPhone?: SortOrder
+    novapostSenderEmail?: SortOrder
+    novapostParcelWeightG?: SortOrder
+    novapostParcelLengthMm?: SortOrder
+    novapostParcelWidthMm?: SortOrder
+    novapostParcelHeightMm?: SortOrder
+    fancourierEnabled?: SortOrder
+    fancourierApiKey?: SortOrder
+    fancourierUseDefaultSender?: SortOrder
+    fancourierServiceType?: SortOrder
+    fancourierSenderCounty?: SortOrder
+    fancourierSenderCity?: SortOrder
+    fancourierSenderStreet?: SortOrder
+    fancourierSenderNr?: SortOrder
+    fancourierSenderZipcode?: SortOrder
+    fancourierDefaultCategory?: SortOrder
+    fancourierSenderName?: SortOrder
+    fancourierSenderPhone?: SortOrder
+    fancourierSenderEmail?: SortOrder
+    fancourierParcelWeightKg?: SortOrder
+    fancourierParcelLengthCm?: SortOrder
+    fancourierParcelWidthCm?: SortOrder
+    fancourierParcelHeightCm?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ShippingSettingsSumOrderByAggregateInput = {
+    id?: SortOrder
+    novapostParcelWeightG?: SortOrder
+    novapostParcelLengthMm?: SortOrder
+    novapostParcelWidthMm?: SortOrder
+    novapostParcelHeightMm?: SortOrder
+    fancourierParcelWeightKg?: SortOrder
+    fancourierParcelLengthCm?: SortOrder
+    fancourierParcelWidthCm?: SortOrder
+    fancourierParcelHeightCm?: SortOrder
+  }
+
   export type FloatNullableFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel> | null
     in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
@@ -39043,6 +43138,14 @@ export namespace Prisma {
     set?: boolean
   }
 
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type NullableDateTimeFieldUpdateOperationsInput = {
     set?: Date | string | null
   }
@@ -39138,14 +43241,6 @@ export namespace Prisma {
     update?: OrderItemUpdateWithWhereUniqueWithoutProductInput | OrderItemUpdateWithWhereUniqueWithoutProductInput[]
     updateMany?: OrderItemUpdateManyWithWhereWithoutProductInput | OrderItemUpdateManyWithWhereWithoutProductInput[]
     deleteMany?: OrderItemScalarWhereInput | OrderItemScalarWhereInput[]
-  }
-
-  export type NullableIntFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type PromotionUncheckedUpdateManyWithoutProductsNestedInput = {
@@ -39331,11 +43426,25 @@ export namespace Prisma {
     connect?: OrderItemWhereUniqueInput | OrderItemWhereUniqueInput[]
   }
 
+  export type ShipmentCreateNestedManyWithoutOrderInput = {
+    create?: XOR<ShipmentCreateWithoutOrderInput, ShipmentUncheckedCreateWithoutOrderInput> | ShipmentCreateWithoutOrderInput[] | ShipmentUncheckedCreateWithoutOrderInput[]
+    connectOrCreate?: ShipmentCreateOrConnectWithoutOrderInput | ShipmentCreateOrConnectWithoutOrderInput[]
+    createMany?: ShipmentCreateManyOrderInputEnvelope
+    connect?: ShipmentWhereUniqueInput | ShipmentWhereUniqueInput[]
+  }
+
   export type OrderItemUncheckedCreateNestedManyWithoutOrderInput = {
     create?: XOR<OrderItemCreateWithoutOrderInput, OrderItemUncheckedCreateWithoutOrderInput> | OrderItemCreateWithoutOrderInput[] | OrderItemUncheckedCreateWithoutOrderInput[]
     connectOrCreate?: OrderItemCreateOrConnectWithoutOrderInput | OrderItemCreateOrConnectWithoutOrderInput[]
     createMany?: OrderItemCreateManyOrderInputEnvelope
     connect?: OrderItemWhereUniqueInput | OrderItemWhereUniqueInput[]
+  }
+
+  export type ShipmentUncheckedCreateNestedManyWithoutOrderInput = {
+    create?: XOR<ShipmentCreateWithoutOrderInput, ShipmentUncheckedCreateWithoutOrderInput> | ShipmentCreateWithoutOrderInput[] | ShipmentUncheckedCreateWithoutOrderInput[]
+    connectOrCreate?: ShipmentCreateOrConnectWithoutOrderInput | ShipmentCreateOrConnectWithoutOrderInput[]
+    createMany?: ShipmentCreateManyOrderInputEnvelope
+    connect?: ShipmentWhereUniqueInput | ShipmentWhereUniqueInput[]
   }
 
   export type OrderItemUpdateManyWithoutOrderNestedInput = {
@@ -39352,6 +43461,20 @@ export namespace Prisma {
     deleteMany?: OrderItemScalarWhereInput | OrderItemScalarWhereInput[]
   }
 
+  export type ShipmentUpdateManyWithoutOrderNestedInput = {
+    create?: XOR<ShipmentCreateWithoutOrderInput, ShipmentUncheckedCreateWithoutOrderInput> | ShipmentCreateWithoutOrderInput[] | ShipmentUncheckedCreateWithoutOrderInput[]
+    connectOrCreate?: ShipmentCreateOrConnectWithoutOrderInput | ShipmentCreateOrConnectWithoutOrderInput[]
+    upsert?: ShipmentUpsertWithWhereUniqueWithoutOrderInput | ShipmentUpsertWithWhereUniqueWithoutOrderInput[]
+    createMany?: ShipmentCreateManyOrderInputEnvelope
+    set?: ShipmentWhereUniqueInput | ShipmentWhereUniqueInput[]
+    disconnect?: ShipmentWhereUniqueInput | ShipmentWhereUniqueInput[]
+    delete?: ShipmentWhereUniqueInput | ShipmentWhereUniqueInput[]
+    connect?: ShipmentWhereUniqueInput | ShipmentWhereUniqueInput[]
+    update?: ShipmentUpdateWithWhereUniqueWithoutOrderInput | ShipmentUpdateWithWhereUniqueWithoutOrderInput[]
+    updateMany?: ShipmentUpdateManyWithWhereWithoutOrderInput | ShipmentUpdateManyWithWhereWithoutOrderInput[]
+    deleteMany?: ShipmentScalarWhereInput | ShipmentScalarWhereInput[]
+  }
+
   export type OrderItemUncheckedUpdateManyWithoutOrderNestedInput = {
     create?: XOR<OrderItemCreateWithoutOrderInput, OrderItemUncheckedCreateWithoutOrderInput> | OrderItemCreateWithoutOrderInput[] | OrderItemUncheckedCreateWithoutOrderInput[]
     connectOrCreate?: OrderItemCreateOrConnectWithoutOrderInput | OrderItemCreateOrConnectWithoutOrderInput[]
@@ -39364,6 +43487,20 @@ export namespace Prisma {
     update?: OrderItemUpdateWithWhereUniqueWithoutOrderInput | OrderItemUpdateWithWhereUniqueWithoutOrderInput[]
     updateMany?: OrderItemUpdateManyWithWhereWithoutOrderInput | OrderItemUpdateManyWithWhereWithoutOrderInput[]
     deleteMany?: OrderItemScalarWhereInput | OrderItemScalarWhereInput[]
+  }
+
+  export type ShipmentUncheckedUpdateManyWithoutOrderNestedInput = {
+    create?: XOR<ShipmentCreateWithoutOrderInput, ShipmentUncheckedCreateWithoutOrderInput> | ShipmentCreateWithoutOrderInput[] | ShipmentUncheckedCreateWithoutOrderInput[]
+    connectOrCreate?: ShipmentCreateOrConnectWithoutOrderInput | ShipmentCreateOrConnectWithoutOrderInput[]
+    upsert?: ShipmentUpsertWithWhereUniqueWithoutOrderInput | ShipmentUpsertWithWhereUniqueWithoutOrderInput[]
+    createMany?: ShipmentCreateManyOrderInputEnvelope
+    set?: ShipmentWhereUniqueInput | ShipmentWhereUniqueInput[]
+    disconnect?: ShipmentWhereUniqueInput | ShipmentWhereUniqueInput[]
+    delete?: ShipmentWhereUniqueInput | ShipmentWhereUniqueInput[]
+    connect?: ShipmentWhereUniqueInput | ShipmentWhereUniqueInput[]
+    update?: ShipmentUpdateWithWhereUniqueWithoutOrderInput | ShipmentUpdateWithWhereUniqueWithoutOrderInput[]
+    updateMany?: ShipmentUpdateManyWithWhereWithoutOrderInput | ShipmentUpdateManyWithWhereWithoutOrderInput[]
+    deleteMany?: ShipmentScalarWhereInput | ShipmentScalarWhereInput[]
   }
 
   export type OrderCreateNestedOneWithoutItemsInput = {
@@ -39442,6 +43579,20 @@ export namespace Prisma {
     delete?: RentalPackageVariantWhereInput | boolean
     connect?: RentalPackageVariantWhereUniqueInput
     update?: XOR<XOR<RentalPackageVariantUpdateToOneWithWhereWithoutOrderItemsInput, RentalPackageVariantUpdateWithoutOrderItemsInput>, RentalPackageVariantUncheckedUpdateWithoutOrderItemsInput>
+  }
+
+  export type OrderCreateNestedOneWithoutShipmentsInput = {
+    create?: XOR<OrderCreateWithoutShipmentsInput, OrderUncheckedCreateWithoutShipmentsInput>
+    connectOrCreate?: OrderCreateOrConnectWithoutShipmentsInput
+    connect?: OrderWhereUniqueInput
+  }
+
+  export type OrderUpdateOneRequiredWithoutShipmentsNestedInput = {
+    create?: XOR<OrderCreateWithoutShipmentsInput, OrderUncheckedCreateWithoutShipmentsInput>
+    connectOrCreate?: OrderCreateOrConnectWithoutShipmentsInput
+    upsert?: OrderUpsertWithoutShipmentsInput
+    connect?: OrderWhereUniqueInput
+    update?: XOR<XOR<OrderUpdateToOneWithWhereWithoutShipmentsInput, OrderUpdateWithoutShipmentsInput>, OrderUncheckedUpdateWithoutShipmentsInput>
   }
 
   export type CategoryCreateNestedOneWithoutRentalPackagesInput = {
@@ -40331,6 +44482,10 @@ export namespace Prisma {
     stock?: number
     hasVariants?: boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     featured?: boolean
     featuredOrder?: number
     isActive?: boolean
@@ -40358,6 +44513,10 @@ export namespace Prisma {
     stock?: number
     hasVariants?: boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     featured?: boolean
     featuredOrder?: number
     isActive?: boolean
@@ -40471,6 +44630,10 @@ export namespace Prisma {
     stock?: IntFilter<"Product"> | number
     hasVariants?: BoolFilter<"Product"> | boolean
     specifications?: JsonNullableFilter<"Product">
+    weightGrams?: IntNullableFilter<"Product"> | number | null
+    lengthMm?: IntNullableFilter<"Product"> | number | null
+    widthMm?: IntNullableFilter<"Product"> | number | null
+    heightMm?: IntNullableFilter<"Product"> | number | null
     categoryId?: IntNullableFilter<"Product"> | number | null
     featured?: BoolFilter<"Product"> | boolean
     featuredOrder?: IntFilter<"Product"> | number
@@ -40688,6 +44851,10 @@ export namespace Prisma {
     price: Decimal | DecimalJsLike | number | string
     reducedPrice?: Decimal | DecimalJsLike | number | string | null
     stock?: number
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     isDefault?: boolean
     sortOrder?: number
     imageUrls?: ProductVariantCreateimageUrlsInput | string[]
@@ -40704,6 +44871,10 @@ export namespace Prisma {
     price: Decimal | DecimalJsLike | number | string
     reducedPrice?: Decimal | DecimalJsLike | number | string | null
     stock?: number
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     isDefault?: boolean
     sortOrder?: number
     imageUrls?: ProductVariantCreateimageUrlsInput | string[]
@@ -40962,6 +45133,10 @@ export namespace Prisma {
     price?: DecimalFilter<"ProductVariant"> | Decimal | DecimalJsLike | number | string
     reducedPrice?: DecimalNullableFilter<"ProductVariant"> | Decimal | DecimalJsLike | number | string | null
     stock?: IntFilter<"ProductVariant"> | number
+    weightGrams?: IntNullableFilter<"ProductVariant"> | number | null
+    lengthMm?: IntNullableFilter<"ProductVariant"> | number | null
+    widthMm?: IntNullableFilter<"ProductVariant"> | number | null
+    heightMm?: IntNullableFilter<"ProductVariant"> | number | null
     isDefault?: BoolFilter<"ProductVariant"> | boolean
     sortOrder?: IntFilter<"ProductVariant"> | number
     imageUrls?: StringNullableListFilter<"ProductVariant">
@@ -41011,6 +45186,10 @@ export namespace Prisma {
     stock?: number
     hasVariants?: boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     featured?: boolean
     featuredOrder?: number
     isActive?: boolean
@@ -41038,6 +45217,10 @@ export namespace Prisma {
     stock?: number
     hasVariants?: boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     categoryId?: number | null
     featured?: boolean
     featuredOrder?: number
@@ -41080,6 +45263,10 @@ export namespace Prisma {
     stock?: IntFieldUpdateOperationsInput | number
     hasVariants?: BoolFieldUpdateOperationsInput | boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -41107,6 +45294,10 @@ export namespace Prisma {
     stock?: IntFieldUpdateOperationsInput | number
     hasVariants?: BoolFieldUpdateOperationsInput | boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
@@ -41133,6 +45324,10 @@ export namespace Prisma {
     stock?: number
     hasVariants?: boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     featured?: boolean
     featuredOrder?: number
     isActive?: boolean
@@ -41160,6 +45355,10 @@ export namespace Prisma {
     stock?: number
     hasVariants?: boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     categoryId?: number | null
     featured?: boolean
     featuredOrder?: number
@@ -41202,6 +45401,10 @@ export namespace Prisma {
     stock?: IntFieldUpdateOperationsInput | number
     hasVariants?: BoolFieldUpdateOperationsInput | boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -41229,6 +45432,10 @@ export namespace Prisma {
     stock?: IntFieldUpdateOperationsInput | number
     hasVariants?: BoolFieldUpdateOperationsInput | boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
@@ -41255,6 +45462,10 @@ export namespace Prisma {
     stock?: number
     hasVariants?: boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     featured?: boolean
     featuredOrder?: number
     isActive?: boolean
@@ -41282,6 +45493,10 @@ export namespace Prisma {
     stock?: number
     hasVariants?: boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     categoryId?: number | null
     featured?: boolean
     featuredOrder?: number
@@ -41357,6 +45572,10 @@ export namespace Prisma {
     stock?: IntFieldUpdateOperationsInput | number
     hasVariants?: BoolFieldUpdateOperationsInput | boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -41384,6 +45603,10 @@ export namespace Prisma {
     stock?: IntFieldUpdateOperationsInput | number
     hasVariants?: BoolFieldUpdateOperationsInput | boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
@@ -41449,6 +45672,43 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ShipmentCreateWithoutOrderInput = {
+    carrier: string
+    carrierTitle?: string | null
+    trackingNumber: string
+    courierShipmentId?: string | null
+    status?: string
+    codAmount?: Decimal | DecimalJsLike | number | string | null
+    labelUrl?: string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ShipmentUncheckedCreateWithoutOrderInput = {
+    id?: number
+    carrier: string
+    carrierTitle?: string | null
+    trackingNumber: string
+    courierShipmentId?: string | null
+    status?: string
+    codAmount?: Decimal | DecimalJsLike | number | string | null
+    labelUrl?: string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ShipmentCreateOrConnectWithoutOrderInput = {
+    where: ShipmentWhereUniqueInput
+    create: XOR<ShipmentCreateWithoutOrderInput, ShipmentUncheckedCreateWithoutOrderInput>
+  }
+
+  export type ShipmentCreateManyOrderInputEnvelope = {
+    data: ShipmentCreateManyOrderInput | ShipmentCreateManyOrderInput[]
+    skipDuplicates?: boolean
+  }
+
   export type OrderItemUpsertWithWhereUniqueWithoutOrderInput = {
     where: OrderItemWhereUniqueInput
     update: XOR<OrderItemUpdateWithoutOrderInput, OrderItemUncheckedUpdateWithoutOrderInput>
@@ -41465,6 +45725,40 @@ export namespace Prisma {
     data: XOR<OrderItemUpdateManyMutationInput, OrderItemUncheckedUpdateManyWithoutOrderInput>
   }
 
+  export type ShipmentUpsertWithWhereUniqueWithoutOrderInput = {
+    where: ShipmentWhereUniqueInput
+    update: XOR<ShipmentUpdateWithoutOrderInput, ShipmentUncheckedUpdateWithoutOrderInput>
+    create: XOR<ShipmentCreateWithoutOrderInput, ShipmentUncheckedCreateWithoutOrderInput>
+  }
+
+  export type ShipmentUpdateWithWhereUniqueWithoutOrderInput = {
+    where: ShipmentWhereUniqueInput
+    data: XOR<ShipmentUpdateWithoutOrderInput, ShipmentUncheckedUpdateWithoutOrderInput>
+  }
+
+  export type ShipmentUpdateManyWithWhereWithoutOrderInput = {
+    where: ShipmentScalarWhereInput
+    data: XOR<ShipmentUpdateManyMutationInput, ShipmentUncheckedUpdateManyWithoutOrderInput>
+  }
+
+  export type ShipmentScalarWhereInput = {
+    AND?: ShipmentScalarWhereInput | ShipmentScalarWhereInput[]
+    OR?: ShipmentScalarWhereInput[]
+    NOT?: ShipmentScalarWhereInput | ShipmentScalarWhereInput[]
+    id?: IntFilter<"Shipment"> | number
+    orderId?: IntFilter<"Shipment"> | number
+    carrier?: StringFilter<"Shipment"> | string
+    carrierTitle?: StringNullableFilter<"Shipment"> | string | null
+    trackingNumber?: StringFilter<"Shipment"> | string
+    courierShipmentId?: StringNullableFilter<"Shipment"> | string | null
+    status?: StringFilter<"Shipment"> | string
+    codAmount?: DecimalNullableFilter<"Shipment"> | Decimal | DecimalJsLike | number | string | null
+    labelUrl?: StringNullableFilter<"Shipment"> | string | null
+    payload?: JsonNullableFilter<"Shipment">
+    createdAt?: DateTimeFilter<"Shipment"> | Date | string
+    updatedAt?: DateTimeFilter<"Shipment"> | Date | string
+  }
+
   export type OrderCreateWithoutItemsInput = {
     customerName: string
     customerEmail: string
@@ -41478,6 +45772,7 @@ export namespace Prisma {
     totalPrice: Decimal | DecimalJsLike | number | string
     stockReserved?: boolean
     createdAt?: Date | string
+    shipments?: ShipmentCreateNestedManyWithoutOrderInput
   }
 
   export type OrderUncheckedCreateWithoutItemsInput = {
@@ -41494,6 +45789,7 @@ export namespace Prisma {
     totalPrice: Decimal | DecimalJsLike | number | string
     stockReserved?: boolean
     createdAt?: Date | string
+    shipments?: ShipmentUncheckedCreateNestedManyWithoutOrderInput
   }
 
   export type OrderCreateOrConnectWithoutItemsInput = {
@@ -41511,6 +45807,10 @@ export namespace Prisma {
     stock?: number
     hasVariants?: boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     featured?: boolean
     featuredOrder?: number
     isActive?: boolean
@@ -41538,6 +45838,10 @@ export namespace Prisma {
     stock?: number
     hasVariants?: boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     categoryId?: number | null
     featured?: boolean
     featuredOrder?: number
@@ -41566,6 +45870,10 @@ export namespace Prisma {
     price: Decimal | DecimalJsLike | number | string
     reducedPrice?: Decimal | DecimalJsLike | number | string | null
     stock?: number
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     isDefault?: boolean
     sortOrder?: number
     imageUrls?: ProductVariantCreateimageUrlsInput | string[]
@@ -41583,6 +45891,10 @@ export namespace Prisma {
     price: Decimal | DecimalJsLike | number | string
     reducedPrice?: Decimal | DecimalJsLike | number | string | null
     stock?: number
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     isDefault?: boolean
     sortOrder?: number
     imageUrls?: ProductVariantCreateimageUrlsInput | string[]
@@ -41705,6 +46017,7 @@ export namespace Prisma {
     totalPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     stockReserved?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    shipments?: ShipmentUpdateManyWithoutOrderNestedInput
   }
 
   export type OrderUncheckedUpdateWithoutItemsInput = {
@@ -41721,6 +46034,7 @@ export namespace Prisma {
     totalPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     stockReserved?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    shipments?: ShipmentUncheckedUpdateManyWithoutOrderNestedInput
   }
 
   export type ProductUpsertWithoutOrderItemsInput = {
@@ -41744,6 +46058,10 @@ export namespace Prisma {
     stock?: IntFieldUpdateOperationsInput | number
     hasVariants?: BoolFieldUpdateOperationsInput | boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -41771,6 +46089,10 @@ export namespace Prisma {
     stock?: IntFieldUpdateOperationsInput | number
     hasVariants?: BoolFieldUpdateOperationsInput | boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
@@ -41805,6 +46127,10 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     reducedPrice?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     stock?: IntFieldUpdateOperationsInput | number
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     isDefault?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     imageUrls?: ProductVariantUpdateimageUrlsInput | string[]
@@ -41822,6 +46148,10 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     reducedPrice?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     stock?: IntFieldUpdateOperationsInput | number
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     isDefault?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     imageUrls?: ProductVariantUpdateimageUrlsInput | string[]
@@ -41925,6 +46255,88 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rentalApplications?: RentalApplicationUncheckedUpdateManyWithoutRentalPackageVariantNestedInput
+  }
+
+  export type OrderCreateWithoutShipmentsInput = {
+    customerName: string
+    customerEmail: string
+    customerPhone?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    country?: string | null
+    specialInstructions?: string | null
+    status?: string
+    totalPrice: Decimal | DecimalJsLike | number | string
+    stockReserved?: boolean
+    createdAt?: Date | string
+    items?: OrderItemCreateNestedManyWithoutOrderInput
+  }
+
+  export type OrderUncheckedCreateWithoutShipmentsInput = {
+    id?: number
+    customerName: string
+    customerEmail: string
+    customerPhone?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    country?: string | null
+    specialInstructions?: string | null
+    status?: string
+    totalPrice: Decimal | DecimalJsLike | number | string
+    stockReserved?: boolean
+    createdAt?: Date | string
+    items?: OrderItemUncheckedCreateNestedManyWithoutOrderInput
+  }
+
+  export type OrderCreateOrConnectWithoutShipmentsInput = {
+    where: OrderWhereUniqueInput
+    create: XOR<OrderCreateWithoutShipmentsInput, OrderUncheckedCreateWithoutShipmentsInput>
+  }
+
+  export type OrderUpsertWithoutShipmentsInput = {
+    update: XOR<OrderUpdateWithoutShipmentsInput, OrderUncheckedUpdateWithoutShipmentsInput>
+    create: XOR<OrderCreateWithoutShipmentsInput, OrderUncheckedCreateWithoutShipmentsInput>
+    where?: OrderWhereInput
+  }
+
+  export type OrderUpdateToOneWithWhereWithoutShipmentsInput = {
+    where?: OrderWhereInput
+    data: XOR<OrderUpdateWithoutShipmentsInput, OrderUncheckedUpdateWithoutShipmentsInput>
+  }
+
+  export type OrderUpdateWithoutShipmentsInput = {
+    customerName?: StringFieldUpdateOperationsInput | string
+    customerEmail?: StringFieldUpdateOperationsInput | string
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    specialInstructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    totalPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    stockReserved?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    items?: OrderItemUpdateManyWithoutOrderNestedInput
+  }
+
+  export type OrderUncheckedUpdateWithoutShipmentsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    customerName?: StringFieldUpdateOperationsInput | string
+    customerEmail?: StringFieldUpdateOperationsInput | string
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    specialInstructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    totalPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    stockReserved?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    items?: OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   }
 
   export type CategoryCreateWithoutRentalPackagesInput = {
@@ -43031,6 +47443,10 @@ export namespace Prisma {
     stock?: number
     hasVariants?: boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     featured?: boolean
     featuredOrder?: number
     isActive?: boolean
@@ -43058,6 +47474,10 @@ export namespace Prisma {
     stock?: number
     hasVariants?: boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     categoryId?: number | null
     featured?: boolean
     featuredOrder?: number
@@ -43173,6 +47593,10 @@ export namespace Prisma {
     stock?: number
     hasVariants?: boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     featured?: boolean
     featuredOrder?: number
     isActive?: boolean
@@ -43200,6 +47624,10 @@ export namespace Prisma {
     stock?: number
     hasVariants?: boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     categoryId?: number | null
     featured?: boolean
     featuredOrder?: number
@@ -43242,6 +47670,10 @@ export namespace Prisma {
     stock?: IntFieldUpdateOperationsInput | number
     hasVariants?: BoolFieldUpdateOperationsInput | boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -43269,6 +47701,10 @@ export namespace Prisma {
     stock?: IntFieldUpdateOperationsInput | number
     hasVariants?: BoolFieldUpdateOperationsInput | boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
@@ -43296,6 +47732,10 @@ export namespace Prisma {
     stock?: number
     hasVariants?: boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     featured?: boolean
     featuredOrder?: number
     isActive?: boolean
@@ -43334,6 +47774,10 @@ export namespace Prisma {
     stock?: IntFieldUpdateOperationsInput | number
     hasVariants?: BoolFieldUpdateOperationsInput | boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -43361,6 +47805,10 @@ export namespace Prisma {
     stock?: IntFieldUpdateOperationsInput | number
     hasVariants?: BoolFieldUpdateOperationsInput | boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -43388,6 +47836,10 @@ export namespace Prisma {
     stock?: IntFieldUpdateOperationsInput | number
     hasVariants?: BoolFieldUpdateOperationsInput | boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -43493,6 +47945,10 @@ export namespace Prisma {
     price: Decimal | DecimalJsLike | number | string
     reducedPrice?: Decimal | DecimalJsLike | number | string | null
     stock?: number
+    weightGrams?: number | null
+    lengthMm?: number | null
+    widthMm?: number | null
+    heightMm?: number | null
     isDefault?: boolean
     sortOrder?: number
     imageUrls?: ProductVariantCreateimageUrlsInput | string[]
@@ -43619,6 +48075,10 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     reducedPrice?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     stock?: IntFieldUpdateOperationsInput | number
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     isDefault?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     imageUrls?: ProductVariantUpdateimageUrlsInput | string[]
@@ -43635,6 +48095,10 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     reducedPrice?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     stock?: IntFieldUpdateOperationsInput | number
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     isDefault?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     imageUrls?: ProductVariantUpdateimageUrlsInput | string[]
@@ -43651,6 +48115,10 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     reducedPrice?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     stock?: IntFieldUpdateOperationsInput | number
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     isDefault?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     imageUrls?: ProductVariantUpdateimageUrlsInput | string[]
@@ -43752,6 +48220,20 @@ export namespace Prisma {
     rentalEnd?: Date | string | null
   }
 
+  export type ShipmentCreateManyOrderInput = {
+    id?: number
+    carrier: string
+    carrierTitle?: string | null
+    trackingNumber: string
+    courierShipmentId?: string | null
+    status?: string
+    codAmount?: Decimal | DecimalJsLike | number | string | null
+    labelUrl?: string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type OrderItemUpdateWithoutOrderInput = {
     quantity?: IntFieldUpdateOperationsInput | number
     priceEach?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -43785,6 +48267,47 @@ export namespace Prisma {
     priceEach?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     rentalStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     rentalEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ShipmentUpdateWithoutOrderInput = {
+    carrier?: StringFieldUpdateOperationsInput | string
+    carrierTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: StringFieldUpdateOperationsInput | string
+    courierShipmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    codAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    labelUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShipmentUncheckedUpdateWithoutOrderInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    carrier?: StringFieldUpdateOperationsInput | string
+    carrierTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: StringFieldUpdateOperationsInput | string
+    courierShipmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    codAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    labelUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShipmentUncheckedUpdateManyWithoutOrderInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    carrier?: StringFieldUpdateOperationsInput | string
+    carrierTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: StringFieldUpdateOperationsInput | string
+    courierShipmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    codAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    labelUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RentalPackageImageCreateManyRentalPackageInput = {
@@ -44171,6 +48694,10 @@ export namespace Prisma {
     stock?: IntFieldUpdateOperationsInput | number
     hasVariants?: BoolFieldUpdateOperationsInput | boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -44198,6 +48725,10 @@ export namespace Prisma {
     stock?: IntFieldUpdateOperationsInput | number
     hasVariants?: BoolFieldUpdateOperationsInput | boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
@@ -44225,6 +48756,10 @@ export namespace Prisma {
     stock?: IntFieldUpdateOperationsInput | number
     hasVariants?: BoolFieldUpdateOperationsInput | boolean
     specifications?: NullableJsonNullValueInput | InputJsonValue
+    weightGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    lengthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    widthMm?: NullableIntFieldUpdateOperationsInput | number | null
+    heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number

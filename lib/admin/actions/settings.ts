@@ -6,6 +6,7 @@ import { Prisma } from "@/lib/generated/prisma";
 import { requireAdmin } from "@/lib/admin/session";
 import { langFromForm } from "@/lib/admin/i18n";
 import { runFormAction } from "@/lib/admin/errors";
+import { encryptSecret } from "@/lib/admin/crypto";
 
 export type SettingsActionState = { ok?: boolean; error?: string } | null;
 
@@ -26,6 +27,15 @@ function dec(fd: FormData, key: string, fallback: number): Prisma.Decimal {
 function color(fd: FormData, key: string, fallback: string): string {
   const value = str(fd, key);
   return /^#[0-9a-fA-F]{6}$/.test(value) ? value : fallback;
+}
+
+// Non-negative integer fields (parcel weight in grams, dimensions in mm). Like
+// `dec`, a cleared input posts "" and must fall back rather than become 0.
+function int(fd: FormData, key: string, fallback: number): number {
+  const raw = str(fd, key);
+  if (raw === "") return fallback;
+  const value = Number(raw);
+  return Number.isInteger(value) && value >= 0 ? value : fallback;
 }
 
 const revalidate = () => revalidatePath("/admin/[lang]/settings", "page");
@@ -132,6 +142,95 @@ export async function updateProductPage(
       await prisma.productPageSettings.create({ data });
     }
     revalidate();
+    return { ok: true };
+  });
+}
+
+// Write-only encrypted secret: a `<field>Clear` checkbox wipes it, a pasted
+// value is encrypted and stored, and a blank input leaves the existing
+// ciphertext untouched (so re-saving the form never erases the key).
+function writeOnlyKey(fd: FormData, field: string, current: string): string {
+  if (fd.get(`${field}Clear`) === "on") return "";
+  const raw = str(fd, field);
+  return raw === "" ? current : encryptSecret(raw);
+}
+
+// Each courier has its own page + action, writing ONLY its own columns — sender
+// identity and the default parcel are per-courier (Nova Post in g/mm, Fan
+// Courier in kg/cm). An update touches no other courier's fields, so saving one
+// integration never clobbers another's key or config.
+export async function updateNovaPost(
+  _prev: SettingsActionState,
+  fd: FormData,
+): Promise<SettingsActionState> {
+  const lang = langFromForm(fd);
+  await requireAdmin(lang);
+
+  return runFormAction(lang, async () => {
+    const existing = await prisma.shippingSettings.findFirst({ orderBy: { id: "asc" } });
+    const data = {
+      novapostEnabled: fd.get("novapostEnabled") === "on",
+      novapostSandbox: fd.get("novapostSandbox") === "on",
+      novapostApiKey: writeOnlyKey(fd, "novapostApiKey", existing?.novapostApiKey ?? ""),
+      novapostSenderCompanyTin: str(fd, "novapostSenderCompanyTin"),
+      novapostSenderDivisionId: str(fd, "novapostSenderDivisionId"),
+      novapostSenderDivisionName: str(fd, "novapostSenderDivisionName"),
+      novapostSenderCountryCode: str(fd, "novapostSenderCountryCode") || "MD",
+      novapostDefaultCategory: str(fd, "novapostDefaultCategory"),
+      novapostSenderName: str(fd, "novapostSenderName"),
+      novapostSenderPhone: str(fd, "novapostSenderPhone"),
+      novapostSenderEmail: str(fd, "novapostSenderEmail"),
+      novapostParcelWeightG: int(fd, "novapostParcelWeightG", 2000),
+      novapostParcelLengthMm: int(fd, "novapostParcelLengthMm", 240),
+      novapostParcelWidthMm: int(fd, "novapostParcelWidthMm", 160),
+      novapostParcelHeightMm: int(fd, "novapostParcelHeightMm", 200),
+      isActive: true,
+    };
+    if (existing) {
+      await prisma.shippingSettings.update({ where: { id: existing.id }, data });
+    } else {
+      await prisma.shippingSettings.create({ data });
+    }
+    revalidatePath("/admin/[lang]/integrations/nova-post", "page");
+    return { ok: true };
+  });
+}
+
+export async function updateFanCourier(
+  _prev: SettingsActionState,
+  fd: FormData,
+): Promise<SettingsActionState> {
+  const lang = langFromForm(fd);
+  await requireAdmin(lang);
+
+  return runFormAction(lang, async () => {
+    const existing = await prisma.shippingSettings.findFirst({ orderBy: { id: "asc" } });
+    const data = {
+      fancourierEnabled: fd.get("fancourierEnabled") === "on",
+      fancourierApiKey: writeOnlyKey(fd, "fancourierApiKey", existing?.fancourierApiKey ?? ""),
+      fancourierUseDefaultSender: fd.get("fancourierUseDefaultSender") === "on",
+      fancourierServiceType: str(fd, "fancourierServiceType") || "standard",
+      fancourierSenderCounty: str(fd, "fancourierSenderCounty"),
+      fancourierSenderCity: str(fd, "fancourierSenderCity"),
+      fancourierSenderStreet: str(fd, "fancourierSenderStreet"),
+      fancourierSenderNr: str(fd, "fancourierSenderNr"),
+      fancourierSenderZipcode: str(fd, "fancourierSenderZipcode"),
+      fancourierDefaultCategory: str(fd, "fancourierDefaultCategory"),
+      fancourierSenderName: str(fd, "fancourierSenderName"),
+      fancourierSenderPhone: str(fd, "fancourierSenderPhone"),
+      fancourierSenderEmail: str(fd, "fancourierSenderEmail"),
+      fancourierParcelWeightKg: dec(fd, "fancourierParcelWeightKg", 1),
+      fancourierParcelLengthCm: int(fd, "fancourierParcelLengthCm", 24),
+      fancourierParcelWidthCm: int(fd, "fancourierParcelWidthCm", 16),
+      fancourierParcelHeightCm: int(fd, "fancourierParcelHeightCm", 20),
+      isActive: true,
+    };
+    if (existing) {
+      await prisma.shippingSettings.update({ where: { id: existing.id }, data });
+    } else {
+      await prisma.shippingSettings.create({ data });
+    }
+    revalidatePath("/admin/[lang]/integrations/fan-courier", "page");
     return { ok: true };
   });
 }

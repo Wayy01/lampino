@@ -63,15 +63,19 @@ export function LangField() {
   return <input type="hidden" name="_lang" value={lang} />;
 }
 
-/** Checkbox rendered as a switch; posts "on" like a plain checkbox. */
+/** Checkbox rendered as a switch; posts "on" like a plain checkbox. Stays
+ *  uncontrolled (defaultChecked); `onChange` lets a parent react to the state,
+ *  e.g. to disable dependent fields. */
 export function Toggle({
   name,
   label,
   defaultChecked,
+  onChange,
 }: {
   name: string;
   label: string;
   defaultChecked?: boolean;
+  onChange?: (checked: boolean) => void;
 }) {
   return (
     <label className="flex cursor-pointer select-none items-center gap-3">
@@ -79,6 +83,7 @@ export function Toggle({
         type="checkbox"
         name={name}
         defaultChecked={defaultChecked}
+        onChange={onChange ? (e) => onChange(e.target.checked) : undefined}
         className="peer sr-only"
       />
       <span className="relative h-5 w-9 shrink-0 rounded-full bg-foreground/15 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-surface after:shadow after:transition-transform peer-checked:bg-primary peer-checked:after:translate-x-4" />

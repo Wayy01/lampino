@@ -72,7 +72,9 @@ export function FastBuyDrawer({
       customerPhone: form.phone,
       method: form.method,
       region: form.region,
+      city: form.method === "delivery" ? form.city : null,
       address: form.method === "delivery" ? form.address : null,
+      postalCode: form.method === "delivery" ? form.postalCode : null,
       notes: form.notes || null,
     });
     setPending(false);
