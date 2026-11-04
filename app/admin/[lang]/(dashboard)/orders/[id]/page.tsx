@@ -5,6 +5,7 @@ import {
   Calendar,
   Mail,
   MapPin,
+  Package,
   Phone,
   ReceiptText,
   Sparkles,
@@ -21,10 +22,12 @@ import {
   type AdminLang,
 } from "@/lib/admin/i18n";
 import { isLocale } from "@/lib/i18n/routing";
+import { resolveItemDims } from "@/lib/courier/parcel";
 import { PageHeader } from "@/components/admin/page-header";
 import { SectionCard } from "@/components/admin/section-card";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { OrderStatusForm } from "@/components/admin/order-status-form";
+import { ShipmentDialog } from "@/components/admin/shipment-dialog";
 
 export default async function AdminOrderDetailPage({
   params,
@@ -44,7 +47,12 @@ export default async function AdminOrderDetailPage({
     include: {
       items: {
         include: {
-          product: { include: { images: { where: { isMain: true }, take: 1 } } },
+          product: {
+            include: {
+              images: { where: { isMain: true }, take: 1 },
+              category: { select: { name_ro: true, name_ru: true } },
+            },
+          },
           productVariant: true,
           rentalPackage: {
             include: { images: { where: { isMain: true }, take: 1 } },
@@ -52,14 +60,53 @@ export default async function AdminOrderDetailPage({
           rentalPackageVariant: true,
         },
       },
+      shipments: {
+        select: { id: true, carrier: true, carrierTitle: true, trackingNumber: true, status: true },
+      },
     },
   });
   if (!order) notFound();
+
+  const settings = await prisma.shippingSettings.findFirst({ where: { isActive: true } });
 
   const itemsTotal = order.items.reduce(
     (sum, item) => sum + num(item.priceEach) * item.quantity,
     0,
   );
+
+  // Shipment state + the parcel the drawer pre-fills (assembled from the order's
+  // product item dimensions, variant → product → store fallback).
+  const shipment = order.shipments[0] ?? null;
+  const novapostConfigured = Boolean(
+    settings?.novapostEnabled && settings.novapostApiKey && settings.novapostSenderDivisionId,
+  );
+  const fancourierConfigured = Boolean(settings?.fancourierEnabled && settings.fancourierApiKey);
+  const parcelFallback = {
+    weightG: settings?.novapostParcelWeightG ?? 2000,
+    lengthMm: settings?.novapostParcelLengthMm ?? 240,
+    widthMm: settings?.novapostParcelWidthMm ?? 160,
+    heightMm: settings?.novapostParcelHeightMm ?? 200,
+  };
+  // Fan Courier stores its default parcel in kg/cm; the parcel distributor works
+  // in canonical g/mm, so convert the store fallback up front.
+  const fancourierFallback = {
+    weightG: Math.round(((settings ? num(settings.fancourierParcelWeightKg) : 1) || 1) * 1000),
+    lengthMm: (settings?.fancourierParcelLengthCm ?? 24) * 10,
+    widthMm: (settings?.fancourierParcelWidthCm ?? 16) * 10,
+    heightMm: (settings?.fancourierParcelHeightCm ?? 20) * 10,
+  };
+  const productItems = order.items.filter((i) => i.productId && i.product);
+  // Item lines the drawer distributes across parcels (variant → product → store
+  // dimensions), with per-unit value for proportional declared-value splitting.
+  const shipmentItems = productItems.map((i) => ({
+    name: pick(lang, i.product!.name_ro, i.product!.name_ru),
+    category: i.product!.category
+      ? pick(lang, i.product!.category.name_ro, i.product!.category.name_ru)
+      : settings?.novapostDefaultCategory || "",
+    qty: i.quantity,
+    unitValue: num(i.priceEach),
+    ...resolveItemDims(i.productVariant, i.product!, parcelFallback),
+  }));
 
   return (
     <>
@@ -237,6 +284,44 @@ export default async function AdminOrderDetailPage({
               <p className="text-sm text-muted-foreground">
                 {t.orders.noAddress}
               </p>
+            )}
+          </SectionCard>
+
+          <SectionCard
+            title={t.orders.shipment.title}
+            icon={<Package className="h-4 w-4" strokeWidth={1.75} />}
+          >
+            {shipment ? (
+              <div className="flex flex-col gap-1.5 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">{t.orders.shipment.carrier}:</span>
+                  <span className="font-medium">{shipment.carrierTitle ?? shipment.carrier}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">{t.orders.shipment.tracking}:</span>
+                  <span className="font-mono font-medium">{shipment.trackingNumber}</span>
+                </div>
+              </div>
+            ) : (
+              <ShipmentDialog
+                orderId={order.id}
+                recipient={{
+                  name: order.customerName,
+                  phone: order.customerPhone ?? "",
+                  email: order.customerEmail,
+                }}
+                address={{
+                  city: order.city,
+                  street: order.address,
+                  postCode: order.postalCode,
+                }}
+                items={shipmentItems}
+                fallback={parcelFallback}
+                fancourierFallback={fancourierFallback}
+                insuranceTotal={Math.round(itemsTotal)}
+                novapostConfigured={novapostConfigured}
+                fancourierConfigured={fancourierConfigured}
+              />
             )}
           </SectionCard>
         </div>

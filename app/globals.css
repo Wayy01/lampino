@@ -206,10 +206,15 @@ body {
 .cs-dialog-overlay[data-state="closed"] {
   animation: csFadeOut 0.2s ease forwards;
 }
+/* data-state lives on the full-screen scroll node (.cs-dialog-scroll); Radix
+   waits on its animation before unmounting, so the exit fade must live there. */
+.cs-dialog-scroll[data-state="closed"] {
+  animation: csFadeOut 0.2s ease forwards;
+}
 .cs-dialog-content {
   animation: csDialogIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
-.cs-dialog-content[data-state="closed"] {
+.cs-dialog-scroll[data-state="closed"] .cs-dialog-content {
   animation: csDialogOut 0.2s ease forwards;
 }
 @keyframes csFade {
