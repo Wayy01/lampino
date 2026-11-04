@@ -219,6 +219,25 @@ function DropField({
   );
 }
 
+// A draggable reference to an original order value (city, post code, address
+// part). Drop it on a matching field to fill/search it — the ergonomic way to
+// move the order's data into the courier form.
+function RefChip({ label }: { label: string }) {
+  return (
+    <span
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.setData("text/plain", label);
+        e.dataTransfer.effectAllowed = "copy";
+      }}
+      className="flex cursor-grab items-center gap-1 rounded-full border px-2 py-0.5 text-xs transition-colors hover:border-primary hover:bg-primary/[0.04] active:cursor-grabbing"
+    >
+      <GripVertical className="h-3 w-3 text-muted-foreground" strokeWidth={1.75} />
+      {label}
+    </span>
+  );
+}
+
 export function ShipmentDialog({
   orderId,
   recipient,
@@ -401,6 +420,7 @@ function NovaPostShipmentForm({
     parts.find((p) => p.target === "building")?.label ?? "",
   );
   const [flat, setFlat] = useState(parts.find((p) => p.target === "flat")?.label ?? "");
+  const [postCode, setPostCode] = useState(address.postCode ?? "");
   const [novaPay, setNovaPay] = useState(true);
   const [declaredValue, setDeclaredValue] = useState(String(insuranceTotal));
   const [state, formAction] = useActionState<ShippingActionState, FormData>(
@@ -538,6 +558,14 @@ function NovaPostShipmentForm({
           </Field>
         </div>
 
+        {(address.city || address.postCode) && (
+          <div className="mt-3 flex flex-wrap items-center gap-1.5">
+            <span className="text-xs text-muted-foreground">{s.originalValues}</span>
+            {address.city && <RefChip label={address.city} />}
+            {address.postCode && <RefChip label={address.postCode} />}
+          </div>
+        )}
+
         <div className="mt-3">
           <NovaPostSearchField
             type="settlements"
@@ -546,6 +574,7 @@ function NovaPostShipmentForm({
             label={s.settlement}
             initialQuery={address.city}
             onSelect={(id) => setSettlementId(id)}
+            acceptDrop
             keySet
           />
         </div>
@@ -576,18 +605,7 @@ function NovaPostShipmentForm({
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="text-xs text-muted-foreground">{s.dragHint}</span>
                 {parts.map((p, i) => (
-                  <span
-                    key={i}
-                    draggable
-                    onDragStart={(e) => {
-                      e.dataTransfer.setData("text/plain", p.label);
-                      e.dataTransfer.effectAllowed = "copy";
-                    }}
-                    className="flex cursor-grab items-center gap-1 rounded-full border px-2 py-0.5 text-xs transition-colors hover:border-primary hover:bg-primary/[0.04] active:cursor-grabbing"
-                  >
-                    <GripVertical className="h-3 w-3 text-muted-foreground" strokeWidth={1.75} />
-                    {p.label}
-                  </span>
+                  <RefChip key={i} label={p.label} />
                 ))}
               </div>
             )}
@@ -623,7 +641,14 @@ function NovaPostShipmentForm({
                 </DropField>
               </Field>
               <Field label={s.postCode} htmlFor="rc_post">
-                <TextInput id="rc_post" name="recipientPostCode" defaultValue={address.postCode ?? ""} />
+                <DropField onDrop={setPostCode}>
+                  <TextInput
+                    id="rc_post"
+                    name="recipientPostCode"
+                    value={postCode}
+                    onChange={(e) => setPostCode(e.target.value)}
+                  />
+                </DropField>
               </Field>
             </div>
           </div>
@@ -840,6 +865,7 @@ function FanCourierShipmentForm({
     .join(" ");
   const [nr, setNr] = useState(parts.find((p) => p.target === "building")?.label ?? "");
   const [flat, setFlat] = useState(parts.find((p) => p.target === "flat")?.label ?? "");
+  const [zip, setZip] = useState(address.postCode ?? "");
   const [cod, setCod] = useState(true);
   const [codAmount, setCodAmount] = useState(String(insuranceTotal));
   const [declaredValue, setDeclaredValue] = useState(String(insuranceTotal));
@@ -921,6 +947,14 @@ function FanCourierShipmentForm({
           </Field>
         </div>
 
+        {(address.city || address.postCode) && (
+          <div className="mt-3 flex flex-wrap items-center gap-1.5">
+            <span className="text-xs text-muted-foreground">{s.originalValues}</span>
+            {address.city && <RefChip label={address.city} />}
+            {address.postCode && <RefChip label={address.postCode} />}
+          </div>
+        )}
+
         <div className="mt-3">
           <FanCourierCityField
             cityName="recipientCity"
@@ -942,18 +976,7 @@ function FanCourierShipmentForm({
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="text-xs text-muted-foreground">{s.dragHint}</span>
               {parts.map((p, i) => (
-                <span
-                  key={i}
-                  draggable
-                  onDragStart={(e) => {
-                    e.dataTransfer.setData("text/plain", p.label);
-                    e.dataTransfer.effectAllowed = "copy";
-                  }}
-                  className="flex cursor-grab items-center gap-1 rounded-full border px-2 py-0.5 text-xs transition-colors hover:border-primary hover:bg-primary/[0.04] active:cursor-grabbing"
-                >
-                  <GripVertical className="h-3 w-3 text-muted-foreground" strokeWidth={1.75} />
-                  {p.label}
-                </span>
+                <RefChip key={i} label={p.label} />
               ))}
             </div>
           )}
@@ -991,7 +1014,14 @@ function FanCourierShipmentForm({
               </DropField>
             </Field>
             <Field label={s.postCode} htmlFor="fc_zip">
-              <TextInput id="fc_zip" name="recipientZipcode" defaultValue={address.postCode ?? ""} />
+              <DropField onDrop={setZip}>
+                <TextInput
+                  id="fc_zip"
+                  name="recipientZipcode"
+                  value={zip}
+                  onChange={(e) => setZip(e.target.value)}
+                />
+              </DropField>
             </Field>
           </div>
           <Field label={s.addressNote} htmlFor="fc_extra">

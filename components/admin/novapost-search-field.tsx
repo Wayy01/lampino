@@ -73,6 +73,11 @@ export function NovaPostSearchField({
   const t = useAdminT();
   const s = t.settings.shipping;
   const isDisabled = !keySet || Boolean(disabled);
+  // Streets submit the chosen *name* and accept an unmatched street as free
+  // text, so their box legitimately holds text. Id-based fields (settlements,
+  // divisions) are a strict combobox: empty box or committed chip, nothing in
+  // between — their seed auto-commits to a chip, or warns if it matched nothing.
+  const isFreeText = submit === "label";
   // Seed the box from the order (e.g. its city) so the admin just focuses and
   // picks a match instead of retyping. Branch addresses carry the city name, so
   // the same seed scopes the branch list to that city. Never seed over an
@@ -85,10 +90,11 @@ export function NovaPostSearchField({
   const [selectedLabel, setSelectedLabel] = useState(
     defaultLabel || (defaultValue ? `#${defaultValue}` : ""),
   );
-  const [query, setQuery] = useState(isDisabled ? "" : seedQuery);
+  const [query, setQuery] = useState(isDisabled ? "" : isFreeText ? seedQuery : "");
   const [options, setOptions] = useState<Option[]>([]);
   const [status, setStatus] = useState<Status>("idle");
   const [open, setOpen] = useState(false);
+  const [seedMiss, setSeedMiss] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const boxRef = useRef<HTMLDivElement>(null);
@@ -101,10 +107,11 @@ export function NovaPostSearchField({
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
 
-  // Fetch matches for `v`. Per the search rules, auto-select the first option
-  // when it's the only match, or when `autoSelectIfEmpty` (the field had no
-  // prior pick — a pre-filled value, or the first manual search).
-  async function performSearch(v: string, autoSelectIfEmpty: boolean) {
+  // Fetch matches for `v`. `commitFirst` (the seed/drop path) auto-commits the
+  // first match — keeping the typed text for a free-text street, clearing it to
+  // a chip for id fields — or records a miss when nothing came back. Manual
+  // searches never commit: the operator clicks a result.
+  async function performSearch(v: string, commitFirst: boolean) {
     setStatus("loading");
     try {
       const filter =
@@ -129,10 +136,9 @@ export function NovaPostSearchField({
       const opts = j.options ?? [];
       setOptions(opts);
       setStatus("idle");
-      // Auto-committing the first option keeps the typed text in the box (the
-      // operator didn't click it); a manual pick clears it.
-      if (opts.length === 1 || (autoSelectIfEmpty && opts.length > 0)) {
-        select(opts[0], true);
+      if (commitFirst) {
+        if (opts.length > 0) select(opts[0], isFreeText);
+        else setSeedMiss(v);
       }
     } catch {
       setStatus("error");
@@ -143,6 +149,7 @@ export function NovaPostSearchField({
   function runQuery(v: string) {
     setQuery(v);
     setOpen(true);
+    setSeedMiss(null);
     if (timer.current) clearTimeout(timer.current);
     if (v.trim().length < 2) {
       setOptions([]);
@@ -150,8 +157,19 @@ export function NovaPostSearchField({
       return;
     }
     setStatus("loading");
-    const wasEmpty = !selectedId;
-    timer.current = setTimeout(() => performSearch(v.trim(), wasEmpty), 300);
+    timer.current = setTimeout(() => performSearch(v.trim(), false), 300);
+  }
+
+  // A dropped reference (e.g. the order's original city) re-runs the seed path
+  // for id fields (search + commit), or just fills a free-text street box.
+  function handleDrop(text: string) {
+    if (!text) return;
+    if (isFreeText) {
+      runQuery(text);
+    } else {
+      setSeedMiss(null);
+      performSearch(text, true);
+    }
   }
 
   function select(o: Option, keepQuery = false) {
@@ -166,6 +184,7 @@ export function NovaPostSearchField({
   function clear() {
     setSelectedId("");
     setSelectedLabel("");
+    setSeedMiss(null);
     onSelect?.("", "");
   }
 
@@ -177,8 +196,10 @@ export function NovaPostSearchField({
     setPrevSettlement(settlementId);
     setSelectedId("");
     setSelectedLabel("");
-    // Re-seed with the city (now that the field is enabled) rather than blanking.
-    setQuery(settlementId ? seedQuery : "");
+    setSeedMiss(null);
+    // Id fields re-seed into a chip via the effect below; only a free-text
+    // street puts the city back in the box.
+    setQuery(isFreeText && settlementId ? seedQuery : "");
     setOptions([]);
     setOpen(false);
   }
@@ -223,8 +244,7 @@ export function NovaPostSearchField({
             ? (e) => {
                 e.preventDefault();
                 setDragOver(false);
-                const text = e.dataTransfer.getData("text/plain").trim();
-                if (text) runQuery(text);
+                handleDrop(e.dataTransfer.getData("text/plain").trim());
               }
             : undefined
         }
@@ -289,6 +309,11 @@ export function NovaPostSearchField({
           </div>
         )}
       </div>
+      {!isFreeText && seedMiss && !selectedLabel && (
+        <p className="mt-1.5 text-xs text-[var(--warning,#F97316)]">
+          {s.seedNoMatch} «{seedMiss}»
+        </p>
+      )}
     </Field>
   );
 }

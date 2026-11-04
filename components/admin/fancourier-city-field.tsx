@@ -12,10 +12,13 @@ function cityLabel(c: City): string {
   return c.province ? `${c.name} (${c.province})` : c.name;
 }
 
-// Async combobox over the Fan Courier city list (via the admin proxy). Unlike
-// the Nova Post field, a city has no id — it's a (name, province) pair — so the
-// pick fills two hidden fields: the city name and its county/province. Searches
-// once an API key is saved; falls back to plain text otherwise.
+// Async combobox over the Fan Courier city list (via the admin proxy). A normal
+// combobox: the box is either empty or shows an erasable chip for the committed
+// city — a pick only happens when the operator clicks a result. The exception
+// is the seed/drop path, which auto-commits the first match so a prefilled city
+// becomes an honest chip (not loose text); if the seed matches nothing, a
+// warning appears instead. A city has no id — it's a (name, province) pair — so
+// the pick fills two hidden fields: the city name and its county/province.
 export function FanCourierCityField({
   cityName,
   countyName,
@@ -30,8 +33,7 @@ export function FanCourierCityField({
   countyName: string;
   label: string;
   keySet: boolean;
-  /** Seed the box (e.g. the order's city) and pre-run the search so a match is
-   *  ready to pick the moment the form opens. */
+  /** Seed the field (e.g. the order's city): searched on mount and auto-committed. */
   initialCity?: string | null;
   onSelect?: (city: string, county: string) => void;
 }) {
@@ -43,10 +45,12 @@ export function FanCourierCityField({
   const [city, setCity] = useState("");
   const [county, setCounty] = useState("");
   const [selectedLabel, setSelectedLabel] = useState("");
-  const [query, setQuery] = useState(isDisabled ? "" : seed);
+  const [query, setQuery] = useState("");
   const [options, setOptions] = useState<City[]>([]);
   const [status, setStatus] = useState<Status>("idle");
   const [open, setOpen] = useState(false);
+  const [seedMiss, setSeedMiss] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const boxRef = useRef<HTMLDivElement>(null);
 
@@ -58,9 +62,10 @@ export function FanCourierCityField({
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
 
-  // Fetch matches for `v`; auto-select the first option when it's the only match
-  // or when the field had no prior pick (a pre-filled value / first search).
-  async function performSearch(v: string, autoSelectIfEmpty: boolean) {
+  // Fetch matches for `v`. `commitFirst` (the seed/drop path) auto-commits the
+  // first match — or records a miss when nothing comes back — so a prefilled
+  // value never lingers in the box uncommitted. Manual searches never commit.
+  async function performSearch(v: string, commitFirst: boolean) {
     setStatus("loading");
     try {
       const r = await fetch(`/api/admin/fancourier/cities?q=${encodeURIComponent(v)}`);
@@ -79,9 +84,10 @@ export function FanCourierCityField({
       const opts = j.options ?? [];
       setOptions(opts);
       setStatus("idle");
-      // Auto-committing the first option keeps the typed text in the box (the
-      // operator didn't click it); a manual pick clears it.
-      if (opts.length === 1 || (autoSelectIfEmpty && opts.length > 0)) select(opts[0], true);
+      if (commitFirst) {
+        if (opts.length > 0) select(opts[0]);
+        else setSeedMiss(v);
+      }
     } catch {
       setStatus("error");
       setOptions([]);
@@ -91,6 +97,7 @@ export function FanCourierCityField({
   function runQuery(v: string) {
     setQuery(v);
     setOpen(true);
+    setSeedMiss(null);
     if (timer.current) clearTimeout(timer.current);
     if (v.trim().length < 2) {
       setOptions([]);
@@ -98,17 +105,17 @@ export function FanCourierCityField({
       return;
     }
     setStatus("loading");
-    const wasEmpty = !city;
-    timer.current = setTimeout(() => performSearch(v.trim(), wasEmpty), 300);
+    timer.current = setTimeout(() => performSearch(v.trim(), false), 300);
   }
 
-  function select(c: City, keepQuery = false) {
+  function select(c: City) {
     setCity(c.name);
     setCounty(c.province ?? "");
     setSelectedLabel(cityLabel(c));
-    if (!keepQuery) setQuery("");
+    setQuery("");
     setOptions([]);
     setOpen(false);
+    setSeedMiss(null);
     onSelect?.(c.name, c.province ?? "");
   }
 
@@ -116,25 +123,56 @@ export function FanCourierCityField({
     setCity("");
     setCounty("");
     setSelectedLabel("");
+    setSeedMiss(null);
     onSelect?.("", "");
   }
 
-  // A pre-filled city triggers its own search (auto-selecting the first match
-  // when nothing is chosen yet). Scheduled, never a synchronous setState.
+  // Seed on mount: search and auto-commit the first match (or warn). Scheduled,
+  // never a synchronous setState.
   useEffect(() => {
     if (isDisabled || city) return;
-    const q = seed.trim();
-    if (q.length < 2) return;
-    const h = setTimeout(() => performSearch(q, true), 0);
+    if (seed.length < 2) return;
+    const h = setTimeout(() => performSearch(seed, true), 0);
     return () => clearTimeout(h);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDisabled]);
+
+  // A dropped original-city reference re-runs the seed path: search + commit.
+  function handleDrop(text: string) {
+    if (!text) return;
+    setSeedMiss(null);
+    performSearch(text, true);
+  }
 
   return (
     <Field label={label}>
       <input type="hidden" name={cityName} value={city} />
       <input type="hidden" name={countyName} value={county} />
-      <div ref={boxRef} className="relative">
+      <div
+        ref={boxRef}
+        className={`relative rounded-[var(--radius-md)] ${
+          dragOver ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""
+        }`}
+        onDragOver={
+          isDisabled
+            ? undefined
+            : (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = "copy";
+                setDragOver(true);
+              }
+        }
+        onDragLeave={isDisabled ? undefined : () => setDragOver(false)}
+        onDrop={
+          isDisabled
+            ? undefined
+            : (e) => {
+                e.preventDefault();
+                setDragOver(false);
+                handleDrop(e.dataTransfer.getData("text/plain").trim());
+              }
+        }
+      >
         {selectedLabel && (
           <div className="mb-2 flex items-center gap-2 rounded-[var(--radius-sm)] border bg-muted/40 px-2.5 py-1.5 text-xs">
             <span className="min-w-0 flex-1 truncate">{selectedLabel}</span>
@@ -190,6 +228,11 @@ export function FanCourierCityField({
           </div>
         )}
       </div>
+      {seedMiss && !selectedLabel && (
+        <p className="mt-1.5 text-xs text-[var(--warning,#F97316)]">
+          {s.seedNoMatch} «{seedMiss}»
+        </p>
+      )}
     </Field>
   );
 }
