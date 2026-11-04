@@ -423,6 +423,9 @@ function NovaPostShipmentForm({
   const [postCode, setPostCode] = useState(address.postCode ?? "");
   const [novaPay, setNovaPay] = useState(true);
   const [declaredValue, setDeclaredValue] = useState(String(insuranceTotal));
+  // Lampino's address-delivery fee, collected on top of the goods value: the
+  // COD total is declared value + fee, while the parcel insurance stays goods-only.
+  const [deliveryFee, setDeliveryFee] = useState("0");
   const [state, formAction] = useActionState<ShippingActionState, FormData>(
     createNovaPostShipment.bind(null, orderId),
     null,
@@ -447,6 +450,7 @@ function NovaPostShipmentForm({
   // across them (proportional to parcel value, last gets the remainder), then
   // apply any manual overrides. This is what the form submits as `parcelsJson`.
   const declaredTotal = Math.max(0, Number(declaredValue) || 0);
+  const codTotal = declaredTotal + Math.max(0, Number(deliveryFee) || 0);
   const base = distributeParcels(items, count, fallback);
   const insuranceSplit = splitInsurance(
     base.map((p) => p.value),
@@ -683,23 +687,41 @@ function NovaPostShipmentForm({
           </div>
           <input type="hidden" name="novaPay" value={novaPay ? "1" : ""} />
           {novaPay && (
-            <div className="mt-3 sm:w-1/2">
-              <Field label={s.insurance} htmlFor="pc_cod">
-                <TextInput
-                  id="pc_cod"
-                  type="number"
-                  min="0"
-                  inputMode="numeric"
-                  value={declaredValue}
-                  onChange={(e) => setDeclaredValue(e.target.value)}
-                />
-              </Field>
-            </div>
+            <>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <Field label={s.insurance} htmlFor="pc_cod">
+                  <TextInput
+                    id="pc_cod"
+                    type="number"
+                    min="0"
+                    inputMode="numeric"
+                    value={declaredValue}
+                    onChange={(e) => setDeclaredValue(e.target.value)}
+                  />
+                </Field>
+                <Field label={s.deliveryFee} htmlFor="pc_fee">
+                  <TextInput
+                    id="pc_fee"
+                    type="number"
+                    min="0"
+                    inputMode="numeric"
+                    value={deliveryFee}
+                    onChange={(e) => setDeliveryFee(e.target.value)}
+                  />
+                </Field>
+              </div>
+              <div className="mt-2 text-xs text-muted-foreground">
+                {s.codTotal}:{" "}
+                <span className="font-medium text-foreground">{codTotal}</span>
+              </div>
+            </>
           )}
         </div>
 
-        {/* The parcel's declared value / insurance, always submitted. */}
+        {/* The parcel's declared value / insurance (goods only), always submitted. */}
         <input type="hidden" name="parcelInsurance" value={declaredValue} />
+        {/* Address-delivery fee added to the COD total collected on delivery. */}
+        <input type="hidden" name="codDeliveryFee" value={deliveryFee} />
 
         <div className="mt-3">
           <Field label={s.note} htmlFor="pc_note">
@@ -868,7 +890,10 @@ function FanCourierShipmentForm({
   const [zip, setZip] = useState(address.postCode ?? "");
   const [cod, setCod] = useState(true);
   const [codAmount, setCodAmount] = useState(String(insuranceTotal));
+  // Lampino's address-delivery fee, added to the ramburs total collected.
+  const [deliveryFee, setDeliveryFee] = useState("0");
   const [declaredValue, setDeclaredValue] = useState(String(insuranceTotal));
+  const codTotal = Math.max(0, Number(codAmount) || 0) + Math.max(0, Number(deliveryFee) || 0);
   const [state, formAction] = useActionState<ShippingActionState, FormData>(
     createFanCourierShipment.bind(null, orderId),
     null,
@@ -1072,32 +1097,49 @@ function FanCourierShipmentForm({
           </div>
           <input type="hidden" name="cod" value={cod ? "1" : ""} />
           {cod && (
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <Field label={s.codAmount} htmlFor="fc_cod">
-                <TextInput
-                  id="fc_cod"
-                  type="number"
-                  min="0"
-                  inputMode="numeric"
-                  value={codAmount}
-                  onChange={(e) => setCodAmount(e.target.value)}
-                />
-              </Field>
-              <Field label={s.rambursType} htmlFor="fc_rtype">
-                <AdminSelect
-                  id="fc_rtype"
-                  name="rambursType"
-                  defaultValue="cont"
-                  options={[
-                    { value: "cont", label: s.rambursCont },
-                    { value: "cash", label: s.rambursCash },
-                    { value: "instrumente_plata", label: s.rambursInstrument },
-                  ]}
-                />
-              </Field>
-            </div>
+            <>
+              <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                <Field label={s.codAmount} htmlFor="fc_cod">
+                  <TextInput
+                    id="fc_cod"
+                    type="number"
+                    min="0"
+                    inputMode="numeric"
+                    value={codAmount}
+                    onChange={(e) => setCodAmount(e.target.value)}
+                  />
+                </Field>
+                <Field label={s.deliveryFee} htmlFor="fc_fee">
+                  <TextInput
+                    id="fc_fee"
+                    type="number"
+                    min="0"
+                    inputMode="numeric"
+                    value={deliveryFee}
+                    onChange={(e) => setDeliveryFee(e.target.value)}
+                  />
+                </Field>
+                <Field label={s.rambursType} htmlFor="fc_rtype">
+                  <AdminSelect
+                    id="fc_rtype"
+                    name="rambursType"
+                    defaultValue="cont"
+                    options={[
+                      { value: "cont", label: s.rambursCont },
+                      { value: "cash", label: s.rambursCash },
+                      { value: "instrumente_plata", label: s.rambursInstrument },
+                    ]}
+                  />
+                </Field>
+              </div>
+              <div className="mt-2 text-xs text-muted-foreground">
+                {s.codTotal}: <span className="font-medium text-foreground">{codTotal}</span>
+              </div>
+            </>
           )}
           <input type="hidden" name="codAmount" value={codAmount} />
+          {/* Address-delivery fee added to the ramburs total collected. */}
+          <input type="hidden" name="codDeliveryFee" value={deliveryFee} />
         </div>
 
         <div className="mt-3 sm:w-1/2">

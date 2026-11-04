@@ -98,9 +98,10 @@ export function buildNovaPostRequestFromForm(
     throw new ActionRefusal("recipientRequired");
   }
 
-  // Nova Pay (COD): collect the declared-value total on delivery.
+  // Nova Pay (COD): collect the goods' declared value plus Lampino's
+  // address-delivery fee on delivery. The parcel insurance stays goods-only.
   const novaPay = str(fd, "novaPay") === "1";
-  const codAmount = pos(fd, "parcelInsurance", 0);
+  const codAmount = pos(fd, "parcelInsurance", 0) + pos(fd, "codDeliveryFee", 0);
 
   return {
     clientOrder: `Order #${order.id}`,
@@ -203,23 +204,25 @@ export function buildFanCourierRequestFromForm(
   const payer: FanCourierShipmentRequest["payer"] =
     payerRaw === "sender" ? "sender" : payerRaw === "recipient" ? "recipient" : "client";
 
-  // Ramburs (cash-on-delivery): collect this amount at the door.
+  // Ramburs (cash-on-delivery): collect the goods amount plus Lampino's
+  // address-delivery fee at the door.
   const codOn = str(fd, "cod") === "1";
-  const codAmount = pos(fd, "codAmount", 0);
+  const codBase = pos(fd, "codAmount", 0);
+  const codTotal = codBase + pos(fd, "codDeliveryFee", 0);
   const typeRaw = str(fd, "rambursType");
   const rambursType: "cont" | "cash" | "instrumente_plata" =
     typeRaw === "cash" ? "cash" : typeRaw === "instrumente_plata" ? "instrumente_plata" : "cont";
 
   // Declared value (insurance): the form prefills it; if cleared, fall back to
-  // the COD amount when collecting, mirroring aminterra's coupling.
+  // the COD goods amount (not the delivery fee), mirroring aminterra's coupling.
   let declaredValue = pos(fd, "declaredValue", 0);
-  if (declaredValue <= 0 && codOn && codAmount > 0) declaredValue = codAmount;
+  if (declaredValue <= 0 && codOn && codBase > 0) declaredValue = codBase;
 
   return {
     serviceType: settings.fancourierServiceType || "standard",
     payer,
     declaredValue,
-    cod: codOn && codAmount > 0 ? { amount: codAmount, type: rambursType } : null,
+    cod: codOn && codTotal > 0 ? { amount: codTotal, type: rambursType } : null,
     content: str(fd, "content") || `Order #${order.id}`,
     comments: str(fd, "comments"),
     customerReference: String(order.id),
