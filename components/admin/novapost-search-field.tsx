@@ -249,8 +249,8 @@ export function NovaPostSearchField({
             : undefined
         }
       >
-        {selectedLabel && (
-          <div className="mb-2 flex items-center gap-2 rounded-[var(--radius-sm)] border bg-muted/40 px-2.5 py-1.5 text-xs">
+        {selectedLabel ? (
+          <div className="flex h-10 w-full items-center gap-2 rounded-[var(--radius-md)] border bg-background px-3 text-sm">
             <span className="min-w-0 flex-1 truncate">{selectedLabel}</span>
             <button
               type="button"
@@ -258,55 +258,58 @@ export function NovaPostSearchField({
               aria-label={t.common.remove}
               className="shrink-0 cursor-pointer text-muted-foreground hover:text-foreground"
             >
-              <X className="h-3.5 w-3.5" />
+              <X className="h-4 w-4" />
             </button>
           </div>
-        )}
-        <TextInput
-          value={query}
-          onChange={(e) => runQuery(e.target.value)}
-          onFocus={() => {
-            if (query.trim().length < 2) return;
-            setOpen(true);
-            // Pre-seeded (e.g. the order's city) but not yet searched — fetch now.
-            if (options.length === 0 && status === "idle") runQuery(query);
-          }}
-          placeholder={
-            !keySet ? s.searchNeedsKey : disabled && placeholder ? placeholder : s.searchPlaceholder
-          }
-          disabled={isDisabled}
-          autoComplete="off"
-        />
-        {open && query.trim().length >= 2 && (
-          <div className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-[var(--radius-md)] border bg-background shadow-lg">
-            {status === "loading" && (
-              <div className="px-3 py-2 text-xs text-muted-foreground">{s.searching}</div>
-            )}
-            {status === "nokey" && (
-              <div className="px-3 py-2 text-xs text-muted-foreground">{s.searchNeedsKey}</div>
-            )}
-            {status === "error" && (
-              <div className="px-3 py-2 text-xs text-[var(--error,#EF4444)]">{s.searchError}</div>
-            )}
-            {status === "idle" && options.length === 0 && (
-              <div className="px-3 py-2 text-xs text-muted-foreground">{s.searchNoResults}</div>
-            )}
-            {options.map((o) => (
-              <button
-                key={o.id}
-                type="button"
-                onClick={() => select(o)}
-                className="flex w-full cursor-pointer flex-col items-start gap-0.5 px-3 py-2 text-left text-sm transition-colors hover:bg-foreground/[0.05]"
-              >
-                <span className="truncate">{o.number ? `${o.name} №${o.number}` : o.name}</span>
-                {(o.address || o.region) && (
-                  <span className="truncate text-xs text-muted-foreground">
-                    {o.address || [o.region, o.postCode].filter(Boolean).join(" · ")}
-                  </span>
+        ) : (
+          <>
+            <TextInput
+              value={query}
+              onChange={(e) => runQuery(e.target.value)}
+              onFocus={() => {
+                if (query.trim().length < 2) return;
+                setOpen(true);
+                // Pre-seeded (e.g. the order's city) but not yet searched — fetch now.
+                if (options.length === 0 && status === "idle") runQuery(query);
+              }}
+              placeholder={
+                !keySet ? s.searchNeedsKey : disabled && placeholder ? placeholder : s.searchPlaceholder
+              }
+              disabled={isDisabled}
+              autoComplete="off"
+            />
+            {open && query.trim().length >= 2 && (
+              <div className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-[var(--radius-md)] border bg-background shadow-lg">
+                {status === "loading" && (
+                  <div className="px-3 py-2 text-xs text-muted-foreground">{s.searching}</div>
                 )}
-              </button>
-            ))}
-          </div>
+                {status === "nokey" && (
+                  <div className="px-3 py-2 text-xs text-muted-foreground">{s.searchNeedsKey}</div>
+                )}
+                {status === "error" && (
+                  <div className="px-3 py-2 text-xs text-[var(--error,#EF4444)]">{s.searchError}</div>
+                )}
+                {status === "idle" && options.length === 0 && (
+                  <div className="px-3 py-2 text-xs text-muted-foreground">{s.searchNoResults}</div>
+                )}
+                {options.map((o) => (
+                  <button
+                    key={o.id}
+                    type="button"
+                    onClick={() => select(o)}
+                    className="flex w-full cursor-pointer flex-col items-start gap-0.5 px-3 py-2 text-left text-sm transition-colors hover:bg-foreground/[0.05]"
+                  >
+                    <span className="truncate">{o.number ? `${o.name} №${o.number}` : o.name}</span>
+                    {(o.address || o.region) && (
+                      <span className="truncate text-xs text-muted-foreground">
+                        {o.address || [o.region, o.postCode].filter(Boolean).join(" · ")}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
       {!isFreeText && seedMiss && !selectedLabel && (
