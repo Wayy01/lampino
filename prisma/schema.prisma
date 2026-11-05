@@ -159,6 +159,19 @@ totalPrice Decimal @map("total_price") @db.Decimal(10, 2)
 // Orders placed before stock tracking existed stay false and never restock.
 stockReserved Boolean @default(false) @map("stock_reserved")
 createdAt DateTime @default(now()) @map("created_at")
+updatedAt DateTime? @updatedAt @map("updated_at")
+// Origin that created the order: "web" (storefront checkout) or the Ligatto AI-agent's name (automation API).
+source String @default("web")
+// Optional dedupe key from the automation API; nullable + unique so many NULLs coexist.
+idempotencyKey String? @unique @map("idempotency_key")
+// Delivery choice at order time: "pickup" | "delivery" and the region the fee was quoted for.
+// Retained (not just used once) so a pending order's fee can be recomputed when its items change.
+deliveryMethod String? @map("delivery_method")
+deliveryRegion String? @map("delivery_region")
+// Opaque correlation id supplied by the automation caller (e.g. a Ligatto
+// conversation id). Echoed back on outbound webhooks via the {{webhook_listener_id}}
+// placeholder so the receiver can tie a shipment event to its conversation.
+webhookListenerId String? @map("webhook_listener_id")
 items OrderItem[]
 shipments Shipment[]
 
@@ -509,6 +522,74 @@ createdAt DateTime @default(now()) @map("created_at")
 updatedAt DateTime @updatedAt @map("updated_at")
 
     @@map("shipping_settings")
+
+}
+
+// Ligatto (chat-automation platform) order-automation integration. One row per
+// agent — a named bearer credential, managed under admin Integrations → Ligatto.
+// An AI agent authenticates to `/api/automation/orders` with the agent's `token`
+// (stored ENCRYPTED at rest, AES-256-GCM via lib/admin/crypto); the matched
+// agent's `name` is stamped onto `Order.source` as the order's origin.
+model LigattoAgent {
+id Int @id @default(autoincrement())
+name String @unique
+token String
+enabled Boolean @default(true)
+createdAt DateTime @default(now()) @map("created_at")
+updatedAt DateTime @updatedAt @map("updated_at")
+
+    @@map("ligatto_agents")
+
+}
+
+// A configured outbound webhook endpoint. Lampino POSTs the chosen `event` here
+// (type picked from WEBHOOK_EVENTS in lib/webhooks-events.ts) so external systems
+// — chiefly Ligatto — react to it. Lampino does not authenticate: if the receiver
+// requires a token, the admin supplies it via `headers` (an optional editor blob,
+// "Name: value" per line, e.g. `Authorization: Bearer …`) merged into every
+// request.
+model WebhookEndpoint {
+id Int @id @default(autoincrement())
+name String @unique
+url String
+event String @default("shipment.created")
+headers String?
+// When true, only fire for orders that carry a correlation id
+// (Order.webhookListenerId) — i.e. automation-placed orders. Keeps storefront
+// orders (and their PII) from reaching correlation-only receivers like Ligatto.
+requiresListenerId Boolean @default(false) @map("requires_listener_id")
+enabled Boolean @default(true)
+createdAt DateTime @default(now()) @map("created_at")
+updatedAt DateTime @updatedAt @map("updated_at")
+deliveries WebhookDelivery[]
+
+    @@map("webhook_endpoints")
+
+}
+
+// One delivery attempt-set to an endpoint, written after dispatch settles (there
+// is no job queue — dispatch runs in-process, fire-and-forget, with a few
+// retries). It is the admin's observability substitute for a queue: `orderId`
+// and `shipmentId` are denormalized refs (no FK) for cross-reference only.
+model WebhookDelivery {
+id Int @id @default(autoincrement())
+deliveryId String @unique @map("delivery_id")
+endpointId Int @map("endpoint_id")
+event String
+orderId Int? @map("order_id")
+shipmentId Int? @map("shipment_id")
+status String @default("pending")
+attempts Int @default(0)
+httpStatus Int? @map("http_status")
+error String?
+payload Json?
+createdAt DateTime @default(now()) @map("created_at")
+updatedAt DateTime @updatedAt @map("updated_at")
+endpoint WebhookEndpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+
+    @@index([endpointId])
+    @@index([createdAt])
+    @@map("webhook_deliveries")
 
 }
 

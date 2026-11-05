@@ -21,6 +21,7 @@ import {
   describeFanCourierError,
   FanCourierError,
 } from "@/lib/courier/fancourier";
+import { dispatchShipmentCreated } from "@/lib/webhooks";
 
 export type ShippingActionState = { ok?: boolean; error?: string } | null;
 
@@ -86,7 +87,7 @@ export async function createNovaPostShipment(
       throw e;
     }
 
-    await prisma.shipment.create({
+    const shipment = await prisma.shipment.create({
       data: {
         orderId: order.id,
         carrier: "novapost",
@@ -99,6 +100,9 @@ export async function createNovaPostShipment(
       },
     });
     await prisma.order.update({ where: { id: order.id }, data: { status: "shipped" } });
+
+    // Outbound webhook — fire-and-forget, never blocks or fails the shipment.
+    void dispatchShipmentCreated(shipment.id).catch((e) => console.error("[webhooks]", e));
 
     revalidatePath("/admin/[lang]/orders/[id]", "page");
     revalidatePath("/admin/[lang]/orders", "page");
@@ -160,7 +164,7 @@ export async function createFanCourierShipment(
       throw e;
     }
 
-    await prisma.shipment.create({
+    const shipment = await prisma.shipment.create({
       data: {
         orderId: order.id,
         carrier: "fancourier",
@@ -172,6 +176,9 @@ export async function createFanCourierShipment(
       },
     });
     await prisma.order.update({ where: { id: order.id }, data: { status: "shipped" } });
+
+    // Outbound webhook — fire-and-forget, never blocks or fails the shipment.
+    void dispatchShipmentCreated(shipment.id).catch((e) => console.error("[webhooks]", e));
 
     revalidatePath("/admin/[lang]/orders/[id]", "page");
     revalidatePath("/admin/[lang]/orders", "page");

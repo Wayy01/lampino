@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Package, Truck } from "lucide-react";
+import { Package, Truck, Webhook } from "lucide-react";
+import { LigattoMark } from "@/components/admin/ligatto-mark";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin/session";
 import {
@@ -24,6 +25,8 @@ export default async function IntegrationsPage({
   const s = t.settings.shipping;
 
   const row = await prisma.shippingSettings.findFirst({ orderBy: { id: "asc" } });
+  const ligattoAgents = await prisma.ligattoAgent.findMany({ select: { enabled: true } });
+  const webhookEndpoints = await prisma.webhookEndpoint.findMany({ select: { enabled: true } });
 
   const cards = [
     {
@@ -41,6 +44,22 @@ export default async function IntegrationsPage({
       desc: s.fanCourierDesc,
       enabled: row?.fancourierEnabled ?? false,
       keySet: Boolean(row?.fancourierApiKey),
+    },
+    {
+      href: "/integrations/ligatto",
+      icon: LigattoMark,
+      title: s.ligatto,
+      desc: s.ligattoDesc,
+      enabled: ligattoAgents.some((a) => a.enabled),
+      keySet: ligattoAgents.length > 0,
+    },
+    {
+      href: "/integrations/webhooks",
+      icon: Webhook,
+      title: s.webhooks,
+      desc: s.webhooksDesc,
+      enabled: webhookEndpoints.some((e) => e.enabled),
+      keySet: webhookEndpoints.length > 0,
     },
   ];
 

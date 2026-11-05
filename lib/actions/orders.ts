@@ -2,15 +2,26 @@
 
 // Public storefront checkout. Cart and buy-now both submit here: it creates a
 // real `Order` + `OrderItem` rows, resolving prices from the DB rather than
-// trusting the client — mirrors `submitRentalApplication`.
-import { bestActivePromotion, effectiveReducedPrice } from "@/lib/promotions";
+// trusting the client. Pricing/stock resolution and input validation are shared
+// with the Ligatto automation API through `lib/orders/{resolve,validate}.ts`.
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma";
-import { getDeliverySettings } from "@/lib/data/settings";
-import { deliveryFee, type DeliveryRegion } from "@/lib/pricing";
 import { sendNewOrderAlert } from "@/lib/telegram";
 import { withinRateLimit } from "@/lib/rate-limit";
-import { mergeLines, reserveStock } from "@/lib/stock";
+import { reserveStock } from "@/lib/stock";
+import { type DeliveryRegion } from "@/lib/pricing";
+import {
+  resolveOrderLines,
+  computeFee,
+  type RejectedLine,
+} from "@/lib/orders/resolve";
+import {
+  validateContact,
+  validateDeliveryAddress,
+  clampPostalCode,
+  clampNotes,
+  sanitizeLines,
+} from "@/lib/orders/validate";
 
 export type OrderItemInput = {
   productId: number;
@@ -40,13 +51,7 @@ export type SubmitOrderError =
   | "too_many_requests"
   | "server_error";
 
-/** A line the customer asked for that the catalog can no longer supply. */
-export type RejectedLine = {
-  productId: number;
-  variantId: number | null;
-  /** Units actually available; 0 when the product itself is gone. */
-  available: number;
-};
+export type { RejectedLine };
 
 export type SubmitOrderResult =
   | { ok: true; orderId: number }
@@ -55,17 +60,6 @@ export type SubmitOrderResult =
 // Storefront checkout doesn't collect an email; store the shop's own so the
 // row stays a valid contact point for the team.
 const FALLBACK_EMAIL = "contact@lampino.md";
-
-// Public input caps — enough for any real order, small enough that a script
-// can't fill the table (or blow past Telegram's 4096-char message limit).
-const MAX_NAME = 100;
-const MAX_PHONE = 30;
-const MAX_ADDRESS = 300;
-const MAX_NOTES = 1000;
-const MAX_LINES = 50;
-const MAX_QUANTITY = 1000;
-// Digits with the usual separators, 6–15 digits in total.
-const PHONE_RE = /^\+?[\d\s().-]{6,30}$/;
 
 /** Thrown inside the checkout transaction to roll the stock decrements back. */
 class StockShortage extends Error {
@@ -78,49 +72,22 @@ export async function submitOrder(
   input: SubmitOrderInput,
 ): Promise<SubmitOrderResult> {
   try {
-    const name = typeof input.customerName === "string" ? input.customerName.trim() : "";
-    const phone = typeof input.customerPhone === "string" ? input.customerPhone.trim() : "";
-    const digits = phone.replace(/\D/g, "").length;
-    if (
-      !name ||
-      name.length > MAX_NAME ||
-      phone.length > MAX_PHONE ||
-      !PHONE_RE.test(phone) ||
-      digits < 6 ||
-      digits > 15
-    ) {
-      return { ok: false, error: "invalid_contact" };
-    }
+    const contact = validateContact(input.customerName, input.customerPhone);
+    if (!contact) return { ok: false, error: "invalid_contact" };
 
-    const address = typeof input.address === "string" ? input.address.trim() : "";
-    const city = typeof input.city === "string" ? input.city.trim() : "";
-    const postalCode =
-      typeof input.postalCode === "string" ? input.postalCode.trim().slice(0, 20) : "";
-    if (
-      input.method === "delivery" &&
-      (!address || address.length > MAX_ADDRESS || !city || city.length > MAX_ADDRESS)
-    ) {
-      return { ok: false, error: "invalid_address" };
+    let address: string | null = null;
+    let city: string | null = null;
+    let postalCode = "";
+    if (input.method === "delivery") {
+      const addr = validateDeliveryAddress(input.address, input.city);
+      if (!addr) return { ok: false, error: "invalid_address" };
+      address = addr.address;
+      city = addr.city;
+      postalCode = clampPostalCode(input.postalCode);
     }
-    const notes =
-      typeof input.notes === "string" ? input.notes.trim().slice(0, MAX_NOTES) : "";
+    const notes = clampNotes(input.notes);
 
-    const requested = mergeLines(
-      (Array.isArray(input.items) ? input.items : [])
-        .slice(0, MAX_LINES)
-        .filter((i) => Number.isInteger(i?.productId) && i.productId > 0)
-        .map((i) => ({
-          productId: i.productId,
-          variantId:
-            Number.isInteger(i.variantId) && (i.variantId as number) > 0
-              ? (i.variantId as number)
-              : null,
-          quantity: Math.min(
-            MAX_QUANTITY,
-            Math.max(1, Math.floor(Number(i.quantity) || 0)),
-          ),
-        })),
-    );
+    const requested = sanitizeLines(input.items);
     if (requested.length === 0) return { ok: false, error: "empty_cart" };
 
     // Checked after validation so typos don't burn the customer's attempts.
@@ -128,107 +95,19 @@ export async function submitOrder(
       return { ok: false, error: "too_many_requests" };
     }
 
-    const productIds = [...new Set(requested.map((i) => i.productId))];
-    const products = await prisma.product.findMany({
-      where: { id: { in: productIds }, isActive: true },
-      include: {
-        variants: true,
-        promotions: { select: { startDate: true, endDate: true, discountPercent: true } },
-      },
-    });
-    const productById = new Map(products.map((p) => [p.id, p]));
-    // One clock for the whole order, so a promotion that ends mid-request
-    // can't price two lines of the same cart differently.
-    const now = new Date();
-    // What the storefront showed: list price, the manual reduced price, or the
-    // best running promotion, whichever is lowest (lib/promotions.ts).
-    const charge = (
-      price: Prisma.Decimal,
-      reduced: Prisma.Decimal | null,
-      pct: number | null,
-    ): Prisma.Decimal => {
-      const r = effectiveReducedPrice(Number(price), reduced === null ? null : Number(reduced), pct);
-      return r === null ? price : new Prisma.Decimal(r);
-    };
-
     // Price and stock are resolved server-side from the catalog — never the
     // client. A line the catalog can no longer supply is reported back rather
-    // than dropped, so the customer is told what changed instead of receiving
-    // a confirmation for a smaller order than they placed.
-    const resolved: {
-      productId: number;
-      variantId: number | null;
-      quantity: number;
-      priceEach: Prisma.Decimal;
-    }[] = [];
-    const gone: RejectedLine[] = [];
-    const short: RejectedLine[] = [];
-
-    for (const line of requested) {
-      const product = productById.get(line.productId);
-      if (!product) {
-        gone.push({ productId: line.productId, variantId: line.variantId, available: 0 });
-        continue;
-      }
-      const pct = bestActivePromotion(product.promotions, now)?.discountPercent ?? null;
-      let priceEach = charge(product.price, product.reducedPrice, pct);
-      let variantId: number | null = null;
-      let available = product.stock;
-      if (line.variantId) {
-        const variant = product.variants.find((v) => v.id === line.variantId);
-        if (!variant) {
-          // The size/colour they chose is gone even though the product stayed.
-          gone.push({ productId: product.id, variantId: line.variantId, available: 0 });
-          continue;
-        }
-        variantId = variant.id;
-        priceEach = charge(variant.price, variant.reducedPrice, pct);
-        available = variant.stock;
-      } else if (product.hasVariants && product.variants.length > 0) {
-        // A variant product can only be bought as one of its variants — a line
-        // without one means the variant it was added with has been deleted.
-        gone.push({ productId: product.id, variantId: null, available: 0 });
-        continue;
-      }
-
-      // Stock was never checked here before: an order for 50 of a 2-in-stock
-      // lamp was accepted silently and only discovered when someone read it.
-      if (available < line.quantity) {
-        short.push({ productId: product.id, variantId, available });
-        continue;
-      }
-
-      resolved.push({
-        productId: product.id,
-        variantId,
-        quantity: line.quantity,
-        priceEach,
-      });
-    }
-
-    // Refuse the whole order when any line can't be filled — a partial order
-    // the customer never agreed to is worse than being asked to adjust the cart.
-    if (short.length > 0) {
-      return { ok: false, error: "out_of_stock", rejected: short };
-    }
-    if (gone.length > 0) {
-      return { ok: false, error: "unavailable", rejected: gone };
-    }
+    // than dropped. Refuse the whole order when any line can't be filled — a
+    // partial order the customer never agreed to is worse than being asked to
+    // adjust the cart.
+    const { resolved, gone, short, totals } = await resolveOrderLines(requested, "ro");
+    if (short.length > 0) return { ok: false, error: "out_of_stock", rejected: short };
+    if (gone.length > 0) return { ok: false, error: "unavailable", rejected: gone };
     if (resolved.length === 0) return { ok: false, error: "empty_cart" };
 
-    const subtotal = resolved.reduce(
-      (sum, r) => sum + Number(r.priceEach) * r.quantity,
-      0,
-    );
+    const fee = await computeFee(input.method, input.region, totals.itemsNet);
 
-    const delivery =
-      input.method === "delivery" ? await getDeliverySettings() : null;
-    const fee =
-      input.method === "delivery"
-        ? (deliveryFee(delivery, subtotal, input.region) ?? 0)
-        : 0;
-
-    const contact = await prisma.contactSettings.findFirst({
+    const contactSettings = await prisma.contactSettings.findFirst({
       where: { isActive: true },
     });
 
@@ -240,17 +119,19 @@ export async function submitOrder(
       if (shortage.length > 0) throw new StockShortage(shortage);
       return tx.order.create({
         data: {
-          customerName: name,
-          customerEmail: contact?.email?.trim() || FALLBACK_EMAIL,
-          customerPhone: phone,
-          address: input.method === "delivery" ? address : null,
-          city: input.method === "delivery" ? city || null : null,
-          postalCode: input.method === "delivery" ? postalCode || null : null,
+          customerName: contact.name,
+          customerEmail: contactSettings?.email?.trim() || FALLBACK_EMAIL,
+          customerPhone: contact.phone,
+          address,
+          city,
+          postalCode: postalCode || null,
           country: input.method === "delivery" ? "Moldova" : null,
           specialInstructions: notes || null,
           status: "pending",
           stockReserved: true,
-          totalPrice: new Prisma.Decimal(subtotal + fee),
+          deliveryMethod: input.method,
+          deliveryRegion: input.method === "delivery" ? input.region : null,
+          totalPrice: new Prisma.Decimal(totals.itemsNet + fee),
           items: {
             create: resolved.map((r) => ({
               productId: r.productId,

@@ -119,6 +119,21 @@ export type ProductPageSettings = $Result.DefaultSelection<Prisma.$ProductPageSe
  */
 export type ShippingSettings = $Result.DefaultSelection<Prisma.$ShippingSettingsPayload>
 /**
+ * Model LigattoAgent
+ * 
+ */
+export type LigattoAgent = $Result.DefaultSelection<Prisma.$LigattoAgentPayload>
+/**
+ * Model WebhookEndpoint
+ * 
+ */
+export type WebhookEndpoint = $Result.DefaultSelection<Prisma.$WebhookEndpointPayload>
+/**
+ * Model WebhookDelivery
+ * 
+ */
+export type WebhookDelivery = $Result.DefaultSelection<Prisma.$WebhookDeliveryPayload>
+/**
  * Model ContactSettings
  * 
  */
@@ -471,6 +486,36 @@ export class PrismaClient<
     * ```
     */
   get shippingSettings(): Prisma.ShippingSettingsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.ligattoAgent`: Exposes CRUD operations for the **LigattoAgent** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more LigattoAgents
+    * const ligattoAgents = await prisma.ligattoAgent.findMany()
+    * ```
+    */
+  get ligattoAgent(): Prisma.LigattoAgentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.webhookEndpoint`: Exposes CRUD operations for the **WebhookEndpoint** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more WebhookEndpoints
+    * const webhookEndpoints = await prisma.webhookEndpoint.findMany()
+    * ```
+    */
+  get webhookEndpoint(): Prisma.WebhookEndpointDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.webhookDelivery`: Exposes CRUD operations for the **WebhookDelivery** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more WebhookDeliveries
+    * const webhookDeliveries = await prisma.webhookDelivery.findMany()
+    * ```
+    */
+  get webhookDelivery(): Prisma.WebhookDeliveryDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.contactSettings`: Exposes CRUD operations for the **ContactSettings** model.
@@ -983,6 +1028,9 @@ export namespace Prisma {
     DeliverySettings: 'DeliverySettings',
     ProductPageSettings: 'ProductPageSettings',
     ShippingSettings: 'ShippingSettings',
+    LigattoAgent: 'LigattoAgent',
+    WebhookEndpoint: 'WebhookEndpoint',
+    WebhookDelivery: 'WebhookDelivery',
     ContactSettings: 'ContactSettings',
     PromoBanner: 'PromoBanner',
     SpecialOffersPage: 'SpecialOffersPage',
@@ -1006,7 +1054,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "category" | "product" | "productImage" | "productVideo" | "productVariant" | "order" | "orderItem" | "shipment" | "adminUser" | "rentalPackage" | "rentalPackageImage" | "rentalPackageVideo" | "rentalPackageVariant" | "rentalApplication" | "promotion" | "themeSettings" | "heroContent" | "homepageSettings" | "deliverySettings" | "productPageSettings" | "shippingSettings" | "contactSettings" | "promoBanner" | "specialOffersPage" | "analyticsEvent" | "review"
+      modelProps: "category" | "product" | "productImage" | "productVideo" | "productVariant" | "order" | "orderItem" | "shipment" | "adminUser" | "rentalPackage" | "rentalPackageImage" | "rentalPackageVideo" | "rentalPackageVariant" | "rentalApplication" | "promotion" | "themeSettings" | "heroContent" | "homepageSettings" | "deliverySettings" | "productPageSettings" | "shippingSettings" | "ligattoAgent" | "webhookEndpoint" | "webhookDelivery" | "contactSettings" | "promoBanner" | "specialOffersPage" | "analyticsEvent" | "review"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2564,6 +2612,228 @@ export namespace Prisma {
           }
         }
       }
+      LigattoAgent: {
+        payload: Prisma.$LigattoAgentPayload<ExtArgs>
+        fields: Prisma.LigattoAgentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LigattoAgentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LigattoAgentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LigattoAgentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LigattoAgentPayload>
+          }
+          findFirst: {
+            args: Prisma.LigattoAgentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LigattoAgentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LigattoAgentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LigattoAgentPayload>
+          }
+          findMany: {
+            args: Prisma.LigattoAgentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LigattoAgentPayload>[]
+          }
+          create: {
+            args: Prisma.LigattoAgentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LigattoAgentPayload>
+          }
+          createMany: {
+            args: Prisma.LigattoAgentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LigattoAgentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LigattoAgentPayload>[]
+          }
+          delete: {
+            args: Prisma.LigattoAgentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LigattoAgentPayload>
+          }
+          update: {
+            args: Prisma.LigattoAgentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LigattoAgentPayload>
+          }
+          deleteMany: {
+            args: Prisma.LigattoAgentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LigattoAgentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.LigattoAgentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LigattoAgentPayload>[]
+          }
+          upsert: {
+            args: Prisma.LigattoAgentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LigattoAgentPayload>
+          }
+          aggregate: {
+            args: Prisma.LigattoAgentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLigattoAgent>
+          }
+          groupBy: {
+            args: Prisma.LigattoAgentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LigattoAgentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LigattoAgentCountArgs<ExtArgs>
+            result: $Utils.Optional<LigattoAgentCountAggregateOutputType> | number
+          }
+        }
+      }
+      WebhookEndpoint: {
+        payload: Prisma.$WebhookEndpointPayload<ExtArgs>
+        fields: Prisma.WebhookEndpointFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WebhookEndpointFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookEndpointPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WebhookEndpointFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookEndpointPayload>
+          }
+          findFirst: {
+            args: Prisma.WebhookEndpointFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookEndpointPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WebhookEndpointFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookEndpointPayload>
+          }
+          findMany: {
+            args: Prisma.WebhookEndpointFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookEndpointPayload>[]
+          }
+          create: {
+            args: Prisma.WebhookEndpointCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookEndpointPayload>
+          }
+          createMany: {
+            args: Prisma.WebhookEndpointCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.WebhookEndpointCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookEndpointPayload>[]
+          }
+          delete: {
+            args: Prisma.WebhookEndpointDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookEndpointPayload>
+          }
+          update: {
+            args: Prisma.WebhookEndpointUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookEndpointPayload>
+          }
+          deleteMany: {
+            args: Prisma.WebhookEndpointDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WebhookEndpointUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.WebhookEndpointUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookEndpointPayload>[]
+          }
+          upsert: {
+            args: Prisma.WebhookEndpointUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookEndpointPayload>
+          }
+          aggregate: {
+            args: Prisma.WebhookEndpointAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWebhookEndpoint>
+          }
+          groupBy: {
+            args: Prisma.WebhookEndpointGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WebhookEndpointGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WebhookEndpointCountArgs<ExtArgs>
+            result: $Utils.Optional<WebhookEndpointCountAggregateOutputType> | number
+          }
+        }
+      }
+      WebhookDelivery: {
+        payload: Prisma.$WebhookDeliveryPayload<ExtArgs>
+        fields: Prisma.WebhookDeliveryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WebhookDeliveryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookDeliveryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WebhookDeliveryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookDeliveryPayload>
+          }
+          findFirst: {
+            args: Prisma.WebhookDeliveryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookDeliveryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WebhookDeliveryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookDeliveryPayload>
+          }
+          findMany: {
+            args: Prisma.WebhookDeliveryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookDeliveryPayload>[]
+          }
+          create: {
+            args: Prisma.WebhookDeliveryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookDeliveryPayload>
+          }
+          createMany: {
+            args: Prisma.WebhookDeliveryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.WebhookDeliveryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookDeliveryPayload>[]
+          }
+          delete: {
+            args: Prisma.WebhookDeliveryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookDeliveryPayload>
+          }
+          update: {
+            args: Prisma.WebhookDeliveryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookDeliveryPayload>
+          }
+          deleteMany: {
+            args: Prisma.WebhookDeliveryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WebhookDeliveryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.WebhookDeliveryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookDeliveryPayload>[]
+          }
+          upsert: {
+            args: Prisma.WebhookDeliveryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookDeliveryPayload>
+          }
+          aggregate: {
+            args: Prisma.WebhookDeliveryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWebhookDelivery>
+          }
+          groupBy: {
+            args: Prisma.WebhookDeliveryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WebhookDeliveryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WebhookDeliveryCountArgs<ExtArgs>
+            result: $Utils.Optional<WebhookDeliveryCountAggregateOutputType> | number
+          }
+        }
+      }
       ContactSettings: {
         payload: Prisma.$ContactSettingsPayload<ExtArgs>
         fields: Prisma.ContactSettingsFieldRefs
@@ -3051,6 +3321,9 @@ export namespace Prisma {
     deliverySettings?: DeliverySettingsOmit
     productPageSettings?: ProductPageSettingsOmit
     shippingSettings?: ShippingSettingsOmit
+    ligattoAgent?: LigattoAgentOmit
+    webhookEndpoint?: WebhookEndpointOmit
+    webhookDelivery?: WebhookDeliveryOmit
     contactSettings?: ContactSettingsOmit
     promoBanner?: PromoBannerOmit
     specialOffersPage?: SpecialOffersPageOmit
@@ -3471,6 +3744,37 @@ export namespace Prisma {
    */
   export type PromotionCountOutputTypeCountRentalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: RentalPackageWhereInput
+  }
+
+
+  /**
+   * Count Type WebhookEndpointCountOutputType
+   */
+
+  export type WebhookEndpointCountOutputType = {
+    deliveries: number
+  }
+
+  export type WebhookEndpointCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    deliveries?: boolean | WebhookEndpointCountOutputTypeCountDeliveriesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * WebhookEndpointCountOutputType without action
+   */
+  export type WebhookEndpointCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEndpointCountOutputType
+     */
+    select?: WebhookEndpointCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * WebhookEndpointCountOutputType without action
+   */
+  export type WebhookEndpointCountOutputTypeCountDeliveriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WebhookDeliveryWhereInput
   }
 
 
@@ -9908,6 +10212,12 @@ export namespace Prisma {
     totalPrice: Decimal | null
     stockReserved: boolean | null
     createdAt: Date | null
+    updatedAt: Date | null
+    source: string | null
+    idempotencyKey: string | null
+    deliveryMethod: string | null
+    deliveryRegion: string | null
+    webhookListenerId: string | null
   }
 
   export type OrderMaxAggregateOutputType = {
@@ -9924,6 +10234,12 @@ export namespace Prisma {
     totalPrice: Decimal | null
     stockReserved: boolean | null
     createdAt: Date | null
+    updatedAt: Date | null
+    source: string | null
+    idempotencyKey: string | null
+    deliveryMethod: string | null
+    deliveryRegion: string | null
+    webhookListenerId: string | null
   }
 
   export type OrderCountAggregateOutputType = {
@@ -9940,6 +10256,12 @@ export namespace Prisma {
     totalPrice: number
     stockReserved: number
     createdAt: number
+    updatedAt: number
+    source: number
+    idempotencyKey: number
+    deliveryMethod: number
+    deliveryRegion: number
+    webhookListenerId: number
     _all: number
   }
 
@@ -9968,6 +10290,12 @@ export namespace Prisma {
     totalPrice?: true
     stockReserved?: true
     createdAt?: true
+    updatedAt?: true
+    source?: true
+    idempotencyKey?: true
+    deliveryMethod?: true
+    deliveryRegion?: true
+    webhookListenerId?: true
   }
 
   export type OrderMaxAggregateInputType = {
@@ -9984,6 +10312,12 @@ export namespace Prisma {
     totalPrice?: true
     stockReserved?: true
     createdAt?: true
+    updatedAt?: true
+    source?: true
+    idempotencyKey?: true
+    deliveryMethod?: true
+    deliveryRegion?: true
+    webhookListenerId?: true
   }
 
   export type OrderCountAggregateInputType = {
@@ -10000,6 +10334,12 @@ export namespace Prisma {
     totalPrice?: true
     stockReserved?: true
     createdAt?: true
+    updatedAt?: true
+    source?: true
+    idempotencyKey?: true
+    deliveryMethod?: true
+    deliveryRegion?: true
+    webhookListenerId?: true
     _all?: true
   }
 
@@ -10103,6 +10443,12 @@ export namespace Prisma {
     totalPrice: Decimal
     stockReserved: boolean
     createdAt: Date
+    updatedAt: Date | null
+    source: string
+    idempotencyKey: string | null
+    deliveryMethod: string | null
+    deliveryRegion: string | null
+    webhookListenerId: string | null
     _count: OrderCountAggregateOutputType | null
     _avg: OrderAvgAggregateOutputType | null
     _sum: OrderSumAggregateOutputType | null
@@ -10138,6 +10484,12 @@ export namespace Prisma {
     totalPrice?: boolean
     stockReserved?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
+    source?: boolean
+    idempotencyKey?: boolean
+    deliveryMethod?: boolean
+    deliveryRegion?: boolean
+    webhookListenerId?: boolean
     items?: boolean | Order$itemsArgs<ExtArgs>
     shipments?: boolean | Order$shipmentsArgs<ExtArgs>
     _count?: boolean | OrderCountOutputTypeDefaultArgs<ExtArgs>
@@ -10157,6 +10509,12 @@ export namespace Prisma {
     totalPrice?: boolean
     stockReserved?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
+    source?: boolean
+    idempotencyKey?: boolean
+    deliveryMethod?: boolean
+    deliveryRegion?: boolean
+    webhookListenerId?: boolean
   }, ExtArgs["result"]["order"]>
 
   export type OrderSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -10173,6 +10531,12 @@ export namespace Prisma {
     totalPrice?: boolean
     stockReserved?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
+    source?: boolean
+    idempotencyKey?: boolean
+    deliveryMethod?: boolean
+    deliveryRegion?: boolean
+    webhookListenerId?: boolean
   }, ExtArgs["result"]["order"]>
 
   export type OrderSelectScalar = {
@@ -10189,9 +10553,15 @@ export namespace Prisma {
     totalPrice?: boolean
     stockReserved?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
+    source?: boolean
+    idempotencyKey?: boolean
+    deliveryMethod?: boolean
+    deliveryRegion?: boolean
+    webhookListenerId?: boolean
   }
 
-  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "customerName" | "customerEmail" | "customerPhone" | "address" | "city" | "postalCode" | "country" | "specialInstructions" | "status" | "totalPrice" | "stockReserved" | "createdAt", ExtArgs["result"]["order"]>
+  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "customerName" | "customerEmail" | "customerPhone" | "address" | "city" | "postalCode" | "country" | "specialInstructions" | "status" | "totalPrice" | "stockReserved" | "createdAt" | "updatedAt" | "source" | "idempotencyKey" | "deliveryMethod" | "deliveryRegion" | "webhookListenerId", ExtArgs["result"]["order"]>
   export type OrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     items?: boolean | Order$itemsArgs<ExtArgs>
     shipments?: boolean | Order$shipmentsArgs<ExtArgs>
@@ -10220,6 +10590,12 @@ export namespace Prisma {
       totalPrice: Prisma.Decimal
       stockReserved: boolean
       createdAt: Date
+      updatedAt: Date | null
+      source: string
+      idempotencyKey: string | null
+      deliveryMethod: string | null
+      deliveryRegion: string | null
+      webhookListenerId: string | null
     }, ExtArgs["result"]["order"]>
     composites: {}
   }
@@ -10658,6 +11034,12 @@ export namespace Prisma {
     readonly totalPrice: FieldRef<"Order", 'Decimal'>
     readonly stockReserved: FieldRef<"Order", 'Boolean'>
     readonly createdAt: FieldRef<"Order", 'DateTime'>
+    readonly updatedAt: FieldRef<"Order", 'DateTime'>
+    readonly source: FieldRef<"Order", 'String'>
+    readonly idempotencyKey: FieldRef<"Order", 'String'>
+    readonly deliveryMethod: FieldRef<"Order", 'String'>
+    readonly deliveryRegion: FieldRef<"Order", 'String'>
+    readonly webhookListenerId: FieldRef<"Order", 'String'>
   }
     
 
@@ -29024,6 +29406,3416 @@ export namespace Prisma {
 
 
   /**
+   * Model LigattoAgent
+   */
+
+  export type AggregateLigattoAgent = {
+    _count: LigattoAgentCountAggregateOutputType | null
+    _avg: LigattoAgentAvgAggregateOutputType | null
+    _sum: LigattoAgentSumAggregateOutputType | null
+    _min: LigattoAgentMinAggregateOutputType | null
+    _max: LigattoAgentMaxAggregateOutputType | null
+  }
+
+  export type LigattoAgentAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type LigattoAgentSumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type LigattoAgentMinAggregateOutputType = {
+    id: number | null
+    name: string | null
+    token: string | null
+    enabled: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LigattoAgentMaxAggregateOutputType = {
+    id: number | null
+    name: string | null
+    token: string | null
+    enabled: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LigattoAgentCountAggregateOutputType = {
+    id: number
+    name: number
+    token: number
+    enabled: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type LigattoAgentAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type LigattoAgentSumAggregateInputType = {
+    id?: true
+  }
+
+  export type LigattoAgentMinAggregateInputType = {
+    id?: true
+    name?: true
+    token?: true
+    enabled?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LigattoAgentMaxAggregateInputType = {
+    id?: true
+    name?: true
+    token?: true
+    enabled?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LigattoAgentCountAggregateInputType = {
+    id?: true
+    name?: true
+    token?: true
+    enabled?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type LigattoAgentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LigattoAgent to aggregate.
+     */
+    where?: LigattoAgentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LigattoAgents to fetch.
+     */
+    orderBy?: LigattoAgentOrderByWithRelationInput | LigattoAgentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LigattoAgentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LigattoAgents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LigattoAgents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned LigattoAgents
+    **/
+    _count?: true | LigattoAgentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: LigattoAgentAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: LigattoAgentSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LigattoAgentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LigattoAgentMaxAggregateInputType
+  }
+
+  export type GetLigattoAgentAggregateType<T extends LigattoAgentAggregateArgs> = {
+        [P in keyof T & keyof AggregateLigattoAgent]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLigattoAgent[P]>
+      : GetScalarType<T[P], AggregateLigattoAgent[P]>
+  }
+
+
+
+
+  export type LigattoAgentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LigattoAgentWhereInput
+    orderBy?: LigattoAgentOrderByWithAggregationInput | LigattoAgentOrderByWithAggregationInput[]
+    by: LigattoAgentScalarFieldEnum[] | LigattoAgentScalarFieldEnum
+    having?: LigattoAgentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LigattoAgentCountAggregateInputType | true
+    _avg?: LigattoAgentAvgAggregateInputType
+    _sum?: LigattoAgentSumAggregateInputType
+    _min?: LigattoAgentMinAggregateInputType
+    _max?: LigattoAgentMaxAggregateInputType
+  }
+
+  export type LigattoAgentGroupByOutputType = {
+    id: number
+    name: string
+    token: string
+    enabled: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: LigattoAgentCountAggregateOutputType | null
+    _avg: LigattoAgentAvgAggregateOutputType | null
+    _sum: LigattoAgentSumAggregateOutputType | null
+    _min: LigattoAgentMinAggregateOutputType | null
+    _max: LigattoAgentMaxAggregateOutputType | null
+  }
+
+  type GetLigattoAgentGroupByPayload<T extends LigattoAgentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LigattoAgentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LigattoAgentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LigattoAgentGroupByOutputType[P]>
+            : GetScalarType<T[P], LigattoAgentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LigattoAgentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    token?: boolean
+    enabled?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["ligattoAgent"]>
+
+  export type LigattoAgentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    token?: boolean
+    enabled?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["ligattoAgent"]>
+
+  export type LigattoAgentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    token?: boolean
+    enabled?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["ligattoAgent"]>
+
+  export type LigattoAgentSelectScalar = {
+    id?: boolean
+    name?: boolean
+    token?: boolean
+    enabled?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type LigattoAgentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "token" | "enabled" | "createdAt" | "updatedAt", ExtArgs["result"]["ligattoAgent"]>
+
+  export type $LigattoAgentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "LigattoAgent"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      name: string
+      token: string
+      enabled: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["ligattoAgent"]>
+    composites: {}
+  }
+
+  type LigattoAgentGetPayload<S extends boolean | null | undefined | LigattoAgentDefaultArgs> = $Result.GetResult<Prisma.$LigattoAgentPayload, S>
+
+  type LigattoAgentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<LigattoAgentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LigattoAgentCountAggregateInputType | true
+    }
+
+  export interface LigattoAgentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LigattoAgent'], meta: { name: 'LigattoAgent' } }
+    /**
+     * Find zero or one LigattoAgent that matches the filter.
+     * @param {LigattoAgentFindUniqueArgs} args - Arguments to find a LigattoAgent
+     * @example
+     * // Get one LigattoAgent
+     * const ligattoAgent = await prisma.ligattoAgent.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LigattoAgentFindUniqueArgs>(args: SelectSubset<T, LigattoAgentFindUniqueArgs<ExtArgs>>): Prisma__LigattoAgentClient<$Result.GetResult<Prisma.$LigattoAgentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one LigattoAgent that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {LigattoAgentFindUniqueOrThrowArgs} args - Arguments to find a LigattoAgent
+     * @example
+     * // Get one LigattoAgent
+     * const ligattoAgent = await prisma.ligattoAgent.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LigattoAgentFindUniqueOrThrowArgs>(args: SelectSubset<T, LigattoAgentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LigattoAgentClient<$Result.GetResult<Prisma.$LigattoAgentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LigattoAgent that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LigattoAgentFindFirstArgs} args - Arguments to find a LigattoAgent
+     * @example
+     * // Get one LigattoAgent
+     * const ligattoAgent = await prisma.ligattoAgent.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LigattoAgentFindFirstArgs>(args?: SelectSubset<T, LigattoAgentFindFirstArgs<ExtArgs>>): Prisma__LigattoAgentClient<$Result.GetResult<Prisma.$LigattoAgentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LigattoAgent that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LigattoAgentFindFirstOrThrowArgs} args - Arguments to find a LigattoAgent
+     * @example
+     * // Get one LigattoAgent
+     * const ligattoAgent = await prisma.ligattoAgent.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LigattoAgentFindFirstOrThrowArgs>(args?: SelectSubset<T, LigattoAgentFindFirstOrThrowArgs<ExtArgs>>): Prisma__LigattoAgentClient<$Result.GetResult<Prisma.$LigattoAgentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more LigattoAgents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LigattoAgentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all LigattoAgents
+     * const ligattoAgents = await prisma.ligattoAgent.findMany()
+     * 
+     * // Get first 10 LigattoAgents
+     * const ligattoAgents = await prisma.ligattoAgent.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const ligattoAgentWithIdOnly = await prisma.ligattoAgent.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends LigattoAgentFindManyArgs>(args?: SelectSubset<T, LigattoAgentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LigattoAgentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a LigattoAgent.
+     * @param {LigattoAgentCreateArgs} args - Arguments to create a LigattoAgent.
+     * @example
+     * // Create one LigattoAgent
+     * const LigattoAgent = await prisma.ligattoAgent.create({
+     *   data: {
+     *     // ... data to create a LigattoAgent
+     *   }
+     * })
+     * 
+     */
+    create<T extends LigattoAgentCreateArgs>(args: SelectSubset<T, LigattoAgentCreateArgs<ExtArgs>>): Prisma__LigattoAgentClient<$Result.GetResult<Prisma.$LigattoAgentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many LigattoAgents.
+     * @param {LigattoAgentCreateManyArgs} args - Arguments to create many LigattoAgents.
+     * @example
+     * // Create many LigattoAgents
+     * const ligattoAgent = await prisma.ligattoAgent.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LigattoAgentCreateManyArgs>(args?: SelectSubset<T, LigattoAgentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many LigattoAgents and returns the data saved in the database.
+     * @param {LigattoAgentCreateManyAndReturnArgs} args - Arguments to create many LigattoAgents.
+     * @example
+     * // Create many LigattoAgents
+     * const ligattoAgent = await prisma.ligattoAgent.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many LigattoAgents and only return the `id`
+     * const ligattoAgentWithIdOnly = await prisma.ligattoAgent.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LigattoAgentCreateManyAndReturnArgs>(args?: SelectSubset<T, LigattoAgentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LigattoAgentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a LigattoAgent.
+     * @param {LigattoAgentDeleteArgs} args - Arguments to delete one LigattoAgent.
+     * @example
+     * // Delete one LigattoAgent
+     * const LigattoAgent = await prisma.ligattoAgent.delete({
+     *   where: {
+     *     // ... filter to delete one LigattoAgent
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LigattoAgentDeleteArgs>(args: SelectSubset<T, LigattoAgentDeleteArgs<ExtArgs>>): Prisma__LigattoAgentClient<$Result.GetResult<Prisma.$LigattoAgentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one LigattoAgent.
+     * @param {LigattoAgentUpdateArgs} args - Arguments to update one LigattoAgent.
+     * @example
+     * // Update one LigattoAgent
+     * const ligattoAgent = await prisma.ligattoAgent.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LigattoAgentUpdateArgs>(args: SelectSubset<T, LigattoAgentUpdateArgs<ExtArgs>>): Prisma__LigattoAgentClient<$Result.GetResult<Prisma.$LigattoAgentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more LigattoAgents.
+     * @param {LigattoAgentDeleteManyArgs} args - Arguments to filter LigattoAgents to delete.
+     * @example
+     * // Delete a few LigattoAgents
+     * const { count } = await prisma.ligattoAgent.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LigattoAgentDeleteManyArgs>(args?: SelectSubset<T, LigattoAgentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LigattoAgents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LigattoAgentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many LigattoAgents
+     * const ligattoAgent = await prisma.ligattoAgent.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LigattoAgentUpdateManyArgs>(args: SelectSubset<T, LigattoAgentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LigattoAgents and returns the data updated in the database.
+     * @param {LigattoAgentUpdateManyAndReturnArgs} args - Arguments to update many LigattoAgents.
+     * @example
+     * // Update many LigattoAgents
+     * const ligattoAgent = await prisma.ligattoAgent.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more LigattoAgents and only return the `id`
+     * const ligattoAgentWithIdOnly = await prisma.ligattoAgent.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends LigattoAgentUpdateManyAndReturnArgs>(args: SelectSubset<T, LigattoAgentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LigattoAgentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one LigattoAgent.
+     * @param {LigattoAgentUpsertArgs} args - Arguments to update or create a LigattoAgent.
+     * @example
+     * // Update or create a LigattoAgent
+     * const ligattoAgent = await prisma.ligattoAgent.upsert({
+     *   create: {
+     *     // ... data to create a LigattoAgent
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the LigattoAgent we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LigattoAgentUpsertArgs>(args: SelectSubset<T, LigattoAgentUpsertArgs<ExtArgs>>): Prisma__LigattoAgentClient<$Result.GetResult<Prisma.$LigattoAgentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of LigattoAgents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LigattoAgentCountArgs} args - Arguments to filter LigattoAgents to count.
+     * @example
+     * // Count the number of LigattoAgents
+     * const count = await prisma.ligattoAgent.count({
+     *   where: {
+     *     // ... the filter for the LigattoAgents we want to count
+     *   }
+     * })
+    **/
+    count<T extends LigattoAgentCountArgs>(
+      args?: Subset<T, LigattoAgentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LigattoAgentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a LigattoAgent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LigattoAgentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LigattoAgentAggregateArgs>(args: Subset<T, LigattoAgentAggregateArgs>): Prisma.PrismaPromise<GetLigattoAgentAggregateType<T>>
+
+    /**
+     * Group by LigattoAgent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LigattoAgentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LigattoAgentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LigattoAgentGroupByArgs['orderBy'] }
+        : { orderBy?: LigattoAgentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LigattoAgentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLigattoAgentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the LigattoAgent model
+   */
+  readonly fields: LigattoAgentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for LigattoAgent.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LigattoAgentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the LigattoAgent model
+   */
+  interface LigattoAgentFieldRefs {
+    readonly id: FieldRef<"LigattoAgent", 'Int'>
+    readonly name: FieldRef<"LigattoAgent", 'String'>
+    readonly token: FieldRef<"LigattoAgent", 'String'>
+    readonly enabled: FieldRef<"LigattoAgent", 'Boolean'>
+    readonly createdAt: FieldRef<"LigattoAgent", 'DateTime'>
+    readonly updatedAt: FieldRef<"LigattoAgent", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * LigattoAgent findUnique
+   */
+  export type LigattoAgentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LigattoAgent
+     */
+    select?: LigattoAgentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LigattoAgent
+     */
+    omit?: LigattoAgentOmit<ExtArgs> | null
+    /**
+     * Filter, which LigattoAgent to fetch.
+     */
+    where: LigattoAgentWhereUniqueInput
+  }
+
+  /**
+   * LigattoAgent findUniqueOrThrow
+   */
+  export type LigattoAgentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LigattoAgent
+     */
+    select?: LigattoAgentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LigattoAgent
+     */
+    omit?: LigattoAgentOmit<ExtArgs> | null
+    /**
+     * Filter, which LigattoAgent to fetch.
+     */
+    where: LigattoAgentWhereUniqueInput
+  }
+
+  /**
+   * LigattoAgent findFirst
+   */
+  export type LigattoAgentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LigattoAgent
+     */
+    select?: LigattoAgentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LigattoAgent
+     */
+    omit?: LigattoAgentOmit<ExtArgs> | null
+    /**
+     * Filter, which LigattoAgent to fetch.
+     */
+    where?: LigattoAgentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LigattoAgents to fetch.
+     */
+    orderBy?: LigattoAgentOrderByWithRelationInput | LigattoAgentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LigattoAgents.
+     */
+    cursor?: LigattoAgentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LigattoAgents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LigattoAgents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LigattoAgents.
+     */
+    distinct?: LigattoAgentScalarFieldEnum | LigattoAgentScalarFieldEnum[]
+  }
+
+  /**
+   * LigattoAgent findFirstOrThrow
+   */
+  export type LigattoAgentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LigattoAgent
+     */
+    select?: LigattoAgentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LigattoAgent
+     */
+    omit?: LigattoAgentOmit<ExtArgs> | null
+    /**
+     * Filter, which LigattoAgent to fetch.
+     */
+    where?: LigattoAgentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LigattoAgents to fetch.
+     */
+    orderBy?: LigattoAgentOrderByWithRelationInput | LigattoAgentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LigattoAgents.
+     */
+    cursor?: LigattoAgentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LigattoAgents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LigattoAgents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LigattoAgents.
+     */
+    distinct?: LigattoAgentScalarFieldEnum | LigattoAgentScalarFieldEnum[]
+  }
+
+  /**
+   * LigattoAgent findMany
+   */
+  export type LigattoAgentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LigattoAgent
+     */
+    select?: LigattoAgentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LigattoAgent
+     */
+    omit?: LigattoAgentOmit<ExtArgs> | null
+    /**
+     * Filter, which LigattoAgents to fetch.
+     */
+    where?: LigattoAgentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LigattoAgents to fetch.
+     */
+    orderBy?: LigattoAgentOrderByWithRelationInput | LigattoAgentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing LigattoAgents.
+     */
+    cursor?: LigattoAgentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LigattoAgents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LigattoAgents.
+     */
+    skip?: number
+    distinct?: LigattoAgentScalarFieldEnum | LigattoAgentScalarFieldEnum[]
+  }
+
+  /**
+   * LigattoAgent create
+   */
+  export type LigattoAgentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LigattoAgent
+     */
+    select?: LigattoAgentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LigattoAgent
+     */
+    omit?: LigattoAgentOmit<ExtArgs> | null
+    /**
+     * The data needed to create a LigattoAgent.
+     */
+    data: XOR<LigattoAgentCreateInput, LigattoAgentUncheckedCreateInput>
+  }
+
+  /**
+   * LigattoAgent createMany
+   */
+  export type LigattoAgentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many LigattoAgents.
+     */
+    data: LigattoAgentCreateManyInput | LigattoAgentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LigattoAgent createManyAndReturn
+   */
+  export type LigattoAgentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LigattoAgent
+     */
+    select?: LigattoAgentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LigattoAgent
+     */
+    omit?: LigattoAgentOmit<ExtArgs> | null
+    /**
+     * The data used to create many LigattoAgents.
+     */
+    data: LigattoAgentCreateManyInput | LigattoAgentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LigattoAgent update
+   */
+  export type LigattoAgentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LigattoAgent
+     */
+    select?: LigattoAgentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LigattoAgent
+     */
+    omit?: LigattoAgentOmit<ExtArgs> | null
+    /**
+     * The data needed to update a LigattoAgent.
+     */
+    data: XOR<LigattoAgentUpdateInput, LigattoAgentUncheckedUpdateInput>
+    /**
+     * Choose, which LigattoAgent to update.
+     */
+    where: LigattoAgentWhereUniqueInput
+  }
+
+  /**
+   * LigattoAgent updateMany
+   */
+  export type LigattoAgentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update LigattoAgents.
+     */
+    data: XOR<LigattoAgentUpdateManyMutationInput, LigattoAgentUncheckedUpdateManyInput>
+    /**
+     * Filter which LigattoAgents to update
+     */
+    where?: LigattoAgentWhereInput
+    /**
+     * Limit how many LigattoAgents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * LigattoAgent updateManyAndReturn
+   */
+  export type LigattoAgentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LigattoAgent
+     */
+    select?: LigattoAgentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LigattoAgent
+     */
+    omit?: LigattoAgentOmit<ExtArgs> | null
+    /**
+     * The data used to update LigattoAgents.
+     */
+    data: XOR<LigattoAgentUpdateManyMutationInput, LigattoAgentUncheckedUpdateManyInput>
+    /**
+     * Filter which LigattoAgents to update
+     */
+    where?: LigattoAgentWhereInput
+    /**
+     * Limit how many LigattoAgents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * LigattoAgent upsert
+   */
+  export type LigattoAgentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LigattoAgent
+     */
+    select?: LigattoAgentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LigattoAgent
+     */
+    omit?: LigattoAgentOmit<ExtArgs> | null
+    /**
+     * The filter to search for the LigattoAgent to update in case it exists.
+     */
+    where: LigattoAgentWhereUniqueInput
+    /**
+     * In case the LigattoAgent found by the `where` argument doesn't exist, create a new LigattoAgent with this data.
+     */
+    create: XOR<LigattoAgentCreateInput, LigattoAgentUncheckedCreateInput>
+    /**
+     * In case the LigattoAgent was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LigattoAgentUpdateInput, LigattoAgentUncheckedUpdateInput>
+  }
+
+  /**
+   * LigattoAgent delete
+   */
+  export type LigattoAgentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LigattoAgent
+     */
+    select?: LigattoAgentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LigattoAgent
+     */
+    omit?: LigattoAgentOmit<ExtArgs> | null
+    /**
+     * Filter which LigattoAgent to delete.
+     */
+    where: LigattoAgentWhereUniqueInput
+  }
+
+  /**
+   * LigattoAgent deleteMany
+   */
+  export type LigattoAgentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LigattoAgents to delete
+     */
+    where?: LigattoAgentWhereInput
+    /**
+     * Limit how many LigattoAgents to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * LigattoAgent without action
+   */
+  export type LigattoAgentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LigattoAgent
+     */
+    select?: LigattoAgentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LigattoAgent
+     */
+    omit?: LigattoAgentOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model WebhookEndpoint
+   */
+
+  export type AggregateWebhookEndpoint = {
+    _count: WebhookEndpointCountAggregateOutputType | null
+    _avg: WebhookEndpointAvgAggregateOutputType | null
+    _sum: WebhookEndpointSumAggregateOutputType | null
+    _min: WebhookEndpointMinAggregateOutputType | null
+    _max: WebhookEndpointMaxAggregateOutputType | null
+  }
+
+  export type WebhookEndpointAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type WebhookEndpointSumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type WebhookEndpointMinAggregateOutputType = {
+    id: number | null
+    name: string | null
+    url: string | null
+    event: string | null
+    headers: string | null
+    requiresListenerId: boolean | null
+    enabled: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WebhookEndpointMaxAggregateOutputType = {
+    id: number | null
+    name: string | null
+    url: string | null
+    event: string | null
+    headers: string | null
+    requiresListenerId: boolean | null
+    enabled: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WebhookEndpointCountAggregateOutputType = {
+    id: number
+    name: number
+    url: number
+    event: number
+    headers: number
+    requiresListenerId: number
+    enabled: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type WebhookEndpointAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type WebhookEndpointSumAggregateInputType = {
+    id?: true
+  }
+
+  export type WebhookEndpointMinAggregateInputType = {
+    id?: true
+    name?: true
+    url?: true
+    event?: true
+    headers?: true
+    requiresListenerId?: true
+    enabled?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WebhookEndpointMaxAggregateInputType = {
+    id?: true
+    name?: true
+    url?: true
+    event?: true
+    headers?: true
+    requiresListenerId?: true
+    enabled?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WebhookEndpointCountAggregateInputType = {
+    id?: true
+    name?: true
+    url?: true
+    event?: true
+    headers?: true
+    requiresListenerId?: true
+    enabled?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type WebhookEndpointAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WebhookEndpoint to aggregate.
+     */
+    where?: WebhookEndpointWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebhookEndpoints to fetch.
+     */
+    orderBy?: WebhookEndpointOrderByWithRelationInput | WebhookEndpointOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WebhookEndpointWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebhookEndpoints from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebhookEndpoints.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned WebhookEndpoints
+    **/
+    _count?: true | WebhookEndpointCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: WebhookEndpointAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: WebhookEndpointSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WebhookEndpointMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WebhookEndpointMaxAggregateInputType
+  }
+
+  export type GetWebhookEndpointAggregateType<T extends WebhookEndpointAggregateArgs> = {
+        [P in keyof T & keyof AggregateWebhookEndpoint]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWebhookEndpoint[P]>
+      : GetScalarType<T[P], AggregateWebhookEndpoint[P]>
+  }
+
+
+
+
+  export type WebhookEndpointGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WebhookEndpointWhereInput
+    orderBy?: WebhookEndpointOrderByWithAggregationInput | WebhookEndpointOrderByWithAggregationInput[]
+    by: WebhookEndpointScalarFieldEnum[] | WebhookEndpointScalarFieldEnum
+    having?: WebhookEndpointScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WebhookEndpointCountAggregateInputType | true
+    _avg?: WebhookEndpointAvgAggregateInputType
+    _sum?: WebhookEndpointSumAggregateInputType
+    _min?: WebhookEndpointMinAggregateInputType
+    _max?: WebhookEndpointMaxAggregateInputType
+  }
+
+  export type WebhookEndpointGroupByOutputType = {
+    id: number
+    name: string
+    url: string
+    event: string
+    headers: string | null
+    requiresListenerId: boolean
+    enabled: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: WebhookEndpointCountAggregateOutputType | null
+    _avg: WebhookEndpointAvgAggregateOutputType | null
+    _sum: WebhookEndpointSumAggregateOutputType | null
+    _min: WebhookEndpointMinAggregateOutputType | null
+    _max: WebhookEndpointMaxAggregateOutputType | null
+  }
+
+  type GetWebhookEndpointGroupByPayload<T extends WebhookEndpointGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WebhookEndpointGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WebhookEndpointGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WebhookEndpointGroupByOutputType[P]>
+            : GetScalarType<T[P], WebhookEndpointGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WebhookEndpointSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    url?: boolean
+    event?: boolean
+    headers?: boolean
+    requiresListenerId?: boolean
+    enabled?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    deliveries?: boolean | WebhookEndpoint$deliveriesArgs<ExtArgs>
+    _count?: boolean | WebhookEndpointCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["webhookEndpoint"]>
+
+  export type WebhookEndpointSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    url?: boolean
+    event?: boolean
+    headers?: boolean
+    requiresListenerId?: boolean
+    enabled?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["webhookEndpoint"]>
+
+  export type WebhookEndpointSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    url?: boolean
+    event?: boolean
+    headers?: boolean
+    requiresListenerId?: boolean
+    enabled?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["webhookEndpoint"]>
+
+  export type WebhookEndpointSelectScalar = {
+    id?: boolean
+    name?: boolean
+    url?: boolean
+    event?: boolean
+    headers?: boolean
+    requiresListenerId?: boolean
+    enabled?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type WebhookEndpointOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "url" | "event" | "headers" | "requiresListenerId" | "enabled" | "createdAt" | "updatedAt", ExtArgs["result"]["webhookEndpoint"]>
+  export type WebhookEndpointInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    deliveries?: boolean | WebhookEndpoint$deliveriesArgs<ExtArgs>
+    _count?: boolean | WebhookEndpointCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type WebhookEndpointIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type WebhookEndpointIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $WebhookEndpointPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "WebhookEndpoint"
+    objects: {
+      deliveries: Prisma.$WebhookDeliveryPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      name: string
+      url: string
+      event: string
+      headers: string | null
+      requiresListenerId: boolean
+      enabled: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["webhookEndpoint"]>
+    composites: {}
+  }
+
+  type WebhookEndpointGetPayload<S extends boolean | null | undefined | WebhookEndpointDefaultArgs> = $Result.GetResult<Prisma.$WebhookEndpointPayload, S>
+
+  type WebhookEndpointCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<WebhookEndpointFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: WebhookEndpointCountAggregateInputType | true
+    }
+
+  export interface WebhookEndpointDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WebhookEndpoint'], meta: { name: 'WebhookEndpoint' } }
+    /**
+     * Find zero or one WebhookEndpoint that matches the filter.
+     * @param {WebhookEndpointFindUniqueArgs} args - Arguments to find a WebhookEndpoint
+     * @example
+     * // Get one WebhookEndpoint
+     * const webhookEndpoint = await prisma.webhookEndpoint.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WebhookEndpointFindUniqueArgs>(args: SelectSubset<T, WebhookEndpointFindUniqueArgs<ExtArgs>>): Prisma__WebhookEndpointClient<$Result.GetResult<Prisma.$WebhookEndpointPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one WebhookEndpoint that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {WebhookEndpointFindUniqueOrThrowArgs} args - Arguments to find a WebhookEndpoint
+     * @example
+     * // Get one WebhookEndpoint
+     * const webhookEndpoint = await prisma.webhookEndpoint.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WebhookEndpointFindUniqueOrThrowArgs>(args: SelectSubset<T, WebhookEndpointFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WebhookEndpointClient<$Result.GetResult<Prisma.$WebhookEndpointPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WebhookEndpoint that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookEndpointFindFirstArgs} args - Arguments to find a WebhookEndpoint
+     * @example
+     * // Get one WebhookEndpoint
+     * const webhookEndpoint = await prisma.webhookEndpoint.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WebhookEndpointFindFirstArgs>(args?: SelectSubset<T, WebhookEndpointFindFirstArgs<ExtArgs>>): Prisma__WebhookEndpointClient<$Result.GetResult<Prisma.$WebhookEndpointPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WebhookEndpoint that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookEndpointFindFirstOrThrowArgs} args - Arguments to find a WebhookEndpoint
+     * @example
+     * // Get one WebhookEndpoint
+     * const webhookEndpoint = await prisma.webhookEndpoint.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WebhookEndpointFindFirstOrThrowArgs>(args?: SelectSubset<T, WebhookEndpointFindFirstOrThrowArgs<ExtArgs>>): Prisma__WebhookEndpointClient<$Result.GetResult<Prisma.$WebhookEndpointPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more WebhookEndpoints that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookEndpointFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all WebhookEndpoints
+     * const webhookEndpoints = await prisma.webhookEndpoint.findMany()
+     * 
+     * // Get first 10 WebhookEndpoints
+     * const webhookEndpoints = await prisma.webhookEndpoint.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const webhookEndpointWithIdOnly = await prisma.webhookEndpoint.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends WebhookEndpointFindManyArgs>(args?: SelectSubset<T, WebhookEndpointFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebhookEndpointPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a WebhookEndpoint.
+     * @param {WebhookEndpointCreateArgs} args - Arguments to create a WebhookEndpoint.
+     * @example
+     * // Create one WebhookEndpoint
+     * const WebhookEndpoint = await prisma.webhookEndpoint.create({
+     *   data: {
+     *     // ... data to create a WebhookEndpoint
+     *   }
+     * })
+     * 
+     */
+    create<T extends WebhookEndpointCreateArgs>(args: SelectSubset<T, WebhookEndpointCreateArgs<ExtArgs>>): Prisma__WebhookEndpointClient<$Result.GetResult<Prisma.$WebhookEndpointPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many WebhookEndpoints.
+     * @param {WebhookEndpointCreateManyArgs} args - Arguments to create many WebhookEndpoints.
+     * @example
+     * // Create many WebhookEndpoints
+     * const webhookEndpoint = await prisma.webhookEndpoint.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WebhookEndpointCreateManyArgs>(args?: SelectSubset<T, WebhookEndpointCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many WebhookEndpoints and returns the data saved in the database.
+     * @param {WebhookEndpointCreateManyAndReturnArgs} args - Arguments to create many WebhookEndpoints.
+     * @example
+     * // Create many WebhookEndpoints
+     * const webhookEndpoint = await prisma.webhookEndpoint.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many WebhookEndpoints and only return the `id`
+     * const webhookEndpointWithIdOnly = await prisma.webhookEndpoint.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends WebhookEndpointCreateManyAndReturnArgs>(args?: SelectSubset<T, WebhookEndpointCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebhookEndpointPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a WebhookEndpoint.
+     * @param {WebhookEndpointDeleteArgs} args - Arguments to delete one WebhookEndpoint.
+     * @example
+     * // Delete one WebhookEndpoint
+     * const WebhookEndpoint = await prisma.webhookEndpoint.delete({
+     *   where: {
+     *     // ... filter to delete one WebhookEndpoint
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WebhookEndpointDeleteArgs>(args: SelectSubset<T, WebhookEndpointDeleteArgs<ExtArgs>>): Prisma__WebhookEndpointClient<$Result.GetResult<Prisma.$WebhookEndpointPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one WebhookEndpoint.
+     * @param {WebhookEndpointUpdateArgs} args - Arguments to update one WebhookEndpoint.
+     * @example
+     * // Update one WebhookEndpoint
+     * const webhookEndpoint = await prisma.webhookEndpoint.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WebhookEndpointUpdateArgs>(args: SelectSubset<T, WebhookEndpointUpdateArgs<ExtArgs>>): Prisma__WebhookEndpointClient<$Result.GetResult<Prisma.$WebhookEndpointPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more WebhookEndpoints.
+     * @param {WebhookEndpointDeleteManyArgs} args - Arguments to filter WebhookEndpoints to delete.
+     * @example
+     * // Delete a few WebhookEndpoints
+     * const { count } = await prisma.webhookEndpoint.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WebhookEndpointDeleteManyArgs>(args?: SelectSubset<T, WebhookEndpointDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WebhookEndpoints.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookEndpointUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many WebhookEndpoints
+     * const webhookEndpoint = await prisma.webhookEndpoint.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WebhookEndpointUpdateManyArgs>(args: SelectSubset<T, WebhookEndpointUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WebhookEndpoints and returns the data updated in the database.
+     * @param {WebhookEndpointUpdateManyAndReturnArgs} args - Arguments to update many WebhookEndpoints.
+     * @example
+     * // Update many WebhookEndpoints
+     * const webhookEndpoint = await prisma.webhookEndpoint.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more WebhookEndpoints and only return the `id`
+     * const webhookEndpointWithIdOnly = await prisma.webhookEndpoint.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends WebhookEndpointUpdateManyAndReturnArgs>(args: SelectSubset<T, WebhookEndpointUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebhookEndpointPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one WebhookEndpoint.
+     * @param {WebhookEndpointUpsertArgs} args - Arguments to update or create a WebhookEndpoint.
+     * @example
+     * // Update or create a WebhookEndpoint
+     * const webhookEndpoint = await prisma.webhookEndpoint.upsert({
+     *   create: {
+     *     // ... data to create a WebhookEndpoint
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the WebhookEndpoint we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WebhookEndpointUpsertArgs>(args: SelectSubset<T, WebhookEndpointUpsertArgs<ExtArgs>>): Prisma__WebhookEndpointClient<$Result.GetResult<Prisma.$WebhookEndpointPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of WebhookEndpoints.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookEndpointCountArgs} args - Arguments to filter WebhookEndpoints to count.
+     * @example
+     * // Count the number of WebhookEndpoints
+     * const count = await prisma.webhookEndpoint.count({
+     *   where: {
+     *     // ... the filter for the WebhookEndpoints we want to count
+     *   }
+     * })
+    **/
+    count<T extends WebhookEndpointCountArgs>(
+      args?: Subset<T, WebhookEndpointCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WebhookEndpointCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a WebhookEndpoint.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookEndpointAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WebhookEndpointAggregateArgs>(args: Subset<T, WebhookEndpointAggregateArgs>): Prisma.PrismaPromise<GetWebhookEndpointAggregateType<T>>
+
+    /**
+     * Group by WebhookEndpoint.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookEndpointGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WebhookEndpointGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WebhookEndpointGroupByArgs['orderBy'] }
+        : { orderBy?: WebhookEndpointGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WebhookEndpointGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWebhookEndpointGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the WebhookEndpoint model
+   */
+  readonly fields: WebhookEndpointFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for WebhookEndpoint.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WebhookEndpointClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    deliveries<T extends WebhookEndpoint$deliveriesArgs<ExtArgs> = {}>(args?: Subset<T, WebhookEndpoint$deliveriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebhookDeliveryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the WebhookEndpoint model
+   */
+  interface WebhookEndpointFieldRefs {
+    readonly id: FieldRef<"WebhookEndpoint", 'Int'>
+    readonly name: FieldRef<"WebhookEndpoint", 'String'>
+    readonly url: FieldRef<"WebhookEndpoint", 'String'>
+    readonly event: FieldRef<"WebhookEndpoint", 'String'>
+    readonly headers: FieldRef<"WebhookEndpoint", 'String'>
+    readonly requiresListenerId: FieldRef<"WebhookEndpoint", 'Boolean'>
+    readonly enabled: FieldRef<"WebhookEndpoint", 'Boolean'>
+    readonly createdAt: FieldRef<"WebhookEndpoint", 'DateTime'>
+    readonly updatedAt: FieldRef<"WebhookEndpoint", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * WebhookEndpoint findUnique
+   */
+  export type WebhookEndpointFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEndpoint
+     */
+    select?: WebhookEndpointSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookEndpoint
+     */
+    omit?: WebhookEndpointOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookEndpointInclude<ExtArgs> | null
+    /**
+     * Filter, which WebhookEndpoint to fetch.
+     */
+    where: WebhookEndpointWhereUniqueInput
+  }
+
+  /**
+   * WebhookEndpoint findUniqueOrThrow
+   */
+  export type WebhookEndpointFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEndpoint
+     */
+    select?: WebhookEndpointSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookEndpoint
+     */
+    omit?: WebhookEndpointOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookEndpointInclude<ExtArgs> | null
+    /**
+     * Filter, which WebhookEndpoint to fetch.
+     */
+    where: WebhookEndpointWhereUniqueInput
+  }
+
+  /**
+   * WebhookEndpoint findFirst
+   */
+  export type WebhookEndpointFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEndpoint
+     */
+    select?: WebhookEndpointSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookEndpoint
+     */
+    omit?: WebhookEndpointOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookEndpointInclude<ExtArgs> | null
+    /**
+     * Filter, which WebhookEndpoint to fetch.
+     */
+    where?: WebhookEndpointWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebhookEndpoints to fetch.
+     */
+    orderBy?: WebhookEndpointOrderByWithRelationInput | WebhookEndpointOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WebhookEndpoints.
+     */
+    cursor?: WebhookEndpointWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebhookEndpoints from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebhookEndpoints.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WebhookEndpoints.
+     */
+    distinct?: WebhookEndpointScalarFieldEnum | WebhookEndpointScalarFieldEnum[]
+  }
+
+  /**
+   * WebhookEndpoint findFirstOrThrow
+   */
+  export type WebhookEndpointFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEndpoint
+     */
+    select?: WebhookEndpointSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookEndpoint
+     */
+    omit?: WebhookEndpointOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookEndpointInclude<ExtArgs> | null
+    /**
+     * Filter, which WebhookEndpoint to fetch.
+     */
+    where?: WebhookEndpointWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebhookEndpoints to fetch.
+     */
+    orderBy?: WebhookEndpointOrderByWithRelationInput | WebhookEndpointOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WebhookEndpoints.
+     */
+    cursor?: WebhookEndpointWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebhookEndpoints from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebhookEndpoints.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WebhookEndpoints.
+     */
+    distinct?: WebhookEndpointScalarFieldEnum | WebhookEndpointScalarFieldEnum[]
+  }
+
+  /**
+   * WebhookEndpoint findMany
+   */
+  export type WebhookEndpointFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEndpoint
+     */
+    select?: WebhookEndpointSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookEndpoint
+     */
+    omit?: WebhookEndpointOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookEndpointInclude<ExtArgs> | null
+    /**
+     * Filter, which WebhookEndpoints to fetch.
+     */
+    where?: WebhookEndpointWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebhookEndpoints to fetch.
+     */
+    orderBy?: WebhookEndpointOrderByWithRelationInput | WebhookEndpointOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing WebhookEndpoints.
+     */
+    cursor?: WebhookEndpointWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebhookEndpoints from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebhookEndpoints.
+     */
+    skip?: number
+    distinct?: WebhookEndpointScalarFieldEnum | WebhookEndpointScalarFieldEnum[]
+  }
+
+  /**
+   * WebhookEndpoint create
+   */
+  export type WebhookEndpointCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEndpoint
+     */
+    select?: WebhookEndpointSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookEndpoint
+     */
+    omit?: WebhookEndpointOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookEndpointInclude<ExtArgs> | null
+    /**
+     * The data needed to create a WebhookEndpoint.
+     */
+    data: XOR<WebhookEndpointCreateInput, WebhookEndpointUncheckedCreateInput>
+  }
+
+  /**
+   * WebhookEndpoint createMany
+   */
+  export type WebhookEndpointCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many WebhookEndpoints.
+     */
+    data: WebhookEndpointCreateManyInput | WebhookEndpointCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WebhookEndpoint createManyAndReturn
+   */
+  export type WebhookEndpointCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEndpoint
+     */
+    select?: WebhookEndpointSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookEndpoint
+     */
+    omit?: WebhookEndpointOmit<ExtArgs> | null
+    /**
+     * The data used to create many WebhookEndpoints.
+     */
+    data: WebhookEndpointCreateManyInput | WebhookEndpointCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WebhookEndpoint update
+   */
+  export type WebhookEndpointUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEndpoint
+     */
+    select?: WebhookEndpointSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookEndpoint
+     */
+    omit?: WebhookEndpointOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookEndpointInclude<ExtArgs> | null
+    /**
+     * The data needed to update a WebhookEndpoint.
+     */
+    data: XOR<WebhookEndpointUpdateInput, WebhookEndpointUncheckedUpdateInput>
+    /**
+     * Choose, which WebhookEndpoint to update.
+     */
+    where: WebhookEndpointWhereUniqueInput
+  }
+
+  /**
+   * WebhookEndpoint updateMany
+   */
+  export type WebhookEndpointUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update WebhookEndpoints.
+     */
+    data: XOR<WebhookEndpointUpdateManyMutationInput, WebhookEndpointUncheckedUpdateManyInput>
+    /**
+     * Filter which WebhookEndpoints to update
+     */
+    where?: WebhookEndpointWhereInput
+    /**
+     * Limit how many WebhookEndpoints to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WebhookEndpoint updateManyAndReturn
+   */
+  export type WebhookEndpointUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEndpoint
+     */
+    select?: WebhookEndpointSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookEndpoint
+     */
+    omit?: WebhookEndpointOmit<ExtArgs> | null
+    /**
+     * The data used to update WebhookEndpoints.
+     */
+    data: XOR<WebhookEndpointUpdateManyMutationInput, WebhookEndpointUncheckedUpdateManyInput>
+    /**
+     * Filter which WebhookEndpoints to update
+     */
+    where?: WebhookEndpointWhereInput
+    /**
+     * Limit how many WebhookEndpoints to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WebhookEndpoint upsert
+   */
+  export type WebhookEndpointUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEndpoint
+     */
+    select?: WebhookEndpointSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookEndpoint
+     */
+    omit?: WebhookEndpointOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookEndpointInclude<ExtArgs> | null
+    /**
+     * The filter to search for the WebhookEndpoint to update in case it exists.
+     */
+    where: WebhookEndpointWhereUniqueInput
+    /**
+     * In case the WebhookEndpoint found by the `where` argument doesn't exist, create a new WebhookEndpoint with this data.
+     */
+    create: XOR<WebhookEndpointCreateInput, WebhookEndpointUncheckedCreateInput>
+    /**
+     * In case the WebhookEndpoint was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WebhookEndpointUpdateInput, WebhookEndpointUncheckedUpdateInput>
+  }
+
+  /**
+   * WebhookEndpoint delete
+   */
+  export type WebhookEndpointDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEndpoint
+     */
+    select?: WebhookEndpointSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookEndpoint
+     */
+    omit?: WebhookEndpointOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookEndpointInclude<ExtArgs> | null
+    /**
+     * Filter which WebhookEndpoint to delete.
+     */
+    where: WebhookEndpointWhereUniqueInput
+  }
+
+  /**
+   * WebhookEndpoint deleteMany
+   */
+  export type WebhookEndpointDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WebhookEndpoints to delete
+     */
+    where?: WebhookEndpointWhereInput
+    /**
+     * Limit how many WebhookEndpoints to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * WebhookEndpoint.deliveries
+   */
+  export type WebhookEndpoint$deliveriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookDelivery
+     */
+    select?: WebhookDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookDelivery
+     */
+    omit?: WebhookDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookDeliveryInclude<ExtArgs> | null
+    where?: WebhookDeliveryWhereInput
+    orderBy?: WebhookDeliveryOrderByWithRelationInput | WebhookDeliveryOrderByWithRelationInput[]
+    cursor?: WebhookDeliveryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: WebhookDeliveryScalarFieldEnum | WebhookDeliveryScalarFieldEnum[]
+  }
+
+  /**
+   * WebhookEndpoint without action
+   */
+  export type WebhookEndpointDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEndpoint
+     */
+    select?: WebhookEndpointSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookEndpoint
+     */
+    omit?: WebhookEndpointOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookEndpointInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model WebhookDelivery
+   */
+
+  export type AggregateWebhookDelivery = {
+    _count: WebhookDeliveryCountAggregateOutputType | null
+    _avg: WebhookDeliveryAvgAggregateOutputType | null
+    _sum: WebhookDeliverySumAggregateOutputType | null
+    _min: WebhookDeliveryMinAggregateOutputType | null
+    _max: WebhookDeliveryMaxAggregateOutputType | null
+  }
+
+  export type WebhookDeliveryAvgAggregateOutputType = {
+    id: number | null
+    endpointId: number | null
+    orderId: number | null
+    shipmentId: number | null
+    attempts: number | null
+    httpStatus: number | null
+  }
+
+  export type WebhookDeliverySumAggregateOutputType = {
+    id: number | null
+    endpointId: number | null
+    orderId: number | null
+    shipmentId: number | null
+    attempts: number | null
+    httpStatus: number | null
+  }
+
+  export type WebhookDeliveryMinAggregateOutputType = {
+    id: number | null
+    deliveryId: string | null
+    endpointId: number | null
+    event: string | null
+    orderId: number | null
+    shipmentId: number | null
+    status: string | null
+    attempts: number | null
+    httpStatus: number | null
+    error: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WebhookDeliveryMaxAggregateOutputType = {
+    id: number | null
+    deliveryId: string | null
+    endpointId: number | null
+    event: string | null
+    orderId: number | null
+    shipmentId: number | null
+    status: string | null
+    attempts: number | null
+    httpStatus: number | null
+    error: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WebhookDeliveryCountAggregateOutputType = {
+    id: number
+    deliveryId: number
+    endpointId: number
+    event: number
+    orderId: number
+    shipmentId: number
+    status: number
+    attempts: number
+    httpStatus: number
+    error: number
+    payload: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type WebhookDeliveryAvgAggregateInputType = {
+    id?: true
+    endpointId?: true
+    orderId?: true
+    shipmentId?: true
+    attempts?: true
+    httpStatus?: true
+  }
+
+  export type WebhookDeliverySumAggregateInputType = {
+    id?: true
+    endpointId?: true
+    orderId?: true
+    shipmentId?: true
+    attempts?: true
+    httpStatus?: true
+  }
+
+  export type WebhookDeliveryMinAggregateInputType = {
+    id?: true
+    deliveryId?: true
+    endpointId?: true
+    event?: true
+    orderId?: true
+    shipmentId?: true
+    status?: true
+    attempts?: true
+    httpStatus?: true
+    error?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WebhookDeliveryMaxAggregateInputType = {
+    id?: true
+    deliveryId?: true
+    endpointId?: true
+    event?: true
+    orderId?: true
+    shipmentId?: true
+    status?: true
+    attempts?: true
+    httpStatus?: true
+    error?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WebhookDeliveryCountAggregateInputType = {
+    id?: true
+    deliveryId?: true
+    endpointId?: true
+    event?: true
+    orderId?: true
+    shipmentId?: true
+    status?: true
+    attempts?: true
+    httpStatus?: true
+    error?: true
+    payload?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type WebhookDeliveryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WebhookDelivery to aggregate.
+     */
+    where?: WebhookDeliveryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebhookDeliveries to fetch.
+     */
+    orderBy?: WebhookDeliveryOrderByWithRelationInput | WebhookDeliveryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WebhookDeliveryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebhookDeliveries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebhookDeliveries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned WebhookDeliveries
+    **/
+    _count?: true | WebhookDeliveryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: WebhookDeliveryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: WebhookDeliverySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WebhookDeliveryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WebhookDeliveryMaxAggregateInputType
+  }
+
+  export type GetWebhookDeliveryAggregateType<T extends WebhookDeliveryAggregateArgs> = {
+        [P in keyof T & keyof AggregateWebhookDelivery]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWebhookDelivery[P]>
+      : GetScalarType<T[P], AggregateWebhookDelivery[P]>
+  }
+
+
+
+
+  export type WebhookDeliveryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WebhookDeliveryWhereInput
+    orderBy?: WebhookDeliveryOrderByWithAggregationInput | WebhookDeliveryOrderByWithAggregationInput[]
+    by: WebhookDeliveryScalarFieldEnum[] | WebhookDeliveryScalarFieldEnum
+    having?: WebhookDeliveryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WebhookDeliveryCountAggregateInputType | true
+    _avg?: WebhookDeliveryAvgAggregateInputType
+    _sum?: WebhookDeliverySumAggregateInputType
+    _min?: WebhookDeliveryMinAggregateInputType
+    _max?: WebhookDeliveryMaxAggregateInputType
+  }
+
+  export type WebhookDeliveryGroupByOutputType = {
+    id: number
+    deliveryId: string
+    endpointId: number
+    event: string
+    orderId: number | null
+    shipmentId: number | null
+    status: string
+    attempts: number
+    httpStatus: number | null
+    error: string | null
+    payload: JsonValue | null
+    createdAt: Date
+    updatedAt: Date
+    _count: WebhookDeliveryCountAggregateOutputType | null
+    _avg: WebhookDeliveryAvgAggregateOutputType | null
+    _sum: WebhookDeliverySumAggregateOutputType | null
+    _min: WebhookDeliveryMinAggregateOutputType | null
+    _max: WebhookDeliveryMaxAggregateOutputType | null
+  }
+
+  type GetWebhookDeliveryGroupByPayload<T extends WebhookDeliveryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WebhookDeliveryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WebhookDeliveryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WebhookDeliveryGroupByOutputType[P]>
+            : GetScalarType<T[P], WebhookDeliveryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WebhookDeliverySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    deliveryId?: boolean
+    endpointId?: boolean
+    event?: boolean
+    orderId?: boolean
+    shipmentId?: boolean
+    status?: boolean
+    attempts?: boolean
+    httpStatus?: boolean
+    error?: boolean
+    payload?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    endpoint?: boolean | WebhookEndpointDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["webhookDelivery"]>
+
+  export type WebhookDeliverySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    deliveryId?: boolean
+    endpointId?: boolean
+    event?: boolean
+    orderId?: boolean
+    shipmentId?: boolean
+    status?: boolean
+    attempts?: boolean
+    httpStatus?: boolean
+    error?: boolean
+    payload?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    endpoint?: boolean | WebhookEndpointDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["webhookDelivery"]>
+
+  export type WebhookDeliverySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    deliveryId?: boolean
+    endpointId?: boolean
+    event?: boolean
+    orderId?: boolean
+    shipmentId?: boolean
+    status?: boolean
+    attempts?: boolean
+    httpStatus?: boolean
+    error?: boolean
+    payload?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    endpoint?: boolean | WebhookEndpointDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["webhookDelivery"]>
+
+  export type WebhookDeliverySelectScalar = {
+    id?: boolean
+    deliveryId?: boolean
+    endpointId?: boolean
+    event?: boolean
+    orderId?: boolean
+    shipmentId?: boolean
+    status?: boolean
+    attempts?: boolean
+    httpStatus?: boolean
+    error?: boolean
+    payload?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type WebhookDeliveryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "deliveryId" | "endpointId" | "event" | "orderId" | "shipmentId" | "status" | "attempts" | "httpStatus" | "error" | "payload" | "createdAt" | "updatedAt", ExtArgs["result"]["webhookDelivery"]>
+  export type WebhookDeliveryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    endpoint?: boolean | WebhookEndpointDefaultArgs<ExtArgs>
+  }
+  export type WebhookDeliveryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    endpoint?: boolean | WebhookEndpointDefaultArgs<ExtArgs>
+  }
+  export type WebhookDeliveryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    endpoint?: boolean | WebhookEndpointDefaultArgs<ExtArgs>
+  }
+
+  export type $WebhookDeliveryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "WebhookDelivery"
+    objects: {
+      endpoint: Prisma.$WebhookEndpointPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      deliveryId: string
+      endpointId: number
+      event: string
+      orderId: number | null
+      shipmentId: number | null
+      status: string
+      attempts: number
+      httpStatus: number | null
+      error: string | null
+      payload: Prisma.JsonValue | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["webhookDelivery"]>
+    composites: {}
+  }
+
+  type WebhookDeliveryGetPayload<S extends boolean | null | undefined | WebhookDeliveryDefaultArgs> = $Result.GetResult<Prisma.$WebhookDeliveryPayload, S>
+
+  type WebhookDeliveryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<WebhookDeliveryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: WebhookDeliveryCountAggregateInputType | true
+    }
+
+  export interface WebhookDeliveryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WebhookDelivery'], meta: { name: 'WebhookDelivery' } }
+    /**
+     * Find zero or one WebhookDelivery that matches the filter.
+     * @param {WebhookDeliveryFindUniqueArgs} args - Arguments to find a WebhookDelivery
+     * @example
+     * // Get one WebhookDelivery
+     * const webhookDelivery = await prisma.webhookDelivery.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WebhookDeliveryFindUniqueArgs>(args: SelectSubset<T, WebhookDeliveryFindUniqueArgs<ExtArgs>>): Prisma__WebhookDeliveryClient<$Result.GetResult<Prisma.$WebhookDeliveryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one WebhookDelivery that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {WebhookDeliveryFindUniqueOrThrowArgs} args - Arguments to find a WebhookDelivery
+     * @example
+     * // Get one WebhookDelivery
+     * const webhookDelivery = await prisma.webhookDelivery.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WebhookDeliveryFindUniqueOrThrowArgs>(args: SelectSubset<T, WebhookDeliveryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WebhookDeliveryClient<$Result.GetResult<Prisma.$WebhookDeliveryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WebhookDelivery that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookDeliveryFindFirstArgs} args - Arguments to find a WebhookDelivery
+     * @example
+     * // Get one WebhookDelivery
+     * const webhookDelivery = await prisma.webhookDelivery.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WebhookDeliveryFindFirstArgs>(args?: SelectSubset<T, WebhookDeliveryFindFirstArgs<ExtArgs>>): Prisma__WebhookDeliveryClient<$Result.GetResult<Prisma.$WebhookDeliveryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WebhookDelivery that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookDeliveryFindFirstOrThrowArgs} args - Arguments to find a WebhookDelivery
+     * @example
+     * // Get one WebhookDelivery
+     * const webhookDelivery = await prisma.webhookDelivery.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WebhookDeliveryFindFirstOrThrowArgs>(args?: SelectSubset<T, WebhookDeliveryFindFirstOrThrowArgs<ExtArgs>>): Prisma__WebhookDeliveryClient<$Result.GetResult<Prisma.$WebhookDeliveryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more WebhookDeliveries that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookDeliveryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all WebhookDeliveries
+     * const webhookDeliveries = await prisma.webhookDelivery.findMany()
+     * 
+     * // Get first 10 WebhookDeliveries
+     * const webhookDeliveries = await prisma.webhookDelivery.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const webhookDeliveryWithIdOnly = await prisma.webhookDelivery.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends WebhookDeliveryFindManyArgs>(args?: SelectSubset<T, WebhookDeliveryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebhookDeliveryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a WebhookDelivery.
+     * @param {WebhookDeliveryCreateArgs} args - Arguments to create a WebhookDelivery.
+     * @example
+     * // Create one WebhookDelivery
+     * const WebhookDelivery = await prisma.webhookDelivery.create({
+     *   data: {
+     *     // ... data to create a WebhookDelivery
+     *   }
+     * })
+     * 
+     */
+    create<T extends WebhookDeliveryCreateArgs>(args: SelectSubset<T, WebhookDeliveryCreateArgs<ExtArgs>>): Prisma__WebhookDeliveryClient<$Result.GetResult<Prisma.$WebhookDeliveryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many WebhookDeliveries.
+     * @param {WebhookDeliveryCreateManyArgs} args - Arguments to create many WebhookDeliveries.
+     * @example
+     * // Create many WebhookDeliveries
+     * const webhookDelivery = await prisma.webhookDelivery.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WebhookDeliveryCreateManyArgs>(args?: SelectSubset<T, WebhookDeliveryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many WebhookDeliveries and returns the data saved in the database.
+     * @param {WebhookDeliveryCreateManyAndReturnArgs} args - Arguments to create many WebhookDeliveries.
+     * @example
+     * // Create many WebhookDeliveries
+     * const webhookDelivery = await prisma.webhookDelivery.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many WebhookDeliveries and only return the `id`
+     * const webhookDeliveryWithIdOnly = await prisma.webhookDelivery.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends WebhookDeliveryCreateManyAndReturnArgs>(args?: SelectSubset<T, WebhookDeliveryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebhookDeliveryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a WebhookDelivery.
+     * @param {WebhookDeliveryDeleteArgs} args - Arguments to delete one WebhookDelivery.
+     * @example
+     * // Delete one WebhookDelivery
+     * const WebhookDelivery = await prisma.webhookDelivery.delete({
+     *   where: {
+     *     // ... filter to delete one WebhookDelivery
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WebhookDeliveryDeleteArgs>(args: SelectSubset<T, WebhookDeliveryDeleteArgs<ExtArgs>>): Prisma__WebhookDeliveryClient<$Result.GetResult<Prisma.$WebhookDeliveryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one WebhookDelivery.
+     * @param {WebhookDeliveryUpdateArgs} args - Arguments to update one WebhookDelivery.
+     * @example
+     * // Update one WebhookDelivery
+     * const webhookDelivery = await prisma.webhookDelivery.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WebhookDeliveryUpdateArgs>(args: SelectSubset<T, WebhookDeliveryUpdateArgs<ExtArgs>>): Prisma__WebhookDeliveryClient<$Result.GetResult<Prisma.$WebhookDeliveryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more WebhookDeliveries.
+     * @param {WebhookDeliveryDeleteManyArgs} args - Arguments to filter WebhookDeliveries to delete.
+     * @example
+     * // Delete a few WebhookDeliveries
+     * const { count } = await prisma.webhookDelivery.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WebhookDeliveryDeleteManyArgs>(args?: SelectSubset<T, WebhookDeliveryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WebhookDeliveries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookDeliveryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many WebhookDeliveries
+     * const webhookDelivery = await prisma.webhookDelivery.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WebhookDeliveryUpdateManyArgs>(args: SelectSubset<T, WebhookDeliveryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WebhookDeliveries and returns the data updated in the database.
+     * @param {WebhookDeliveryUpdateManyAndReturnArgs} args - Arguments to update many WebhookDeliveries.
+     * @example
+     * // Update many WebhookDeliveries
+     * const webhookDelivery = await prisma.webhookDelivery.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more WebhookDeliveries and only return the `id`
+     * const webhookDeliveryWithIdOnly = await prisma.webhookDelivery.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends WebhookDeliveryUpdateManyAndReturnArgs>(args: SelectSubset<T, WebhookDeliveryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebhookDeliveryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one WebhookDelivery.
+     * @param {WebhookDeliveryUpsertArgs} args - Arguments to update or create a WebhookDelivery.
+     * @example
+     * // Update or create a WebhookDelivery
+     * const webhookDelivery = await prisma.webhookDelivery.upsert({
+     *   create: {
+     *     // ... data to create a WebhookDelivery
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the WebhookDelivery we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WebhookDeliveryUpsertArgs>(args: SelectSubset<T, WebhookDeliveryUpsertArgs<ExtArgs>>): Prisma__WebhookDeliveryClient<$Result.GetResult<Prisma.$WebhookDeliveryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of WebhookDeliveries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookDeliveryCountArgs} args - Arguments to filter WebhookDeliveries to count.
+     * @example
+     * // Count the number of WebhookDeliveries
+     * const count = await prisma.webhookDelivery.count({
+     *   where: {
+     *     // ... the filter for the WebhookDeliveries we want to count
+     *   }
+     * })
+    **/
+    count<T extends WebhookDeliveryCountArgs>(
+      args?: Subset<T, WebhookDeliveryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WebhookDeliveryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a WebhookDelivery.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookDeliveryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WebhookDeliveryAggregateArgs>(args: Subset<T, WebhookDeliveryAggregateArgs>): Prisma.PrismaPromise<GetWebhookDeliveryAggregateType<T>>
+
+    /**
+     * Group by WebhookDelivery.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookDeliveryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WebhookDeliveryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WebhookDeliveryGroupByArgs['orderBy'] }
+        : { orderBy?: WebhookDeliveryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WebhookDeliveryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWebhookDeliveryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the WebhookDelivery model
+   */
+  readonly fields: WebhookDeliveryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for WebhookDelivery.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WebhookDeliveryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    endpoint<T extends WebhookEndpointDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WebhookEndpointDefaultArgs<ExtArgs>>): Prisma__WebhookEndpointClient<$Result.GetResult<Prisma.$WebhookEndpointPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the WebhookDelivery model
+   */
+  interface WebhookDeliveryFieldRefs {
+    readonly id: FieldRef<"WebhookDelivery", 'Int'>
+    readonly deliveryId: FieldRef<"WebhookDelivery", 'String'>
+    readonly endpointId: FieldRef<"WebhookDelivery", 'Int'>
+    readonly event: FieldRef<"WebhookDelivery", 'String'>
+    readonly orderId: FieldRef<"WebhookDelivery", 'Int'>
+    readonly shipmentId: FieldRef<"WebhookDelivery", 'Int'>
+    readonly status: FieldRef<"WebhookDelivery", 'String'>
+    readonly attempts: FieldRef<"WebhookDelivery", 'Int'>
+    readonly httpStatus: FieldRef<"WebhookDelivery", 'Int'>
+    readonly error: FieldRef<"WebhookDelivery", 'String'>
+    readonly payload: FieldRef<"WebhookDelivery", 'Json'>
+    readonly createdAt: FieldRef<"WebhookDelivery", 'DateTime'>
+    readonly updatedAt: FieldRef<"WebhookDelivery", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * WebhookDelivery findUnique
+   */
+  export type WebhookDeliveryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookDelivery
+     */
+    select?: WebhookDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookDelivery
+     */
+    omit?: WebhookDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter, which WebhookDelivery to fetch.
+     */
+    where: WebhookDeliveryWhereUniqueInput
+  }
+
+  /**
+   * WebhookDelivery findUniqueOrThrow
+   */
+  export type WebhookDeliveryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookDelivery
+     */
+    select?: WebhookDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookDelivery
+     */
+    omit?: WebhookDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter, which WebhookDelivery to fetch.
+     */
+    where: WebhookDeliveryWhereUniqueInput
+  }
+
+  /**
+   * WebhookDelivery findFirst
+   */
+  export type WebhookDeliveryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookDelivery
+     */
+    select?: WebhookDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookDelivery
+     */
+    omit?: WebhookDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter, which WebhookDelivery to fetch.
+     */
+    where?: WebhookDeliveryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebhookDeliveries to fetch.
+     */
+    orderBy?: WebhookDeliveryOrderByWithRelationInput | WebhookDeliveryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WebhookDeliveries.
+     */
+    cursor?: WebhookDeliveryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebhookDeliveries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebhookDeliveries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WebhookDeliveries.
+     */
+    distinct?: WebhookDeliveryScalarFieldEnum | WebhookDeliveryScalarFieldEnum[]
+  }
+
+  /**
+   * WebhookDelivery findFirstOrThrow
+   */
+  export type WebhookDeliveryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookDelivery
+     */
+    select?: WebhookDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookDelivery
+     */
+    omit?: WebhookDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter, which WebhookDelivery to fetch.
+     */
+    where?: WebhookDeliveryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebhookDeliveries to fetch.
+     */
+    orderBy?: WebhookDeliveryOrderByWithRelationInput | WebhookDeliveryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WebhookDeliveries.
+     */
+    cursor?: WebhookDeliveryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebhookDeliveries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebhookDeliveries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WebhookDeliveries.
+     */
+    distinct?: WebhookDeliveryScalarFieldEnum | WebhookDeliveryScalarFieldEnum[]
+  }
+
+  /**
+   * WebhookDelivery findMany
+   */
+  export type WebhookDeliveryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookDelivery
+     */
+    select?: WebhookDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookDelivery
+     */
+    omit?: WebhookDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter, which WebhookDeliveries to fetch.
+     */
+    where?: WebhookDeliveryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebhookDeliveries to fetch.
+     */
+    orderBy?: WebhookDeliveryOrderByWithRelationInput | WebhookDeliveryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing WebhookDeliveries.
+     */
+    cursor?: WebhookDeliveryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebhookDeliveries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebhookDeliveries.
+     */
+    skip?: number
+    distinct?: WebhookDeliveryScalarFieldEnum | WebhookDeliveryScalarFieldEnum[]
+  }
+
+  /**
+   * WebhookDelivery create
+   */
+  export type WebhookDeliveryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookDelivery
+     */
+    select?: WebhookDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookDelivery
+     */
+    omit?: WebhookDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookDeliveryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a WebhookDelivery.
+     */
+    data: XOR<WebhookDeliveryCreateInput, WebhookDeliveryUncheckedCreateInput>
+  }
+
+  /**
+   * WebhookDelivery createMany
+   */
+  export type WebhookDeliveryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many WebhookDeliveries.
+     */
+    data: WebhookDeliveryCreateManyInput | WebhookDeliveryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WebhookDelivery createManyAndReturn
+   */
+  export type WebhookDeliveryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookDelivery
+     */
+    select?: WebhookDeliverySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookDelivery
+     */
+    omit?: WebhookDeliveryOmit<ExtArgs> | null
+    /**
+     * The data used to create many WebhookDeliveries.
+     */
+    data: WebhookDeliveryCreateManyInput | WebhookDeliveryCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookDeliveryIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * WebhookDelivery update
+   */
+  export type WebhookDeliveryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookDelivery
+     */
+    select?: WebhookDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookDelivery
+     */
+    omit?: WebhookDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookDeliveryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a WebhookDelivery.
+     */
+    data: XOR<WebhookDeliveryUpdateInput, WebhookDeliveryUncheckedUpdateInput>
+    /**
+     * Choose, which WebhookDelivery to update.
+     */
+    where: WebhookDeliveryWhereUniqueInput
+  }
+
+  /**
+   * WebhookDelivery updateMany
+   */
+  export type WebhookDeliveryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update WebhookDeliveries.
+     */
+    data: XOR<WebhookDeliveryUpdateManyMutationInput, WebhookDeliveryUncheckedUpdateManyInput>
+    /**
+     * Filter which WebhookDeliveries to update
+     */
+    where?: WebhookDeliveryWhereInput
+    /**
+     * Limit how many WebhookDeliveries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WebhookDelivery updateManyAndReturn
+   */
+  export type WebhookDeliveryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookDelivery
+     */
+    select?: WebhookDeliverySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookDelivery
+     */
+    omit?: WebhookDeliveryOmit<ExtArgs> | null
+    /**
+     * The data used to update WebhookDeliveries.
+     */
+    data: XOR<WebhookDeliveryUpdateManyMutationInput, WebhookDeliveryUncheckedUpdateManyInput>
+    /**
+     * Filter which WebhookDeliveries to update
+     */
+    where?: WebhookDeliveryWhereInput
+    /**
+     * Limit how many WebhookDeliveries to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookDeliveryIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * WebhookDelivery upsert
+   */
+  export type WebhookDeliveryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookDelivery
+     */
+    select?: WebhookDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookDelivery
+     */
+    omit?: WebhookDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookDeliveryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the WebhookDelivery to update in case it exists.
+     */
+    where: WebhookDeliveryWhereUniqueInput
+    /**
+     * In case the WebhookDelivery found by the `where` argument doesn't exist, create a new WebhookDelivery with this data.
+     */
+    create: XOR<WebhookDeliveryCreateInput, WebhookDeliveryUncheckedCreateInput>
+    /**
+     * In case the WebhookDelivery was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WebhookDeliveryUpdateInput, WebhookDeliveryUncheckedUpdateInput>
+  }
+
+  /**
+   * WebhookDelivery delete
+   */
+  export type WebhookDeliveryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookDelivery
+     */
+    select?: WebhookDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookDelivery
+     */
+    omit?: WebhookDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter which WebhookDelivery to delete.
+     */
+    where: WebhookDeliveryWhereUniqueInput
+  }
+
+  /**
+   * WebhookDelivery deleteMany
+   */
+  export type WebhookDeliveryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WebhookDeliveries to delete
+     */
+    where?: WebhookDeliveryWhereInput
+    /**
+     * Limit how many WebhookDeliveries to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * WebhookDelivery without action
+   */
+  export type WebhookDeliveryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookDelivery
+     */
+    select?: WebhookDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebhookDelivery
+     */
+    omit?: WebhookDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebhookDeliveryInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model ContactSettings
    */
 
@@ -34878,7 +38670,13 @@ export namespace Prisma {
     status: 'status',
     totalPrice: 'totalPrice',
     stockReserved: 'stockReserved',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    source: 'source',
+    idempotencyKey: 'idempotencyKey',
+    deliveryMethod: 'deliveryMethod',
+    deliveryRegion: 'deliveryRegion',
+    webhookListenerId: 'webhookListenerId'
   };
 
   export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
@@ -35157,6 +38955,52 @@ export namespace Prisma {
   };
 
   export type ShippingSettingsScalarFieldEnum = (typeof ShippingSettingsScalarFieldEnum)[keyof typeof ShippingSettingsScalarFieldEnum]
+
+
+  export const LigattoAgentScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    token: 'token',
+    enabled: 'enabled',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type LigattoAgentScalarFieldEnum = (typeof LigattoAgentScalarFieldEnum)[keyof typeof LigattoAgentScalarFieldEnum]
+
+
+  export const WebhookEndpointScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    url: 'url',
+    event: 'event',
+    headers: 'headers',
+    requiresListenerId: 'requiresListenerId',
+    enabled: 'enabled',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type WebhookEndpointScalarFieldEnum = (typeof WebhookEndpointScalarFieldEnum)[keyof typeof WebhookEndpointScalarFieldEnum]
+
+
+  export const WebhookDeliveryScalarFieldEnum: {
+    id: 'id',
+    deliveryId: 'deliveryId',
+    endpointId: 'endpointId',
+    event: 'event',
+    orderId: 'orderId',
+    shipmentId: 'shipmentId',
+    status: 'status',
+    attempts: 'attempts',
+    httpStatus: 'httpStatus',
+    error: 'error',
+    payload: 'payload',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type WebhookDeliveryScalarFieldEnum = (typeof WebhookDeliveryScalarFieldEnum)[keyof typeof WebhookDeliveryScalarFieldEnum]
 
 
   export const ContactSettingsScalarFieldEnum: {
@@ -35960,6 +39804,12 @@ export namespace Prisma {
     totalPrice?: DecimalFilter<"Order"> | Decimal | DecimalJsLike | number | string
     stockReserved?: BoolFilter<"Order"> | boolean
     createdAt?: DateTimeFilter<"Order"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"Order"> | Date | string | null
+    source?: StringFilter<"Order"> | string
+    idempotencyKey?: StringNullableFilter<"Order"> | string | null
+    deliveryMethod?: StringNullableFilter<"Order"> | string | null
+    deliveryRegion?: StringNullableFilter<"Order"> | string | null
+    webhookListenerId?: StringNullableFilter<"Order"> | string | null
     items?: OrderItemListRelationFilter
     shipments?: ShipmentListRelationFilter
   }
@@ -35978,12 +39828,19 @@ export namespace Prisma {
     totalPrice?: SortOrder
     stockReserved?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    source?: SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
+    deliveryMethod?: SortOrderInput | SortOrder
+    deliveryRegion?: SortOrderInput | SortOrder
+    webhookListenerId?: SortOrderInput | SortOrder
     items?: OrderItemOrderByRelationAggregateInput
     shipments?: ShipmentOrderByRelationAggregateInput
   }
 
   export type OrderWhereUniqueInput = Prisma.AtLeast<{
     id?: number
+    idempotencyKey?: string
     AND?: OrderWhereInput | OrderWhereInput[]
     OR?: OrderWhereInput[]
     NOT?: OrderWhereInput | OrderWhereInput[]
@@ -35999,9 +39856,14 @@ export namespace Prisma {
     totalPrice?: DecimalFilter<"Order"> | Decimal | DecimalJsLike | number | string
     stockReserved?: BoolFilter<"Order"> | boolean
     createdAt?: DateTimeFilter<"Order"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"Order"> | Date | string | null
+    source?: StringFilter<"Order"> | string
+    deliveryMethod?: StringNullableFilter<"Order"> | string | null
+    deliveryRegion?: StringNullableFilter<"Order"> | string | null
+    webhookListenerId?: StringNullableFilter<"Order"> | string | null
     items?: OrderItemListRelationFilter
     shipments?: ShipmentListRelationFilter
-  }, "id">
+  }, "id" | "idempotencyKey">
 
   export type OrderOrderByWithAggregationInput = {
     id?: SortOrder
@@ -36017,6 +39879,12 @@ export namespace Prisma {
     totalPrice?: SortOrder
     stockReserved?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    source?: SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
+    deliveryMethod?: SortOrderInput | SortOrder
+    deliveryRegion?: SortOrderInput | SortOrder
+    webhookListenerId?: SortOrderInput | SortOrder
     _count?: OrderCountOrderByAggregateInput
     _avg?: OrderAvgOrderByAggregateInput
     _max?: OrderMaxOrderByAggregateInput
@@ -36041,6 +39909,12 @@ export namespace Prisma {
     totalPrice?: DecimalWithAggregatesFilter<"Order"> | Decimal | DecimalJsLike | number | string
     stockReserved?: BoolWithAggregatesFilter<"Order"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
+    updatedAt?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
+    source?: StringWithAggregatesFilter<"Order"> | string
+    idempotencyKey?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    deliveryMethod?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    deliveryRegion?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    webhookListenerId?: StringNullableWithAggregatesFilter<"Order"> | string | null
   }
 
   export type OrderItemWhereInput = {
@@ -37469,6 +41343,239 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"ShippingSettings"> | Date | string
   }
 
+  export type LigattoAgentWhereInput = {
+    AND?: LigattoAgentWhereInput | LigattoAgentWhereInput[]
+    OR?: LigattoAgentWhereInput[]
+    NOT?: LigattoAgentWhereInput | LigattoAgentWhereInput[]
+    id?: IntFilter<"LigattoAgent"> | number
+    name?: StringFilter<"LigattoAgent"> | string
+    token?: StringFilter<"LigattoAgent"> | string
+    enabled?: BoolFilter<"LigattoAgent"> | boolean
+    createdAt?: DateTimeFilter<"LigattoAgent"> | Date | string
+    updatedAt?: DateTimeFilter<"LigattoAgent"> | Date | string
+  }
+
+  export type LigattoAgentOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    token?: SortOrder
+    enabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LigattoAgentWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    name?: string
+    AND?: LigattoAgentWhereInput | LigattoAgentWhereInput[]
+    OR?: LigattoAgentWhereInput[]
+    NOT?: LigattoAgentWhereInput | LigattoAgentWhereInput[]
+    token?: StringFilter<"LigattoAgent"> | string
+    enabled?: BoolFilter<"LigattoAgent"> | boolean
+    createdAt?: DateTimeFilter<"LigattoAgent"> | Date | string
+    updatedAt?: DateTimeFilter<"LigattoAgent"> | Date | string
+  }, "id" | "name">
+
+  export type LigattoAgentOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    token?: SortOrder
+    enabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: LigattoAgentCountOrderByAggregateInput
+    _avg?: LigattoAgentAvgOrderByAggregateInput
+    _max?: LigattoAgentMaxOrderByAggregateInput
+    _min?: LigattoAgentMinOrderByAggregateInput
+    _sum?: LigattoAgentSumOrderByAggregateInput
+  }
+
+  export type LigattoAgentScalarWhereWithAggregatesInput = {
+    AND?: LigattoAgentScalarWhereWithAggregatesInput | LigattoAgentScalarWhereWithAggregatesInput[]
+    OR?: LigattoAgentScalarWhereWithAggregatesInput[]
+    NOT?: LigattoAgentScalarWhereWithAggregatesInput | LigattoAgentScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"LigattoAgent"> | number
+    name?: StringWithAggregatesFilter<"LigattoAgent"> | string
+    token?: StringWithAggregatesFilter<"LigattoAgent"> | string
+    enabled?: BoolWithAggregatesFilter<"LigattoAgent"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"LigattoAgent"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"LigattoAgent"> | Date | string
+  }
+
+  export type WebhookEndpointWhereInput = {
+    AND?: WebhookEndpointWhereInput | WebhookEndpointWhereInput[]
+    OR?: WebhookEndpointWhereInput[]
+    NOT?: WebhookEndpointWhereInput | WebhookEndpointWhereInput[]
+    id?: IntFilter<"WebhookEndpoint"> | number
+    name?: StringFilter<"WebhookEndpoint"> | string
+    url?: StringFilter<"WebhookEndpoint"> | string
+    event?: StringFilter<"WebhookEndpoint"> | string
+    headers?: StringNullableFilter<"WebhookEndpoint"> | string | null
+    requiresListenerId?: BoolFilter<"WebhookEndpoint"> | boolean
+    enabled?: BoolFilter<"WebhookEndpoint"> | boolean
+    createdAt?: DateTimeFilter<"WebhookEndpoint"> | Date | string
+    updatedAt?: DateTimeFilter<"WebhookEndpoint"> | Date | string
+    deliveries?: WebhookDeliveryListRelationFilter
+  }
+
+  export type WebhookEndpointOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    url?: SortOrder
+    event?: SortOrder
+    headers?: SortOrderInput | SortOrder
+    requiresListenerId?: SortOrder
+    enabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    deliveries?: WebhookDeliveryOrderByRelationAggregateInput
+  }
+
+  export type WebhookEndpointWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    name?: string
+    AND?: WebhookEndpointWhereInput | WebhookEndpointWhereInput[]
+    OR?: WebhookEndpointWhereInput[]
+    NOT?: WebhookEndpointWhereInput | WebhookEndpointWhereInput[]
+    url?: StringFilter<"WebhookEndpoint"> | string
+    event?: StringFilter<"WebhookEndpoint"> | string
+    headers?: StringNullableFilter<"WebhookEndpoint"> | string | null
+    requiresListenerId?: BoolFilter<"WebhookEndpoint"> | boolean
+    enabled?: BoolFilter<"WebhookEndpoint"> | boolean
+    createdAt?: DateTimeFilter<"WebhookEndpoint"> | Date | string
+    updatedAt?: DateTimeFilter<"WebhookEndpoint"> | Date | string
+    deliveries?: WebhookDeliveryListRelationFilter
+  }, "id" | "name">
+
+  export type WebhookEndpointOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    url?: SortOrder
+    event?: SortOrder
+    headers?: SortOrderInput | SortOrder
+    requiresListenerId?: SortOrder
+    enabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: WebhookEndpointCountOrderByAggregateInput
+    _avg?: WebhookEndpointAvgOrderByAggregateInput
+    _max?: WebhookEndpointMaxOrderByAggregateInput
+    _min?: WebhookEndpointMinOrderByAggregateInput
+    _sum?: WebhookEndpointSumOrderByAggregateInput
+  }
+
+  export type WebhookEndpointScalarWhereWithAggregatesInput = {
+    AND?: WebhookEndpointScalarWhereWithAggregatesInput | WebhookEndpointScalarWhereWithAggregatesInput[]
+    OR?: WebhookEndpointScalarWhereWithAggregatesInput[]
+    NOT?: WebhookEndpointScalarWhereWithAggregatesInput | WebhookEndpointScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"WebhookEndpoint"> | number
+    name?: StringWithAggregatesFilter<"WebhookEndpoint"> | string
+    url?: StringWithAggregatesFilter<"WebhookEndpoint"> | string
+    event?: StringWithAggregatesFilter<"WebhookEndpoint"> | string
+    headers?: StringNullableWithAggregatesFilter<"WebhookEndpoint"> | string | null
+    requiresListenerId?: BoolWithAggregatesFilter<"WebhookEndpoint"> | boolean
+    enabled?: BoolWithAggregatesFilter<"WebhookEndpoint"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"WebhookEndpoint"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"WebhookEndpoint"> | Date | string
+  }
+
+  export type WebhookDeliveryWhereInput = {
+    AND?: WebhookDeliveryWhereInput | WebhookDeliveryWhereInput[]
+    OR?: WebhookDeliveryWhereInput[]
+    NOT?: WebhookDeliveryWhereInput | WebhookDeliveryWhereInput[]
+    id?: IntFilter<"WebhookDelivery"> | number
+    deliveryId?: StringFilter<"WebhookDelivery"> | string
+    endpointId?: IntFilter<"WebhookDelivery"> | number
+    event?: StringFilter<"WebhookDelivery"> | string
+    orderId?: IntNullableFilter<"WebhookDelivery"> | number | null
+    shipmentId?: IntNullableFilter<"WebhookDelivery"> | number | null
+    status?: StringFilter<"WebhookDelivery"> | string
+    attempts?: IntFilter<"WebhookDelivery"> | number
+    httpStatus?: IntNullableFilter<"WebhookDelivery"> | number | null
+    error?: StringNullableFilter<"WebhookDelivery"> | string | null
+    payload?: JsonNullableFilter<"WebhookDelivery">
+    createdAt?: DateTimeFilter<"WebhookDelivery"> | Date | string
+    updatedAt?: DateTimeFilter<"WebhookDelivery"> | Date | string
+    endpoint?: XOR<WebhookEndpointScalarRelationFilter, WebhookEndpointWhereInput>
+  }
+
+  export type WebhookDeliveryOrderByWithRelationInput = {
+    id?: SortOrder
+    deliveryId?: SortOrder
+    endpointId?: SortOrder
+    event?: SortOrder
+    orderId?: SortOrderInput | SortOrder
+    shipmentId?: SortOrderInput | SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    httpStatus?: SortOrderInput | SortOrder
+    error?: SortOrderInput | SortOrder
+    payload?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    endpoint?: WebhookEndpointOrderByWithRelationInput
+  }
+
+  export type WebhookDeliveryWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    deliveryId?: string
+    AND?: WebhookDeliveryWhereInput | WebhookDeliveryWhereInput[]
+    OR?: WebhookDeliveryWhereInput[]
+    NOT?: WebhookDeliveryWhereInput | WebhookDeliveryWhereInput[]
+    endpointId?: IntFilter<"WebhookDelivery"> | number
+    event?: StringFilter<"WebhookDelivery"> | string
+    orderId?: IntNullableFilter<"WebhookDelivery"> | number | null
+    shipmentId?: IntNullableFilter<"WebhookDelivery"> | number | null
+    status?: StringFilter<"WebhookDelivery"> | string
+    attempts?: IntFilter<"WebhookDelivery"> | number
+    httpStatus?: IntNullableFilter<"WebhookDelivery"> | number | null
+    error?: StringNullableFilter<"WebhookDelivery"> | string | null
+    payload?: JsonNullableFilter<"WebhookDelivery">
+    createdAt?: DateTimeFilter<"WebhookDelivery"> | Date | string
+    updatedAt?: DateTimeFilter<"WebhookDelivery"> | Date | string
+    endpoint?: XOR<WebhookEndpointScalarRelationFilter, WebhookEndpointWhereInput>
+  }, "id" | "deliveryId">
+
+  export type WebhookDeliveryOrderByWithAggregationInput = {
+    id?: SortOrder
+    deliveryId?: SortOrder
+    endpointId?: SortOrder
+    event?: SortOrder
+    orderId?: SortOrderInput | SortOrder
+    shipmentId?: SortOrderInput | SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    httpStatus?: SortOrderInput | SortOrder
+    error?: SortOrderInput | SortOrder
+    payload?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: WebhookDeliveryCountOrderByAggregateInput
+    _avg?: WebhookDeliveryAvgOrderByAggregateInput
+    _max?: WebhookDeliveryMaxOrderByAggregateInput
+    _min?: WebhookDeliveryMinOrderByAggregateInput
+    _sum?: WebhookDeliverySumOrderByAggregateInput
+  }
+
+  export type WebhookDeliveryScalarWhereWithAggregatesInput = {
+    AND?: WebhookDeliveryScalarWhereWithAggregatesInput | WebhookDeliveryScalarWhereWithAggregatesInput[]
+    OR?: WebhookDeliveryScalarWhereWithAggregatesInput[]
+    NOT?: WebhookDeliveryScalarWhereWithAggregatesInput | WebhookDeliveryScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"WebhookDelivery"> | number
+    deliveryId?: StringWithAggregatesFilter<"WebhookDelivery"> | string
+    endpointId?: IntWithAggregatesFilter<"WebhookDelivery"> | number
+    event?: StringWithAggregatesFilter<"WebhookDelivery"> | string
+    orderId?: IntNullableWithAggregatesFilter<"WebhookDelivery"> | number | null
+    shipmentId?: IntNullableWithAggregatesFilter<"WebhookDelivery"> | number | null
+    status?: StringWithAggregatesFilter<"WebhookDelivery"> | string
+    attempts?: IntWithAggregatesFilter<"WebhookDelivery"> | number
+    httpStatus?: IntNullableWithAggregatesFilter<"WebhookDelivery"> | number | null
+    error?: StringNullableWithAggregatesFilter<"WebhookDelivery"> | string | null
+    payload?: JsonNullableWithAggregatesFilter<"WebhookDelivery">
+    createdAt?: DateTimeWithAggregatesFilter<"WebhookDelivery"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"WebhookDelivery"> | Date | string
+  }
+
   export type ContactSettingsWhereInput = {
     AND?: ContactSettingsWhereInput | ContactSettingsWhereInput[]
     OR?: ContactSettingsWhereInput[]
@@ -38571,6 +42678,12 @@ export namespace Prisma {
     totalPrice: Decimal | DecimalJsLike | number | string
     stockReserved?: boolean
     createdAt?: Date | string
+    updatedAt?: Date | string | null
+    source?: string
+    idempotencyKey?: string | null
+    deliveryMethod?: string | null
+    deliveryRegion?: string | null
+    webhookListenerId?: string | null
     items?: OrderItemCreateNestedManyWithoutOrderInput
     shipments?: ShipmentCreateNestedManyWithoutOrderInput
   }
@@ -38589,6 +42702,12 @@ export namespace Prisma {
     totalPrice: Decimal | DecimalJsLike | number | string
     stockReserved?: boolean
     createdAt?: Date | string
+    updatedAt?: Date | string | null
+    source?: string
+    idempotencyKey?: string | null
+    deliveryMethod?: string | null
+    deliveryRegion?: string | null
+    webhookListenerId?: string | null
     items?: OrderItemUncheckedCreateNestedManyWithoutOrderInput
     shipments?: ShipmentUncheckedCreateNestedManyWithoutOrderInput
   }
@@ -38606,6 +42725,12 @@ export namespace Prisma {
     totalPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     stockReserved?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    source?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryRegion?: NullableStringFieldUpdateOperationsInput | string | null
+    webhookListenerId?: NullableStringFieldUpdateOperationsInput | string | null
     items?: OrderItemUpdateManyWithoutOrderNestedInput
     shipments?: ShipmentUpdateManyWithoutOrderNestedInput
   }
@@ -38624,6 +42749,12 @@ export namespace Prisma {
     totalPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     stockReserved?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    source?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryRegion?: NullableStringFieldUpdateOperationsInput | string | null
+    webhookListenerId?: NullableStringFieldUpdateOperationsInput | string | null
     items?: OrderItemUncheckedUpdateManyWithoutOrderNestedInput
     shipments?: ShipmentUncheckedUpdateManyWithoutOrderNestedInput
   }
@@ -38642,6 +42773,12 @@ export namespace Prisma {
     totalPrice: Decimal | DecimalJsLike | number | string
     stockReserved?: boolean
     createdAt?: Date | string
+    updatedAt?: Date | string | null
+    source?: string
+    idempotencyKey?: string | null
+    deliveryMethod?: string | null
+    deliveryRegion?: string | null
+    webhookListenerId?: string | null
   }
 
   export type OrderUpdateManyMutationInput = {
@@ -38657,6 +42794,12 @@ export namespace Prisma {
     totalPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     stockReserved?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    source?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryRegion?: NullableStringFieldUpdateOperationsInput | string | null
+    webhookListenerId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OrderUncheckedUpdateManyInput = {
@@ -38673,6 +42816,12 @@ export namespace Prisma {
     totalPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     stockReserved?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    source?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryRegion?: NullableStringFieldUpdateOperationsInput | string | null
+    webhookListenerId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OrderItemCreateInput = {
@@ -40268,6 +44417,259 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type LigattoAgentCreateInput = {
+    name: string
+    token: string
+    enabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LigattoAgentUncheckedCreateInput = {
+    id?: number
+    name: string
+    token: string
+    enabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LigattoAgentUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LigattoAgentUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LigattoAgentCreateManyInput = {
+    id?: number
+    name: string
+    token: string
+    enabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LigattoAgentUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LigattoAgentUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebhookEndpointCreateInput = {
+    name: string
+    url: string
+    event?: string
+    headers?: string | null
+    requiresListenerId?: boolean
+    enabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deliveries?: WebhookDeliveryCreateNestedManyWithoutEndpointInput
+  }
+
+  export type WebhookEndpointUncheckedCreateInput = {
+    id?: number
+    name: string
+    url: string
+    event?: string
+    headers?: string | null
+    requiresListenerId?: boolean
+    enabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deliveries?: WebhookDeliveryUncheckedCreateNestedManyWithoutEndpointInput
+  }
+
+  export type WebhookEndpointUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    headers?: NullableStringFieldUpdateOperationsInput | string | null
+    requiresListenerId?: BoolFieldUpdateOperationsInput | boolean
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deliveries?: WebhookDeliveryUpdateManyWithoutEndpointNestedInput
+  }
+
+  export type WebhookEndpointUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    headers?: NullableStringFieldUpdateOperationsInput | string | null
+    requiresListenerId?: BoolFieldUpdateOperationsInput | boolean
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deliveries?: WebhookDeliveryUncheckedUpdateManyWithoutEndpointNestedInput
+  }
+
+  export type WebhookEndpointCreateManyInput = {
+    id?: number
+    name: string
+    url: string
+    event?: string
+    headers?: string | null
+    requiresListenerId?: boolean
+    enabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WebhookEndpointUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    headers?: NullableStringFieldUpdateOperationsInput | string | null
+    requiresListenerId?: BoolFieldUpdateOperationsInput | boolean
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebhookEndpointUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    headers?: NullableStringFieldUpdateOperationsInput | string | null
+    requiresListenerId?: BoolFieldUpdateOperationsInput | boolean
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebhookDeliveryCreateInput = {
+    deliveryId: string
+    event: string
+    orderId?: number | null
+    shipmentId?: number | null
+    status?: string
+    attempts?: number
+    httpStatus?: number | null
+    error?: string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    endpoint: WebhookEndpointCreateNestedOneWithoutDeliveriesInput
+  }
+
+  export type WebhookDeliveryUncheckedCreateInput = {
+    id?: number
+    deliveryId: string
+    endpointId: number
+    event: string
+    orderId?: number | null
+    shipmentId?: number | null
+    status?: string
+    attempts?: number
+    httpStatus?: number | null
+    error?: string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WebhookDeliveryUpdateInput = {
+    deliveryId?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    orderId?: NullableIntFieldUpdateOperationsInput | number | null
+    shipmentId?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    httpStatus?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endpoint?: WebhookEndpointUpdateOneRequiredWithoutDeliveriesNestedInput
+  }
+
+  export type WebhookDeliveryUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    deliveryId?: StringFieldUpdateOperationsInput | string
+    endpointId?: IntFieldUpdateOperationsInput | number
+    event?: StringFieldUpdateOperationsInput | string
+    orderId?: NullableIntFieldUpdateOperationsInput | number | null
+    shipmentId?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    httpStatus?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebhookDeliveryCreateManyInput = {
+    id?: number
+    deliveryId: string
+    endpointId: number
+    event: string
+    orderId?: number | null
+    shipmentId?: number | null
+    status?: string
+    attempts?: number
+    httpStatus?: number | null
+    error?: string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WebhookDeliveryUpdateManyMutationInput = {
+    deliveryId?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    orderId?: NullableIntFieldUpdateOperationsInput | number | null
+    shipmentId?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    httpStatus?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebhookDeliveryUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    deliveryId?: StringFieldUpdateOperationsInput | string
+    endpointId?: IntFieldUpdateOperationsInput | number
+    event?: StringFieldUpdateOperationsInput | string
+    orderId?: NullableIntFieldUpdateOperationsInput | number | null
+    shipmentId?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    httpStatus?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ContactSettingsCreateInput = {
     phone?: string
     email?: string
@@ -41593,6 +45995,12 @@ export namespace Prisma {
     totalPrice?: SortOrder
     stockReserved?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
+    source?: SortOrder
+    idempotencyKey?: SortOrder
+    deliveryMethod?: SortOrder
+    deliveryRegion?: SortOrder
+    webhookListenerId?: SortOrder
   }
 
   export type OrderAvgOrderByAggregateInput = {
@@ -41614,6 +46022,12 @@ export namespace Prisma {
     totalPrice?: SortOrder
     stockReserved?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
+    source?: SortOrder
+    idempotencyKey?: SortOrder
+    deliveryMethod?: SortOrder
+    deliveryRegion?: SortOrder
+    webhookListenerId?: SortOrder
   }
 
   export type OrderMinOrderByAggregateInput = {
@@ -41630,6 +46044,12 @@ export namespace Prisma {
     totalPrice?: SortOrder
     stockReserved?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
+    source?: SortOrder
+    idempotencyKey?: SortOrder
+    deliveryMethod?: SortOrder
+    deliveryRegion?: SortOrder
+    webhookListenerId?: SortOrder
   }
 
   export type OrderSumOrderByAggregateInput = {
@@ -42602,6 +47022,164 @@ export namespace Prisma {
     fancourierParcelLengthCm?: SortOrder
     fancourierParcelWidthCm?: SortOrder
     fancourierParcelHeightCm?: SortOrder
+  }
+
+  export type LigattoAgentCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    token?: SortOrder
+    enabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LigattoAgentAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type LigattoAgentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    token?: SortOrder
+    enabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LigattoAgentMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    token?: SortOrder
+    enabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LigattoAgentSumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type WebhookDeliveryListRelationFilter = {
+    every?: WebhookDeliveryWhereInput
+    some?: WebhookDeliveryWhereInput
+    none?: WebhookDeliveryWhereInput
+  }
+
+  export type WebhookDeliveryOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type WebhookEndpointCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    url?: SortOrder
+    event?: SortOrder
+    headers?: SortOrder
+    requiresListenerId?: SortOrder
+    enabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WebhookEndpointAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type WebhookEndpointMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    url?: SortOrder
+    event?: SortOrder
+    headers?: SortOrder
+    requiresListenerId?: SortOrder
+    enabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WebhookEndpointMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    url?: SortOrder
+    event?: SortOrder
+    headers?: SortOrder
+    requiresListenerId?: SortOrder
+    enabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WebhookEndpointSumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type WebhookEndpointScalarRelationFilter = {
+    is?: WebhookEndpointWhereInput
+    isNot?: WebhookEndpointWhereInput
+  }
+
+  export type WebhookDeliveryCountOrderByAggregateInput = {
+    id?: SortOrder
+    deliveryId?: SortOrder
+    endpointId?: SortOrder
+    event?: SortOrder
+    orderId?: SortOrder
+    shipmentId?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    httpStatus?: SortOrder
+    error?: SortOrder
+    payload?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WebhookDeliveryAvgOrderByAggregateInput = {
+    id?: SortOrder
+    endpointId?: SortOrder
+    orderId?: SortOrder
+    shipmentId?: SortOrder
+    attempts?: SortOrder
+    httpStatus?: SortOrder
+  }
+
+  export type WebhookDeliveryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    deliveryId?: SortOrder
+    endpointId?: SortOrder
+    event?: SortOrder
+    orderId?: SortOrder
+    shipmentId?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    httpStatus?: SortOrder
+    error?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WebhookDeliveryMinOrderByAggregateInput = {
+    id?: SortOrder
+    deliveryId?: SortOrder
+    endpointId?: SortOrder
+    event?: SortOrder
+    orderId?: SortOrder
+    shipmentId?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    httpStatus?: SortOrder
+    error?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WebhookDeliverySumOrderByAggregateInput = {
+    id?: SortOrder
+    endpointId?: SortOrder
+    orderId?: SortOrder
+    shipmentId?: SortOrder
+    attempts?: SortOrder
+    httpStatus?: SortOrder
   }
 
   export type FloatNullableFilter<$PrismaModel = never> = {
@@ -44115,6 +48693,62 @@ export namespace Prisma {
   export type ProductPageSettingsUpdateperks_ruInput = {
     set?: string[]
     push?: string | string[]
+  }
+
+  export type WebhookDeliveryCreateNestedManyWithoutEndpointInput = {
+    create?: XOR<WebhookDeliveryCreateWithoutEndpointInput, WebhookDeliveryUncheckedCreateWithoutEndpointInput> | WebhookDeliveryCreateWithoutEndpointInput[] | WebhookDeliveryUncheckedCreateWithoutEndpointInput[]
+    connectOrCreate?: WebhookDeliveryCreateOrConnectWithoutEndpointInput | WebhookDeliveryCreateOrConnectWithoutEndpointInput[]
+    createMany?: WebhookDeliveryCreateManyEndpointInputEnvelope
+    connect?: WebhookDeliveryWhereUniqueInput | WebhookDeliveryWhereUniqueInput[]
+  }
+
+  export type WebhookDeliveryUncheckedCreateNestedManyWithoutEndpointInput = {
+    create?: XOR<WebhookDeliveryCreateWithoutEndpointInput, WebhookDeliveryUncheckedCreateWithoutEndpointInput> | WebhookDeliveryCreateWithoutEndpointInput[] | WebhookDeliveryUncheckedCreateWithoutEndpointInput[]
+    connectOrCreate?: WebhookDeliveryCreateOrConnectWithoutEndpointInput | WebhookDeliveryCreateOrConnectWithoutEndpointInput[]
+    createMany?: WebhookDeliveryCreateManyEndpointInputEnvelope
+    connect?: WebhookDeliveryWhereUniqueInput | WebhookDeliveryWhereUniqueInput[]
+  }
+
+  export type WebhookDeliveryUpdateManyWithoutEndpointNestedInput = {
+    create?: XOR<WebhookDeliveryCreateWithoutEndpointInput, WebhookDeliveryUncheckedCreateWithoutEndpointInput> | WebhookDeliveryCreateWithoutEndpointInput[] | WebhookDeliveryUncheckedCreateWithoutEndpointInput[]
+    connectOrCreate?: WebhookDeliveryCreateOrConnectWithoutEndpointInput | WebhookDeliveryCreateOrConnectWithoutEndpointInput[]
+    upsert?: WebhookDeliveryUpsertWithWhereUniqueWithoutEndpointInput | WebhookDeliveryUpsertWithWhereUniqueWithoutEndpointInput[]
+    createMany?: WebhookDeliveryCreateManyEndpointInputEnvelope
+    set?: WebhookDeliveryWhereUniqueInput | WebhookDeliveryWhereUniqueInput[]
+    disconnect?: WebhookDeliveryWhereUniqueInput | WebhookDeliveryWhereUniqueInput[]
+    delete?: WebhookDeliveryWhereUniqueInput | WebhookDeliveryWhereUniqueInput[]
+    connect?: WebhookDeliveryWhereUniqueInput | WebhookDeliveryWhereUniqueInput[]
+    update?: WebhookDeliveryUpdateWithWhereUniqueWithoutEndpointInput | WebhookDeliveryUpdateWithWhereUniqueWithoutEndpointInput[]
+    updateMany?: WebhookDeliveryUpdateManyWithWhereWithoutEndpointInput | WebhookDeliveryUpdateManyWithWhereWithoutEndpointInput[]
+    deleteMany?: WebhookDeliveryScalarWhereInput | WebhookDeliveryScalarWhereInput[]
+  }
+
+  export type WebhookDeliveryUncheckedUpdateManyWithoutEndpointNestedInput = {
+    create?: XOR<WebhookDeliveryCreateWithoutEndpointInput, WebhookDeliveryUncheckedCreateWithoutEndpointInput> | WebhookDeliveryCreateWithoutEndpointInput[] | WebhookDeliveryUncheckedCreateWithoutEndpointInput[]
+    connectOrCreate?: WebhookDeliveryCreateOrConnectWithoutEndpointInput | WebhookDeliveryCreateOrConnectWithoutEndpointInput[]
+    upsert?: WebhookDeliveryUpsertWithWhereUniqueWithoutEndpointInput | WebhookDeliveryUpsertWithWhereUniqueWithoutEndpointInput[]
+    createMany?: WebhookDeliveryCreateManyEndpointInputEnvelope
+    set?: WebhookDeliveryWhereUniqueInput | WebhookDeliveryWhereUniqueInput[]
+    disconnect?: WebhookDeliveryWhereUniqueInput | WebhookDeliveryWhereUniqueInput[]
+    delete?: WebhookDeliveryWhereUniqueInput | WebhookDeliveryWhereUniqueInput[]
+    connect?: WebhookDeliveryWhereUniqueInput | WebhookDeliveryWhereUniqueInput[]
+    update?: WebhookDeliveryUpdateWithWhereUniqueWithoutEndpointInput | WebhookDeliveryUpdateWithWhereUniqueWithoutEndpointInput[]
+    updateMany?: WebhookDeliveryUpdateManyWithWhereWithoutEndpointInput | WebhookDeliveryUpdateManyWithWhereWithoutEndpointInput[]
+    deleteMany?: WebhookDeliveryScalarWhereInput | WebhookDeliveryScalarWhereInput[]
+  }
+
+  export type WebhookEndpointCreateNestedOneWithoutDeliveriesInput = {
+    create?: XOR<WebhookEndpointCreateWithoutDeliveriesInput, WebhookEndpointUncheckedCreateWithoutDeliveriesInput>
+    connectOrCreate?: WebhookEndpointCreateOrConnectWithoutDeliveriesInput
+    connect?: WebhookEndpointWhereUniqueInput
+  }
+
+  export type WebhookEndpointUpdateOneRequiredWithoutDeliveriesNestedInput = {
+    create?: XOR<WebhookEndpointCreateWithoutDeliveriesInput, WebhookEndpointUncheckedCreateWithoutDeliveriesInput>
+    connectOrCreate?: WebhookEndpointCreateOrConnectWithoutDeliveriesInput
+    upsert?: WebhookEndpointUpsertWithoutDeliveriesInput
+    connect?: WebhookEndpointWhereUniqueInput
+    update?: XOR<XOR<WebhookEndpointUpdateToOneWithWhereWithoutDeliveriesInput, WebhookEndpointUpdateWithoutDeliveriesInput>, WebhookEndpointUncheckedUpdateWithoutDeliveriesInput>
   }
 
   export type NullableFloatFieldUpdateOperationsInput = {
@@ -45772,6 +50406,12 @@ export namespace Prisma {
     totalPrice: Decimal | DecimalJsLike | number | string
     stockReserved?: boolean
     createdAt?: Date | string
+    updatedAt?: Date | string | null
+    source?: string
+    idempotencyKey?: string | null
+    deliveryMethod?: string | null
+    deliveryRegion?: string | null
+    webhookListenerId?: string | null
     shipments?: ShipmentCreateNestedManyWithoutOrderInput
   }
 
@@ -45789,6 +50429,12 @@ export namespace Prisma {
     totalPrice: Decimal | DecimalJsLike | number | string
     stockReserved?: boolean
     createdAt?: Date | string
+    updatedAt?: Date | string | null
+    source?: string
+    idempotencyKey?: string | null
+    deliveryMethod?: string | null
+    deliveryRegion?: string | null
+    webhookListenerId?: string | null
     shipments?: ShipmentUncheckedCreateNestedManyWithoutOrderInput
   }
 
@@ -46017,6 +50663,12 @@ export namespace Prisma {
     totalPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     stockReserved?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    source?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryRegion?: NullableStringFieldUpdateOperationsInput | string | null
+    webhookListenerId?: NullableStringFieldUpdateOperationsInput | string | null
     shipments?: ShipmentUpdateManyWithoutOrderNestedInput
   }
 
@@ -46034,6 +50686,12 @@ export namespace Prisma {
     totalPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     stockReserved?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    source?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryRegion?: NullableStringFieldUpdateOperationsInput | string | null
+    webhookListenerId?: NullableStringFieldUpdateOperationsInput | string | null
     shipments?: ShipmentUncheckedUpdateManyWithoutOrderNestedInput
   }
 
@@ -46270,6 +50928,12 @@ export namespace Prisma {
     totalPrice: Decimal | DecimalJsLike | number | string
     stockReserved?: boolean
     createdAt?: Date | string
+    updatedAt?: Date | string | null
+    source?: string
+    idempotencyKey?: string | null
+    deliveryMethod?: string | null
+    deliveryRegion?: string | null
+    webhookListenerId?: string | null
     items?: OrderItemCreateNestedManyWithoutOrderInput
   }
 
@@ -46287,6 +50951,12 @@ export namespace Prisma {
     totalPrice: Decimal | DecimalJsLike | number | string
     stockReserved?: boolean
     createdAt?: Date | string
+    updatedAt?: Date | string | null
+    source?: string
+    idempotencyKey?: string | null
+    deliveryMethod?: string | null
+    deliveryRegion?: string | null
+    webhookListenerId?: string | null
     items?: OrderItemUncheckedCreateNestedManyWithoutOrderInput
   }
 
@@ -46319,6 +50989,12 @@ export namespace Prisma {
     totalPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     stockReserved?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    source?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryRegion?: NullableStringFieldUpdateOperationsInput | string | null
+    webhookListenerId?: NullableStringFieldUpdateOperationsInput | string | null
     items?: OrderItemUpdateManyWithoutOrderNestedInput
   }
 
@@ -46336,6 +51012,12 @@ export namespace Prisma {
     totalPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     stockReserved?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    source?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryRegion?: NullableStringFieldUpdateOperationsInput | string | null
+    webhookListenerId?: NullableStringFieldUpdateOperationsInput | string | null
     items?: OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   }
 
@@ -47581,6 +52263,142 @@ export namespace Prisma {
   export type RentalPackageUpdateManyWithWhereWithoutPromotionsInput = {
     where: RentalPackageScalarWhereInput
     data: XOR<RentalPackageUpdateManyMutationInput, RentalPackageUncheckedUpdateManyWithoutPromotionsInput>
+  }
+
+  export type WebhookDeliveryCreateWithoutEndpointInput = {
+    deliveryId: string
+    event: string
+    orderId?: number | null
+    shipmentId?: number | null
+    status?: string
+    attempts?: number
+    httpStatus?: number | null
+    error?: string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WebhookDeliveryUncheckedCreateWithoutEndpointInput = {
+    id?: number
+    deliveryId: string
+    event: string
+    orderId?: number | null
+    shipmentId?: number | null
+    status?: string
+    attempts?: number
+    httpStatus?: number | null
+    error?: string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WebhookDeliveryCreateOrConnectWithoutEndpointInput = {
+    where: WebhookDeliveryWhereUniqueInput
+    create: XOR<WebhookDeliveryCreateWithoutEndpointInput, WebhookDeliveryUncheckedCreateWithoutEndpointInput>
+  }
+
+  export type WebhookDeliveryCreateManyEndpointInputEnvelope = {
+    data: WebhookDeliveryCreateManyEndpointInput | WebhookDeliveryCreateManyEndpointInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type WebhookDeliveryUpsertWithWhereUniqueWithoutEndpointInput = {
+    where: WebhookDeliveryWhereUniqueInput
+    update: XOR<WebhookDeliveryUpdateWithoutEndpointInput, WebhookDeliveryUncheckedUpdateWithoutEndpointInput>
+    create: XOR<WebhookDeliveryCreateWithoutEndpointInput, WebhookDeliveryUncheckedCreateWithoutEndpointInput>
+  }
+
+  export type WebhookDeliveryUpdateWithWhereUniqueWithoutEndpointInput = {
+    where: WebhookDeliveryWhereUniqueInput
+    data: XOR<WebhookDeliveryUpdateWithoutEndpointInput, WebhookDeliveryUncheckedUpdateWithoutEndpointInput>
+  }
+
+  export type WebhookDeliveryUpdateManyWithWhereWithoutEndpointInput = {
+    where: WebhookDeliveryScalarWhereInput
+    data: XOR<WebhookDeliveryUpdateManyMutationInput, WebhookDeliveryUncheckedUpdateManyWithoutEndpointInput>
+  }
+
+  export type WebhookDeliveryScalarWhereInput = {
+    AND?: WebhookDeliveryScalarWhereInput | WebhookDeliveryScalarWhereInput[]
+    OR?: WebhookDeliveryScalarWhereInput[]
+    NOT?: WebhookDeliveryScalarWhereInput | WebhookDeliveryScalarWhereInput[]
+    id?: IntFilter<"WebhookDelivery"> | number
+    deliveryId?: StringFilter<"WebhookDelivery"> | string
+    endpointId?: IntFilter<"WebhookDelivery"> | number
+    event?: StringFilter<"WebhookDelivery"> | string
+    orderId?: IntNullableFilter<"WebhookDelivery"> | number | null
+    shipmentId?: IntNullableFilter<"WebhookDelivery"> | number | null
+    status?: StringFilter<"WebhookDelivery"> | string
+    attempts?: IntFilter<"WebhookDelivery"> | number
+    httpStatus?: IntNullableFilter<"WebhookDelivery"> | number | null
+    error?: StringNullableFilter<"WebhookDelivery"> | string | null
+    payload?: JsonNullableFilter<"WebhookDelivery">
+    createdAt?: DateTimeFilter<"WebhookDelivery"> | Date | string
+    updatedAt?: DateTimeFilter<"WebhookDelivery"> | Date | string
+  }
+
+  export type WebhookEndpointCreateWithoutDeliveriesInput = {
+    name: string
+    url: string
+    event?: string
+    headers?: string | null
+    requiresListenerId?: boolean
+    enabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WebhookEndpointUncheckedCreateWithoutDeliveriesInput = {
+    id?: number
+    name: string
+    url: string
+    event?: string
+    headers?: string | null
+    requiresListenerId?: boolean
+    enabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WebhookEndpointCreateOrConnectWithoutDeliveriesInput = {
+    where: WebhookEndpointWhereUniqueInput
+    create: XOR<WebhookEndpointCreateWithoutDeliveriesInput, WebhookEndpointUncheckedCreateWithoutDeliveriesInput>
+  }
+
+  export type WebhookEndpointUpsertWithoutDeliveriesInput = {
+    update: XOR<WebhookEndpointUpdateWithoutDeliveriesInput, WebhookEndpointUncheckedUpdateWithoutDeliveriesInput>
+    create: XOR<WebhookEndpointCreateWithoutDeliveriesInput, WebhookEndpointUncheckedCreateWithoutDeliveriesInput>
+    where?: WebhookEndpointWhereInput
+  }
+
+  export type WebhookEndpointUpdateToOneWithWhereWithoutDeliveriesInput = {
+    where?: WebhookEndpointWhereInput
+    data: XOR<WebhookEndpointUpdateWithoutDeliveriesInput, WebhookEndpointUncheckedUpdateWithoutDeliveriesInput>
+  }
+
+  export type WebhookEndpointUpdateWithoutDeliveriesInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    headers?: NullableStringFieldUpdateOperationsInput | string | null
+    requiresListenerId?: BoolFieldUpdateOperationsInput | boolean
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebhookEndpointUncheckedUpdateWithoutDeliveriesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    headers?: NullableStringFieldUpdateOperationsInput | string | null
+    requiresListenerId?: BoolFieldUpdateOperationsInput | boolean
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProductCreateWithoutReviewsInput = {
@@ -48833,6 +53651,65 @@ export namespace Prisma {
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebhookDeliveryCreateManyEndpointInput = {
+    id?: number
+    deliveryId: string
+    event: string
+    orderId?: number | null
+    shipmentId?: number | null
+    status?: string
+    attempts?: number
+    httpStatus?: number | null
+    error?: string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WebhookDeliveryUpdateWithoutEndpointInput = {
+    deliveryId?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    orderId?: NullableIntFieldUpdateOperationsInput | number | null
+    shipmentId?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    httpStatus?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebhookDeliveryUncheckedUpdateWithoutEndpointInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    deliveryId?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    orderId?: NullableIntFieldUpdateOperationsInput | number | null
+    shipmentId?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    httpStatus?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebhookDeliveryUncheckedUpdateManyWithoutEndpointInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    deliveryId?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    orderId?: NullableIntFieldUpdateOperationsInput | number | null
+    shipmentId?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    httpStatus?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    payload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

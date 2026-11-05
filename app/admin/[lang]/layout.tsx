@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { TRANSLATE_GUARD_SCRIPT } from "@/lib/translate-guard";
 import { notFound } from "next/navigation";
 import { Fraunces, Hanken_Grotesk, Geist_Mono } from "next/font/google";
 import { isLocale, LOCALES } from "@/lib/i18n/routing";
@@ -53,10 +52,11 @@ export default async function AdminRootLayout({
       translate="no"
       className={`${fraunces.variable} ${hanken.variable} ${geistMono.variable} antialiased`}
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: TRANSLATE_GUARD_SCRIPT }} />
-      </head>
       <body className="min-h-screen">
+        {/* Guards against browser page-translators crashing React. Async + src so
+            React 19 hoists it to <head> as a resource (an inline/executable script
+            in the tree warns in dev); see public/translate-guard.js. */}
+        <script async src="/translate-guard.js" />
         <AdminLanguageProvider lang={lang}>{children}</AdminLanguageProvider>
       </body>
     </html>
