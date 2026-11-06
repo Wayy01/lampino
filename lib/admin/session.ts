@@ -1,8 +1,10 @@
 // Stateless admin session: an HMAC-signed, expiring payload in an httpOnly
 // cookie. No DB hit per request; rotating ADMIN_SESSION_SECRET logs everyone out.
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
 
 const COOKIE = "lampino-admin";
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 7; // one week
@@ -76,15 +78,38 @@ export async function destroyAdminSession(): Promise<void> {
   store.delete(COOKIE);
 }
 
-export async function getAdminSession(): Promise<AdminSession | null> {
+/**
+ * The signed cookie, confirmed against the user table: a deleted account loses
+ * access at once instead of when its cookie expires, and a role change applies
+ * on the next request. One primary-key lookup, deduplicated per request.
+ */
+export const getAdminSession = cache(async (): Promise<AdminSession | null> => {
   const store = await cookies();
   const token = store.get(COOKIE)?.value;
-  return token ? decode(token) : null;
+  const session = token ? decode(token) : null;
+  if (!session) return null;
+  const user = await prisma.adminUser.findUnique({
+    where: { id: session.userId },
+    select: { username: true, role: true },
+  });
+  return user ? { ...session, username: user.username, role: user.role } : null;
+});
+
+/** Roles allowed to manage admin accounts. `superadmin` is the original owner account. */
+export function canManageUsers(role: string): boolean {
+  return role === "admin" || role === "superadmin";
 }
 
 /** Guard for admin pages and server actions: redirects to the login screen. */
 export async function requireAdmin(lang: string = "ro"): Promise<AdminSession> {
   const session = await getAdminSession();
   if (!session) redirect(`/admin/${lang}/login`);
+  return session;
+}
+
+/** `requireAdmin` plus the user-management role; others go to the dashboard. */
+export async function requireUserManager(lang: string = "ro"): Promise<AdminSession> {
+  const session = await requireAdmin(lang);
+  if (!canManageUsers(session.role)) redirect(`/admin/${lang}`);
   return session;
 }

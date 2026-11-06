@@ -146,8 +146,11 @@ const ro = {
     cannotDeleteSelf: "Nu îți poți șterge propriul cont.",
     cannotDeleteLastAdmin:
       "Nu poți șterge ultimul cont de administrator, altfel ai rămâne fără acces.",
+    superadminProtected: "Doar proprietarul (superadmin) poate modifica sau șterge acest cont.",
+    orderChanged:
+      "Comanda a fost modificată între timp în altă filă. Reîncarcă pagina și încearcă din nou.",
     insufficientStock:
-      "Stocul nu mai ajunge pentru produsele din această comandă, deci nu poate fi reactivată.",
+      "Stocul nu mai ajunge pentru produsele din această comandă, deci nu poate fi confirmată. Ajustează stocul sau comanda și încearcă din nou.",
     relationMissing:
       "Categoria sau promoția aleasă nu mai există, probabil a fost ștearsă în altă filă. Reîncarcă pagina și alege din nou.",
     invalidMediaUrl:
@@ -613,6 +616,7 @@ const ro = {
     role: "Rol",
     roleAdmin: "Administrator",
     roleEditor: "Editor",
+    roleOwner: "Proprietar",
     lastLogin: "Ultima autentificare",
     never: "Niciodată",
     you: "Tu",
@@ -772,8 +776,11 @@ const ru: AdminDict = {
     cannotDeleteSelf: "Нельзя удалить собственную учётную запись.",
     cannotDeleteLastAdmin:
       "Нельзя удалить последнего администратора, иначе вы потеряете доступ.",
+    superadminProtected: "Только владелец (superadmin) может изменить или удалить эту учётную запись.",
+    orderChanged:
+      "Заказ был изменён в другой вкладке. Перезагрузите страницу и попробуйте снова.",
     insufficientStock:
-      "Товара на складе больше не хватает для этого заказа, поэтому его нельзя вернуть в работу.",
+      "Товара на складе не хватает для этого заказа, поэтому его нельзя подтвердить. Исправьте запас или заказ и попробуйте снова.",
     relationMissing:
       "Выбранная категория или акция больше не существует, вероятно, её удалили в другой вкладке. Перезагрузите страницу и выберите снова.",
     invalidMediaUrl:
@@ -1237,6 +1244,7 @@ const ru: AdminDict = {
     role: "Роль",
     roleAdmin: "Администратор",
     roleEditor: "Редактор",
+    roleOwner: "Владелец",
     lastLogin: "Последний вход",
     never: "Никогда",
     you: "Вы",

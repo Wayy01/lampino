@@ -16,6 +16,8 @@ export type RefusalKey =
   | "sourceMissing"
   | "cannotDeleteSelf"
   | "cannotDeleteLastAdmin"
+  | "superadminProtected"
+  | "orderChanged"
   | "insufficientStock"
   | "relationMissing";
 

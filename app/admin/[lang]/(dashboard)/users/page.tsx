@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/admin/session";
+import { requireUserManager } from "@/lib/admin/session";
 import { getAdminDict, type AdminLang } from "@/lib/admin/i18n";
 import { isLocale } from "@/lib/i18n/routing";
 import { formatDate, formatDateTime } from "@/lib/admin/serialize";
@@ -13,7 +13,7 @@ export default async function AdminUsersPage({
 }) {
   const { lang: rawLang } = await params;
   const lang: AdminLang = isLocale(rawLang) ? rawLang : "ro";
-  const session = await requireAdmin(lang);
+  const session = await requireUserManager(lang);
   const t = getAdminDict(lang);
 
   // Never select `password` — this data crosses into a client component.
