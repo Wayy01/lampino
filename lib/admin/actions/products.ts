@@ -287,8 +287,8 @@ export async function updateProduct(
     const promotions = await promotionLinks(parsed.promotionIds);
 
     // Moving to another category puts the product at the end of that one.
-    const before = await prisma.product.findUnique({
-      where: { id },
+    const before = await prisma.product.findFirst({
+      where: { id, deletedAt: null },
       select: { categoryId: true },
     });
     if (!before) return { error: getAdminDict(lang).errors.recordMissing };
@@ -302,8 +302,9 @@ export async function updateProduct(
       .filter((v): v is number => v !== null);
 
     await prisma.$transaction([
+      // `deletedAt: null`: a stale tab must not resurrect a deleted product.
       prisma.product.update({
-        where: { id },
+        where: { id, deletedAt: null },
         data: { ...parsed.scalars, categoryOrder, promotions: { set: promotions } },
       }),
       // Images and videos carry no foreign keys — rebuild them wholesale.
@@ -382,7 +383,7 @@ export async function setProductActive(
 ): Promise<ActionResult> {
   await requireAdmin(lang);
   return runAction(lang, async () => {
-    await prisma.product.update({ where: { id }, data: { isActive } });
+    await prisma.product.update({ where: { id, deletedAt: null }, data: { isActive } });
     revalidateProducts();
   });
 }
@@ -394,7 +395,7 @@ export async function setProductFeatured(
 ): Promise<ActionResult> {
   await requireAdmin(lang);
   return runAction(lang, async () => {
-    await prisma.product.update({ where: { id }, data: { featured } });
+    await prisma.product.update({ where: { id, deletedAt: null }, data: { featured } });
     revalidateProducts();
   });
 }
@@ -448,6 +449,8 @@ export async function duplicateProduct(
         promotions: { connect: source.promotions.map((p) => ({ id: p.id })) },
         featured: false,
         featuredOrder: source.featuredOrder,
+        imageAlt_ro: source.imageAlt_ro,
+        imageAlt_ru: source.imageAlt_ru,
         categoryOrder: await nextCategoryOrder(source.categoryId),
         isActive: false,
         images: {

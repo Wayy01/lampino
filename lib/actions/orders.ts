@@ -90,6 +90,12 @@ export async function submitOrder(
       return { ok: false, error: "invalid_contact" };
     }
 
+    if (
+      (input.method !== "pickup" && input.method !== "delivery") ||
+      (input.method === "delivery" && input.region !== "chisinau" && input.region !== "outside")
+    ) {
+      return { ok: false, error: "invalid_address" };
+    }
     const address = typeof input.address === "string" ? input.address.trim() : "";
     if (input.method === "delivery" && (!address || address.length > MAX_ADDRESS)) {
       return { ok: false, error: "invalid_address" };

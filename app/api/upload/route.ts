@@ -34,7 +34,12 @@ export async function POST(request: Request) {
 
   if (!(await getAdminSession())) return reply({ error: t.failed }, 401);
 
-  const fileName = decodeURIComponent(request.headers.get("x-file-name") ?? "");
+  let fileName = "";
+  try {
+    fileName = decodeURIComponent(request.headers.get("x-file-name") ?? "");
+  } catch {
+    // A stray "%" in the name: classify by content type alone.
+  }
   const type = classifyUpload(request.headers.get("content-type") ?? "", fileName);
   if (!type) return reply({ error: `${t.invalidType} ${t.allowedTypes}` }, 415);
   if (!request.body) return reply({ error: t.noFile }, 400);

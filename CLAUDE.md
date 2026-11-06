@@ -13,7 +13,7 @@ bun run build                # next build
 bun run lint                 # eslint (flat config, no `next lint`)
 bunx prisma db push          # apply schema.prisma — there is no migrations/ dir
 bunx prisma generate         # regenerate the client into lib/generated/prisma
-bun prisma/seed.ts           # wipes and repopulates every table; prints admin/admin123
+SEED_CONFIRM=yes bun prisma/seed.ts  # wipes and repopulates every table; prints admin/admin123
 ```
 
 Env: `DATABASE_URL` (Postgres) and `ADMIN_SESSION_SECRET` (any random string — `session.ts` throws without it, and rotating it logs every admin out). Optional: `NEXT_PUBLIC_SITE_URL` (canonical origin, defaults to `https://lampino.md` — set it on staging so previews don't emit production canonicals) and `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` (the Search Console meta-tag token). Both are read at build time. No test suite exists.
