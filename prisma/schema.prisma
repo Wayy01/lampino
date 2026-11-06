@@ -60,6 +60,9 @@ category Category? @relation(fields: [categoryId], references: [id])
 promotions Promotion[] @relation("ProductPromotions")
 featured Boolean @default(false)
 featuredOrder Int @default(0) @map("featured_order")
+// Position inside its category, set by drag in /admin/<lang>/categories/<id>/products.
+// The category page's default sort follows it.
+categoryOrder Int @default(0) @map("category_order")
 isActive Boolean @default(true) @map("is_active")
 // Set by the admin "delete": the row stays so its old URLs keep redirecting (see `redirectRetiredProduct`).
 deletedAt DateTime? @map("deleted_at")
@@ -78,6 +81,7 @@ orderItems OrderItem[]
     @@index([createdAt])
     @@index([price])
     @@index([categoryId, price])
+    @@index([categoryId, categoryOrder])
     @@index([featured])
     @@index([featured, featuredOrder])
     @@index([isActive])

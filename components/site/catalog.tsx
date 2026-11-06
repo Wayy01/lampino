@@ -181,7 +181,7 @@ export function Catalog({
       }
       return true;
     });
-    return sortProducts(list, sort);
+    return sortProducts(list, sort, category !== "all");
   }, [products, category, maxPrice, colorTemps, sockets, lumens, sort]);
 
   // Pagination is derived from the filtered list; `currentPage` is clamped so a

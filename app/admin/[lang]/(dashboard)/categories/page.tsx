@@ -21,7 +21,12 @@ export default async function AdminCategoriesPage({
 
   const categories = await prisma.category.findMany({
     orderBy: [{ position: "asc" }, { id: "asc" }],
-    include: { _count: { select: { products: true, rentalPackages: true } } },
+    // Soft-deleted products still hold their categoryId; don't count them.
+    include: {
+      _count: {
+        select: { products: { where: { deletedAt: null } }, rentalPackages: { where: { deletedAt: null } } },
+      },
+    },
   });
 
   const rows: CategoryRow[] = categories.map((c) => ({

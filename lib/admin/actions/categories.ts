@@ -229,3 +229,35 @@ export async function reorderCategories(
     revalidatePath("/admin/[lang]/categories", "page");
   });
 }
+
+/**
+ * Persist the order the admin dragged a category's products into
+ * (`/admin/<lang>/categories/<id>/products`). Same contract as
+ * `reorderCategories`: the full id list of the category's (non-deleted)
+ * products, refused when it no longer matches the table.
+ */
+export async function reorderCategoryProducts(
+  lang: AdminLang,
+  categoryId: number,
+  ids: number[],
+): Promise<ActionResult> {
+  await requireAdmin(lang);
+  return runAction(lang, async () => {
+    const ordered = [...new Set(ids.filter((id) => Number.isInteger(id)))];
+    const existing = await prisma.product.findMany({
+      where: { categoryId, deletedAt: null },
+      select: { id: true },
+    });
+    const known = new Set(existing.map((p) => p.id));
+    if (ordered.length !== known.size || ordered.some((id) => !known.has(id))) {
+      throw new ActionRefusal("reorderStale");
+    }
+
+    await prisma.$transaction(
+      ordered.map((id, i) =>
+        prisma.product.update({ where: { id }, data: { categoryOrder: i } }),
+      ),
+    );
+    revalidatePath("/admin/[lang]/categories/[id]/products", "page");
+  });
+}

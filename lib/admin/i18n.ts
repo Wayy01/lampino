@@ -320,6 +320,13 @@ const ro = {
     rentalsCount: "închirieri",
     empty: "Nicio categorie încă.",
     loseCategory: "produse vor rămâne fără categorie",
+    productOrder: {
+      open: "Ordinea produselor",
+      title: "Ordinea produselor",
+      hint: "Trage produsele în ordinea în care vrei să apară pe pagina categoriei. Ordinea se salvează automat și este cea implicită în magazin — clientul o poate schimba sortând după preț.",
+      saved: "Ordinea a fost salvată.",
+      empty: "Această categorie nu are produse.",
+    },
     seo: {
       open: "SEO și conținut",
       title: "Pagina categoriei",
@@ -939,6 +946,13 @@ const ru: AdminDict = {
     rentalsCount: "аренд",
     empty: "Категорий пока нет.",
     loseCategory: "товаров останутся без категории",
+    productOrder: {
+      open: "Порядок товаров",
+      title: "Порядок товаров",
+      hint: "Перетащите товары в том порядке, в котором они должны отображаться на странице категории. Порядок сохраняется автоматически и используется в магазине по умолчанию — покупатель может изменить его сортировкой по цене.",
+      saved: "Порядок сохранён.",
+      empty: "В этой категории нет товаров.",
+    },
     seo: {
       open: "SEO и контент",
       title: "Страница категории",

@@ -135,8 +135,12 @@ export function isSortKey(v: string | undefined): v is SortKey {
   return v === "featured" || v === "price-asc" || v === "price-desc";
 }
 
-/** Return a sorted copy of the list for the given sort key. */
-export function sortProducts(list: Product[], key: SortKey): Product[] {
+/**
+ * Return a sorted copy of the list for the given sort key. On a category page
+ * (`inCategory`) the default sort is the order the admin dragged the category's
+ * products into; the bare catalog keeps featured-first.
+ */
+export function sortProducts(list: Product[], key: SortKey, inCategory = false): Product[] {
   const copy = list.slice();
   switch (key) {
     case "price-asc":
@@ -145,6 +149,7 @@ export function sortProducts(list: Product[], key: SortKey): Product[] {
       return copy.sort((a, b) => effectivePrice(b) - effectivePrice(a));
     case "featured":
     default:
+      if (inCategory) return copy.sort((a, b) => a.categoryOrder - b.categoryOrder);
       return copy.sort((a, b) => {
         if (a.featured !== b.featured) return a.featured ? -1 : 1;
         return a.featuredOrder - b.featuredOrder;

@@ -147,6 +147,7 @@ async function seedProducts() {
         promotions: promoByProduct[p.id] ? { connect: [{ id: promoByProduct[p.id] }] } : undefined,
         featured: p.featured,
         featuredOrder: p.featuredOrder,
+        categoryOrder: p.categoryOrder,
         isActive: p.isActive,
         createdAt: daysAgo(90 - p.id * 5),
         images: {

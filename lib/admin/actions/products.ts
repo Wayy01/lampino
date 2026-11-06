@@ -234,6 +234,15 @@ const variantData = (v: VariantPayload) => ({
   imageUrls: v.imageUrls,
 });
 
+/** The slot after the last product in `categoryId` — where new arrivals land. */
+async function nextCategoryOrder(categoryId: number | null | undefined): Promise<number> {
+  const last = await prisma.product.aggregate({
+    where: { categoryId: categoryId ?? null },
+    _max: { categoryOrder: true },
+  });
+  return (last._max.categoryOrder ?? -1) + 1;
+}
+
 export async function createProduct(
   _prev: ProductActionState,
   fd: FormData,
@@ -250,6 +259,7 @@ export async function createProduct(
     const product = await prisma.product.create({
       data: {
         ...parsed.scalars,
+        categoryOrder: await nextCategoryOrder(parsed.scalars.categoryId),
         promotions: { connect: promotions },
         images: { create: parsed.images },
         videos: { create: parsed.videos },
@@ -276,6 +286,17 @@ export async function updateProduct(
     await relationsExist(parsed.scalars.categoryId);
     const promotions = await promotionLinks(parsed.promotionIds);
 
+    // Moving to another category puts the product at the end of that one.
+    const before = await prisma.product.findUnique({
+      where: { id },
+      select: { categoryId: true },
+    });
+    if (!before) return { error: getAdminDict(lang).errors.recordMissing };
+    const categoryOrder =
+      before.categoryId === (parsed.scalars.categoryId ?? null)
+        ? undefined
+        : await nextCategoryOrder(parsed.scalars.categoryId);
+
     const keptVariantIds = parsed.variants
       .map((v) => v.id)
       .filter((v): v is number => v !== null);
@@ -283,7 +304,7 @@ export async function updateProduct(
     await prisma.$transaction([
       prisma.product.update({
         where: { id },
-        data: { ...parsed.scalars, promotions: { set: promotions } },
+        data: { ...parsed.scalars, categoryOrder, promotions: { set: promotions } },
       }),
       // Images and videos carry no foreign keys — rebuild them wholesale.
       prisma.productImage.deleteMany({ where: { productId: id } }),
@@ -427,6 +448,7 @@ export async function duplicateProduct(
         promotions: { connect: source.promotions.map((p) => ({ id: p.id })) },
         featured: false,
         featuredOrder: source.featuredOrder,
+        categoryOrder: await nextCategoryOrder(source.categoryId),
         isActive: false,
         images: {
           create: source.images.map((i) => ({

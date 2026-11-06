@@ -470,6 +470,8 @@ export const products: MockProduct[] = seeds.map((s) => {
     category,
     featured: s.featured !== undefined,
     featuredOrder: s.featured ?? 0,
+    // Seed order within the category.
+    categoryOrder: seeds.filter((o) => o.categorySlug === s.categorySlug).indexOf(s),
     isActive: true,
     images: s.images.map((imageUrl, i) => ({
       id: s.id * 100 + i,
