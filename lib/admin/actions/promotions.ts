@@ -7,6 +7,7 @@ import { Prisma } from "@/lib/generated/prisma";
 import { requireAdmin } from "@/lib/admin/session";
 import { getAdminDict, langFromForm, type AdminLang } from "@/lib/admin/i18n";
 import { runAction, runFormAction, type ActionResult } from "@/lib/admin/errors";
+import { shopDayBoundary } from "@/lib/promotions";
 
 export type PromotionActionState = { ok?: boolean; error?: string } | null;
 
@@ -22,32 +23,19 @@ function numOrNull(fd: FormData, key: string): number | null {
 }
 
 /**
- * `<input type="date">` posts `YYYY-MM-DD`, which `new Date()` reads as UTC
- * midnight — east of Greenwich that lands *inside* the previous local day, so a
- * promotion would expire hours before its stated last date. Parse the parts
- * explicitly instead, and let the end date cover its whole day.
+ * `<input type="date">` posts `YYYY-MM-DD`. It is read as a calendar day in
+ * the shop's timezone (Europe/Chisinau, DST-aware), not the server's, and the
+ * end date covers its whole day, so a sale runs exactly the days entered.
  */
-function dateOrNull(
-  fd: FormData,
-  key: string,
-  edge: "start" | "end" = "start",
-): Date | null {
-  const raw = str(fd, key);
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw);
-  if (!match) return null;
-  const [, y, m, d] = match.map(Number);
-  const value =
-    edge === "start"
-      ? new Date(y, m - 1, d, 0, 0, 0, 0)
-      : new Date(y, m - 1, d, 23, 59, 59, 999);
-  return Number.isNaN(value.getTime()) ? null : value;
+function dateOrNull(fd: FormData, key: string, edge: "start" | "end"): Date | null {
+  return shopDayBoundary(str(fd, key), edge);
 }
 
 function ids(fd: FormData, key: string): number[] {
   return fd
     .getAll(key)
     .map((v) => Number(v))
-    .filter((v) => Number.isInteger(v));
+    .filter((v) => Number.isInteger(v) && v > 0 && v <= 2_147_483_647);
 }
 
 type ParsedPromotion = {
@@ -91,29 +79,24 @@ function parsePromotion(fd: FormData): ParsedPromotion | { error: string } {
 }
 
 /**
- * Products and rental packages point at the promotion, so membership is
- * rewritten from both ends: drop the rows that were unchecked, claim the
- * checked ones (including any stolen from another promotion).
+ * Membership is many-to-many: a product can be in any number of promotions
+ * (one per campaign across the year), so saving one promotion never takes
+ * products away from another. `set` replaces exactly this promotion's list.
  */
-function assignmentOps(id: number, productIds: number[], rentalIds: number[]) {
-  return [
-    prisma.product.updateMany({
-      where: { promotionId: id, id: { notIn: productIds } },
-      data: { promotionId: null },
-    }),
-    prisma.product.updateMany({
-      where: { id: { in: productIds } },
-      data: { promotionId: id },
-    }),
-    prisma.rentalPackage.updateMany({
-      where: { promotionId: id, id: { notIn: rentalIds } },
-      data: { promotionId: null },
-    }),
-    prisma.rentalPackage.updateMany({
-      where: { id: { in: rentalIds } },
-      data: { promotionId: id },
-    }),
-  ];
+function members(productIds: number[], rentalIds: number[]) {
+  return {
+    products: { set: productIds.map((id) => ({ id })) },
+    rentals: { set: rentalIds.map((id) => ({ id })) },
+  };
+}
+
+/** Drop ids deleted in another tab instead of failing the whole save. */
+async function existingIds(productIds: number[], rentalIds: number[]) {
+  const [products, rentals] = await Promise.all([
+    prisma.product.findMany({ where: { id: { in: productIds } }, select: { id: true } }),
+    prisma.rentalPackage.findMany({ where: { id: { in: rentalIds } }, select: { id: true } }),
+  ]);
+  return { productIds: products.map((p) => p.id), rentalIds: rentals.map((r) => r.id) };
 }
 
 function revalidate(): void {
@@ -132,11 +115,14 @@ export async function createPromotion(
     const parsed = parsePromotion(fd);
     if ("error" in parsed) return { error: parsed.error };
 
-    const promotion = await prisma.promotion.create({ data: parsed.scalars });
-    // Assignments need the new id, so they follow the insert.
-    await prisma.$transaction(
-      assignmentOps(promotion.id, parsed.productIds, parsed.rentalIds),
-    );
+    const ids = await existingIds(parsed.productIds, parsed.rentalIds);
+    const promotion = await prisma.promotion.create({
+      data: {
+        ...parsed.scalars,
+        products: { connect: ids.productIds.map((id) => ({ id })) },
+        rentals: { connect: ids.rentalIds.map((id) => ({ id })) },
+      },
+    });
 
     revalidate();
     redirect(`/admin/${lang}/promotions/${promotion.id}`);
@@ -155,10 +141,11 @@ export async function updatePromotion(
     const parsed = parsePromotion(fd);
     if ("error" in parsed) return { error: parsed.error };
 
-    await prisma.$transaction([
-      prisma.promotion.update({ where: { id }, data: parsed.scalars }),
-      ...assignmentOps(id, parsed.productIds, parsed.rentalIds),
-    ]);
+    const ids = await existingIds(parsed.productIds, parsed.rentalIds);
+    await prisma.promotion.update({
+      where: { id },
+      data: { ...parsed.scalars, ...members(ids.productIds, ids.rentalIds) },
+    });
 
     revalidate();
     return { ok: true };
@@ -171,10 +158,8 @@ export async function deletePromotion(
 ): Promise<ActionResult> {
   await requireAdmin(lang);
   return runAction(lang, async () => {
-    await prisma.$transaction([
-      ...assignmentOps(id, [], []),
-      prisma.promotion.delete({ where: { id } }),
-    ]);
+    // Join rows cascade; the products themselves are untouched.
+    await prisma.promotion.delete({ where: { id } });
     revalidatePath("/admin/[lang]/promotions", "page");
     redirect(`/admin/${lang}/promotions`);
   });

@@ -1,15 +1,10 @@
 import type { MetadataRoute } from "next";
-import { getProductIndex } from "@/lib/data/products";
+import { getCategoryOptions, getProductIndex } from "@/lib/data/products";
+import { getCategoryUpdatedAt } from "@/lib/data/categories";
 import { getRentalIndex } from "@/lib/data/rentals";
 import { getSpecialOffersMeta } from "@/lib/data/offers";
-import { absoluteUrl } from "@/lib/seo";
-import {
-  DEFAULT_LOCALE,
-  LOCALES,
-  localePath,
-  productPath,
-  rentalPath,
-} from "@/lib/i18n/routing";
+import { absoluteUrl, hreflangs, type LocalizedPath } from "@/lib/seo";
+import { LOCALES, categoryPaths } from "@/lib/i18n/routing";
 import type { CatalogIndexEntry } from "@/lib/types";
 
 // The catalog is admin-editable and every storefront page is `force-dynamic`,
@@ -22,25 +17,26 @@ type Entry = MetadataRoute.Sitemap[number];
 /**
  * One `<url>` per locale for the same page, each carrying the full hreflang set
  * (both locales plus `x-default`) — Google wants every language version listed
- * *and* cross-referencing all of its twins. `path` is locale-less.
+ * *and* cross-referencing all of its twins. Built from the same paths as the
+ * pages' own canonicals (`localeAlternates`), so the two can never disagree.
  */
 function localized(
-  path: string,
+  path: LocalizedPath,
   lastModified: string,
   changeFrequency: Entry["changeFrequency"],
   priority: number,
+  images: string[] = [],
 ): MetadataRoute.Sitemap {
-  const languages = {
-    ro: absoluteUrl(localePath("ro", path)),
-    ru: absoluteUrl(localePath("ru", path)),
-    "x-default": absoluteUrl(localePath(DEFAULT_LOCALE, path)),
-  };
+  const languages = hreflangs(path, absoluteUrl);
   return LOCALES.map((lang) => ({
-    url: absoluteUrl(localePath(lang, path)),
+    url: languages[lang],
     lastModified,
     changeFrequency,
     priority,
     alternates: { languages },
+    // Doubles as the image sitemap — the old separate `sitemap-images.xml`
+    // now redirects here (next.config.ts).
+    ...(images.length > 0 && { images: images.map(absoluteUrl) }),
   }));
 }
 
@@ -51,10 +47,12 @@ function newest(rows: CatalogIndexEntry[], fallback: string): string {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [products, rentals, offers] = await Promise.all([
+  const [products, rentals, offers, categories, categoryEdits] = await Promise.all([
     getProductIndex(),
     getRentalIndex(),
     getSpecialOffersMeta(),
+    getCategoryOptions(),
+    getCategoryUpdatedAt(),
   ]);
 
   const now = new Date().toISOString();
@@ -64,16 +62,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...localized("", productsUpdated, "daily", 1),
     ...localized("/magazin", productsUpdated, "daily", 0.9),
+    // Only categories that list an active product — `getCategoryOptions` drops
+    // the rest, and their URLs redirect to /magazin. Dated by whichever changed
+    // last: the landing-page content or one of its products.
+    ...categories.flatMap((c) => {
+      const productsEdit = newest(products.filter((p) => p.categoryId === c.id), productsUpdated);
+      const contentEdit = categoryEdits.get(c.id) ?? productsEdit;
+      return localized(
+        categoryPaths(c),
+        contentEdit > productsEdit ? contentEdit : productsEdit,
+        "daily",
+        0.85,
+      );
+    }),
     ...localized("/arenda", rentalsUpdated, "weekly", 0.8),
     ...(offers ? localized("/oferte-speciale", now, "weekly", 0.7) : []),
     ...localized("/contact", now, "yearly", 0.4),
     ...localized("/terms", now, "yearly", 0.2),
     ...localized("/privacy", now, "yearly", 0.2),
-    ...products.flatMap((p) =>
-      localized(productPath(p.id, p.slugSource), p.updatedAt, "weekly", 0.8),
-    ),
-    ...rentals.flatMap((r) =>
-      localized(rentalPath(r.id, r.slugSource), r.updatedAt, "monthly", 0.6),
-    ),
+    ...products.flatMap((p) => localized(p.paths, p.updatedAt, "weekly", 0.8, p.images)),
+    ...rentals.flatMap((r) => localized(r.paths, r.updatedAt, "monthly", 0.6, r.images)),
   ];
 }

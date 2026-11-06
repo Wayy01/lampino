@@ -9,6 +9,7 @@ import { CURRENCY, SITE_NAME, SITE_URL, absoluteUrl, metaDescription } from "@/l
 import { localePath, productHref, rentalHref, type Locale } from "@/lib/i18n/routing";
 import { pick } from "@/lib/utils";
 import type { ContactSettings, Product, RentalPackage } from "@/lib/types";
+import type { ProductReviews } from "@/lib/data/reviews";
 
 export type JsonLdNode = Record<string, unknown>;
 
@@ -18,6 +19,42 @@ const WEBSITE_ID = `${SITE_URL}/#website`;
 const availabilityUrl = (inStock: boolean) =>
   `https://schema.org/${inStock ? "InStock" : "OutOfStock"}`;
 
+const DAYS: Record<string, string> = {
+  lun: "Monday", mar: "Tuesday", mie: "Wednesday", joi: "Thursday",
+  vin: "Friday", sam: "Saturday", sâm: "Saturday", dum: "Sunday",
+};
+const WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+/**
+ * `OpeningHoursSpecification` from the admin's free-text Romanian hours
+ * ("Lun-Vin: 9:00 - 18:00, Sâm: 10:00 - 14:00"). Returns nothing unless every
+ * segment parses ("Weekend" and "Zilnic" are understood too) — wrong hours in
+ * markup are worse than none.
+ */
+export function openingHours(text: string): JsonLdNode[] | undefined {
+  const pad = (t: string) => t.padStart(5, "0");
+  const specs: JsonLdNode[] = [];
+  for (const part of text.split(/[,;\n]+/).map((p) => p.trim()).filter(Boolean)) {
+    const m = part
+      .toLowerCase()
+      .replace(/^weekend\b/, "sâm-dum")
+      .replace(/^zilnic\b/, "lun-dum")
+      .match(/^(\p{L}{3})\p{L}*\.?\s*(?:[-–]\s*(\p{L}{3})\p{L}*\.?)?\s*:?\s*(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})$/u);
+    const from = m && DAYS[m[1]];
+    const to = m && (m[2] ? DAYS[m[2]] : from);
+    if (!m || !from || !to) return undefined;
+    const days = WEEK.slice(WEEK.indexOf(from), WEEK.indexOf(to) + 1);
+    if (days.length === 0) return undefined;
+    specs.push({
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: days.map((d) => `https://schema.org/${d}`),
+      opens: pad(m[3]),
+      closes: pad(m[4]),
+    });
+  }
+  return specs.length ? specs : undefined;
+}
+
 /**
  * The shop itself. `Store` is a `LocalBusiness`, which is what a Moldovan
  * storefront with a physical address should be. Contact fields come from the
@@ -25,8 +62,10 @@ const availabilityUrl = (inStock: boolean) =>
  */
 export function storeSchema(lang: Locale, contact: ContactSettings | null): JsonLdNode {
   const socials = contact
-    ? [contact.facebookUrl, contact.instagramUrl, contact.tiktokUrl].filter(Boolean)
+    ? [contact.facebookUrl, contact.instagramUrl, contact.tiktokUrl, contact.googleBusinessUrl].filter(Boolean)
     : [];
+  // Hours are parsed from the Romanian field: day names there are predictable.
+  const hours = contact ? openingHours(contact.businessHours_ro) : undefined;
 
   return {
     "@context": "https://schema.org",
@@ -34,8 +73,8 @@ export function storeSchema(lang: Locale, contact: ContactSettings | null): Json
     "@id": ORGANIZATION_ID,
     name: SITE_NAME,
     url: absoluteUrl(localePath(lang)),
-    logo: absoluteUrl("/icon.svg"),
-    image: absoluteUrl("/icon.svg"),
+    logo: absoluteUrl("/icon.png"),
+    image: absoluteUrl("/icon.png"),
     currenciesAccepted: CURRENCY,
     ...(contact && {
       telephone: contact.phone,
@@ -46,7 +85,14 @@ export function storeSchema(lang: Locale, contact: ContactSettings | null): Json
         addressLocality: pick(lang, contact.city_ro, contact.city_ru),
         addressCountry: "MD",
       },
+      areaServed: { "@type": "Country", name: "Moldova" },
+      ...(contact.latitude !== null &&
+        contact.longitude !== null && {
+          geo: { "@type": "GeoCoordinates", latitude: contact.latitude, longitude: contact.longitude },
+        }),
+      ...(contact.googleBusinessUrl && { hasMap: contact.googleBusinessUrl }),
     }),
+    ...(hours && { openingHoursSpecification: hours }),
     ...(socials.length > 0 && { sameAs: socials }),
   };
 }
@@ -98,36 +144,55 @@ export function faqSchema(items: readonly { q: string; a: string }[]): JsonLdNod
  * the ones the customer actually pays (reduced price wins), matching what the
  * page renders — Google flags mismatches between markup and visible price.
  */
-export function productSchema(product: Product, lang: Locale): JsonLdNode {
-  const url = absoluteUrl(productHref(lang, product.id, product.name_ro));
-  const hasVariants = product.hasVariants && product.variants.length > 0;
-  const prices = hasVariants
+/** The prices a customer can actually pay for a product (reduced wins), one per variant. */
+export function productPrices(product: Product): number[] {
+  return product.hasVariants && product.variants.length > 0
     ? product.variants.map((v) => v.reducedPrice ?? v.price)
     : [product.reducedPrice ?? product.price];
+}
+
+/** The product's offer: an `AggregateOffer` over its variants, else a plain `Offer`. */
+function productOffer(product: Product, url: string): JsonLdNode {
+  const hasVariants = product.hasVariants && product.variants.length > 0;
+  const prices = productPrices(product);
   const inStock = hasVariants
     ? product.variants.some((v) => v.stock > 0)
     : product.stock > 0;
 
-  const offers =
-    prices.length > 1
-      ? {
-          "@type": "AggregateOffer",
-          url,
-          priceCurrency: CURRENCY,
-          lowPrice: Math.min(...prices),
-          highPrice: Math.max(...prices),
-          offerCount: prices.length,
-          availability: availabilityUrl(inStock),
-        }
-      : {
-          "@type": "Offer",
-          url,
-          priceCurrency: CURRENCY,
-          price: prices[0],
-          availability: availabilityUrl(inStock),
-          itemCondition: "https://schema.org/NewCondition",
-          seller: { "@id": ORGANIZATION_ID },
-        };
+  return prices.length > 1
+    ? {
+        "@type": "AggregateOffer",
+        url,
+        priceCurrency: CURRENCY,
+        lowPrice: Math.min(...prices),
+        highPrice: Math.max(...prices),
+        offerCount: prices.length,
+        availability: availabilityUrl(inStock),
+        itemCondition: "https://schema.org/NewCondition",
+      }
+    : {
+        "@type": "Offer",
+        url,
+        priceCurrency: CURRENCY,
+        price: prices[0],
+        availability: availabilityUrl(inStock),
+        itemCondition: "https://schema.org/NewCondition",
+        seller: { "@id": ORGANIZATION_ID },
+      };
+}
+
+/**
+ * `reviews` are the approved ones only. Rating markup appears only when there
+ * is at least one — Google treats invented or self-serving ratings as spam.
+ */
+export function productSchema(
+  product: Product,
+  lang: Locale,
+  reviews?: ProductReviews,
+): JsonLdNode {
+  const url = absoluteUrl(productHref(lang, product));
+  const offers = productOffer(product, url);
+  const rated = reviews && reviews.count > 0;
 
   return {
     "@context": "https://schema.org",
@@ -147,6 +212,22 @@ export function productSchema(product: Product, lang: Locale): JsonLdNode {
       category: pick(lang, product.category.name_ro, product.category.name_ru),
     }),
     offers,
+    ...(rated && {
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: reviews.average,
+        reviewCount: reviews.count,
+        bestRating: 5,
+        worstRating: 1,
+      },
+      review: reviews.reviews.slice(0, 5).map((r) => ({
+        "@type": "Review",
+        author: { "@type": "Person", name: r.authorName },
+        datePublished: r.createdAt.slice(0, 10),
+        reviewBody: r.body,
+        reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5, worstRating: 1 },
+      })),
+    }),
   };
 }
 
@@ -156,7 +237,7 @@ export function productSchema(product: Product, lang: Locale): JsonLdNode {
  * `Product` without availability just earns Search Console warnings.
  */
 export function rentalSchema(pkg: RentalPackage, lang: Locale): JsonLdNode {
-  const url = absoluteUrl(rentalHref(lang, pkg.id, pkg.title_ro));
+  const url = absoluteUrl(rentalHref(lang, pkg));
   const prices = pkg.variants.length
     ? pkg.variants.map((v) => v.reducedPrice ?? v.price)
     : [pkg.reducedPrice ?? pkg.price];
@@ -201,5 +282,45 @@ export function itemListSchema(
       name: item.name,
       url: absoluteUrl(item.path),
     })),
+  };
+}
+
+/**
+ * A category landing page: `CollectionPage` whose main entity is the list of
+ * products shown on it, each with its URL, image and offer.
+ */
+export function collectionPageSchema(
+  lang: Locale,
+  page: { name: string; description: string; path: string; products: Product[] },
+): JsonLdNode {
+  const url = absoluteUrl(page.path);
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": `${url}#page`,
+    url,
+    name: page.name,
+    description: page.description,
+    inLanguage: lang,
+    isPartOf: { "@id": WEBSITE_ID },
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: page.products.length,
+      itemListElement: page.products.map((p, i) => {
+        const productUrl = absoluteUrl(productHref(lang, p));
+        return {
+          "@type": "ListItem",
+          position: i + 1,
+          url: productUrl,
+          item: {
+            "@type": "Product",
+            name: pick(lang, p.name_ro, p.name_ru),
+            url: productUrl,
+            ...(p.images[0] && { image: absoluteUrl(p.images[0].imageUrl) }),
+            offers: productOffer(p, productUrl),
+          },
+        };
+      }),
+    },
   };
 }

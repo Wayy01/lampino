@@ -18,10 +18,12 @@ export default async function NewPromotionPage({
 
   const [products, rentals] = await Promise.all([
     prisma.product.findMany({
+      where: { deletedAt: null },
       orderBy: { name_ro: "asc" },
       select: { id: true, name_ro: true, name_ru: true },
     }),
     prisma.rentalPackage.findMany({
+      where: { deletedAt: null },
       orderBy: { title_ro: "asc" },
       select: { id: true, title_ro: true, title_ru: true },
     }),

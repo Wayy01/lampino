@@ -9,16 +9,36 @@ datasource db {
 }
 
 model Category {
-  id             Int             @id @default(autoincrement())
-  name_ro        String
-  name_ru        String
-  slug           String          @unique
-  position       Int             @default(0)
-  imageUrl       String?         @map("image_url")
-  products       Product[]
-  rentalPackages RentalPackage[]
-  createdAt      DateTime        @default(now()) @map("created_at")
-  updatedAt      DateTime        @updatedAt @map("updated_at")
+  id                Int             @id @default(autoincrement())
+  name_ro           String
+  name_ru           String
+  slug              String          @unique
+  // Storefront URL slugs (`categorySlug`) the category had before a rename; they 308 to the current one.
+  formerSlugs       String[]        @default([]) @map("former_slugs")
+  position          Int             @default(0)
+  imageUrl          String?         @map("image_url")
+  // Landing-page SEO content (`/<lang>/magazin/<slug>`). Every field is
+  // optional: empty falls back to a default built from the name.
+  urlSlug_ro        String          @default("") @map("url_slug_ro")
+  urlSlug_ru        String          @default("") @map("url_slug_ru")
+  seoTitle_ro       String          @default("") @map("seo_title_ro")
+  seoTitle_ru       String          @default("") @map("seo_title_ru")
+  seoDescription_ro String          @default("") @map("seo_description_ro")
+  seoDescription_ru String          @default("") @map("seo_description_ru")
+  h1_ro             String          @default("") @map("h1_ro")
+  h1_ru             String          @default("") @map("h1_ru")
+  intro_ro          String          @default("") @map("intro_ro") @db.Text
+  intro_ru          String          @default("") @map("intro_ru") @db.Text
+  body_ro           String          @default("") @map("body_ro") @db.Text
+  body_ru           String          @default("") @map("body_ru") @db.Text
+  // [{ q, a }] per language.
+  faq_ro            Json            @default("[]") @map("faq_ro")
+  faq_ru            Json            @default("[]") @map("faq_ru")
+  ogImageUrl        String?         @map("og_image_url")
+  products          Product[]
+  rentalPackages    RentalPackage[]
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
 
   @@map("categories")
 }
@@ -36,23 +56,31 @@ model Product {
   specifications Json?            @default("{}") @map("specifications")
   categoryId     Int?             @map("category_id")
   category       Category?        @relation(fields: [categoryId], references: [id])
-  promotionId    Int?
-  promotion      Promotion?       @relation(fields: [promotionId], references: [id])
+  promotions     Promotion[]      @relation("ProductPromotions")
   featured       Boolean          @default(false)
   featuredOrder  Int              @default(0) @map("featured_order")
+  // Position inside its category, set by drag in /admin/<lang>/categories/<id>/products.
+  // The category page's default sort follows it.
+  categoryOrder  Int              @default(0) @map("category_order")
   isActive       Boolean          @default(true) @map("is_active")
+  // Set by the admin "delete": the row stays so its old URLs keep redirecting (see `redirectRetiredProduct`).
+  deletedAt      DateTime?        @map("deleted_at")
   createdAt      DateTime         @default(now()) @map("created_at")
   updatedAt      DateTime         @updatedAt @map("updated_at")
+  // Alt text for the product's images; empty falls back to name + category.
+  imageAlt_ro    String           @default("") @map("image_alt_ro")
+  imageAlt_ru    String           @default("") @map("image_alt_ru")
+  reviews        Review[]
   images         ProductImage[]
   videos         ProductVideo[]
   variants       ProductVariant[]
   orderItems     OrderItem[]
 
   @@index([categoryId])
-  @@index([promotionId])
   @@index([createdAt])
   @@index([price])
   @@index([categoryId, price])
+  @@index([categoryId, categoryOrder])
   @@index([featured])
   @@index([featured, featuredOrder])
   @@index([isActive])
@@ -91,6 +119,10 @@ model ProductVariant {
   stock        Int         @default(0)
   isDefault    Boolean     @default(false) @map("is_default")
   sortOrder    Int         @default(0) @map("sort_order")
+  // Subset of the product's image URLs shown when this variant is selected;
+  // empty = show every product image. By URL, because product images are
+  // rebuilt wholesale (new ids) on every save.
+  imageUrls    String[]    @default([]) @map("image_urls")
   createdAt    DateTime    @default(now()) @map("created_at")
   updatedAt    DateTime    @updatedAt @map("updated_at")
   product      Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -111,6 +143,9 @@ model Order {
   specialInstructions String?     @map("special_instructions") @db.Text
   status              String      @default("pending")
   totalPrice          Decimal     @map("total_price") @db.Decimal(10, 2)
+  // True while this order's units are taken out of stock (see lib/stock.ts).
+  // Orders placed before stock tracking existed stay false and never restock.
+  stockReserved       Boolean     @default(false) @map("stock_reserved")
   createdAt           DateTime    @default(now()) @map("created_at")
   items               OrderItem[]
 
@@ -170,9 +205,10 @@ model RentalPackage {
   includes_ru        Json?                  @default("[]") @map("includes_ru")
   categoryId         Int?                   @map("category_id")
   category           Category?              @relation(fields: [categoryId], references: [id])
-  promotionId        Int?
-  promotion          Promotion?             @relation(fields: [promotionId], references: [id])
+  promotions         Promotion[]            @relation("RentalPromotions")
   isActive           Boolean                @default(true) @map("is_active")
+  // Set by the admin "delete": the row stays so its old URLs keep redirecting (see `redirectRetiredProduct`).
+  deletedAt          DateTime?              @map("deleted_at")
   createdAt          DateTime               @default(now()) @map("created_at")
   updatedAt          DateTime               @updatedAt @map("updated_at")
   images             RentalPackageImage[]
@@ -182,7 +218,6 @@ model RentalPackage {
   rentalApplications RentalApplication[]
 
   @@index([categoryId])
-  @@index([promotionId])
   @@index([createdAt])
   @@index([price])
   @@index([isActive])
@@ -267,8 +302,8 @@ model Promotion {
   endDate         DateTime
   discountPercent Float
   featured        Boolean         @default(false)
-  products        Product[]
-  rentals         RentalPackage[]
+  products        Product[]       @relation("ProductPromotions")
+  rentals         RentalPackage[] @relation("RentalPromotions")
 
   @@map("promotions")
 }
@@ -348,25 +383,40 @@ model DeliverySettings {
   @@map("delivery_settings")
 }
 
+// The short "why buy here" list under the buy buttons on every product page.
+// Singleton; no row = the dictionary defaults.
+model ProductPageSettings {
+  id        Int      @id @default(autoincrement())
+  perks_ro  String[] @default([]) @map("perks_ro")
+  perks_ru  String[] @default([]) @map("perks_ru")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("product_page_settings")
+}
+
 model ContactSettings {
-  id               Int      @id @default(autoincrement())
-  phone            String   @default("+373 675 24 111") @map("phone")
-  email            String   @default("contact@lampino.md") @map("email")
-  whatsapp         String   @default("+373 675 24 111") @map("whatsapp")
-  address_ro       String   @default("Str. Exemplu 123") @map("address_ro")
-  address_ru       String   @default("ул. Примерная 123") @map("address_ru")
-  city_ro          String   @default("Chișinău") @map("city_ro")
-  city_ru          String   @default("Кишинев") @map("city_ru")
-  country_ro       String   @default("Moldova") @map("country_ro")
-  country_ru       String   @default("Молдова") @map("country_ru")
-  businessHours_ro String   @default("Lun-Vin: 9:00 - 18:00") @map("business_hours_ro")
-  businessHours_ru String   @default("Пн-Пт: 9:00 - 18:00") @map("business_hours_ru")
-  facebookUrl      String   @default("https://www.facebook.com/lampino.md") @map("facebook_url")
-  instagramUrl     String   @default("https://www.instagram.com/lampino.md") @map("instagram_url")
-  tiktokUrl        String   @default("") @map("tiktok_url")
-  isActive         Boolean  @default(true) @map("is_active")
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
+  id                Int      @id @default(autoincrement())
+  phone             String   @default("+373 675 24 111") @map("phone")
+  email             String   @default("contact@lampino.md") @map("email")
+  whatsapp          String   @default("+373 675 24 111") @map("whatsapp")
+  address_ro        String   @default("Str. Exemplu 123") @map("address_ro")
+  address_ru        String   @default("ул. Примерная 123") @map("address_ru")
+  city_ro           String   @default("Chișinău") @map("city_ro")
+  city_ru           String   @default("Кишинев") @map("city_ru")
+  country_ro        String   @default("Moldova") @map("country_ro")
+  country_ru        String   @default("Молдова") @map("country_ru")
+  businessHours_ro  String   @default("Lun-Vin: 9:00 - 18:00") @map("business_hours_ro")
+  businessHours_ru  String   @default("Пн-Пт: 9:00 - 18:00") @map("business_hours_ru")
+  facebookUrl       String   @default("https://www.facebook.com/lampino.md") @map("facebook_url")
+  instagramUrl      String   @default("https://www.instagram.com/lampino.md") @map("instagram_url")
+  tiktokUrl         String   @default("") @map("tiktok_url")
+  googleBusinessUrl String   @default("") @map("google_business_url")
+  // Shop coordinates for the LocalBusiness `geo` and the contact-page map.
+  latitude          Float?   @map("latitude")
+  longitude         Float?   @map("longitude")
+  isActive          Boolean  @default(true) @map("is_active")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
 
   @@map("contact_settings")
 }
@@ -431,4 +481,22 @@ model AnalyticsEvent {
   @@index([type, productId])
   @@index([type, rentalPackageId])
   @@map("analytics_events")
+}
+
+// Customer product reviews. Only `approved` ones are shown and counted in the
+// Product rating markup; new submissions wait for the admin as `pending`.
+model Review {
+  id         Int      @id @default(autoincrement())
+  productId  Int      @map("product_id")
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  authorName String   @map("author_name")
+  rating     Int
+  body       String   @db.Text
+  lang       String   @default("ro")
+  status     String   @default("pending")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([productId, status])
+  @@index([status])
+  @@map("reviews")
 }

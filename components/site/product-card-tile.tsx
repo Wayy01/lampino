@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "motion/react";
 import { ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,10 +10,11 @@ import type { ProductVariant } from "@/lib/types";
 import { useLang } from "@/lib/i18n/provider";
 import { useCart } from "@/lib/cart/provider";
 import { track } from "@/lib/analytics/track";
-import { formatPrice, pick, cn } from "@/lib/utils";
+import { formatPrice, pick, cn, productImageAlt } from "@/lib/utils";
 import { productHref } from "@/lib/i18n/routing";
 import { specList, specValue } from "@/lib/specs";
 import { useDragScroll } from "@/lib/use-drag-scroll";
+import { SiteImage } from "@/components/site/site-image";
 
 const IMAGE_PLACEHOLDER =
   "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=1200&q=80";
@@ -33,9 +33,15 @@ const IMAGE_PLACEHOLDER =
 export function ProductCardTile({
   product,
   index = 0,
+  aboveFold = false,
+  lcp = false,
 }: {
   product: Product;
   index?: number;
+  /** In the first screenful: render visible from the server HTML, no fade-in. */
+  aboveFold?: boolean;
+  /** The likely LCP image: fetched eagerly at high priority. */
+  lcp?: boolean;
 }) {
   const { lang, t } = useLang();
   const { addItem, openCart } = useCart();
@@ -82,7 +88,9 @@ export function ProductCardTile({
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 16 }}
+      // A card at opacity 0 doesn't count as painted until hydration runs the
+      // in-view fade, which held the catalog's LCP back by seconds on phones.
+      initial={aboveFold ? false : { opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{
@@ -97,16 +105,16 @@ export function ProductCardTile({
       className="group flex h-full min-w-0 flex-col overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface transition-[border-color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-foreground/20 hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]"
     >
       <Link
-        href={productHref(lang, product.id, product.name_ro)}
+        href={productHref(lang, product)}
         className="block shrink-0"
         aria-label={name}
       >
         <div className="relative aspect-square overflow-hidden bg-muted">
-          <Image
+          <SiteImage
             src={image}
-            alt={name}
-            fill
+            alt={productImageAlt(lang, product)}
             sizes="(max-width: 1024px) 50vw, 33vw"
+            {...(lcp && { loading: "eager", fetchPriority: "high" })}
             className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
           />
           {hasDiscount && (
@@ -125,7 +133,7 @@ export function ProductCardTile({
         </div>
 
         <Link
-          href={productHref(lang, product.id, product.name_ro)}
+          href={productHref(lang, product)}
           className="min-w-0"
         >
           <h3 className="font-display line-clamp-2 h-[2lh] text-[0.9375rem] leading-snug tracking-tight transition-colors group-hover:text-primary sm:text-base lg:text-[1.0625rem]">

@@ -564,7 +564,7 @@ export function PergolaViewer() {
         src="/pergola-lights.png"
         alt={t.arenda.modelAlt}
         fill
-        priority
+        preload
         sizes="(max-width: 1400px) 100vw, 1400px"
         className={`object-contain transition-opacity duration-700 ${
           live ? "opacity-0" : "opacity-100"

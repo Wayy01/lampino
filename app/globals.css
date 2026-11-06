@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Raw media sources, never markup. Tailwind's auto-detection doesn't know the
+   .glb extension and reads the 11 MB model as text, which can take gigabytes
+   of memory and get the build OOM-killed. */
+@source not "../assets";
+@source not "../videos";
+
 /* =========================================================
    LAMPINO — home lighting shop (light-only)
    Warm ivory paper · ink · single warm terracotta accent
@@ -52,6 +58,27 @@
   --animate-marquee: marquee 38s linear infinite;
   --animate-ken-burns: kenBurns 18s ease-in-out infinite alternate;
   --animate-float-slow: floatSlow 9s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+  /* Holds a "still loading" label back so fast loads never flash it. */
+  --animate-fade-in-late: fadeIn 0.3s ease-out 0.9s both;
+
+  @keyframes shimmer {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 
   @keyframes marquee {
     from {
@@ -114,7 +141,11 @@ body {
 }
 
 /* Paper grain overlay */
+/* Phones skip the grain: a fixed full-screen blend layer makes the browser
+   composite the whole page under it, a real cost on a mid-range phone for a
+   texture at 4% opacity. */
 .grain {
+  display: none;
   position: fixed;
   inset: 0;
   z-index: 60;
@@ -122,6 +153,11 @@ body {
   opacity: 0.04;
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@media (min-width: 768px) {
+  .grain {
+    display: block;
+  }
 }
 
 /* Thin editorial selection */

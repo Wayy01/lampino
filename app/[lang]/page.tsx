@@ -5,7 +5,7 @@ import { FeaturedProducts } from "@/components/site/featured-products";
 import { FeaturedRentals } from "@/components/site/featured-rentals";
 import { Faq } from "@/components/site/faq";
 import { getHeroMedia, getHomepageSettings } from "@/lib/data/settings";
-import { getFeaturedProducts } from "@/lib/data/products";
+import { forListing, getFeaturedProducts } from "@/lib/data/products";
 import { getFeaturedCategories } from "@/lib/data/categories";
 import { getFeaturedRentals } from "@/lib/data/rentals";
 import { isLocale } from "@/lib/i18n/routing";
@@ -53,7 +53,7 @@ export default async function Home({
         buttonText_ru={hero.buttonText_ru}
         buttonUrl={hero.buttonUrl}
       />
-      <FeaturedProducts products={featured} heading={productHeading} />
+      <FeaturedProducts products={featured.map(forListing)} heading={productHeading} />
       <FeaturedCategories categories={categories} heading={categoryHeading} />
       <FeaturedRentals packages={rentals} heading={rentalHeading} />
       <Faq />

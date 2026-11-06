@@ -107,6 +107,14 @@ const PRICE_BUCKETS = [200, 500, 1200] as const;
  * catalog, rounded up to a clean hundred, and never below the top fixed bucket.
  * At this value the max-price filter is effectively "no limit".
  */
+/** What the customer actually pays: the reduced price when one is set. */
+/** Products per catalog page — shared by the client grid and the server's JSON-LD/metadata. */
+export const PAGE_SIZE = 9;
+
+export function effectivePrice(p: { price: number; reducedPrice: number | null }): number {
+  return p.reducedPrice ?? p.price;
+}
+
 export function priceCeiling(products: { price: number }[]): number {
   const max = products.reduce((m, p) => Math.max(m, p.price), 0);
   return Math.max(PRICE_BUCKETS.at(-1)!, Math.ceil(max / 100) * 100);
@@ -127,16 +135,21 @@ export function isSortKey(v: string | undefined): v is SortKey {
   return v === "featured" || v === "price-asc" || v === "price-desc";
 }
 
-/** Return a sorted copy of the list for the given sort key. */
-export function sortProducts(list: Product[], key: SortKey): Product[] {
+/**
+ * Return a sorted copy of the list for the given sort key. On a category page
+ * (`inCategory`) the default sort is the order the admin dragged the category's
+ * products into; the bare catalog keeps featured-first.
+ */
+export function sortProducts(list: Product[], key: SortKey, inCategory = false): Product[] {
   const copy = list.slice();
   switch (key) {
     case "price-asc":
-      return copy.sort((a, b) => a.price - b.price);
+      return copy.sort((a, b) => effectivePrice(a) - effectivePrice(b));
     case "price-desc":
-      return copy.sort((a, b) => b.price - a.price);
+      return copy.sort((a, b) => effectivePrice(b) - effectivePrice(a));
     case "featured":
     default:
+      if (inCategory) return copy.sort((a, b) => a.categoryOrder - b.categoryOrder);
       return copy.sort((a, b) => {
         if (a.featured !== b.featured) return a.featured ? -1 : 1;
         return a.featuredOrder - b.featuredOrder;

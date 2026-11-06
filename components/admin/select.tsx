@@ -42,7 +42,11 @@ export function AdminSelect({
   className?: string;
 }) {
   const [internal, setInternal] = useState(defaultValue);
-  const current = value !== undefined ? value : internal;
+  const selected = value !== undefined ? value : internal;
+  // A saved value with no matching option (e.g. its category was deleted)
+  // would render a blank trigger while the hidden input kept posting the dead
+  // id. Treat it as empty so what's submitted is what's shown.
+  const current = options.some((o) => o.value === selected) ? selected : "";
 
   const handleChange = (next: string) => {
     const mapped = next === EMPTY ? "" : next;

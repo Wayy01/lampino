@@ -30,6 +30,13 @@ function color(fd: FormData, key: string, fallback: string): string {
 
 const revalidate = () => revalidatePath("/admin/[lang]/settings", "page");
 
+/** A coordinate in ±`limit` degrees (comma decimals accepted), or null when blank/invalid. */
+function coordinate(fd: FormData, key: string, limit: number): number | null {
+  const raw = str(fd, key).replace(",", ".");
+  const n = Number(raw);
+  return raw && Number.isFinite(n) && Math.abs(n) <= limit ? n : null;
+}
+
 export async function updateContact(
   _prev: SettingsActionState,
   fd: FormData,
@@ -53,10 +60,16 @@ export async function updateContact(
       facebookUrl: str(fd, "facebookUrl"),
       instagramUrl: str(fd, "instagramUrl"),
       tiktokUrl: str(fd, "tiktokUrl"),
+      googleBusinessUrl: str(fd, "googleBusinessUrl"),
+      latitude: coordinate(fd, "latitude", 90),
+      longitude: coordinate(fd, "longitude", 180),
       isActive: fd.get("isActive") === "on",
     };
 
-    const existing = await prisma.contactSettings.findFirst({ orderBy: { id: "asc" } });
+    // Same row the settings page loaded and the storefront shows.
+    const existing = await prisma.contactSettings.findFirst({
+      orderBy: [{ isActive: "desc" }, { id: "desc" }],
+    });
     if (existing) {
       await prisma.contactSettings.update({ where: { id: existing.id }, data });
     } else {
@@ -87,6 +100,36 @@ export async function updateDelivery(
       await prisma.deliverySettings.update({ where: { id: existing.id }, data });
     } else {
       await prisma.deliverySettings.create({ data });
+    }
+    revalidate();
+    return { ok: true };
+  });
+}
+
+// Keep in sync with ProductPageForm (a "use server" file can only export actions).
+const PRODUCT_PERK_SLOTS = 4;
+
+export async function updateProductPage(
+  _prev: SettingsActionState,
+  fd: FormData,
+): Promise<SettingsActionState> {
+  const lang = langFromForm(fd);
+  await requireAdmin(lang);
+
+  return runFormAction(lang, async () => {
+    const slots = Array.from({ length: PRODUCT_PERK_SLOTS }, (_, i) => i);
+    // Positions are kept (blanks included) so RO and RU rows stay paired;
+    // the storefront drops the blanks.
+    const data = {
+      perks_ro: slots.map((i) => str(fd, `perk_ro_${i}`).slice(0, 120)),
+      perks_ru: slots.map((i) => str(fd, `perk_ru_${i}`).slice(0, 120)),
+    };
+
+    const existing = await prisma.productPageSettings.findFirst({ orderBy: { id: "asc" } });
+    if (existing) {
+      await prisma.productPageSettings.update({ where: { id: existing.id }, data });
+    } else {
+      await prisma.productPageSettings.create({ data });
     }
     revalidate();
     return { ok: true };

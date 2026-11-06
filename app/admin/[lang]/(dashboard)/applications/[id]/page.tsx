@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin/session";
-import { formatPrice, pick } from "@/lib/utils";
+import { formatPrice, parseId, pick } from "@/lib/utils";
 import { num, formatDate, formatDateTime } from "@/lib/admin/serialize";
 import {
   getAdminDict,
@@ -36,8 +36,8 @@ export default async function AdminApplicationDetailPage({
   await requireAdmin(lang);
   const t = getAdminDict(lang);
 
-  const applicationId = Number(id);
-  if (!Number.isInteger(applicationId)) notFound();
+  const applicationId = parseId(id);
+  if (applicationId === null) notFound();
 
   const application = await prisma.rentalApplication.findUnique({
     where: { id: applicationId },

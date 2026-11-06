@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import {
   Copy,
   Eye,
@@ -25,6 +24,7 @@ import { DataTable, type Column } from "@/components/admin/data-table";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { EmptyState } from "@/components/admin/empty-state";
 import { RowActions, type RowAction } from "@/components/admin/row-actions";
+import { AdminImage } from "@/components/admin/media";
 
 export type ProductRow = {
   id: number;
@@ -73,7 +73,8 @@ export function ProductsTable({
             key: "view",
             label: t.common.viewOnSite,
             icon: <ExternalLink className="h-4 w-4" />,
-            externalHref: productHref(lang, p.id, p.name),
+            // `name` is already in the admin locale, which is also the link locale.
+            externalHref: productHref(lang, { id: p.id, name_ro: p.name, name_ru: p.name }),
           },
         ]
       : []),
@@ -121,11 +122,11 @@ export function ProductsTable({
         <div className="flex items-center gap-3">
           <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-[var(--radius-sm)] bg-muted">
             {p.imageUrl && (
-              <Image
+              <AdminImage
                 src={p.imageUrl}
                 alt=""
-                fill
                 sizes="40px"
+                compact
                 unoptimized
                 className="object-cover"
               />
@@ -157,7 +158,7 @@ export function ProductsTable({
       header: t.products.category,
       hideOnMobile: true,
       cell: (p) => (
-        <span className="text-muted-foreground">{p.categoryName ?? "—"}</span>
+        <span className="text-muted-foreground">{p.categoryName ?? "-"}</span>
       ),
     },
     {
@@ -219,7 +220,7 @@ export function ProductsTable({
         <div className="flex justify-end">
           <RowActions
             actions={actions(p)}
-            label={`${t.common.actions} — ${p.name}`}
+            label={`${t.common.actions}: ${p.name}`}
           />
         </div>
       ),

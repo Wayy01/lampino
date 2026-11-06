@@ -40,7 +40,7 @@ export function OrderError({
             {lines.map((line) => (
               <li key={`${line.productId}:${line.variantId ?? ""}`}>
                 {nameOf?.(line) ?? `#${line.productId}`}
-                {detailed && ` — ${t.order.stockLeft} ${line.available}`}
+                {detailed && `, ${t.order.stockLeft} ${line.available}`}
               </li>
             ))}
           </ul>

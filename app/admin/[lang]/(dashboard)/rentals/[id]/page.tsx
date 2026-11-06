@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
+import { toPromotionOption } from "@/lib/admin/promotion-status";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin/session";
 import { num } from "@/lib/admin/serialize";
-import { pick } from "@/lib/utils";
+import { parseId, pick } from "@/lib/utils";
 import {
   getAdminDict,
   adminHref,
@@ -26,8 +27,8 @@ export default async function EditRentalPage({
   await requireAdmin(lang);
   const t = getAdminDict(lang);
 
-  const rentalId = Number(id);
-  if (!Number.isInteger(rentalId)) notFound();
+  const rentalId = parseId(id);
+  if (rentalId === null) notFound();
 
   const [rental, categories, promotions] = await Promise.all([
     prisma.rentalPackage.findUnique({
@@ -36,13 +37,14 @@ export default async function EditRentalPage({
         images: { orderBy: { id: "asc" } },
         videos: { orderBy: { id: "asc" } },
         variants: { orderBy: { sortOrder: "asc" } },
+        promotions: { select: { id: true } },
         _count: { select: { rentalApplications: true } },
       },
     }),
     prisma.category.findMany({ orderBy: { position: "asc" } }),
     prisma.promotion.findMany({ orderBy: { startDate: "desc" } }),
   ]);
-  if (!rental) notFound();
+  if (!rental || rental.deletedAt) notFound();
 
   const formData: RentalFormData = {
     id: rental.id,
@@ -53,7 +55,7 @@ export default async function EditRentalPage({
     price: num(rental.price),
     reducedPrice: num(rental.reducedPrice),
     categoryId: rental.categoryId,
-    promotionId: rental.promotionId,
+    promotionIds: rental.promotions.map((p) => p.id),
     isActive: rental.isActive,
     specifications: specsFromJson(rental.specifications),
     includes_ro: includesFromJson(rental.includes_ro),
@@ -98,10 +100,7 @@ export default async function EditRentalPage({
           id: c.id,
           name: pick(lang, c.name_ro, c.name_ru),
         }))}
-        promotions={promotions.map((p) => ({
-          id: p.id,
-          name: pick(lang, p.name_ro, p.name_ru),
-        }))}
+        promotions={promotions.map((p) => toPromotionOption(p, pick(lang, p.name_ro, p.name_ru)))}
       />
     </>
   );

@@ -59,7 +59,7 @@ export function Navbar({ phone }: { phone?: string | null }) {
             <Link
               key={l.href}
               href={l.href}
-              className="label-mono text-muted-foreground transition-colors hover:text-foreground"
+              className="label-mono text-[0.8rem] font-semibold text-foreground transition-colors hover:text-primary"
             >
               {l.label}
             </Link>

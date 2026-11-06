@@ -10,9 +10,32 @@ export interface Category {
   name_ro: string;
   name_ru: string;
   slug: string;
+  /** Admin overrides of the landing-page URL slug; empty = derived from the name. */
+  urlSlug_ro: string;
+  urlSlug_ru: string;
   position: number;
   imageUrl: string | null;
   productCount?: number;
+}
+
+export type FaqItem = { q: string; a: string };
+
+/** Admin-written landing-page content for one language; empty strings = use the default. */
+export interface CategoryLandingCopy {
+  seoTitle: string;
+  seoDescription: string;
+  h1: string;
+  intro: string;
+  /** Markdown subset (`lib/markdown.ts`). */
+  body: string;
+  faq: FaqItem[];
+}
+
+export interface CategoryLanding {
+  ro: CategoryLandingCopy;
+  ru: CategoryLandingCopy;
+  ogImageUrl: string | null;
+  updatedAt: string;
 }
 
 export interface ProductImage {
@@ -37,6 +60,8 @@ export interface ProductVariant {
   stock: number;
   isDefault: boolean;
   sortOrder: number;
+  /** Product image URLs shown for this variant; empty = all of them. */
+  imageUrls: string[];
 }
 
 /**
@@ -50,9 +75,21 @@ export interface SpecEntry {
   label_ru: string;
   value_ro: string;
   value_ru: string;
+  /** Saved display order; legacy entries have none. See `specList`. */
+  position?: number;
 }
 
 export type Specifications = Record<string, SpecEntry>;
+
+/** The promotion currently applied to a product / rental (see lib/promotions.ts). */
+export interface ActivePromotion {
+  id: number;
+  name_ro: string;
+  name_ru: string;
+  discountPercent: number;
+  /** ISO instant the promotion ends (last millisecond of its last day). */
+  endDate: string;
+}
 
 export interface Product {
   id: number;
@@ -60,6 +97,9 @@ export interface Product {
   name_ru: string;
   description_ro: string;
   description_ru: string;
+  /** Admin alt text for the images; empty = name + category (`productImageAlt`). */
+  imageAlt_ro: string;
+  imageAlt_ru: string;
   price: number;
   reducedPrice: number | null;
   stock: number;
@@ -69,10 +109,14 @@ export interface Product {
   category: Category | null;
   featured: boolean;
   featuredOrder: number;
+  /** Position inside its category (admin drag order); the category page default sort. */
+  categoryOrder: number;
   isActive: boolean;
   images: ProductImage[];
   videos: ProductVideo[];
   variants: ProductVariant[];
+  /** Running promotion already folded into every `reducedPrice`; null if none. */
+  promotion: ActivePromotion | null;
 }
 
 /**
@@ -81,16 +125,23 @@ export interface Product {
  */
 export interface CatalogIndexEntry {
   id: number;
-  slugSource: string;
+  /** Locale-less detail path per locale (slugs are translated). */
+  paths: Record<Locale, string>;
   updatedAt: string;
+  /** Absolute-or-site-relative image URLs, main image first, for the image sitemap. */
+  images: string[];
+  /** Products only: dates the category landing page in the sitemap. */
+  categoryId?: number | null;
 }
 
-/** Category in display order, carrying the numeric id used in `/magazin?category=<id>` URLs. */
+/** Category in display order; `slug` is the catalog's internal filter key (URLs use `categoryHref`). */
 export interface CategoryOption {
   id: number;
   slug: string;
   name_ro: string;
   name_ru: string;
+  urlSlug_ro: string;
+  urlSlug_ru: string;
 }
 
 export interface RentalPackageVariant {
@@ -121,6 +172,8 @@ export interface RentalPackage {
   images: ProductImage[];
   videos: ProductVideo[];
   variants: RentalPackageVariant[];
+  /** Running promotion already folded into every `reducedPrice`; null if none. */
+  promotion: ActivePromotion | null;
 }
 
 export type MediaType = "image" | "video";
@@ -219,6 +272,10 @@ export interface ContactSettings {
   facebookUrl: string;
   instagramUrl: string;
   tiktokUrl: string;
+  /** Google Business Profile link — listed in the Store markup's `sameAs`. */
+  googleBusinessUrl: string;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 export interface PromoBanner {

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getSpecialOffers, getSpecialOffersMeta } from "@/lib/data/offers";
 import { OffersContent } from "@/components/site/offers-content";
 import { JsonLd } from "@/components/site/json-ld";
 import { breadcrumbSchema } from "@/lib/schema";
 import { localeAlternates, metaDescription, openGraphFor } from "@/lib/seo";
 import { dictionaries, type Lang } from "@/lib/i18n/dictionaries";
-import { isLocale, localePath } from "@/lib/i18n/routing";
+import { isLocale, localePath, shopHref } from "@/lib/i18n/routing";
 import { pick } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -20,7 +20,7 @@ export async function generateMetadata({
   const l: Lang = isLocale(lang) ? lang : "ro";
   const d = dictionaries[l].seo;
   // The admin owns this page's headline; the dictionary covers the window
-  // before it's published, when the route 404s anyway.
+  // before it's published, when the route redirects anyway.
   const page = await getSpecialOffersMeta();
   if (!page) return { title: d.offersTitle, robots: { index: false, follow: false } };
 
@@ -47,9 +47,11 @@ export default async function SpecialOffersPage({
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
 
-  // The page only exists while the admin has it published.
+  // The page only exists while the admin has it published. Between campaigns
+  // its URL — already indexed and linked — sends visitors to the shop with a
+  // *temporary* redirect, so it is kept for the next campaign.
   const offers = await getSpecialOffers();
-  if (!offers) notFound();
+  if (!offers) redirect(shopHref(lang));
 
   return (
     <>

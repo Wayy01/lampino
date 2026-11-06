@@ -9,7 +9,8 @@ import {
   useTransition,
 } from "react";
 import Image from "next/image";
-import { Pencil, Plus, Shapes, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { FileSearch, ListOrdered, Pencil, Plus, Shapes, Trash2 } from "lucide-react";
 import {
   saveCategory,
   deleteCategory,
@@ -227,6 +228,22 @@ export function CategoriesManager({ rows }: { rows: CategoryRow[] }) {
       align: "right",
       cell: (c) => (
         <div className="flex items-center justify-end gap-1">
+          <Link
+            href={`/admin/${lang}/categories/${c.id}/products`}
+            aria-label={`${t.categories.productOrder.open}: ${c.name}`}
+            title={t.categories.productOrder.open}
+            className={iconBtn}
+          >
+            <ListOrdered className="h-4 w-4" />
+          </Link>
+          <Link
+            href={`/admin/${lang}/categories/${c.id}`}
+            aria-label={`${t.categories.seo.open}: ${c.name}`}
+            title={t.categories.seo.open}
+            className={iconBtn}
+          >
+            <FileSearch className="h-4 w-4" />
+          </Link>
           <button
             type="button"
             onClick={() => openEdit(c)}

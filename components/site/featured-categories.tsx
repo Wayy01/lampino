@@ -6,7 +6,7 @@ import { motion } from "motion/react";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import type { Category } from "@/lib/types";
 import { useLang, useT } from "@/lib/i18n/provider";
-import { shopHref } from "@/lib/i18n/routing";
+import { categoryHref, shopHref } from "@/lib/i18n/routing";
 import { pick, cn } from "@/lib/utils";
 import { SectionHeading } from "./section-heading";
 import { Reveal } from "./reveal";
@@ -99,7 +99,7 @@ function CategoryTile({
       className="min-w-[78%] shrink-0 snap-start sm:min-w-[46%] md:min-w-0"
     >
       <Link
-        href={shopHref(lang, `category=${category.id}`)}
+        href={categoryHref(lang, category)}
         className="group relative flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-[var(--radius-lg)] bg-muted"
       >
         {category.imageUrl ? (

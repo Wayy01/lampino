@@ -2,8 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@/lib/generated/prisma";
 import { requireAdmin } from "@/lib/admin/session";
 import { slugify } from "@/lib/slug";
+import { categorySlug, LOCALES } from "@/lib/i18n/routing";
 import { getAdminDict, langFromForm, type AdminLang } from "@/lib/admin/i18n";
 import {
   ActionRefusal,
@@ -13,6 +15,93 @@ import {
 } from "@/lib/admin/errors";
 
 export type CategoryActionState = { ok?: boolean; error?: string } | null;
+
+type SlugSource = Parameters<typeof categorySlug>[1] & { formerSlugs: string[] };
+
+/**
+ * The storefront URL slug comes from the name (or the admin override), so a
+ * rename moves the landing page. Remember the outgoing slugs — the page 308s
+ * them to the current one — and forget any that are current again.
+ */
+function formerSlugsAfter(before: SlugSource, after: Parameters<typeof categorySlug>[1]): string[] {
+  const current = new Set(LOCALES.map((l) => categorySlug(l, after)));
+  return [
+    ...new Set([...before.formerSlugs, ...LOCALES.map((l) => categorySlug(l, before))]),
+  ].filter((s) => !current.has(s));
+}
+
+/** `[{ q, a }]` from the FAQ editor's hidden JSON field. */
+function faqFromForm(fd: FormData, key: string): Prisma.InputJsonValue {
+  try {
+    const rows: unknown = JSON.parse(String(fd.get(key) ?? "[]"));
+    if (!Array.isArray(rows)) return [];
+    return rows
+      .map((r) => ({
+        q: typeof r?.q === "string" ? r.q.trim() : "",
+        a: typeof r?.a === "string" ? r.a.trim() : "",
+      }))
+      .filter((r) => r.q && r.a);
+  } catch {
+    return [];
+  }
+}
+
+/** Landing-page SEO content (`/admin/<lang>/categories/<id>`). */
+export async function saveCategorySeo(
+  id: number,
+  _prev: CategoryActionState,
+  fd: FormData,
+): Promise<CategoryActionState> {
+  const lang = langFromForm(fd);
+  await requireAdmin(lang);
+
+  return runFormAction(lang, async () => {
+    const dict = getAdminDict(lang);
+    const errors = dict.categories.errors;
+    const field = (key: string) => String(fd.get(key) ?? "").trim();
+    const before = await prisma.category.findUnique({ where: { id } });
+    if (!before) return { error: dict.errors.recordMissing };
+
+    const urlSlug_ro = slugify(field("urlSlug_ro"));
+    const urlSlug_ru = slugify(field("urlSlug_ru"));
+    const after = { ...before, urlSlug_ro, urlSlug_ru };
+
+    // Two categories can't answer to the same landing URL.
+    const others = await prisma.category.findMany({ where: { id: { not: id } } });
+    for (const l of LOCALES) {
+      const mine = categorySlug(l, after);
+      if (others.some((o) => categorySlug(l, o) === mine)) {
+        return { error: `${errors.slugInUse} (${mine})` };
+      }
+    }
+
+    await prisma.category.update({
+      where: { id },
+      data: {
+        urlSlug_ro,
+        urlSlug_ru,
+        formerSlugs: formerSlugsAfter(before, after),
+        seoTitle_ro: field("seoTitle_ro"),
+        seoTitle_ru: field("seoTitle_ru"),
+        seoDescription_ro: field("seoDescription_ro"),
+        seoDescription_ru: field("seoDescription_ru"),
+        h1_ro: field("h1_ro"),
+        h1_ru: field("h1_ru"),
+        intro_ro: field("intro_ro"),
+        intro_ru: field("intro_ru"),
+        body_ro: field("body_ro"),
+        body_ru: field("body_ru"),
+        faq_ro: faqFromForm(fd, "faq_ro"),
+        faq_ru: faqFromForm(fd, "faq_ru"),
+        ogImageUrl: field("ogImageUrl") || null,
+      },
+    });
+
+    revalidatePath("/admin/[lang]/categories", "page");
+    revalidatePath("/admin/[lang]/categories/[id]", "page");
+    return { ok: true };
+  });
+}
 
 export async function saveCategory(
   id: number | null,
@@ -49,9 +138,16 @@ export async function saveCategory(
         },
       });
     } else {
+      const before = await prisma.category.findUnique({ where: { id } });
       await prisma.category.update({
         where: { id },
-        data: { name_ro, name_ru, slug, imageUrl },
+        data: {
+          name_ro,
+          name_ru,
+          slug,
+          imageUrl,
+          ...(before && { formerSlugs: formerSlugsAfter(before, { ...before, name_ro, name_ru }) }),
+        },
       });
     }
 
@@ -67,8 +163,40 @@ export async function deleteCategory(
   await requireAdmin(lang);
   return runAction(lang, async () => {
     // Products and rental packages keep existing but lose the category (SetNull).
-    await prisma.category.delete({ where: { id } });
+    // The homepage and special-offers settings hold category ids as plain
+    // columns with no foreign key, so clear them here in the same transaction —
+    // otherwise those sections filter by a dead id and render empty, and the
+    // admin selects keep re-posting it.
+    await prisma.$transaction(async (tx) => {
+      const settings = await tx.homepageSettings.findMany({
+        select: { id: true, featuredCategoryIds: true },
+      });
+      for (const s of settings) {
+        const ids = Array.isArray(s.featuredCategoryIds) ? s.featuredCategoryIds : [];
+        const kept = ids.filter((v) => Number(v) !== id);
+        if (kept.length !== ids.length) {
+          await tx.homepageSettings.update({
+            where: { id: s.id },
+            data: { featuredCategoryIds: kept as Prisma.InputJsonValue },
+          });
+        }
+      }
+      await tx.homepageSettings.updateMany({
+        where: { featuredProductsCategoryId: id },
+        data: { featuredProductsCategoryId: null },
+      });
+      await tx.homepageSettings.updateMany({
+        where: { featuredRentalsCategoryId: id },
+        data: { featuredRentalsCategoryId: null },
+      });
+      await tx.specialOffersPage.updateMany({
+        where: { filterByCategoryId: id },
+        data: { filterByCategoryId: null },
+      });
+      await tx.category.delete({ where: { id } });
+    });
     revalidatePath("/admin/[lang]/categories", "page");
+    revalidatePath("/admin/[lang]/homepage", "page");
   });
 }
 
@@ -99,5 +227,37 @@ export async function reorderCategories(
       ),
     );
     revalidatePath("/admin/[lang]/categories", "page");
+  });
+}
+
+/**
+ * Persist the order the admin dragged a category's products into
+ * (`/admin/<lang>/categories/<id>/products`). Same contract as
+ * `reorderCategories`: the full id list of the category's (non-deleted)
+ * products, refused when it no longer matches the table.
+ */
+export async function reorderCategoryProducts(
+  lang: AdminLang,
+  categoryId: number,
+  ids: number[],
+): Promise<ActionResult> {
+  await requireAdmin(lang);
+  return runAction(lang, async () => {
+    const ordered = [...new Set(ids.filter((id) => Number.isInteger(id)))];
+    const existing = await prisma.product.findMany({
+      where: { categoryId, deletedAt: null },
+      select: { id: true },
+    });
+    const known = new Set(existing.map((p) => p.id));
+    if (ordered.length !== known.size || ordered.some((id) => !known.has(id))) {
+      throw new ActionRefusal("reorderStale");
+    }
+
+    await prisma.$transaction(
+      ordered.map((id, i) =>
+        prisma.product.update({ where: { id }, data: { categoryOrder: i } }),
+      ),
+    );
+    revalidatePath("/admin/[lang]/categories/[id]/products", "page");
   });
 }

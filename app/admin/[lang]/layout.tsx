@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { TRANSLATE_GUARD_SCRIPT } from "@/lib/translate-guard";
 import { notFound } from "next/navigation";
 import { Fraunces, Hanken_Grotesk, Geist_Mono } from "next/font/google";
 import { isLocale, LOCALES } from "@/lib/i18n/routing";
@@ -49,8 +50,12 @@ export default async function AdminRootLayout({
   return (
     <html
       lang={lang}
+      translate="no"
       className={`${fraunces.variable} ${hanken.variable} ${geistMono.variable} antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: TRANSLATE_GUARD_SCRIPT }} />
+      </head>
       <body className="min-h-screen">
         <AdminLanguageProvider lang={lang}>{children}</AdminLanguageProvider>
       </body>

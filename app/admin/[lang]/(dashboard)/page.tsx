@@ -80,7 +80,7 @@ export default async function AdminDashboardPage({
   });
   const productName = (id: number | null) => {
     const p = topProducts.find((tp) => tp.id === id);
-    return p ? pick(lang, p.name_ro, p.name_ru) : "—";
+    return p ? pick(lang, p.name_ro, p.name_ru) : "-";
   };
 
   return (

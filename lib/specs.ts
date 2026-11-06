@@ -97,15 +97,23 @@ export function normalizeSpecs(json: unknown): Specifications {
         value_ru: asString(e.value_ru) || asString(e.value_ro),
       };
       // Drop entries with no value in either language.
+      // Saved order: `jsonb` doesn't keep key order (and JS objects put
+      // integer-like keys first), so the admin stores it on each entry.
+      if (typeof e.position === "number") spec.position = e.position;
+      // Drop entries with no value in either language.
       if (spec.value_ro || spec.value_ru) out[id] = spec;
     }
   }
   return out;
 }
 
-/** Ordered `[id, entry]` pairs (Json insertion order is preserved). */
+/** Ordered `[id, entry]` pairs, in the order the admin arranged them. Entries
+ * without a saved position keep their relative order after the others. */
 export function specList(specs: Specifications): [string, SpecEntry][] {
-  return Object.entries(specs);
+  return Object.entries(specs)
+    .map((pair, index) => ({ pair, index, pos: pair[1].position ?? Infinity }))
+    .sort((a, b) => a.pos - b.pos || a.index - b.index)
+    .map((o) => o.pair);
 }
 
 export function specLabel(entry: SpecEntry, lang: Locale): string {

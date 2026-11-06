@@ -5,7 +5,7 @@ import { requireAdmin } from "@/lib/admin/session";
 import { Prisma } from "@/lib/generated/prisma";
 import { formatDate } from "@/lib/admin/serialize";
 import { promotionState } from "@/lib/admin/promotion-status";
-import { pick } from "@/lib/utils";
+import { parsePage, pick } from "@/lib/utils";
 import { getAdminDict, adminHref, type AdminLang } from "@/lib/admin/i18n";
 import { isLocale } from "@/lib/i18n/routing";
 import { PageHeader } from "@/components/admin/page-header";
@@ -38,7 +38,7 @@ export default async function AdminPromotionsPage({
   const sp = await searchParams;
   const q = typeof sp.q === "string" ? sp.q : "";
   const status = typeof sp.status === "string" ? sp.status : "";
-  const page = Math.max(1, Number(sp.page) || 1);
+  const page = parsePage(sp.page);
 
   // A promotion has no status column, so the status filter becomes a
   // comparison against the date window.

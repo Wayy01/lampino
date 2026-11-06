@@ -3,8 +3,8 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { RichText } from "@/components/site/rich-text";
 import {
-  ArrowLeft,
   ShoppingBag,
   Zap,
   Check,
@@ -16,11 +16,13 @@ import {
 import type { Product } from "@/lib/data/products";
 import type { ContactInfo, MediaItem, ProductVariant } from "@/lib/types";
 import { useLang } from "@/lib/i18n/provider";
-import { shopHref } from "@/lib/i18n/routing";
+import { categoryHref, localePath, productHref, shopHref } from "@/lib/i18n/routing";
+import { Breadcrumbs } from "./breadcrumbs";
+import { useShopQuery } from "@/lib/shop-return";
 import { useCart } from "@/lib/cart/provider";
 import { track } from "@/lib/analytics/track";
 import { specList, specLabel, specValue } from "@/lib/specs";
-import { formatPrice, pick, cn } from "@/lib/utils";
+import { formatPrice, pick, cn, productImageAlt } from "@/lib/utils";
 import { ProductGallery } from "./product-gallery";
 import { FastBuyDrawer } from "./fast-buy-drawer";
 import { Button } from "@/components/ui/button";
@@ -30,12 +32,24 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 export function ProductDetail({
   product,
   contact,
+  perks,
 }: {
   product: Product;
   contact: ContactInfo | null;
+  /** Admin-edited perks per locale; null = the dictionary defaults. */
+  perks: { ro: string[]; ru: string[] } | null;
 }) {
   const { lang, t } = useLang();
   const { addItem, openCart } = useCart();
+  const shopQuery = useShopQuery();
+  // The remembered query carries the category as an id; when it's this
+  // product's own category, its crumb returns to that filtered view, otherwise
+  // the "Magazin" crumb does.
+  const backParams = new URLSearchParams(shopQuery);
+  const backCategory = backParams.get("category");
+  backParams.delete("category");
+  const backToCategory = !!product.category && backCategory === String(product.category.id);
+  const perkItems = perks ? perks[lang] : t.product.includedItems;
 
   const name = pick(lang, product.name_ro, product.name_ru);
 
@@ -63,21 +77,25 @@ export function ProductDetail({
   const hasDiscount = reduced !== null && reduced < unitPrice;
   const finalPrice = hasDiscount ? reduced! : unitPrice;
 
-  // Videos always come first, then images.
-  const media: MediaItem[] = useMemo(
-    () => [
+  // Videos always come first and are shared by every variant; images narrow
+  // to the selected variant's own set when it has one.
+  const variantImageUrls = selectedVariant?.imageUrls;
+  const media: MediaItem[] = useMemo(() => {
+    const own = variantImageUrls?.length
+      ? product.images.filter((i) => variantImageUrls.includes(i.imageUrl))
+      : [];
+    return [
       ...product.videos.map((v) => ({
         type: "video" as const,
         src: v.videoUrl,
         thumbnail: v.thumbnailUrl,
       })),
-      ...product.images.map((i) => ({
+      ...(own.length ? own : product.images).map((i) => ({
         type: "image" as const,
         src: i.imageUrl,
       })),
-    ],
-    [product.videos, product.images],
-  );
+    ];
+  }, [product.videos, product.images, variantImageUrls]);
 
   // Specs are free-form and bilingual — render whatever the product carries.
   const specs = specList(product.specifications).map(([id, entry]) => ({
@@ -107,30 +125,41 @@ export function ProductDetail({
 
   return (
     <div className="mx-auto max-w-[1400px] px-5 pb-28 pt-28 sm:px-8 md:pt-32">
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: EASE }}
-      >
-        <Link
-          href={shopHref(lang)}
-          className="group label-mono inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-          {t.product.back}
-        </Link>
-      </motion.div>
+      {/* The trail is the way back, to the filtered view the visitor came from. */}
+      <Breadcrumbs
+        label={t.catalog.breadcrumb}
+        items={[
+          { name: t.nav.home, href: localePath(lang) },
+          { name: t.nav.products, href: backToCategory ? shopHref(lang) : shopHref(lang, shopQuery) },
+          ...(product.category
+            ? [
+                {
+                  name: pick(lang, product.category.name_ro, product.category.name_ru),
+                  href: categoryHref(
+                    lang,
+                    product.category,
+                    backToCategory ? backParams.toString() : "",
+                  ),
+                },
+              ]
+            : []),
+          { name, href: productHref(lang, product) },
+        ]}
+      />
 
       <div className="mt-8 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="label-mono text-primary">
-            {product.category
-              ? pick(lang, product.category.name_ro, product.category.name_ru)
-              : ""}
-          </div>
+          {product.category && (
+            <Link
+              href={categoryHref(lang, product.category)}
+              className="label-mono text-primary underline-offset-4 transition-opacity hover:underline hover:opacity-80"
+            >
+              {pick(lang, product.category.name_ro, product.category.name_ru)}
+            </Link>
+          )}
           <motion.h1
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ y: 16 }}
+            animate={{ y: 0 }}
             transition={{ duration: 0.7, ease: EASE }}
             className="font-display mt-3 text-[clamp(2.25rem,6vw,4.5rem)] font-light leading-[0.95] tracking-[-0.03em]"
           >
@@ -142,21 +171,27 @@ export function ProductDetail({
       <div className="mt-12 grid grid-cols-1 gap-10 lg:grid-cols-[1.5fr_1fr] lg:gap-14">
         {/* Left: gallery + overview + specs */}
         <div>
+          {/* Slide only, no fade: an element at opacity 0 doesn't count as
+              painted, which held the gallery's LCP back until hydration. */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ y: 20 }}
+            animate={{ y: 0 }}
             transition={{ duration: 0.7, delay: 0.1, ease: EASE }}
           >
-            <ProductGallery media={media} alt={name} />
+            <ProductGallery
+              media={media}
+              alt={productImageAlt(lang, product)}
+              // Picking a variant jumps to its first image (past the videos).
+              focusKey={selectedVariant?.id}
+              focusIndex={product.images.length ? product.videos.length : 0}
+            />
           </motion.div>
 
           <div className="mt-14">
             <div className="label-mono mb-5 text-muted-foreground">
               {t.product.overview}
             </div>
-            <p className="font-display max-w-xl text-2xl font-light leading-snug tracking-tight md:text-3xl">
-              {pick(lang, product.description_ro, product.description_ru)}
-            </p>
+            <RichText source={pick(lang, product.description_ro, product.description_ru)} />
           </div>
 
           {specs.length > 0 && (
@@ -332,14 +367,16 @@ export function ProductDetail({
               </div>
             )}
 
-            <ul className="mt-7 space-y-3 border-t border-border pt-6">
-              {t.product.includedItems.map((item) => (
-                <li key={item} className="flex items-center gap-3 text-sm">
-                  <Check className="h-4 w-4 shrink-0 text-primary" />
-                  {item}
-                </li>
-              ))}
-            </ul>
+            {perkItems.length > 0 && (
+              <ul className="mt-7 space-y-3 border-t border-border pt-6">
+                {perkItems.map((item, i) => (
+                  <li key={i} className="flex items-center gap-3 text-sm">
+                    <Check className="h-4 w-4 shrink-0 text-primary" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       </div>

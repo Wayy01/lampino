@@ -2,12 +2,14 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin/session";
 import { getAdminDict, type AdminLang } from "@/lib/admin/i18n";
 import { isLocale } from "@/lib/i18n/routing";
+import { dictionaries } from "@/lib/i18n/dictionaries";
 import { pick } from "@/lib/utils";
 import { num } from "@/lib/admin/serialize";
 import { PageHeader } from "@/components/admin/page-header";
 import {
   ContactForm,
   DeliveryForm,
+  ProductPageForm,
   ThemeForm,
   SpecialOffersForm,
   type ContactData,
@@ -39,9 +41,10 @@ export default async function AdminSettingsPage({
   const label = (name: string, isActive: boolean) =>
     isActive ? name : `${name} (${t.statuses.inactive.toLowerCase()})`;
 
-  const [contact, delivery, theme, categories, products, rentals] =
+  const [contact, delivery, theme, categories, products, rentals, productPage] =
     await Promise.all([
-      prisma.contactSettings.findFirst({ orderBy: { id: "asc" } }),
+      // The row the storefront shows (`getContactSettings`): active, newest.
+      prisma.contactSettings.findFirst({ orderBy: [{ isActive: "desc" }, { id: "desc" }] }),
       prisma.deliverySettings.findFirst({ orderBy: { id: "asc" } }),
       prisma.themeSettings.findFirst({ orderBy: { id: "asc" } }),
       prisma.category.findMany({ orderBy: { position: "asc" } }),
@@ -65,6 +68,7 @@ export default async function AdminSettingsPage({
         orderBy: { title_ro: "asc" },
         select: { id: true, title_ro: true, title_ru: true, isActive: true },
       }),
+      prisma.productPageSettings.findFirst({ orderBy: { id: "asc" } }),
     ]);
 
   const contactData: ContactData | null = contact && {
@@ -82,6 +86,9 @@ export default async function AdminSettingsPage({
     facebookUrl: contact.facebookUrl,
     instagramUrl: contact.instagramUrl,
     tiktokUrl: contact.tiktokUrl,
+    googleBusinessUrl: contact.googleBusinessUrl,
+    latitude: contact.latitude,
+    longitude: contact.longitude,
     isActive: contact.isActive,
   };
 
@@ -90,6 +97,13 @@ export default async function AdminSettingsPage({
     deliveryCostChisinau: num(delivery.deliveryCostChisinau),
     deliveryCostOutside: num(delivery.deliveryCostOutside),
     isActive: delivery.isActive,
+  };
+
+  // No row yet: prefill with the storefront's built-in defaults, so the form
+  // shows exactly what customers currently see.
+  const productPageData = {
+    perks_ro: productPage?.perks_ro ?? [...dictionaries.ro.product.includedItems],
+    perks_ru: productPage?.perks_ru ?? [...dictionaries.ru.product.includedItems],
   };
 
   const themeData: ThemeData | null = theme && {
@@ -125,6 +139,7 @@ export default async function AdminSettingsPage({
       <div className="flex flex-col gap-4">
         <ContactForm contact={contactData} />
         <DeliveryForm delivery={deliveryData} />
+        <ProductPageForm data={productPageData} />
         <ThemeForm theme={themeData} />
         <SpecialOffersForm
           offers={offersData}

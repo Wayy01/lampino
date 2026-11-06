@@ -9,57 +9,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/lib/generated/prisma";
+import { bestActivePromotion, effectiveReducedPrice, promotionState } from "@/lib/promotions";
 
 export const runtime = "nodejs";
-
-type PromotionLike = {
-  startDate: Date;
-  endDate: Date;
-  discountPercent: number;
-} | null;
-
-function getPromotionStatus(
-  promotion: PromotionLike,
-  referenceDate: Date,
-): "upcoming" | "active" | "expired" | null {
-  if (!promotion) return null;
-  if (referenceDate < promotion.startDate) return "upcoming";
-  if (referenceDate > promotion.endDate) return "expired";
-  return "active";
-}
-
-function normalizeDiscountPercent(value: number | null | undefined): number | null {
-  if (value === null || value === undefined) return null;
-  if (!Number.isFinite(value) || value <= 0 || value >= 100) return null;
-  return value;
-}
-
-function calculateDiscountedPrice(price: unknown, discountPercent: number): number | null {
-  const priceNumber = Number(price);
-  if (!Number.isFinite(priceNumber)) return null;
-  const discounted = priceNumber * ((100 - discountPercent) / 100);
-  if (!Number.isFinite(discounted) || discounted >= priceNumber) return null;
-  return Math.round(discounted * 100) / 100;
-}
-
-function resolvePromotionPricing(
-  price: unknown,
-  promotion: PromotionLike,
-  referenceDate = new Date(),
-): { reducedPrice: number | null; status: "upcoming" | "active" | "expired" | null } {
-  if (!promotion) return { reducedPrice: null, status: null };
-  const status = getPromotionStatus(promotion, referenceDate);
-  const discount = normalizeDiscountPercent(promotion.discountPercent);
-  if (status !== "active" || discount === null) return { reducedPrice: null, status };
-  return { reducedPrice: calculateDiscountedPrice(price, discount), status };
-}
 
 type ProductForSerialization = Prisma.ProductGetPayload<{
   include: {
     images: true;
     videos: true;
     category: true;
-    promotion: {
+    promotions: {
       select: {
         id: true;
         name_ro: true;
@@ -73,24 +32,58 @@ type ProductForSerialization = Prisma.ProductGetPayload<{
   };
 }>;
 
+const MAX_INT = 2_147_483_647;
+
+/** A positive Int4 id from untrusted input, or null. */
+function parseId(raw: unknown): number | null {
+  const n = typeof raw === "number" ? raw : Number(String(raw ?? "").trim());
+  return Number.isInteger(n) && n > 0 && n <= MAX_INT ? n : null;
+}
+
+/** A finite, non-negative price filter, or null (ignored). */
+function parsePrice(raw: string | null): number | null {
+  if (raw === null || raw.trim() === "") return null;
+  const n = Number(raw);
+  return Number.isFinite(n) && n >= 0 ? n : null;
+}
+
 function serializeProduct(product: ProductForSerialization) {
-  const promotionSnapshot = resolvePromotionPricing(product.price, product.promotion);
+  // Same rules as the storefront and checkout (lib/promotions.ts): the best
+  // running promotion is folded into `reducedPrice`, so bots quote exactly
+  // what a customer pays. When none is running, the next scheduled one is
+  // reported for information only.
+  const now = new Date();
+  const active = bestActivePromotion(product.promotions, now);
+  const upcoming = product.promotions
+    .filter((p) => promotionState(p, now) === "scheduled")
+    .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())[0];
+  const shown = active ?? upcoming ?? null;
+  const pct = active?.discountPercent ?? null;
+  const { promotions: _all, ...rest } = product;
+  void _all;
 
   const variants = product.variants.map((variant) => {
-    const variantPricing = resolvePromotionPricing(variant.price, product.promotion);
     return {
       ...variant,
       price: Number(variant.price),
-      reducedPrice: variantPricing.reducedPrice,
+      reducedPrice: effectiveReducedPrice(
+        Number(variant.price),
+        variant.reducedPrice === null ? null : Number(variant.reducedPrice),
+        pct,
+      ),
       createdAt: variant.createdAt.toISOString(),
       updatedAt: variant.updatedAt.toISOString(),
     };
   });
 
   return {
-    ...product,
+    ...rest,
     price: Number(product.price),
-    reducedPrice: promotionSnapshot.reducedPrice,
+    reducedPrice: effectiveReducedPrice(
+      Number(product.price),
+      product.reducedPrice === null ? null : Number(product.reducedPrice),
+      pct,
+    ),
     variants,
     specifications:
       product.specifications && typeof product.specifications === "object"
@@ -98,17 +91,17 @@ function serializeProduct(product: ProductForSerialization) {
         : undefined,
     createdAt: product.createdAt.toISOString(),
     updatedAt: product.updatedAt.toISOString(),
-    promotion: product.promotion
+    promotion: shown
       ? {
-          id: product.promotion.id,
-          name_ro: product.promotion.name_ro,
-          name_ru: product.promotion.name_ru,
-          discountPercent: product.promotion.discountPercent,
-          startDate: product.promotion.startDate.toISOString(),
-          endDate: product.promotion.endDate.toISOString(),
+          id: shown.id,
+          name_ro: shown.name_ro,
+          name_ru: shown.name_ru,
+          discountPercent: shown.discountPercent,
+          startDate: shown.startDate.toISOString(),
+          endDate: shown.endDate.toISOString(),
         }
       : null,
-    promotionStatus: promotionSnapshot.status,
+    promotionStatus: shown ? (active ? "active" : "upcoming") : null,
   };
 }
 
@@ -117,17 +110,18 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     const categoryId = searchParams.get("categoryId");
-    const page = Math.max(1, Number(searchParams.get("page")) || 1);
-    const limit = Math.min(50, Math.max(1, Number(searchParams.get("limit")) || 12));
+    const page = Math.min(10_000, Math.max(1, Math.floor(Number(searchParams.get("page")) || 1)));
+    const limit = Math.min(50, Math.max(1, Math.floor(Number(searchParams.get("limit")) || 12)));
     const search = searchParams.get("search")?.trim() || "";
-    const minPrice = searchParams.get("minPrice");
-    const maxPrice = searchParams.get("maxPrice");
+    const minPrice = parsePrice(searchParams.get("minPrice"));
+    const maxPrice = parsePrice(searchParams.get("maxPrice"));
     const sortBy = searchParams.get("sort") || "featured";
 
     const where: Prisma.ProductWhereInput = { isActive: true };
 
     if (categoryId && categoryId !== "all") {
-      where.categoryId = parseInt(categoryId);
+      // A malformed id matches nothing rather than erroring the request.
+      where.categoryId = parseId(categoryId) ?? -1;
     }
 
     if (search) {
@@ -139,10 +133,10 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    if (minPrice || maxPrice) {
+    if (minPrice !== null || maxPrice !== null) {
       where.price = {};
-      if (minPrice) where.price.gte = parseFloat(minPrice);
-      if (maxPrice) where.price.lte = parseFloat(maxPrice);
+      if (minPrice !== null) where.price.gte = minPrice;
+      if (maxPrice !== null) where.price.lte = maxPrice;
     }
 
     let orderBy: Prisma.ProductOrderByWithRelationInput | Prisma.ProductOrderByWithRelationInput[] = {
@@ -167,7 +161,6 @@ export async function GET(request: NextRequest) {
         orderBy = [
           { featured: "desc" },
           { featuredOrder: "asc" },
-          { promotion: { discountPercent: "desc" } },
           { createdAt: "desc" },
         ];
         break;
@@ -180,7 +173,7 @@ export async function GET(request: NextRequest) {
           images: { orderBy: { isMain: "desc" } },
           videos: { take: 1 },
           category: true,
-          promotion: {
+          promotions: {
             select: {
               id: true,
               name_ro: true,
@@ -218,15 +211,16 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { id } = body;
+    const body = await request.json().catch(() => null);
+    const id = parseId(body && typeof body === "object" ? body.id : null);
 
-    if (!id) {
+    if (id === null) {
       return NextResponse.json({ error: "Product ID is required" }, { status: 400 });
     }
 
-    const product = await prisma.product.findUnique({
-      where: { id: Number(id) },
+    // Hidden products are as invisible here as they are in the shop.
+    const product = await prisma.product.findFirst({
+      where: { id, isActive: true },
       include: {
         images: true,
         videos: true,

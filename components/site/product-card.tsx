@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "motion/react";
 import { ArrowUpRight, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,9 +10,10 @@ import type { ProductVariant } from "@/lib/types";
 import { useLang } from "@/lib/i18n/provider";
 import { useCart } from "@/lib/cart/provider";
 import { track } from "@/lib/analytics/track";
-import { formatPrice, pick, cn } from "@/lib/utils";
+import { formatPrice, pick, cn, productImageAlt } from "@/lib/utils";
 import { productHref } from "@/lib/i18n/routing";
 import { specList, specValue } from "@/lib/specs";
+import { SiteImage } from "@/components/site/site-image";
 
 const IMAGE_PLACEHOLDER =
   "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=1200&q=80";
@@ -81,14 +81,13 @@ export function ProductCard({
       className="group flex h-full min-w-0 flex-col"
     >
       <Link
-        href={productHref(lang, product.id, product.name_ro)}
+        href={productHref(lang, product)}
         className="flex flex-col"
       >
         <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--radius-lg)] bg-muted">
-          <Image
+          <SiteImage
             src={image}
-            alt={name}
-            fill
+            alt={productImageAlt(lang, product)}
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
           />

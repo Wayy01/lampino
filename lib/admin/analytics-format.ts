@@ -6,7 +6,7 @@
 
 /** "1m 23s" / "45s" / "—" from an average millisecond count. */
 export function formatDwell(ms: number | null): string {
-  if (ms === null || !Number.isFinite(ms) || ms <= 0) return "—";
+  if (ms === null || !Number.isFinite(ms) || ms <= 0) return "-";
   const seconds = Math.round(ms / 1000);
   if (seconds < 60) return `${seconds}s`;
   const minutes = Math.floor(seconds / 60);

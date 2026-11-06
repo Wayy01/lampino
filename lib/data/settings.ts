@@ -62,7 +62,10 @@ export async function getHeroMedia(): Promise<HeroMedia> {
 // simply hides those blocks.
 export async function getContactSettings(): Promise<ContactSettings | null> {
   try {
-    const s = await prisma.contactSettings.findFirst({ where: { isActive: true } });
+    const s = await prisma.contactSettings.findFirst({
+      where: { isActive: true },
+      orderBy: { id: "desc" },
+    });
     if (!s) return null;
     return {
       phone: s.phone,
@@ -79,6 +82,9 @@ export async function getContactSettings(): Promise<ContactSettings | null> {
       facebookUrl: s.facebookUrl,
       instagramUrl: s.instagramUrl,
       tiktokUrl: s.tiktokUrl,
+      googleBusinessUrl: s.googleBusinessUrl,
+      latitude: s.latitude,
+      longitude: s.longitude,
     };
   } catch {
     return null;
@@ -162,6 +168,21 @@ export async function getThemeSettings(): Promise<ThemeSettings | null> {
       colorError: t.colorError,
       colorInfo: t.colorInfo,
     };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The perks list under the product buy buttons, per locale, blanks dropped.
+ * `null` (no row yet, or the DB is down) means "use the dictionary defaults".
+ */
+export async function getProductPerks(): Promise<{ ro: string[]; ru: string[] } | null> {
+  try {
+    const s = await prisma.productPageSettings.findFirst({ orderBy: { id: "asc" } });
+    if (!s) return null;
+    const clean = (list: string[]) => list.map((x) => x.trim()).filter(Boolean);
+    return { ro: clean(s.perks_ro), ru: clean(s.perks_ru) };
   } catch {
     return null;
   }

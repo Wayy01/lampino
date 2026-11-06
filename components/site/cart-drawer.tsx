@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight, ArrowLeft, Check, Minus, Plus, Trash2 } from "lucide-react";
 import { useCart, unitPrice } from "@/lib/cart/provider";
@@ -13,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { submitOrder, type RejectedLine } from "@/lib/actions/orders";
 import { OrderError, type OrderFailure } from "./order-error";
 import { useOrderForm, OrderFields, type OrderForm } from "./order-fields";
+import { SiteImage } from "@/components/site/site-image";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -130,11 +130,11 @@ export function CartDrawer({
                       className="flex gap-4 py-5"
                     >
                       <div className="relative h-20 w-24 shrink-0 overflow-hidden rounded-[var(--radius-sm)] bg-muted">
-                        <Image
-                          src={item.product.images[0]?.imageUrl ?? IMAGE_PLACEHOLDER}
+                        <SiteImage
+                          src={item.variant?.imageUrls[0] ?? item.product.images[0]?.imageUrl ?? IMAGE_PLACEHOLDER}
                           alt={pick(lang, item.product.name_ro, item.product.name_ru)}
-                          fill
                           sizes="96px"
+                          compact
                           className="object-cover"
                         />
                       </div>

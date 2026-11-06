@@ -21,6 +21,8 @@ type SpecJsonEntry = {
   label_ru?: string;
   value_ro?: string;
   value_ru?: string;
+  /** Display order. `jsonb` reorders object keys, so order can't live in them. */
+  position?: number;
 };
 
 const roLabels = dictionaries.ro.specsLabels as Record<string, string>;
@@ -58,7 +60,17 @@ export function specsFromJson(json: unknown): SpecRow[] {
 
   const rest = Object.entries(raw)
     .filter(([id]) => !consumed.has(id))
-    .map(([id, entry]) => {
+    .map(([id, entry], index) => ({
+      id,
+      entry,
+      index,
+      position:
+        entry && typeof entry === "object" && typeof (entry as SpecJsonEntry).position === "number"
+          ? (entry as SpecJsonEntry).position!
+          : Infinity,
+    }))
+    .sort((a, b) => a.position - b.position || a.index - b.index)
+    .map(({ id, entry }) => {
       if (typeof entry === "string") {
         // Legacy flat entry: dictionary label when the key is known, else the key.
         return {
@@ -82,17 +94,28 @@ export function specsFromJson(json: unknown): SpecRow[] {
   return [...flattenedRows, ...rest];
 }
 
+/** The key a row is stored under. */
+function specKey(row: SpecRow, index: number): string {
+  return slugify(row.id.trim() || row.label_ro.trim()) || `spec-${index + 1}`;
+}
+
+/** True when two rows would be saved under the same key (one would be lost). */
+export function hasDuplicateSpecKeys(rows: SpecRow[]): boolean {
+  const keys = rows.map(specKey);
+  return new Set(keys).size !== keys.length;
+}
+
 export function specsToJson(
   rows: SpecRow[],
 ): Record<string, Required<SpecJsonEntry>> {
   const result: Record<string, Required<SpecJsonEntry>> = {};
   rows.forEach((row, index) => {
-    const id = slugify(row.id.trim() || row.label_ro.trim()) || `spec-${index + 1}`;
-    result[id] = {
+    result[specKey(row, index)] = {
       label_ro: row.label_ro.trim(),
       label_ru: row.label_ru.trim(),
       value_ro: row.value_ro.trim(),
       value_ru: row.value_ru.trim(),
+      position: index,
     };
   });
   return result;

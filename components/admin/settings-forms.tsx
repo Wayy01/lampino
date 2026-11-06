@@ -1,10 +1,11 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Contact, Palette, Sparkles, Truck } from "lucide-react";
+import { Contact, ListChecks, Palette, Sparkles, Truck } from "lucide-react";
 import {
   updateContact,
   updateDelivery,
+  updateProductPage,
   updateTheme,
   updateSpecialOffers,
   type SettingsActionState,
@@ -40,6 +41,9 @@ export type ContactData = {
   facebookUrl: string;
   instagramUrl: string;
   tiktokUrl: string;
+  googleBusinessUrl: string;
+  latitude: number | null;
+  longitude: number | null;
   isActive: boolean;
 };
 
@@ -150,6 +154,17 @@ export function ContactForm({ contact }: { contact: ContactData | null }) {
           <Field label={t.settings.tiktok} htmlFor="ct_tt">
             <TextInput id="ct_tt" name="tiktokUrl" defaultValue={contact?.tiktokUrl} />
           </Field>
+          <Field label={t.settings.googleBusiness} htmlFor="ct_gbp" hint={t.settings.googleBusinessHint}>
+            <TextInput id="ct_gbp" name="googleBusinessUrl" defaultValue={contact?.googleBusinessUrl} />
+          </Field>
+          <div className="grid grid-cols-2 gap-4">
+            <Field label={t.settings.latitude} htmlFor="ct_lat" hint={t.settings.geoHint}>
+              <TextInput id="ct_lat" name="latitude" inputMode="decimal" defaultValue={contact?.latitude ?? ""} />
+            </Field>
+            <Field label={t.settings.longitude} htmlFor="ct_lng">
+              <TextInput id="ct_lng" name="longitude" inputMode="decimal" defaultValue={contact?.longitude ?? ""} />
+            </Field>
+          </div>
         </div>
         <div className="mt-4">
           <Toggle name="isActive" label={t.settings.sectionEnabled} defaultChecked={contact?.isActive ?? true} />
@@ -189,6 +204,43 @@ export function DeliveryForm({ delivery }: { delivery: DeliveryData | null }) {
           <Toggle name="isActive" label={t.settings.sectionEnabled} defaultChecked={delivery?.isActive ?? true} />
         </div>
         <FormFooter state={state} label={t.settings.saveDelivery} />
+      </AdminForm>
+    </SectionCard>
+  );
+}
+
+export type ProductPageData = { perks_ro: string[]; perks_ru: string[] };
+
+const PERK_SLOTS = [0, 1, 2, 3];
+
+export function ProductPageForm({ data }: { data: ProductPageData }) {
+  const t = useAdminT();
+  const [state, formAction] = useActionState<SettingsActionState, FormData>(
+    updateProductPage,
+    null,
+  );
+
+  return (
+    <SectionCard
+      title={t.settings.productPage}
+      icon={<ListChecks className="h-4 w-4" strokeWidth={1.75} />}
+    >
+      <AdminForm action={formAction}>
+        <LangField />
+        <p className="mb-4 text-sm text-muted-foreground">{t.settings.productPerksHint}</p>
+        <div className="flex flex-col gap-3">
+          {PERK_SLOTS.map((i) => (
+            <div key={i} className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <Field label={`${t.settings.perk} ${i + 1} · RO`} htmlFor={`perk_ro_${i}`}>
+                <TextInput id={`perk_ro_${i}`} name={`perk_ro_${i}`} maxLength={120} defaultValue={data.perks_ro[i] ?? ""} />
+              </Field>
+              <Field label={`${t.settings.perk} ${i + 1} · RU`} htmlFor={`perk_ru_${i}`}>
+                <TextInput id={`perk_ru_${i}`} name={`perk_ru_${i}`} maxLength={120} defaultValue={data.perks_ru[i] ?? ""} />
+              </Field>
+            </div>
+          ))}
+        </div>
+        <FormFooter state={state} label={t.settings.saveProductPage} />
       </AdminForm>
     </SectionCard>
   );
@@ -234,7 +286,7 @@ export function ThemeForm({ theme }: { theme: ThemeData | null }) {
                   className="h-10 w-14 shrink-0 cursor-pointer rounded-[var(--radius-sm)] border bg-background p-1"
                 />
                 <span className="font-mono text-xs text-muted-foreground">
-                  {theme?.[name] ?? "—"}
+                  {theme?.[name] ?? "-"}
                 </span>
               </div>
             </Field>

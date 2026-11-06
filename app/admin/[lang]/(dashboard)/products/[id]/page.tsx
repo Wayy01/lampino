@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
+import { toPromotionOption } from "@/lib/admin/promotion-status";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin/session";
 import { num } from "@/lib/admin/serialize";
-import { pick } from "@/lib/utils";
+import { parseId, pick } from "@/lib/utils";
 import {
   getAdminDict,
   adminHref,
@@ -25,8 +26,8 @@ export default async function EditProductPage({
   await requireAdmin(lang);
   const t = getAdminDict(lang);
 
-  const productId = Number(id);
-  if (!Number.isInteger(productId)) notFound();
+  const productId = parseId(id);
+  if (productId === null) notFound();
 
   const [product, categories, promotions] = await Promise.all([
     prisma.product.findUnique({
@@ -35,12 +36,13 @@ export default async function EditProductPage({
         images: { orderBy: { id: "asc" } },
         videos: { orderBy: { id: "asc" } },
         variants: { orderBy: { sortOrder: "asc" } },
+        promotions: { select: { id: true } },
       },
     }),
     prisma.category.findMany({ orderBy: { position: "asc" } }),
     prisma.promotion.findMany({ orderBy: { startDate: "desc" } }),
   ]);
-  if (!product) notFound();
+  if (!product || product.deletedAt) notFound();
 
   const formData: ProductFormData = {
     id: product.id,
@@ -48,11 +50,13 @@ export default async function EditProductPage({
     name_ru: product.name_ru,
     description_ro: product.description_ro,
     description_ru: product.description_ru,
+    imageAlt_ro: product.imageAlt_ro,
+    imageAlt_ru: product.imageAlt_ru,
     price: num(product.price),
     reducedPrice: num(product.reducedPrice),
     stock: product.stock,
     categoryId: product.categoryId,
-    promotionId: product.promotionId,
+    promotionIds: product.promotions.map((p) => p.id),
     featured: product.featured,
     featuredOrder: product.featuredOrder,
     isActive: product.isActive,
@@ -75,6 +79,7 @@ export default async function EditProductPage({
       stock: v.stock,
       isDefault: v.isDefault,
       sortOrder: v.sortOrder,
+      imageUrls: v.imageUrls,
     })),
   };
 
@@ -97,10 +102,7 @@ export default async function EditProductPage({
           id: c.id,
           name: pick(lang, c.name_ro, c.name_ru),
         }))}
-        promotions={promotions.map((p) => ({
-          id: p.id,
-          name: pick(lang, p.name_ro, p.name_ru),
-        }))}
+        promotions={promotions.map((p) => toPromotionOption(p, pick(lang, p.name_ro, p.name_ru)))}
       />
     </>
   );

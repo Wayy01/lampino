@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { toPromotionOption } from "@/lib/admin/promotion-status";
 import { requireAdmin } from "@/lib/admin/session";
 import { pick } from "@/lib/utils";
 import { getAdminDict, adminHref, type AdminLang } from "@/lib/admin/i18n";
@@ -34,10 +35,7 @@ export default async function NewProductPage({
           id: c.id,
           name: pick(lang, c.name_ro, c.name_ru),
         }))}
-        promotions={promotions.map((p) => ({
-          id: p.id,
-          name: pick(lang, p.name_ro, p.name_ru),
-        }))}
+        promotions={promotions.map((p) => toPromotionOption(p, pick(lang, p.name_ro, p.name_ru)))}
       />
     </>
   );
