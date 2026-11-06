@@ -19,6 +19,12 @@ export type OrderActionState = { ok?: boolean; error?: string } | null;
 // Units of a shipped or delivered order have physically left, so deleting
 // one of those never puts stock back.
 const RESTOCK_ON_DELETE = new Set(["pending", "confirmed"]);
+// Statuses that hold the order's units. Checkout no longer reserves, so stock
+// is taken when an order moves here out of pending (or back from cancelled).
+const HOLDS_STOCK = new Set(["confirmed", "shipped", "delivered"]);
+// Only orders in the current flow get reserved on the way in; older
+// confirmed/shipped rows predate stock tracking and are left alone.
+const RESERVE_FROM = new Set(["pending", "cancelled"]);
 
 function revalidateStock(): void {
   revalidatePath("/admin/[lang]/orders", "page");
@@ -54,20 +60,27 @@ export async function updateOrderStatus(
         variantId: i.productVariantId,
         quantity: i.quantity,
       }));
-      let stockReserved = order.stockReserved;
+      if (status === order.status) return;
 
-      if (status === "cancelled" && order.stockReserved) {
-        // Cancelling gives the units back to the shop.
-        await releaseStock(tx, lines);
-        stockReserved = false;
-      } else if (order.status === "cancelled" && status !== "cancelled") {
-        // Reviving a cancelled order takes the units again — or refuses.
+      let stockReserved = order.stockReserved;
+      const take = HOLDS_STOCK.has(status) && !order.stockReserved && RESERVE_FROM.has(order.status);
+      const give = (status === "cancelled" || status === "pending") && order.stockReserved;
+      if (take) stockReserved = true;
+      if (give) stockReserved = false;
+
+      // Conditional on what we just read: the row lock makes a second tab's
+      // concurrent change wait, then match nothing, so stock moves only once.
+      const { count } = await tx.order.updateMany({
+        where: { id, status: order.status, stockReserved: order.stockReserved },
+        data: { status, stockReserved },
+      });
+      if (count !== 1) throw new ActionRefusal("orderChanged");
+
+      if (take) {
         const short = await reserveStock(tx, lines);
         if (short.length > 0) throw new ActionRefusal("insufficientStock");
-        stockReserved = true;
       }
-
-      await tx.order.update({ where: { id }, data: { status, stockReserved } });
+      if (give) await releaseStock(tx, lines);
     });
     revalidateStock();
     return { ok: true };
@@ -89,6 +102,10 @@ export async function deleteOrder(
           items: { select: { productId: true, productVariantId: true, quantity: true } },
         },
       });
+      const { count } = await tx.order.deleteMany({
+        where: { id, status: order.status, stockReserved: order.stockReserved },
+      }); // items cascade
+      if (count !== 1) throw new ActionRefusal("orderChanged");
       if (order.stockReserved && RESTOCK_ON_DELETE.has(order.status)) {
         await releaseStock(
           tx,
@@ -99,7 +116,6 @@ export async function deleteOrder(
           })),
         );
       }
-      await tx.order.delete({ where: { id } }); // items cascade
     });
     revalidateStock();
     redirect(`/admin/${lang}/orders`);

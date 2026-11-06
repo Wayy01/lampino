@@ -101,7 +101,7 @@ function UserDialog({
             <AdminSelect
               id="user_role"
               name="role"
-              defaultValue={user?.role === "admin" ? "admin" : "editor"}
+              defaultValue={user && user.role !== "editor" ? "admin" : "editor"}
               options={[
                 { value: "editor", label: t.users.roleEditor },
                 { value: "admin", label: t.users.roleAdmin },
@@ -164,7 +164,11 @@ export function UsersManager({
       hideOnMobile: true,
       cell: (u) => (
         <span className="text-muted-foreground">
-          {u.role === "admin" ? t.users.roleAdmin : t.users.roleEditor}
+          {u.role === "superadmin"
+            ? t.users.roleOwner
+            : u.role === "admin"
+              ? t.users.roleAdmin
+              : t.users.roleEditor}
         </span>
       ),
     },

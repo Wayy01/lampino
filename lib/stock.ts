@@ -1,6 +1,11 @@
-// Stock bookkeeping for product orders. An order takes its units out of stock
-// the moment it is placed (`Order.stockReserved`), and gives them back when it
-// is cancelled or deleted before it ships.
+// Stock bookkeeping for product orders. Checkout only checks stock; an order
+// takes its units (`Order.stockReserved`) when an admin confirms it, and gives
+// them back when it is cancelled, returned to pending, or deleted before it
+// ships. See lib/admin/actions/orders.ts.
+//
+// A line with no variant on a product that has variants is an order item whose
+// variant was deleted later (the FK is SetNull). Its units came out of that
+// variant, never the product's base stock, so such lines are skipped both ways.
 import type { Prisma } from "@/lib/generated/prisma";
 
 export type StockLine = {
@@ -36,14 +41,15 @@ export async function reserveStock(
       }
     } else {
       const { count } = await tx.product.updateMany({
-        where: { id: line.productId, stock: { gte: line.quantity } },
+        where: { id: line.productId, hasVariants: false, stock: { gte: line.quantity } },
         data: { stock: { decrement: line.quantity } },
       });
       if (count === 0) {
         const row = await tx.product.findUnique({
           where: { id: line.productId },
-          select: { stock: true },
+          select: { stock: true, hasVariants: true },
         });
+        if (row?.hasVariants) continue; // variant deleted since — nothing to take
         short.push({ productId: line.productId, variantId: null, available: row?.stock ?? 0 });
       }
     }
@@ -64,7 +70,7 @@ export async function releaseStock(
       });
     } else if (line.productId !== null) {
       await tx.product.updateMany({
-        where: { id: line.productId },
+        where: { id: line.productId, hasVariants: false },
         data: { stock: { increment: line.quantity } },
       });
     }
