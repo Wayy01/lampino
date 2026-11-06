@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useAdminT } from "@/lib/admin/i18n-provider";
 import { Field, TextInput } from "@/components/admin/form-controls";
+import { useComboboxSearch } from "@/components/admin/use-combobox-search";
 
 type Option = {
   id: number;
@@ -13,8 +14,6 @@ type Option = {
   region?: string | null;
   postCode?: string | null;
 };
-
-type Status = "idle" | "loading" | "error" | "nokey";
 
 function optionLabel(o: Option): string {
   const parts = [o.name];
@@ -90,74 +89,46 @@ export function NovaPostSearchField({
   const [selectedLabel, setSelectedLabel] = useState(
     defaultLabel || (defaultValue ? `#${defaultValue}` : ""),
   );
-  const [query, setQuery] = useState(isDisabled ? "" : isFreeText ? seedQuery : "");
-  const [options, setOptions] = useState<Option[]>([]);
-  const [status, setStatus] = useState<Status>("idle");
-  const [open, setOpen] = useState(false);
-  const [seedMiss, setSeedMiss] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const boxRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    function onDocClick(e: MouseEvent) {
-      if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false);
-    }
-    document.addEventListener("mousedown", onDocClick);
-    return () => document.removeEventListener("mousedown", onDocClick);
-  }, []);
-
-  // Fetch matches for `v`. `commitFirst` (the seed/drop path) auto-commits the
-  // first match — keeping the typed text for a free-text street, clearing it to
-  // a chip for id fields — or records a miss when nothing came back. Manual
-  // searches never commit: the operator clicks a result.
-  async function performSearch(v: string, commitFirst: boolean) {
-    setStatus("loading");
-    try {
+  const {
+    query,
+    setQuery,
+    options,
+    status,
+    open,
+    setOpen,
+    seedMiss,
+    setSeedMiss,
+    boxRef,
+    runQuery,
+    performSearch,
+    resetSearch,
+    minChars,
+  } = useComboboxSearch<Option>({
+    initialQuery: isDisabled ? "" : isFreeText ? seedQuery : "",
+    buildUrl: (v) => {
       const filter =
         (type === "divisions" || type === "streets") && settlementId
           ? `&settlementId=${settlementId}`
           : "";
-      const r = await fetch(
-        `/api/admin/novapost/search?type=${type}&q=${encodeURIComponent(v)}${filter}`,
-      );
-      if (r.status === 400) {
-        const j = await r.json().catch(() => ({}));
-        setStatus(j.error === "no_key" ? "nokey" : "error");
-        setOptions([]);
-        return;
-      }
-      if (!r.ok) {
-        setStatus("error");
-        setOptions([]);
-        return;
-      }
-      const j = (await r.json()) as { options?: Option[] };
-      const opts = j.options ?? [];
-      setOptions(opts);
-      setStatus("idle");
-      if (commitFirst) {
-        if (opts.length > 0) select(opts[0], isFreeText);
-        else setSeedMiss(v);
-      }
-    } catch {
-      setStatus("error");
-      setOptions([]);
-    }
+      return `/api/admin/novapost/search?type=${type}&q=${encodeURIComponent(v)}${filter}`;
+    },
+    onCommitFirst: (o) => select(o, isFreeText),
+  });
+
+  function select(o: Option, keepQuery = false) {
+    setSelectedId(String(o.id));
+    setSelectedLabel(optionLabel(o));
+    resetSearch(keepQuery);
+    onSelect?.(String(o.id), optionLabel(o));
   }
 
-  function runQuery(v: string) {
-    setQuery(v);
-    setOpen(true);
+  function clear() {
+    setSelectedId("");
+    setSelectedLabel("");
     setSeedMiss(null);
-    if (timer.current) clearTimeout(timer.current);
-    if (v.trim().length < 2) {
-      setOptions([]);
-      setStatus("idle");
-      return;
-    }
-    setStatus("loading");
-    timer.current = setTimeout(() => performSearch(v.trim(), false), 300);
+    onSelect?.("", "");
   }
 
   // A dropped reference (e.g. the order's original city) re-runs the seed path
@@ -172,22 +143,6 @@ export function NovaPostSearchField({
     }
   }
 
-  function select(o: Option, keepQuery = false) {
-    setSelectedId(String(o.id));
-    setSelectedLabel(optionLabel(o));
-    if (!keepQuery) setQuery("");
-    setOptions([]);
-    setOpen(false);
-    onSelect?.(String(o.id), optionLabel(o));
-  }
-
-  function clear() {
-    setSelectedId("");
-    setSelectedLabel("");
-    setSeedMiss(null);
-    onSelect?.("", "");
-  }
-
   // A branch belongs to a settlement; if the settlement changes, drop the stale
   // pick (and any query) so it can't be submitted against the wrong city. This
   // is the render-phase "adjust state when a prop changes" pattern.
@@ -196,12 +151,11 @@ export function NovaPostSearchField({
     setPrevSettlement(settlementId);
     setSelectedId("");
     setSelectedLabel("");
-    setSeedMiss(null);
-    // Id fields re-seed into a chip via the effect below; only a free-text
-    // street puts the city back in the box.
-    setQuery(isFreeText && settlementId ? seedQuery : "");
-    setOptions([]);
-    setOpen(false);
+    // Clears query/options/open/seedMiss and cancels any in-flight request; id
+    // fields re-seed into a chip via the effect below, only a free-text street
+    // puts the city back in the box.
+    resetSearch();
+    if (isFreeText && settlementId) setQuery(seedQuery);
   }
 
   // A pre-filled value triggers its own search (and, with nothing chosen yet,
@@ -267,7 +221,7 @@ export function NovaPostSearchField({
               value={query}
               onChange={(e) => runQuery(e.target.value)}
               onFocus={() => {
-                if (query.trim().length < 2) return;
+                if (query.trim().length < minChars) return;
                 setOpen(true);
                 // Pre-seeded (e.g. the order's city) but not yet searched — fetch now.
                 if (options.length === 0 && status === "idle") runQuery(query);
@@ -278,7 +232,7 @@ export function NovaPostSearchField({
               disabled={isDisabled}
               autoComplete="off"
             />
-            {open && query.trim().length >= 2 && (
+            {open && query.trim().length >= minChars && (
               <div className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-[var(--radius-md)] border bg-background shadow-lg">
                 {status === "loading" && (
                   <div className="px-3 py-2 text-xs text-muted-foreground">{s.searching}</div>
@@ -312,9 +266,13 @@ export function NovaPostSearchField({
           </>
         )}
       </div>
-      {!isFreeText && seedMiss && !selectedLabel && (
+      {seedMiss && !selectedLabel && (
         <p className="mt-1.5 text-xs text-[var(--warning,#F97316)]">
-          {s.seedNoMatch} «{seedMiss}»
+          {/* Id fields have no committed pick, so warn plainly. Free-text streets
+              keep the typed text in the box (and submit it), so say it's being
+              sent as typed — otherwise the filled-looking box reads as a verified
+              selection when nothing matched. */}
+          {isFreeText ? s.seedUsingTyped : s.seedNoMatch} «{seedMiss}»
         </p>
       )}
     </Field>

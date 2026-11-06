@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin/session";
+import { decryptSecret } from "@/lib/admin/crypto";
 import { formatPrice, parseId, pick } from "@/lib/utils";
 import { num, formatDate, formatDateTime } from "@/lib/admin/serialize";
 import {
@@ -77,10 +78,17 @@ export default async function AdminOrderDetailPage({
   // Shipment state + the parcel the drawer pre-fills (assembled from the order's
   // product item dimensions, variant → product → store fallback).
   const shipment = order.shipments[0] ?? null;
+  // Mirror the create-shipment action's gate exactly: a *decryptable* key, not
+  // merely a stored ciphertext — otherwise a rotated secret would show the
+  // carrier as ready here while the action refuses with `courierNotConfigured`.
   const novapostConfigured = Boolean(
-    settings?.novapostEnabled && settings.novapostApiKey && settings.novapostSenderDivisionId,
+    settings?.novapostEnabled &&
+      decryptSecret(settings.novapostApiKey) &&
+      settings.novapostSenderDivisionId,
   );
-  const fancourierConfigured = Boolean(settings?.fancourierEnabled && settings.fancourierApiKey);
+  const fancourierConfigured = Boolean(
+    settings?.fancourierEnabled && decryptSecret(settings.fancourierApiKey),
+  );
   const parcelFallback = {
     weightG: settings?.novapostParcelWeightG ?? 2000,
     lengthMm: settings?.novapostParcelLengthMm ?? 240,
@@ -96,6 +104,13 @@ export default async function AdminOrderDetailPage({
     heightMm: (settings?.fancourierParcelHeightCm ?? 20) * 10,
   };
   const productItems = order.items.filter((i) => i.productId && i.product);
+  // Declared value / COD default is the value of the *shippable* goods only —
+  // `itemsTotal` also includes rental lines, which never go in the parcel, so
+  // using it would over-declare insurance and over-collect on delivery.
+  const shippableValue = productItems.reduce(
+    (sum, i) => sum + num(i.priceEach) * i.quantity,
+    0,
+  );
   // Item lines the drawer distributes across parcels (variant → product → store
   // dimensions), with per-unit value for proportional declared-value splitting.
   const shipmentItems = productItems.map((i) => ({
@@ -318,7 +333,7 @@ export default async function AdminOrderDetailPage({
                 items={shipmentItems}
                 fallback={parcelFallback}
                 fancourierFallback={fancourierFallback}
-                insuranceTotal={Math.round(itemsTotal)}
+                insuranceTotal={Math.round(shippableValue)}
                 novapostConfigured={novapostConfigured}
                 fancourierConfigured={fancourierConfigured}
               />

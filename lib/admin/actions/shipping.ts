@@ -26,6 +26,31 @@ import { dispatchShipmentCreated } from "@/lib/webhooks";
 export type ShippingActionState = { ok?: boolean; error?: string } | null;
 
 /**
+ * Reserve the single Shipment row for an order before the (non-idempotent)
+ * courier call. The `@unique(orderId)` constraint turns a concurrent or retried
+ * submission into a P2002 here — surfaced as `shipmentExists` — so no second
+ * real waybill is ever minted. The row is finalized with the tracking number on
+ * success, or deleted by the caller if the courier call fails.
+ */
+async function reserveShipment(
+  orderId: number,
+  carrier: string,
+  carrierTitle: string,
+  codAmount: Prisma.Decimal | null,
+) {
+  try {
+    return await prisma.shipment.create({
+      data: { orderId, carrier, carrierTitle, trackingNumber: "", status: "pending", codAmount },
+    });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      throw new ActionRefusal("shipmentExists");
+    }
+    throw e;
+  }
+}
+
+/**
  * Create a Nova Post waybill for an order and record it as a `Shipment`.
  * Bound to the order id in the form component. Refuses (without hitting the API)
  * when the order already has a shipment or the courier isn't configured.
@@ -53,7 +78,8 @@ export async function createNovaPostShipment(
     ]);
 
     if (!order) throw new ActionRefusal("sourceMissing");
-    // One waybill per order — delete the existing shipment to re-create.
+    // Fast-path refusal for a nicer message; the DB unique constraint on
+    // Shipment.orderId (reserved below) is the authoritative guard.
     if (order.shipments.length > 0) throw new ActionRefusal("shipmentExists");
 
     const apiKey = decryptSecret(settings?.novapostApiKey);
@@ -69,6 +95,12 @@ export async function createNovaPostShipment(
     const codAmount =
       request.cod && request.cod.amount > 0 ? new Prisma.Decimal(request.cod.amount) : null;
 
+    // Reserve the one-shipment-per-order slot BEFORE hitting the courier. The
+    // @unique(orderId) constraint makes this atomic: a concurrent or retried
+    // submission fails here (P2002 → shipmentExists) rather than minting a
+    // second real waybill at the courier.
+    const reservation = await reserveShipment(order.id, "novapost", "Nova Post", codAmount);
+
     let result;
     try {
       result = await createShipment(
@@ -81,21 +113,20 @@ export async function createNovaPostShipment(
         request,
       );
     } catch (e) {
+      // Release the reservation so the operator can fix the input and retry.
+      await prisma.shipment.delete({ where: { id: reservation.id } }).catch(() => {});
       if (e instanceof NovaPostError) {
         throw new ActionRefusal("courierFailed", describeNovaPostError(e));
       }
       throw e;
     }
 
-    const shipment = await prisma.shipment.create({
+    const shipment = await prisma.shipment.update({
+      where: { id: reservation.id },
       data: {
-        orderId: order.id,
-        carrier: "novapost",
-        carrierTitle: "Nova Post",
         trackingNumber: result.number,
         courierShipmentId: result.id,
         status: "created",
-        codAmount,
         payload: result.body as Prisma.InputJsonValue,
       },
     });
@@ -139,7 +170,8 @@ export async function createFanCourierShipment(
     ]);
 
     if (!order) throw new ActionRefusal("sourceMissing");
-    // One waybill per order — delete the existing shipment to re-create.
+    // Fast-path refusal for a nicer message; the DB unique constraint on
+    // Shipment.orderId (reserved below) is the authoritative guard.
     if (order.shipments.length > 0) throw new ActionRefusal("shipmentExists");
 
     const apiKey = decryptSecret(settings?.fancourierApiKey);
@@ -154,24 +186,27 @@ export async function createFanCourierShipment(
     const codAmount =
       request.cod && request.cod.amount > 0 ? new Prisma.Decimal(request.cod.amount) : null;
 
+    // Reserve the one-shipment-per-order slot BEFORE hitting the courier (see
+    // the Nova Post action for the rationale — atomic duplicate-waybill guard).
+    const reservation = await reserveShipment(order.id, "fancourier", "Fan Courier", codAmount);
+
     let result;
     try {
       result = await createFanCourierAwb({ apiKey }, request);
     } catch (e) {
+      // Release the reservation so the operator can fix the input and retry.
+      await prisma.shipment.delete({ where: { id: reservation.id } }).catch(() => {});
       if (e instanceof FanCourierError) {
         throw new ActionRefusal("courierFailed", describeFanCourierError(e));
       }
       throw e;
     }
 
-    const shipment = await prisma.shipment.create({
+    const shipment = await prisma.shipment.update({
+      where: { id: reservation.id },
       data: {
-        orderId: order.id,
-        carrier: "fancourier",
-        carrierTitle: "Fan Courier",
         trackingNumber: result.number,
         status: "created",
-        codAmount,
         payload: result.body as Prisma.InputJsonValue,
       },
     });

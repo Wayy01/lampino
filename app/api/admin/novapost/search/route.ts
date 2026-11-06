@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
   const settlementRaw = req.nextUrl.searchParams.get("settlementId") ?? "";
   const settlementId = /^\d+$/.test(settlementRaw) ? Number(settlementRaw) : null;
 
-  const settings = await prisma.shippingSettings.findFirst({ orderBy: { id: "asc" } });
+  const settings = await prisma.shippingSettings.findFirst({ where: { isActive: true } });
   const apiKey = decryptSecret(settings?.novapostApiKey);
   if (!apiKey) {
     return NextResponse.json({ error: "no_key" }, { status: 400 });

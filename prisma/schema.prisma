@@ -216,7 +216,10 @@ rentalPackageVariant RentalPackageVariant? @relation(fields: [rentalPackageVaria
 // server-only env vars; non-secret config lives in ShippingSettings.
 model Shipment {
 id Int @id @default(autoincrement())
-orderId Int @map("order_id")
+// One waybill per order: the unique constraint is the authoritative guard the
+// create-shipment action relies on (it reserves this row BEFORE calling the
+// courier, so a concurrent or retried submit can't mint a second real waybill).
+orderId Int @unique @map("order_id")
 carrier String
 carrierTitle String? @map("carrier_title")
 trackingNumber String @map("tracking_number")
@@ -229,7 +232,6 @@ createdAt DateTime @default(now()) @map("created_at")
 updatedAt DateTime @updatedAt @map("updated_at")
 order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
-    @@index([orderId])
     @@index([carrier])
     @@index([trackingNumber])
     @@map("shipments")

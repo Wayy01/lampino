@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useAdminT } from "@/lib/admin/i18n-provider";
 import { Field, TextInput } from "@/components/admin/form-controls";
+import { useComboboxSearch } from "@/components/admin/use-combobox-search";
 
 type City = { name: string; province: string | null };
-type Status = "idle" | "loading" | "error" | "nokey";
 
 function cityLabel(c: City): string {
   return c.province ? `${c.name} (${c.province})` : c.name;
@@ -45,77 +45,31 @@ export function FanCourierCityField({
   const [city, setCity] = useState("");
   const [county, setCounty] = useState("");
   const [selectedLabel, setSelectedLabel] = useState("");
-  const [query, setQuery] = useState("");
-  const [options, setOptions] = useState<City[]>([]);
-  const [status, setStatus] = useState<Status>("idle");
-  const [open, setOpen] = useState(false);
-  const [seedMiss, setSeedMiss] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const boxRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    function onDocClick(e: MouseEvent) {
-      if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false);
-    }
-    document.addEventListener("mousedown", onDocClick);
-    return () => document.removeEventListener("mousedown", onDocClick);
-  }, []);
-
-  // Fetch matches for `v`. `commitFirst` (the seed/drop path) auto-commits the
-  // first match — or records a miss when nothing comes back — so a prefilled
-  // value never lingers in the box uncommitted. Manual searches never commit.
-  async function performSearch(v: string, commitFirst: boolean) {
-    setStatus("loading");
-    try {
-      const r = await fetch(`/api/admin/fancourier/cities?q=${encodeURIComponent(v)}`);
-      if (r.status === 400) {
-        const j = await r.json().catch(() => ({}));
-        setStatus(j.error === "no_key" ? "nokey" : "error");
-        setOptions([]);
-        return;
-      }
-      if (!r.ok) {
-        setStatus("error");
-        setOptions([]);
-        return;
-      }
-      const j = (await r.json()) as { options?: City[] };
-      const opts = j.options ?? [];
-      setOptions(opts);
-      setStatus("idle");
-      if (commitFirst) {
-        if (opts.length > 0) select(opts[0]);
-        else setSeedMiss(v);
-      }
-    } catch {
-      setStatus("error");
-      setOptions([]);
-    }
-  }
-
-  function runQuery(v: string) {
-    setQuery(v);
-    setOpen(true);
-    setSeedMiss(null);
-    if (timer.current) clearTimeout(timer.current);
-    if (v.trim().length < 2) {
-      setOptions([]);
-      setStatus("idle");
-      return;
-    }
-    setStatus("loading");
-    timer.current = setTimeout(() => performSearch(v.trim(), false), 300);
-  }
+  const {
+    query,
+    options,
+    status,
+    open,
+    setOpen,
+    seedMiss,
+    setSeedMiss,
+    boxRef,
+    runQuery,
+    performSearch,
+    resetSearch,
+    minChars,
+  } = useComboboxSearch<City>({
+    buildUrl: (q) => `/api/admin/fancourier/cities?q=${encodeURIComponent(q)}`,
+    onCommitFirst: (c) => select(c),
+  });
 
   function select(c: City) {
     setCity(c.name);
     setCounty(c.province ?? "");
     setSelectedLabel(cityLabel(c));
-    setQuery("");
-    setOptions([]);
-    setOpen(false);
-    setSeedMiss(null);
+    resetSearch();
     onSelect?.(c.name, c.province ?? "");
   }
 
@@ -191,7 +145,7 @@ export function FanCourierCityField({
               value={query}
               onChange={(e) => runQuery(e.target.value)}
               onFocus={() => {
-                if (query.trim().length < 2) return;
+                if (query.trim().length < minChars) return;
                 setOpen(true);
                 if (options.length === 0 && status === "idle") runQuery(query);
               }}
@@ -199,7 +153,7 @@ export function FanCourierCityField({
               disabled={isDisabled}
               autoComplete="off"
             />
-            {open && query.trim().length >= 2 && (
+            {open && query.trim().length >= minChars && (
               <div className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-[var(--radius-md)] border bg-background shadow-lg">
                 {status === "loading" && (
                   <div className="px-3 py-2 text-xs text-muted-foreground">{s.searching}</div>

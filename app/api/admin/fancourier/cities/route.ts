@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   if (q.length < 2) return NextResponse.json({ options: [] });
   const province = (req.nextUrl.searchParams.get("province") ?? "").trim();
 
-  const settings = await prisma.shippingSettings.findFirst({ orderBy: { id: "asc" } });
+  const settings = await prisma.shippingSettings.findFirst({ where: { isActive: true } });
   const apiKey = decryptSecret(settings?.fancourierApiKey);
   if (!apiKey) {
     return NextResponse.json({ error: "no_key" }, { status: 400 });

@@ -40048,10 +40048,10 @@ export namespace Prisma {
 
   export type ShipmentWhereUniqueInput = Prisma.AtLeast<{
     id?: number
+    orderId?: number
     AND?: ShipmentWhereInput | ShipmentWhereInput[]
     OR?: ShipmentWhereInput[]
     NOT?: ShipmentWhereInput | ShipmentWhereInput[]
-    orderId?: IntFilter<"Shipment"> | number
     carrier?: StringFilter<"Shipment"> | string
     carrierTitle?: StringNullableFilter<"Shipment"> | string | null
     trackingNumber?: StringFilter<"Shipment"> | string
@@ -40063,7 +40063,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Shipment"> | Date | string
     updatedAt?: DateTimeFilter<"Shipment"> | Date | string
     order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
-  }, "id">
+  }, "id" | "orderId">
 
   export type ShipmentOrderByWithAggregationInput = {
     id?: SortOrder

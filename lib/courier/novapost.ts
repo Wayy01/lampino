@@ -9,6 +9,24 @@
 
 const PROD = "https://api.novapost.com/v.1.0/";
 const SANDBOX = "https://api-stage.novapost.pl/v.1.0/";
+const TIMEOUT_MS = 30_000;
+
+// Single fetch wrapper: a 30s timeout (parity with the Fan Courier client) and
+// network/timeout failures normalized to NovaPostError, so a hung connection
+// fails fast with a clean admin-readable message instead of hanging the action
+// or surfacing a raw TypeError.
+async function novaFetch(url: string, init: RequestInit): Promise<Response> {
+  try {
+    return await fetch(url, { ...init, signal: AbortSignal.timeout(TIMEOUT_MS) });
+  } catch (e) {
+    throw new NovaPostError(
+      0,
+      e instanceof Error && e.name === "TimeoutError"
+        ? "Nova Post request timed out."
+        : "Could not reach Nova Post.",
+    );
+  }
+}
 
 export type NovaPostConfig = {
   apiKey: string;
@@ -76,7 +94,7 @@ async function authorize(cfg: NovaPostConfig): Promise<string> {
   const cached = tokenCache.get(cacheKey);
   if (cached && cached.expEpochMs - 60_000 > Date.now()) return cached.jwt;
 
-  const res = await fetch(
+  const res = await novaFetch(
     `${baseUrl(cfg)}clients/authorization?apiKey=${encodeURIComponent(cfg.apiKey)}`,
     { headers: { Accept: "application/json" } },
   );
@@ -157,7 +175,7 @@ async function apiGet(
     else qs.append(k, String(v));
   }
   const run = async (jwt: string) =>
-    fetch(`${baseUrl(cfg)}${path}?${qs.toString()}`, {
+    novaFetch(`${baseUrl(cfg)}${path}?${qs.toString()}`, {
       headers: { Authorization: jwt, Accept: "application/json" },
     });
 
@@ -286,7 +304,7 @@ async function apiPost(
   body: unknown,
 ): Promise<Record<string, unknown>> {
   const run = async (jwt: string) =>
-    fetch(`${baseUrl(cfg)}${path}`, {
+    novaFetch(`${baseUrl(cfg)}${path}`, {
       method: "POST",
       headers: {
         Authorization: jwt,
