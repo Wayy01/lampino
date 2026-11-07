@@ -5176,6 +5176,7 @@ export namespace Prisma {
     heightMm: number | null
     categoryId: number | null
     featuredOrder: number | null
+    categoryOrder: number | null
   }
 
   export type ProductSumAggregateOutputType = {
@@ -5189,6 +5190,7 @@ export namespace Prisma {
     heightMm: number | null
     categoryId: number | null
     featuredOrder: number | null
+    categoryOrder: number | null
   }
 
   export type ProductMinAggregateOutputType = {
@@ -5208,6 +5210,7 @@ export namespace Prisma {
     categoryId: number | null
     featured: boolean | null
     featuredOrder: number | null
+    categoryOrder: number | null
     isActive: boolean | null
     deletedAt: Date | null
     createdAt: Date | null
@@ -5233,6 +5236,7 @@ export namespace Prisma {
     categoryId: number | null
     featured: boolean | null
     featuredOrder: number | null
+    categoryOrder: number | null
     isActive: boolean | null
     deletedAt: Date | null
     createdAt: Date | null
@@ -5259,6 +5263,7 @@ export namespace Prisma {
     categoryId: number
     featured: number
     featuredOrder: number
+    categoryOrder: number
     isActive: number
     deletedAt: number
     createdAt: number
@@ -5280,6 +5285,7 @@ export namespace Prisma {
     heightMm?: true
     categoryId?: true
     featuredOrder?: true
+    categoryOrder?: true
   }
 
   export type ProductSumAggregateInputType = {
@@ -5293,6 +5299,7 @@ export namespace Prisma {
     heightMm?: true
     categoryId?: true
     featuredOrder?: true
+    categoryOrder?: true
   }
 
   export type ProductMinAggregateInputType = {
@@ -5312,6 +5319,7 @@ export namespace Prisma {
     categoryId?: true
     featured?: true
     featuredOrder?: true
+    categoryOrder?: true
     isActive?: true
     deletedAt?: true
     createdAt?: true
@@ -5337,6 +5345,7 @@ export namespace Prisma {
     categoryId?: true
     featured?: true
     featuredOrder?: true
+    categoryOrder?: true
     isActive?: true
     deletedAt?: true
     createdAt?: true
@@ -5363,6 +5372,7 @@ export namespace Prisma {
     categoryId?: true
     featured?: true
     featuredOrder?: true
+    categoryOrder?: true
     isActive?: true
     deletedAt?: true
     createdAt?: true
@@ -5476,6 +5486,7 @@ export namespace Prisma {
     categoryId: number | null
     featured: boolean
     featuredOrder: number
+    categoryOrder: number
     isActive: boolean
     deletedAt: Date | null
     createdAt: Date
@@ -5521,6 +5532,7 @@ export namespace Prisma {
     categoryId?: boolean
     featured?: boolean
     featuredOrder?: boolean
+    categoryOrder?: boolean
     isActive?: boolean
     deletedAt?: boolean
     createdAt?: boolean
@@ -5555,6 +5567,7 @@ export namespace Prisma {
     categoryId?: boolean
     featured?: boolean
     featuredOrder?: boolean
+    categoryOrder?: boolean
     isActive?: boolean
     deletedAt?: boolean
     createdAt?: boolean
@@ -5582,6 +5595,7 @@ export namespace Prisma {
     categoryId?: boolean
     featured?: boolean
     featuredOrder?: boolean
+    categoryOrder?: boolean
     isActive?: boolean
     deletedAt?: boolean
     createdAt?: boolean
@@ -5609,6 +5623,7 @@ export namespace Prisma {
     categoryId?: boolean
     featured?: boolean
     featuredOrder?: boolean
+    categoryOrder?: boolean
     isActive?: boolean
     deletedAt?: boolean
     createdAt?: boolean
@@ -5617,7 +5632,7 @@ export namespace Prisma {
     imageAlt_ru?: boolean
   }
 
-  export type ProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name_ro" | "name_ru" | "description_ro" | "description_ru" | "price" | "reducedPrice" | "stock" | "hasVariants" | "specifications" | "weightGrams" | "lengthMm" | "widthMm" | "heightMm" | "categoryId" | "featured" | "featuredOrder" | "isActive" | "deletedAt" | "createdAt" | "updatedAt" | "imageAlt_ro" | "imageAlt_ru", ExtArgs["result"]["product"]>
+  export type ProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name_ro" | "name_ru" | "description_ro" | "description_ru" | "price" | "reducedPrice" | "stock" | "hasVariants" | "specifications" | "weightGrams" | "lengthMm" | "widthMm" | "heightMm" | "categoryId" | "featured" | "featuredOrder" | "categoryOrder" | "isActive" | "deletedAt" | "createdAt" | "updatedAt" | "imageAlt_ro" | "imageAlt_ru", ExtArgs["result"]["product"]>
   export type ProductInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     category?: boolean | Product$categoryArgs<ExtArgs>
     promotions?: boolean | Product$promotionsArgs<ExtArgs>
@@ -5664,6 +5679,7 @@ export namespace Prisma {
       categoryId: number | null
       featured: boolean
       featuredOrder: number
+      categoryOrder: number
       isActive: boolean
       deletedAt: Date | null
       createdAt: Date
@@ -6117,6 +6133,7 @@ export namespace Prisma {
     readonly categoryId: FieldRef<"Product", 'Int'>
     readonly featured: FieldRef<"Product", 'Boolean'>
     readonly featuredOrder: FieldRef<"Product", 'Int'>
+    readonly categoryOrder: FieldRef<"Product", 'Int'>
     readonly isActive: FieldRef<"Product", 'Boolean'>
     readonly deletedAt: FieldRef<"Product", 'DateTime'>
     readonly createdAt: FieldRef<"Product", 'DateTime'>
@@ -38603,6 +38620,7 @@ export namespace Prisma {
     categoryId: 'categoryId',
     featured: 'featured',
     featuredOrder: 'featuredOrder',
+    categoryOrder: 'categoryOrder',
     isActive: 'isActive',
     deletedAt: 'deletedAt',
     createdAt: 'createdAt',
@@ -39419,6 +39437,7 @@ export namespace Prisma {
     categoryId?: IntNullableFilter<"Product"> | number | null
     featured?: BoolFilter<"Product"> | boolean
     featuredOrder?: IntFilter<"Product"> | number
+    categoryOrder?: IntFilter<"Product"> | number
     isActive?: BoolFilter<"Product"> | boolean
     deletedAt?: DateTimeNullableFilter<"Product"> | Date | string | null
     createdAt?: DateTimeFilter<"Product"> | Date | string
@@ -39452,6 +39471,7 @@ export namespace Prisma {
     categoryId?: SortOrderInput | SortOrder
     featured?: SortOrder
     featuredOrder?: SortOrder
+    categoryOrder?: SortOrder
     isActive?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -39488,6 +39508,7 @@ export namespace Prisma {
     categoryId?: IntNullableFilter<"Product"> | number | null
     featured?: BoolFilter<"Product"> | boolean
     featuredOrder?: IntFilter<"Product"> | number
+    categoryOrder?: IntFilter<"Product"> | number
     isActive?: BoolFilter<"Product"> | boolean
     deletedAt?: DateTimeNullableFilter<"Product"> | Date | string | null
     createdAt?: DateTimeFilter<"Product"> | Date | string
@@ -39521,6 +39542,7 @@ export namespace Prisma {
     categoryId?: SortOrderInput | SortOrder
     featured?: SortOrder
     featuredOrder?: SortOrder
+    categoryOrder?: SortOrder
     isActive?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -39555,6 +39577,7 @@ export namespace Prisma {
     categoryId?: IntNullableWithAggregatesFilter<"Product"> | number | null
     featured?: BoolWithAggregatesFilter<"Product"> | boolean
     featuredOrder?: IntWithAggregatesFilter<"Product"> | number
+    categoryOrder?: IntWithAggregatesFilter<"Product"> | number
     isActive?: BoolWithAggregatesFilter<"Product"> | boolean
     deletedAt?: DateTimeNullableWithAggregatesFilter<"Product"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Product"> | Date | string
@@ -42249,6 +42272,7 @@ export namespace Prisma {
     heightMm?: number | null
     featured?: boolean
     featuredOrder?: number
+    categoryOrder?: number
     isActive?: boolean
     deletedAt?: Date | string | null
     createdAt?: Date | string
@@ -42282,6 +42306,7 @@ export namespace Prisma {
     categoryId?: number | null
     featured?: boolean
     featuredOrder?: number
+    categoryOrder?: number
     isActive?: boolean
     deletedAt?: Date | string | null
     createdAt?: Date | string
@@ -42312,6 +42337,7 @@ export namespace Prisma {
     heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
+    categoryOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42345,6 +42371,7 @@ export namespace Prisma {
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
+    categoryOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42377,6 +42404,7 @@ export namespace Prisma {
     categoryId?: number | null
     featured?: boolean
     featuredOrder?: number
+    categoryOrder?: number
     isActive?: boolean
     deletedAt?: Date | string | null
     createdAt?: Date | string
@@ -42401,6 +42429,7 @@ export namespace Prisma {
     heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
+    categoryOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42427,6 +42456,7 @@ export namespace Prisma {
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
+    categoryOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -45640,6 +45670,7 @@ export namespace Prisma {
     categoryId?: SortOrder
     featured?: SortOrder
     featuredOrder?: SortOrder
+    categoryOrder?: SortOrder
     isActive?: SortOrder
     deletedAt?: SortOrder
     createdAt?: SortOrder
@@ -45659,6 +45690,7 @@ export namespace Prisma {
     heightMm?: SortOrder
     categoryId?: SortOrder
     featuredOrder?: SortOrder
+    categoryOrder?: SortOrder
   }
 
   export type ProductMaxOrderByAggregateInput = {
@@ -45678,6 +45710,7 @@ export namespace Prisma {
     categoryId?: SortOrder
     featured?: SortOrder
     featuredOrder?: SortOrder
+    categoryOrder?: SortOrder
     isActive?: SortOrder
     deletedAt?: SortOrder
     createdAt?: SortOrder
@@ -45703,6 +45736,7 @@ export namespace Prisma {
     categoryId?: SortOrder
     featured?: SortOrder
     featuredOrder?: SortOrder
+    categoryOrder?: SortOrder
     isActive?: SortOrder
     deletedAt?: SortOrder
     createdAt?: SortOrder
@@ -45722,6 +45756,7 @@ export namespace Prisma {
     heightMm?: SortOrder
     categoryId?: SortOrder
     featuredOrder?: SortOrder
+    categoryOrder?: SortOrder
   }
 
   export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
@@ -49122,6 +49157,7 @@ export namespace Prisma {
     heightMm?: number | null
     featured?: boolean
     featuredOrder?: number
+    categoryOrder?: number
     isActive?: boolean
     deletedAt?: Date | string | null
     createdAt?: Date | string
@@ -49153,6 +49189,7 @@ export namespace Prisma {
     heightMm?: number | null
     featured?: boolean
     featuredOrder?: number
+    categoryOrder?: number
     isActive?: boolean
     deletedAt?: Date | string | null
     createdAt?: Date | string
@@ -49271,6 +49308,7 @@ export namespace Prisma {
     categoryId?: IntNullableFilter<"Product"> | number | null
     featured?: BoolFilter<"Product"> | boolean
     featuredOrder?: IntFilter<"Product"> | number
+    categoryOrder?: IntFilter<"Product"> | number
     isActive?: BoolFilter<"Product"> | boolean
     deletedAt?: DateTimeNullableFilter<"Product"> | Date | string | null
     createdAt?: DateTimeFilter<"Product"> | Date | string
@@ -49826,6 +49864,7 @@ export namespace Prisma {
     heightMm?: number | null
     featured?: boolean
     featuredOrder?: number
+    categoryOrder?: number
     isActive?: boolean
     deletedAt?: Date | string | null
     createdAt?: Date | string
@@ -49858,6 +49897,7 @@ export namespace Prisma {
     categoryId?: number | null
     featured?: boolean
     featuredOrder?: number
+    categoryOrder?: number
     isActive?: boolean
     deletedAt?: Date | string | null
     createdAt?: Date | string
@@ -49903,6 +49943,7 @@ export namespace Prisma {
     heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
+    categoryOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -49935,6 +49976,7 @@ export namespace Prisma {
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
+    categoryOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -49964,6 +50006,7 @@ export namespace Prisma {
     heightMm?: number | null
     featured?: boolean
     featuredOrder?: number
+    categoryOrder?: number
     isActive?: boolean
     deletedAt?: Date | string | null
     createdAt?: Date | string
@@ -49996,6 +50039,7 @@ export namespace Prisma {
     categoryId?: number | null
     featured?: boolean
     featuredOrder?: number
+    categoryOrder?: number
     isActive?: boolean
     deletedAt?: Date | string | null
     createdAt?: Date | string
@@ -50041,6 +50085,7 @@ export namespace Prisma {
     heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
+    categoryOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50073,6 +50118,7 @@ export namespace Prisma {
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
+    categoryOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50102,6 +50148,7 @@ export namespace Prisma {
     heightMm?: number | null
     featured?: boolean
     featuredOrder?: number
+    categoryOrder?: number
     isActive?: boolean
     deletedAt?: Date | string | null
     createdAt?: Date | string
@@ -50134,6 +50181,7 @@ export namespace Prisma {
     categoryId?: number | null
     featured?: boolean
     featuredOrder?: number
+    categoryOrder?: number
     isActive?: boolean
     deletedAt?: Date | string | null
     createdAt?: Date | string
@@ -50212,6 +50260,7 @@ export namespace Prisma {
     heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
+    categoryOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50244,6 +50293,7 @@ export namespace Prisma {
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
+    categoryOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50459,6 +50509,7 @@ export namespace Prisma {
     heightMm?: number | null
     featured?: boolean
     featuredOrder?: number
+    categoryOrder?: number
     isActive?: boolean
     deletedAt?: Date | string | null
     createdAt?: Date | string
@@ -50491,6 +50542,7 @@ export namespace Prisma {
     categoryId?: number | null
     featured?: boolean
     featuredOrder?: number
+    categoryOrder?: number
     isActive?: boolean
     deletedAt?: Date | string | null
     createdAt?: Date | string
@@ -50722,6 +50774,7 @@ export namespace Prisma {
     heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
+    categoryOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50754,6 +50807,7 @@ export namespace Prisma {
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
+    categoryOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52131,6 +52185,7 @@ export namespace Prisma {
     heightMm?: number | null
     featured?: boolean
     featuredOrder?: number
+    categoryOrder?: number
     isActive?: boolean
     deletedAt?: Date | string | null
     createdAt?: Date | string
@@ -52163,6 +52218,7 @@ export namespace Prisma {
     categoryId?: number | null
     featured?: boolean
     featuredOrder?: number
+    categoryOrder?: number
     isActive?: boolean
     deletedAt?: Date | string | null
     createdAt?: Date | string
@@ -52417,6 +52473,7 @@ export namespace Prisma {
     heightMm?: number | null
     featured?: boolean
     featuredOrder?: number
+    categoryOrder?: number
     isActive?: boolean
     deletedAt?: Date | string | null
     createdAt?: Date | string
@@ -52449,6 +52506,7 @@ export namespace Prisma {
     categoryId?: number | null
     featured?: boolean
     featuredOrder?: number
+    categoryOrder?: number
     isActive?: boolean
     deletedAt?: Date | string | null
     createdAt?: Date | string
@@ -52494,6 +52552,7 @@ export namespace Prisma {
     heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
+    categoryOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52526,6 +52585,7 @@ export namespace Prisma {
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
+    categoryOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52556,6 +52616,7 @@ export namespace Prisma {
     heightMm?: number | null
     featured?: boolean
     featuredOrder?: number
+    categoryOrder?: number
     isActive?: boolean
     deletedAt?: Date | string | null
     createdAt?: Date | string
@@ -52598,6 +52659,7 @@ export namespace Prisma {
     heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
+    categoryOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52629,6 +52691,7 @@ export namespace Prisma {
     heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
+    categoryOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52660,6 +52723,7 @@ export namespace Prisma {
     heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
+    categoryOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -53518,6 +53582,7 @@ export namespace Prisma {
     heightMm?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
+    categoryOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -53550,6 +53615,7 @@ export namespace Prisma {
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
+    categoryOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -53581,6 +53647,7 @@ export namespace Prisma {
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     featured?: BoolFieldUpdateOperationsInput | boolean
     featuredOrder?: IntFieldUpdateOperationsInput | number
+    categoryOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

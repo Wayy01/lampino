@@ -7,6 +7,7 @@ import { requireAdmin } from "@/lib/admin/session";
 import { slugify } from "@/lib/slug";
 import { categorySlug, LOCALES } from "@/lib/i18n/routing";
 import { getAdminDict, langFromForm, type AdminLang } from "@/lib/admin/i18n";
+import { isAllowedImageUrl } from "@/lib/admin/validate";
 import {
   ActionRefusal,
   runAction,
@@ -28,6 +29,22 @@ function formerSlugsAfter(before: SlugSource, after: Parameters<typeof categoryS
   return [
     ...new Set([...before.formerSlugs, ...LOCALES.map((l) => categorySlug(l, before))]),
   ].filter((s) => !current.has(s));
+}
+
+/**
+ * The storefront landing slug `after` would get that another category already
+ * answers to, or null. Two categories can't share `/magazin/<slug>`.
+ */
+async function landingSlugClash(
+  id: number | null,
+  after: Parameters<typeof categorySlug>[1],
+): Promise<string | null> {
+  const others = await prisma.category.findMany({ where: id === null ? {} : { id: { not: id } } });
+  for (const l of LOCALES) {
+    const mine = categorySlug(l, after);
+    if (others.some((o) => categorySlug(l, o) === mine)) return mine;
+  }
+  return null;
 }
 
 /** `[{ q, a }]` from the FAQ editor's hidden JSON field. */
@@ -66,13 +83,12 @@ export async function saveCategorySeo(
     const urlSlug_ru = slugify(field("urlSlug_ru"));
     const after = { ...before, urlSlug_ro, urlSlug_ru };
 
-    // Two categories can't answer to the same landing URL.
-    const others = await prisma.category.findMany({ where: { id: { not: id } } });
-    for (const l of LOCALES) {
-      const mine = categorySlug(l, after);
-      if (others.some((o) => categorySlug(l, o) === mine)) {
-        return { error: `${errors.slugInUse} (${mine})` };
-      }
+    const clash = await landingSlugClash(id, after);
+    if (clash) return { error: `${errors.slugInUse} (${clash})` };
+
+    const ogImageUrl = field("ogImageUrl") || null;
+    if (ogImageUrl && !isAllowedImageUrl(ogImageUrl)) {
+      return { error: dict.errors.invalidMediaUrl };
     }
 
     await prisma.category.update({
@@ -93,7 +109,7 @@ export async function saveCategorySeo(
         body_ru: field("body_ru"),
         faq_ro: faqFromForm(fd, "faq_ro"),
         faq_ru: faqFromForm(fd, "faq_ru"),
-        ogImageUrl: field("ogImageUrl") || null,
+        ogImageUrl,
       },
     });
 
@@ -125,6 +141,22 @@ export async function saveCategory(
     if (clash && clash.id !== id) return { error: `${errors.slugInUse} (${slug})` };
 
     const imageUrl = String(fd.get("imageUrl") ?? "").trim() || null;
+    if (imageUrl && !isAllowedImageUrl(imageUrl)) {
+      return { error: getAdminDict(lang).errors.invalidMediaUrl };
+    }
+
+    // A rename moves the storefront landing URL; it must not land on another
+    // category's (by name or by its SEO slug override).
+    const before = id === null ? null : await prisma.category.findUnique({ where: { id } });
+    if (id !== null && !before) return { error: getAdminDict(lang).errors.recordMissing };
+    const landingClash = await landingSlugClash(id, {
+      id: id ?? 0,
+      name_ro,
+      name_ru,
+      urlSlug_ro: before?.urlSlug_ro ?? "",
+      urlSlug_ru: before?.urlSlug_ru ?? "",
+    });
+    if (landingClash) return { error: `${errors.slugInUse} (${landingClash})` };
 
     if (id === null) {
       const last = await prisma.category.aggregate({ _max: { position: true } });
@@ -138,7 +170,6 @@ export async function saveCategory(
         },
       });
     } else {
-      const before = await prisma.category.findUnique({ where: { id } });
       await prisma.category.update({
         where: { id },
         data: {
@@ -227,5 +258,37 @@ export async function reorderCategories(
       ),
     );
     revalidatePath("/admin/[lang]/categories", "page");
+  });
+}
+
+/**
+ * Persist the order the admin dragged a category's products into
+ * (`/admin/<lang>/categories/<id>/products`). Same contract as
+ * `reorderCategories`: the full id list of the category's (non-deleted)
+ * products, refused when it no longer matches the table.
+ */
+export async function reorderCategoryProducts(
+  lang: AdminLang,
+  categoryId: number,
+  ids: number[],
+): Promise<ActionResult> {
+  await requireAdmin(lang);
+  return runAction(lang, async () => {
+    const ordered = [...new Set(ids.filter((id) => Number.isInteger(id)))];
+    const existing = await prisma.product.findMany({
+      where: { categoryId, deletedAt: null },
+      select: { id: true },
+    });
+    const known = new Set(existing.map((p) => p.id));
+    if (ordered.length !== known.size || ordered.some((id) => !known.has(id))) {
+      throw new ActionRefusal("reorderStale");
+    }
+
+    await prisma.$transaction(
+      ordered.map((id, i) =>
+        prisma.product.update({ where: { id }, data: { categoryOrder: i } }),
+      ),
+    );
+    revalidatePath("/admin/[lang]/categories/[id]/products", "page");
   });
 }

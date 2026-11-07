@@ -257,6 +257,15 @@ const variantData = (v: VariantPayload) => ({
   imageUrls: v.imageUrls,
 });
 
+/** The slot after the last product in `categoryId` — where new arrivals land. */
+async function nextCategoryOrder(categoryId: number | null | undefined): Promise<number> {
+  const last = await prisma.product.aggregate({
+    where: { categoryId: categoryId ?? null },
+    _max: { categoryOrder: true },
+  });
+  return (last._max.categoryOrder ?? -1) + 1;
+}
+
 export async function createProduct(
   _prev: ProductActionState,
   fd: FormData,
@@ -273,6 +282,7 @@ export async function createProduct(
     const product = await prisma.product.create({
       data: {
         ...parsed.scalars,
+        categoryOrder: await nextCategoryOrder(parsed.scalars.categoryId),
         promotions: { connect: promotions },
         images: { create: parsed.images },
         videos: { create: parsed.videos },
@@ -299,14 +309,26 @@ export async function updateProduct(
     await relationsExist(parsed.scalars.categoryId);
     const promotions = await promotionLinks(parsed.promotionIds);
 
+    // Moving to another category puts the product at the end of that one.
+    const before = await prisma.product.findFirst({
+      where: { id, deletedAt: null },
+      select: { categoryId: true },
+    });
+    if (!before) return { error: getAdminDict(lang).errors.recordMissing };
+    const categoryOrder =
+      before.categoryId === (parsed.scalars.categoryId ?? null)
+        ? undefined
+        : await nextCategoryOrder(parsed.scalars.categoryId);
+
     const keptVariantIds = parsed.variants
       .map((v) => v.id)
       .filter((v): v is number => v !== null);
 
     await prisma.$transaction([
+      // `deletedAt: null`: a stale tab must not resurrect a deleted product.
       prisma.product.update({
-        where: { id },
-        data: { ...parsed.scalars, promotions: { set: promotions } },
+        where: { id, deletedAt: null },
+        data: { ...parsed.scalars, categoryOrder, promotions: { set: promotions } },
       }),
       // Images and videos carry no foreign keys — rebuild them wholesale.
       prisma.productImage.deleteMany({ where: { productId: id } }),
@@ -384,7 +406,7 @@ export async function setProductActive(
 ): Promise<ActionResult> {
   await requireAdmin(lang);
   return runAction(lang, async () => {
-    await prisma.product.update({ where: { id }, data: { isActive } });
+    await prisma.product.update({ where: { id, deletedAt: null }, data: { isActive } });
     revalidateProducts();
   });
 }
@@ -396,7 +418,7 @@ export async function setProductFeatured(
 ): Promise<ActionResult> {
   await requireAdmin(lang);
   return runAction(lang, async () => {
-    await prisma.product.update({ where: { id }, data: { featured } });
+    await prisma.product.update({ where: { id, deletedAt: null }, data: { featured } });
     revalidateProducts();
   });
 }
@@ -454,6 +476,9 @@ export async function duplicateProduct(
         promotions: { connect: source.promotions.map((p) => ({ id: p.id })) },
         featured: false,
         featuredOrder: source.featuredOrder,
+        imageAlt_ro: source.imageAlt_ro,
+        imageAlt_ru: source.imageAlt_ru,
+        categoryOrder: await nextCategoryOrder(source.categoryId),
         isActive: false,
         images: {
           create: source.images.map((i) => ({

@@ -147,6 +147,7 @@ async function seedProducts() {
         promotions: promoByProduct[p.id] ? { connect: [{ id: promoByProduct[p.id] }] } : undefined,
         featured: p.featured,
         featuredOrder: p.featuredOrder,
+        categoryOrder: p.categoryOrder,
         isActive: p.isActive,
         createdAt: daysAgo(90 - p.id * 5),
         images: {
@@ -608,6 +609,12 @@ async function resetSequences() {
 }
 
 async function main() {
+  // `wipe()` deletes every order and customer record. The production box's
+  // .env points at the live database, so make running this a deliberate act.
+  if (process.env.SEED_CONFIRM !== "yes") {
+    console.error("Refusing to seed: this wipes every table. Re-run with SEED_CONFIRM=yes.");
+    process.exit(1);
+  }
   await wipe();
   await seedCategories();
   await seedPromotions();

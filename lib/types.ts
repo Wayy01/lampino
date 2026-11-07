@@ -109,6 +109,8 @@ export interface Product {
   category: Category | null;
   featured: boolean;
   featuredOrder: number;
+  /** Position inside its category (admin drag order); the category page default sort. */
+  categoryOrder: number;
   isActive: boolean;
   images: ProductImage[];
   videos: ProductVideo[];

@@ -50,12 +50,18 @@ const NAV: {
   { path: "/settings", label: (t) => t.nav.settings, icon: Settings2 },
 ];
 
-function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
+function NavLinks({
+  onNavigate,
+  canManageUsers,
+}: {
+  onNavigate?: () => void;
+  canManageUsers: boolean;
+}) {
   const pathname = usePathname();
   const { t, href } = useAdminLang();
   return (
     <nav className="flex flex-col gap-1">
-      {NAV.map(({ path, label, icon: Icon, exact }) => {
+      {NAV.filter((n) => canManageUsers || n.path !== "/users").map(({ path, label, icon: Icon, exact }) => {
         const target = href(path);
         const active = exact ? pathname === target : pathname.startsWith(target);
         return (
@@ -148,9 +154,11 @@ function Wordmark() {
 
 export function AdminShell({
   username,
+  canManageUsers,
   children,
 }: {
   username: string;
+  canManageUsers: boolean;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -173,7 +181,7 @@ export function AdminShell({
           <div className="mb-8 px-3">
             <Wordmark />
           </div>
-          <NavLinks />
+          <NavLinks canManageUsers={canManageUsers} />
           <SidebarFooter username={username} />
         </aside>
 
@@ -209,7 +217,7 @@ export function AdminShell({
                   <X className="h-5 w-5" />
                 </button>
               </div>
-              <NavLinks onNavigate={() => setOpen(false)} />
+              <NavLinks onNavigate={() => setOpen(false)} canManageUsers={canManageUsers} />
               <SidebarFooter username={username} />
             </div>
           </div>

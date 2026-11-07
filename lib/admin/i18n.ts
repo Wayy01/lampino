@@ -149,8 +149,11 @@ const ro = {
     cannotDeleteSelf: "Nu îți poți șterge propriul cont.",
     cannotDeleteLastAdmin:
       "Nu poți șterge ultimul cont de administrator, altfel ai rămâne fără acces.",
+    superadminProtected: "Doar proprietarul (superadmin) poate modifica sau șterge acest cont.",
+    orderChanged:
+      "Comanda a fost modificată între timp în altă filă. Reîncarcă pagina și încearcă din nou.",
     insufficientStock:
-      "Stocul nu mai ajunge pentru produsele din această comandă, deci nu poate fi reactivată.",
+      "Stocul nu mai ajunge pentru produsele din această comandă, deci nu poate fi confirmată. Ajustează stocul sau comanda și încearcă din nou.",
     relationMissing:
       "Categoria sau promoția aleasă nu mai există, probabil a fost ștearsă în altă filă. Reîncarcă pagina și alege din nou.",
     shipmentExists:
@@ -338,6 +341,13 @@ const ro = {
     rentalsCount: "închirieri",
     empty: "Nicio categorie încă.",
     loseCategory: "produse vor rămâne fără categorie",
+    productOrder: {
+      open: "Ordinea produselor",
+      title: "Ordinea produselor",
+      hint: "Trage produsele în ordinea în care vrei să apară pe pagina categoriei. Ordinea se salvează automat și este cea implicită în magazin — clientul o poate schimba sortând după preț.",
+      saved: "Ordinea a fost salvată.",
+      empty: "Această categorie nu are produse.",
+    },
     seo: {
       open: "SEO și conținut",
       title: "Pagina categoriei",
@@ -805,6 +815,7 @@ const ro = {
     role: "Rol",
     roleAdmin: "Administrator",
     roleEditor: "Editor",
+    roleOwner: "Proprietar",
     lastLogin: "Ultima autentificare",
     never: "Niciodată",
     you: "Tu",
@@ -967,8 +978,11 @@ const ru: AdminDict = {
     cannotDeleteSelf: "Нельзя удалить собственную учётную запись.",
     cannotDeleteLastAdmin:
       "Нельзя удалить последнего администратора, иначе вы потеряете доступ.",
+    superadminProtected: "Только владелец (superadmin) может изменить или удалить эту учётную запись.",
+    orderChanged:
+      "Заказ был изменён в другой вкладке. Перезагрузите страницу и попробуйте снова.",
     insufficientStock:
-      "Товара на складе больше не хватает для этого заказа, поэтому его нельзя вернуть в работу.",
+      "Товара на складе не хватает для этого заказа, поэтому его нельзя подтвердить. Исправьте запас или заказ и попробуйте снова.",
     relationMissing:
       "Выбранная категория или акция больше не существует, вероятно, её удалили в другой вкладке. Перезагрузите страницу и выберите снова.",
     shipmentExists:
@@ -1156,6 +1170,13 @@ const ru: AdminDict = {
     rentalsCount: "аренд",
     empty: "Категорий пока нет.",
     loseCategory: "товаров останутся без категории",
+    productOrder: {
+      open: "Порядок товаров",
+      title: "Порядок товаров",
+      hint: "Перетащите товары в том порядке, в котором они должны отображаться на странице категории. Порядок сохраняется автоматически и используется в магазине по умолчанию — покупатель может изменить его сортировкой по цене.",
+      saved: "Порядок сохранён.",
+      empty: "В этой категории нет товаров.",
+    },
     seo: {
       open: "SEO и контент",
       title: "Страница категории",
@@ -1621,6 +1642,7 @@ const ru: AdminDict = {
     role: "Роль",
     roleAdmin: "Администратор",
     roleEditor: "Редактор",
+    roleOwner: "Владелец",
     lastLogin: "Последний вход",
     never: "Никогда",
     you: "Вы",

@@ -34,6 +34,23 @@ type ProductForSerialization = Prisma.ProductGetPayload<{
 
 const MAX_INT = 2_147_483_647;
 
+const listInclude = {
+  images: { orderBy: { isMain: "desc" } },
+  videos: { take: 1 },
+  category: true,
+  promotions: {
+    select: {
+      id: true,
+      name_ro: true,
+      name_ru: true,
+      discountPercent: true,
+      startDate: true,
+      endDate: true,
+    },
+  },
+  variants: { orderBy: { sortOrder: "asc" } },
+} satisfies Prisma.ProductInclude;
+
 /** A positive Int4 id from untrusted input, or null. */
 function parseId(raw: unknown): number | null {
   const n = typeof raw === "number" ? raw : Number(String(raw ?? "").trim());
@@ -59,8 +76,11 @@ function serializeProduct(product: ProductForSerialization) {
     .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())[0];
   const shown = active ?? upcoming ?? null;
   const pct = active?.discountPercent ?? null;
-  const { promotions: _all, ...rest } = product;
+  // Internal bookkeeping columns aren't part of the legacy response.
+  const { promotions: _all, deletedAt: _deleted, categoryOrder: _order, ...rest } = product;
   void _all;
+  void _deleted;
+  void _order;
 
   const variants = product.variants.map((variant) => {
     return {
@@ -169,22 +189,7 @@ export async function GET(request: NextRequest) {
     const [products, total] = await Promise.all([
       prisma.product.findMany({
         where,
-        include: {
-          images: { orderBy: { isMain: "desc" } },
-          videos: { take: 1 },
-          category: true,
-          promotions: {
-            select: {
-              id: true,
-              name_ro: true,
-              name_ru: true,
-              discountPercent: true,
-              startDate: true,
-              endDate: true,
-            },
-          },
-          variants: { orderBy: { sortOrder: "asc" } },
-        },
+        include: listInclude,
         skip: (page - 1) * limit,
         take: limit,
         orderBy,
@@ -221,17 +226,16 @@ export async function POST(request: Request) {
     // Hidden products are as invisible here as they are in the shop.
     const product = await prisma.product.findFirst({
       where: { id, isActive: true },
-      include: {
-        images: true,
-        videos: true,
-      },
+      // Same shape and promotion pricing as GET, so a bot quoting one product
+      // sees exactly what the list (and checkout) charges.
+      include: { ...listInclude, videos: true },
     });
 
     if (!product) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    return NextResponse.json(product);
+    return NextResponse.json(serializeProduct(product));
   } catch (error) {
     console.error("POST /api/products", error);
     return NextResponse.json({ error: "Failed to fetch product" }, { status: 500 });

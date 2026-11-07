@@ -20,6 +20,8 @@ export async function setReviewStatus(
 ): Promise<ActionResult> {
   await requireAdmin(lang);
   return runAction(lang, async () => {
+    // A server action is a public endpoint; don't trust the TS type.
+    if (status !== "approved" && status !== "rejected") throw new Error("invalid review status");
     await prisma.review.update({ where: { id }, data: { status } });
     revalidateReviews();
   });

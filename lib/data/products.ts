@@ -98,6 +98,7 @@ function serializeProduct(row: ProductRow, now = new Date()): Product {
     category: row.category ? serializeCategory(row.category) : null,
     featured: row.featured,
     featuredOrder: row.featuredOrder,
+    categoryOrder: row.categoryOrder,
     isActive: row.isActive,
     images: row.images.map((i) => ({ id: i.id, imageUrl: i.imageUrl, isMain: i.isMain })),
     videos: row.videos.map((v) => ({ id: v.id, videoUrl: v.videoUrl, thumbnailUrl: v.thumbnailUrl })),
@@ -217,7 +218,8 @@ export async function getRelatedProducts(
       id: { not: product.id },
     },
     include: productInclude,
-    orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+    // Same order the category page shows by default.
+    orderBy: [{ categoryOrder: "asc" }, { createdAt: "desc" }],
     take: limit,
   });
   return rows.map((r) => serializeProduct(r));

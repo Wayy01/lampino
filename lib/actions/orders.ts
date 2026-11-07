@@ -8,7 +8,6 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma";
 import { sendNewOrderAlert } from "@/lib/telegram";
 import { withinRateLimit } from "@/lib/rate-limit";
-import { reserveStock } from "@/lib/stock";
 import { type DeliveryRegion } from "@/lib/pricing";
 import {
   resolveOrderLines,
@@ -61,13 +60,6 @@ export type SubmitOrderResult =
 // row stays a valid contact point for the team.
 const FALLBACK_EMAIL = "contact@lampino.md";
 
-/** Thrown inside the checkout transaction to roll the stock decrements back. */
-class StockShortage extends Error {
-  constructor(readonly lines: RejectedLine[]) {
-    super("stock shortage");
-  }
-}
-
 export async function submitOrder(
   input: SubmitOrderInput,
 ): Promise<SubmitOrderResult> {
@@ -111,54 +103,51 @@ export async function submitOrder(
       where: { isActive: true },
     });
 
-    // Re-check and take the stock atomically with the order insert: the reads
-    // above only produce friendly errors, the conditional decrements here are
-    // what actually stop two checkouts from selling the same last unit.
-    const order = await prisma.$transaction(async (tx) => {
-      const shortage = await reserveStock(tx, resolved);
-      if (shortage.length > 0) throw new StockShortage(shortage);
-      return tx.order.create({
-        data: {
-          customerName: contact.name,
-          customerEmail: contactSettings?.email?.trim() || FALLBACK_EMAIL,
-          customerPhone: contact.phone,
-          address,
-          city,
-          postalCode: postalCode || null,
-          country: input.method === "delivery" ? "Moldova" : null,
-          specialInstructions: notes || null,
-          status: "pending",
-          stockReserved: true,
-          deliveryMethod: input.method,
-          deliveryRegion: input.method === "delivery" ? input.region : null,
-          totalPrice: new Prisma.Decimal(totals.itemsNet + fee),
-          items: {
-            create: resolved.map((r) => ({
-              productId: r.productId,
-              productVariantId: r.variantId,
-              quantity: r.quantity,
-              priceEach: r.priceEach,
-            })),
+    // Stock is checked above but NOT taken here: it is reserved when an admin
+    // confirms the order (lib/admin/actions/orders.ts). Reserving at checkout
+    // let anonymous, unverified orders empty the shop until someone cancelled
+    // them.
+    const order = await prisma.order.create({
+      data: {
+        customerName: contact.name,
+        customerEmail: contactSettings?.email?.trim() || FALLBACK_EMAIL,
+        customerPhone: contact.phone,
+        address,
+        city,
+        postalCode: postalCode || null,
+        country: input.method === "delivery" ? "Moldova" : null,
+        specialInstructions: notes || null,
+        status: "pending",
+        stockReserved: false,
+        deliveryMethod: input.method,
+        deliveryRegion: input.method === "delivery" ? input.region : null,
+        totalPrice: new Prisma.Decimal(totals.itemsNet + fee),
+        items: {
+          create: resolved.map((r) => ({
+            productId: r.productId,
+            productVariantId: r.variantId,
+            quantity: r.quantity,
+            priceEach: r.priceEach,
+          })),
+        },
+      },
+      select: {
+        id: true,
+        customerName: true,
+        customerPhone: true,
+        address: true,
+        city: true,
+        postalCode: true,
+        totalPrice: true,
+        items: {
+          select: {
+            quantity: true,
+            priceEach: true,
+            product: { select: { name_ro: true } },
+            productVariant: { select: { name_ro: true } },
           },
         },
-        select: {
-          id: true,
-          customerName: true,
-          customerPhone: true,
-          address: true,
-          city: true,
-          postalCode: true,
-          totalPrice: true,
-          items: {
-            select: {
-              quantity: true,
-              priceEach: true,
-              product: { select: { name_ro: true } },
-              productVariant: { select: { name_ro: true } },
-            },
-          },
-        },
-      });
+      },
     });
 
     sendNewOrderAlert(order).catch((err) =>
@@ -167,9 +156,7 @@ export async function submitOrder(
 
     return { ok: true, orderId: order.id };
   } catch (error) {
-    if (error instanceof StockShortage) {
-      return { ok: false, error: "out_of_stock", rejected: error.lines };
-    }
+    console.error("submitOrder", error);
     return { ok: false, error: "server_error" };
   }
 }

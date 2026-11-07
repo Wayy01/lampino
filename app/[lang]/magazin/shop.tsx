@@ -150,7 +150,7 @@ export function ShopView({
 
   // The products on the requested page, in the order the grid shows them —
   // what the ItemList describes. (Advanced filters only exist client-side.)
-  const listed = sortProducts(shown, initialSort);
+  const listed = sortProducts(shown, initialSort, category !== null);
   const onPage = listed.slice((initialPage - 1) * PAGE_SIZE, initialPage * PAGE_SIZE);
 
   const trail = [

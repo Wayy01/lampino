@@ -265,8 +265,9 @@ export async function updateRental(
       .filter((v): v is number => v !== null);
 
     await prisma.$transaction([
+      // `deletedAt: null`: a stale tab must not resurrect a deleted rental.
       prisma.rentalPackage.update({
-        where: { id },
+        where: { id, deletedAt: null },
         data: { ...parsed.scalars, promotions: { set: promotions } },
       }),
       // Images and videos carry no foreign keys — rebuild them wholesale.
@@ -343,7 +344,7 @@ export async function setRentalActive(
 ): Promise<ActionResult> {
   await requireAdmin(lang);
   return runAction(lang, async () => {
-    await prisma.rentalPackage.update({ where: { id }, data: { isActive } });
+    await prisma.rentalPackage.update({ where: { id, deletedAt: null }, data: { isActive } });
     revalidateRentals();
   });
 }

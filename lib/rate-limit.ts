@@ -8,8 +8,12 @@ const buckets = new Map<string, Bucket>();
 
 async function clientIp(): Promise<string | null> {
   const h = await headers();
-  const forwarded = h.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return forwarded || h.get("x-real-ip")?.trim() || null;
+  // nginx sets X-Real-IP to the socket address. X-Forwarded-For's *first*
+  // entry is whatever the client sent (nginx only appends), so it can't be
+  // trusted; fall back to its last entry, the one our proxy added.
+  const real = h.get("x-real-ip")?.trim();
+  const forwarded = h.get("x-forwarded-for")?.split(",").at(-1)?.trim();
+  return real || forwarded || null;
 }
 
 /**
