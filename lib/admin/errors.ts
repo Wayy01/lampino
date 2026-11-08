@@ -21,6 +21,7 @@ export type RefusalKey =
   | "insufficientStock"
   | "relationMissing"
   | "shipmentExists"
+  | "shipmentMissing"
   | "courierNotConfigured"
   | "recipientRequired"
   | "courierFailed";

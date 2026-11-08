@@ -8,6 +8,8 @@
 // Requests are `application/x-www-form-urlencoded`; responses are JSON, usually
 // wrapped in a `{ status, data, message, error }` envelope.
 
+import type { CancelResult } from "./cancel";
+
 const BASE_URL = "https://app.fancourier.md/fan/API";
 const TIMEOUT_MS = 30_000;
 
@@ -296,6 +298,75 @@ export function buildFanCourierShipmentBody(req: FanCourierShipmentRequest): FcP
   body.to_extra = r.extra;
 
   return body;
+}
+
+// --- Cancel (delete) a waybill ----------------------------------------------
+
+/**
+ * Cancel a waybill by AWB number (`cancel` operation). Fan Courier only cancels
+ * an AWB whose shipping process hasn't finished; a collected / in-transit one
+ * comes back `"forbidden"` and is reported as `refused`, so the caller keeps the
+ * live waybill and offers a Lampino-only removal. The `cancel` op answers with a
+ * bare body (`ok` / `forbidden`) or a tiny JSON object rather than the usual
+ * `{status,data}` envelope, so this reads the raw text instead of going through
+ * `fcRequest`. Network/timeout failures throw FanCourierError.
+ *
+ * Note: `"forbidden"` is also what a key lacking cancel permission receives, so
+ * the `refused` reason is reported faithfully rather than asserting "in transit"
+ * — the UI offers the same Lampino-only removal either way. A `get_status`
+ * pre-check could disambiguate later, but its payload shape isn't documented and
+ * there is no Fan Courier sandbox to verify against.
+ */
+export async function cancelShipment(
+  cfg: FanCourierConfig,
+  awb: string,
+): Promise<CancelResult> {
+  const form = new URLSearchParams({ api_key: cfg.apiKey, awbno: awb });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+  let res: Response;
+  try {
+    res = await fetch(`${BASE_URL}/cancel`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: form.toString(),
+      signal: controller.signal,
+    });
+  } catch (e) {
+    throw new FanCourierError(
+      e instanceof Error && e.name === "AbortError"
+        ? "Fan Courier request timed out."
+        : "Could not reach Fan Courier.",
+    );
+  } finally {
+    clearTimeout(timer);
+  }
+
+  const text = (await res.text().catch(() => "")).trim();
+  const low = text.toLowerCase();
+
+  if (res.ok && (low === "" || /\b(ok|done|success|deleted)\b/.test(low))) {
+    return { status: "cancelled" };
+  }
+  // Collected / in transit, or the key can't cancel: keep the real AWB.
+  if (/forbidden/.test(low)) {
+    return { status: "refused", reason: "Fan Courier refused the cancellation (forbidden)." };
+  }
+  if (!res.ok) {
+    // A 5xx is a transport problem (retry); a 4xx is a courier rejection.
+    if (res.status >= 500) throw new FanCourierError(`Fan Courier error (HTTP ${res.status}).`);
+    return {
+      status: "refused",
+      reason: text || `Fan Courier refused the cancellation (HTTP ${res.status}).`,
+    };
+  }
+  // 2xx with an unrecognized body — be conservative and treat it as refused so a
+  // live waybill is never orphaned by a silent local delete.
+  return { status: "refused", reason: text || "Unexpected Fan Courier response." };
 }
 
 export type FanCourierShipmentResult = {

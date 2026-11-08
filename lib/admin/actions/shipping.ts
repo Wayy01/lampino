@@ -13,17 +13,31 @@ import {
 } from "@/lib/admin/shipping-request";
 import {
   createShipment,
+  cancelShipment as cancelNovaPostShipment,
   describeNovaPostError,
   NovaPostError,
 } from "@/lib/courier/novapost";
 import {
   createShipment as createFanCourierAwb,
+  cancelShipment as cancelFanCourierShipment,
   describeFanCourierError,
   FanCourierError,
 } from "@/lib/courier/fancourier";
+import type { CancelResult } from "@/lib/courier/cancel";
+import type { ShippingSettings } from "@/lib/generated/prisma";
 import { dispatchShipmentCreated } from "@/lib/webhooks";
 
 export type ShippingActionState = { ok?: boolean; error?: string } | null;
+
+/**
+ * Result of the delete-shipment action. `ok` closes the panel; `error` renders
+ * through `ActionNotice`. `refused` is the distinct in-between state: the carrier
+ * wouldn't cancel the waybill (it's already in transit / picked up), so nothing
+ * was deleted and the UI offers a Lampino-only removal instead.
+ */
+export type DeleteShipmentState =
+  | { ok?: boolean; error?: string; refused?: boolean }
+  | null;
 
 /**
  * Reserve the single Shipment row for an order before the (non-idempotent)
@@ -135,6 +149,135 @@ export async function createNovaPostShipment(
     // Outbound webhook — fire-and-forget, never blocks or fails the shipment.
     void dispatchShipmentCreated(shipment.id).catch((e) => console.error("[webhooks]", e));
 
+    revalidatePath("/admin/[lang]/orders/[id]", "page");
+    revalidatePath("/admin/[lang]/orders", "page");
+    return { ok: true };
+  });
+}
+
+type ShipmentRow = {
+  carrier: string;
+  trackingNumber: string;
+  courierShipmentId: string | null;
+};
+
+/**
+ * Try to cancel a shipment's waybill at its carrier. Returns a `CancelResult`;
+ * it never throws for an expected failure. Any carrier rejection, auth/validation
+ * error, transport failure, missing configuration, or missing carrier id resolves
+ * to `refused` — the caller then offers a Lampino-only removal rather than
+ * surfacing the error or silently dropping the row. The carrier's raw diagnostic
+ * is logged server-side only; it never reaches the operator.
+ *
+ * Nova Post cancels strictly by the stored `courierShipmentId` (its delete wants
+ * the integer/uuid id, not the waybill number — passing the number gets a bare
+ * validation rejection); Fan Courier by the AWB (tracking) number.
+ */
+async function cancelAtCarrier(
+  shipment: ShipmentRow,
+  settings: ShippingSettings | null,
+): Promise<CancelResult> {
+  try {
+    if (shipment.carrier === "novapost") {
+      const apiKey = decryptSecret(settings?.novapostApiKey);
+      // Can't reach the carrier (disabled / key gone) or no id to delete by — we
+      // can't verify or cancel the waybill, so offer the local-only removal.
+      if (!settings?.novapostEnabled || !apiKey || !shipment.courierShipmentId) {
+        return { status: "refused" };
+      }
+      return await cancelNovaPostShipment(
+        {
+          apiKey,
+          sandbox: settings.novapostSandbox,
+          countryCode: settings.novapostSenderCountryCode || "MD",
+          companyTin: settings.novapostSenderCompanyTin || undefined,
+        },
+        shipment.courierShipmentId,
+      );
+    }
+
+    if (shipment.carrier === "fancourier") {
+      const apiKey = decryptSecret(settings?.fancourierApiKey);
+      if (!settings?.fancourierEnabled || !apiKey) return { status: "refused" };
+      // A half-reserved row that never got an AWB has nothing to cancel remotely.
+      if (!shipment.trackingNumber) return { status: "alreadyGone" };
+      return await cancelFanCourierShipment({ apiKey }, shipment.trackingNumber);
+    }
+
+    // Unknown carrier — nothing we know how to cancel remotely.
+    return { status: "alreadyGone" };
+  } catch (e) {
+    // Transport / auth / unexpected carrier error. Log the detail for us; the
+    // operator only ever sees the generic "couldn't cancel" choice.
+    console.error("[shipment-cancel]", shipment.carrier, e);
+    return { status: "refused" };
+  }
+}
+
+/**
+ * Drop the local `Shipment` row and roll the order back from `shipped` to the
+ * pre-shipping `confirmed` state (so a fresh waybill can be created and the
+ * `@unique(orderId)` slot is freed). Both statuses hold stock, so `stockReserved`
+ * is untouched; a status the operator advanced to by hand (e.g. `delivered`) is
+ * left alone via the `status: "shipped"` guard.
+ */
+async function removeShipmentRow(shipmentId: number, orderId: number) {
+  await prisma.$transaction([
+    prisma.shipment.delete({ where: { id: shipmentId } }),
+    prisma.order.updateMany({
+      where: { id: orderId, status: "shipped" },
+      data: { status: "confirmed" },
+    }),
+  ]);
+}
+
+/**
+ * Delete an order's shipment. `mode:"auto"` (the default) is carrier-first: it
+ * cancels the real waybill, then removes the local row — but only when the
+ * carrier actually cancelled it (or it was already gone). When the carrier
+ * refuses because the parcel is already in transit, nothing is deleted and the
+ * action returns `refused` so the UI can offer a Lampino-only removal. That
+ * second step submits `mode:"local"`, which skips the carrier and removes only
+ * the local row, leaving the live waybill alone. Bound to the order id in the UI.
+ */
+export async function deleteShipment(
+  orderId: number,
+  _prev: DeleteShipmentState,
+  fd: FormData,
+): Promise<DeleteShipmentState> {
+  const lang = langFromForm(fd);
+  await requireAdmin(lang);
+  const localOnly = String(fd.get("mode") ?? "auto") === "local";
+
+  return runFormAction(lang, async () => {
+    const shipment = await prisma.shipment.findUnique({
+      where: { orderId },
+      select: {
+        id: true,
+        orderId: true,
+        carrier: true,
+        trackingNumber: true,
+        courierShipmentId: true,
+      },
+    });
+    if (!shipment) throw new ActionRefusal("shipmentMissing");
+
+    if (!localOnly) {
+      // Carrier-first: never drop the local row before the real waybill is gone.
+      const settings = await prisma.shippingSettings.findFirst({ where: { isActive: true } });
+      const outcome = await cancelAtCarrier(shipment, settings);
+      if (outcome.status === "refused") {
+        // Couldn't cancel the waybill (in transit / rejected / unreachable) — it
+        // stays live at the carrier. Offer a Lampino-only removal via the
+        // follow-up `mode:"local"` submit. The raw reason stays in the server log
+        // (cancelAtCarrier); nothing internal is returned to the client.
+        if (outcome.reason) console.error("[shipment-cancel] refused:", shipment.carrier, outcome.reason);
+        return { refused: true };
+      }
+      // "cancelled" / "alreadyGone": safe to remove the local row below.
+    }
+
+    await removeShipmentRow(shipment.id, shipment.orderId);
     revalidatePath("/admin/[lang]/orders/[id]", "page");
     revalidatePath("/admin/[lang]/orders", "page");
     return { ok: true };

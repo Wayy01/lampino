@@ -29,6 +29,7 @@ import { SectionCard } from "@/components/admin/section-card";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { OrderStatusForm } from "@/components/admin/order-status-form";
 import { ShipmentDialog } from "@/components/admin/shipment-dialog";
+import { ShipmentPanel } from "@/components/admin/shipment-panel";
 
 export default async function AdminOrderDetailPage({
   params,
@@ -307,16 +308,11 @@ export default async function AdminOrderDetailPage({
             icon={<Package className="h-4 w-4" strokeWidth={1.75} />}
           >
             {shipment ? (
-              <div className="flex flex-col gap-1.5 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">{t.orders.shipment.carrier}:</span>
-                  <span className="font-medium">{shipment.carrierTitle ?? shipment.carrier}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">{t.orders.shipment.tracking}:</span>
-                  <span className="font-mono font-medium">{shipment.trackingNumber}</span>
-                </div>
-              </div>
+              <ShipmentPanel
+                orderId={order.id}
+                carrierTitle={shipment.carrierTitle ?? shipment.carrier}
+                trackingNumber={shipment.trackingNumber}
+              />
             ) : (
               <ShipmentDialog
                 orderId={order.id}

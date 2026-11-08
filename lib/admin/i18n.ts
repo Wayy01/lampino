@@ -158,6 +158,7 @@ const ro = {
       "Categoria sau promoția aleasă nu mai există, probabil a fost ștearsă în altă filă. Reîncarcă pagina și alege din nou.",
     shipmentExists:
       "Această comandă are deja o expediere. Șterge-o întâi dacă vrei să creezi una nouă.",
+    shipmentMissing: "Expedierea nu mai există.",
     courierNotConfigured:
       "Curierul nu este configurat: activează-l și adaugă cheia API și filiala expeditorului în Integrări.",
     recipientRequired:
@@ -480,6 +481,17 @@ const ro = {
       lengthCm: "Lungime (cm)",
       widthCm: "Lățime (cm)",
       heightCm: "Înălțime (cm)",
+      // Delete / cancel
+      delete: "Șterge expedierea",
+      deleteConfirmTitle: "Ștergi expedierea?",
+      deleteConfirmBody:
+        "Se anulează mai întâi AWB-ul la curier, apoi expedierea se elimină din Lampino.",
+      deleteConfirm: "Șterge",
+      keep: "Păstrează",
+      cancelRefusedTitle: "AWB-ul nu a putut fi anulat la curier",
+      cancelRefusedBody:
+        "AWB-ul rămâne activ la curier (coletul poate fi deja în tranzit). Îl elimini doar din Lampino sau îl păstrezi?",
+      removeLocalOnly: "Elimină doar din Lampino",
     },
     errors: { unknownStatus: "Status necunoscut." },
   },
@@ -987,6 +999,7 @@ const ru: AdminDict = {
       "Выбранная категория или акция больше не существует, вероятно, её удалили в другой вкладке. Перезагрузите страницу и выберите снова.",
     shipmentExists:
       "У этого заказа уже есть отправление. Сначала удалите его, чтобы создать новое.",
+    shipmentMissing: "Отправление больше не существует.",
     courierNotConfigured:
       "Курьер не настроен: включите его и добавьте API-ключ и отделение отправителя в разделе «Интеграции».",
     recipientRequired:
@@ -1309,6 +1322,17 @@ const ru: AdminDict = {
       lengthCm: "Длина (см)",
       widthCm: "Ширина (см)",
       heightCm: "Высота (см)",
+      // Delete / cancel
+      delete: "Удалить отправление",
+      deleteConfirmTitle: "Удалить отправление?",
+      deleteConfirmBody:
+        "Сначала AWB отменяется у курьера, затем отправление удаляется из Lampino.",
+      deleteConfirm: "Удалить",
+      keep: "Оставить",
+      cancelRefusedTitle: "AWB не удалось отменить у курьера",
+      cancelRefusedBody:
+        "AWB остаётся активным у курьера (посылка может быть уже в пути). Удалить только из Lampino или оставить?",
+      removeLocalOnly: "Удалить только из Lampino",
     },
     errors: { unknownStatus: "Неизвестный статус." },
   },

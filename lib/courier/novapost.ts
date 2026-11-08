@@ -7,6 +7,8 @@
 // that is sent raw in the `Authorization` header (no "Bearer " prefix). Tokens
 // are cached per-key in memory and refreshed on expiry or a 401.
 
+import type { CancelResult } from "./cancel";
+
 const PROD = "https://api.novapost.com/v.1.0/";
 const SANDBOX = "https://api-stage.novapost.pl/v.1.0/";
 const TIMEOUT_MS = 30_000;
@@ -324,6 +326,54 @@ async function apiPost(
   const parsed = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok) throw new NovaPostError(res.status, parsed.errors ?? parsed);
   return parsed;
+}
+
+// Authenticated DELETE with one automatic re-auth on 401. Returns the raw
+// Response so the caller can branch on the HTTP status (200 / 404 / 422 / …).
+async function apiDelete(cfg: NovaPostConfig, path: string): Promise<Response> {
+  const run = async (jwt: string) =>
+    novaFetch(`${baseUrl(cfg)}${path}`, {
+      method: "DELETE",
+      headers: { Authorization: jwt, Accept: "application/json" },
+    });
+
+  let jwt = await authorize(cfg);
+  let res = await run(jwt);
+  if (res.status === 401) {
+    tokenCache.delete(`${cfg.sandbox ? "s" : "p"}:${cfg.apiKey}`);
+    jwt = await authorize(cfg);
+    res = await run(jwt);
+  }
+  return res;
+}
+
+/**
+ * Cancel (delete) a waybill by its Nova Post shipment id (`DELETE shipments/{id}`).
+ * Nova Post only deletes a shipment that hasn't progressed; a picked-up / in-
+ * transit one is rejected (4xx) and reported as `refused` so the caller can offer
+ * a Lampino-only removal while the real waybill stays live. A 404 (gone) or an
+ * already-deleted 422 is `alreadyGone`. Network/timeout/auth problems throw
+ * NovaPostError so the operator retries rather than dropping the row blindly.
+ */
+export async function cancelShipment(
+  cfg: NovaPostConfig,
+  shipmentId: string,
+): Promise<CancelResult> {
+  const res = await apiDelete(cfg, `shipments/${encodeURIComponent(shipmentId)}`);
+  if (res.ok) return { status: "cancelled" };
+  if (res.status === 404) return { status: "alreadyGone" };
+
+  const body = (await res.json().catch(() => ({}))) as { errors?: unknown; message?: unknown };
+  const reason = describeNovaPostError(new NovaPostError(res.status, body.errors ?? body));
+  // Repeated deletion comes back 422 "shipment_was_deleted" — idempotent success.
+  if (res.status === 422 && /deleted/i.test(reason)) return { status: "alreadyGone" };
+  // A plain client-side rejection (e.g. the shipment has already progressed):
+  // keep the live waybill and let the operator remove the row locally. A 401 is
+  // an auth failure and a 5xx is a transport problem — throw so they retry.
+  if (res.status >= 400 && res.status < 500 && res.status !== 401) {
+    return { status: "refused", reason };
+  }
+  throw new NovaPostError(res.status, body.errors ?? body);
 }
 
 // --- Shipment creation (waybill) --------------------------------------------
