@@ -98,10 +98,22 @@ export function buildNovaPostRequestFromForm(
     throw new ActionRefusal("recipientRequired");
   }
 
-  // Nova Pay (COD): collect the goods' declared value plus Lampino's
-  // address-delivery fee on delivery. The parcel insurance stays goods-only.
+  // Nova Pay (COD): one amount — the order's grand total by default — is both
+  // what's collected on delivery and the parcels' declared value / insurance.
   const novaPay = str(fd, "novaPay") === "1";
-  const codAmount = pos(fd, "parcelInsurance", 0) + pos(fd, "codDeliveryFee", 0);
+  const codAmount = pos(fd, "parcelInsurance", 0);
+
+  // Nova Post refuses a COD above the parcels' total insurance
+  // (validation.cod.amount_exceeds_insurance_total_cost). The drawer already
+  // insures the COD total, but enforce it here too — manual per-parcel
+  // overrides can leave a shortfall, which is added to the last parcel.
+  const parcels = parseParcels(fd, settings, order);
+  if (novaPay && codAmount > 0) {
+    const insured = parcels.reduce((sum, p) => sum + p.insuranceCost, 0);
+    if (insured < codAmount) {
+      parcels[parcels.length - 1].insuranceCost += codAmount - insured;
+    }
+  }
 
   return {
     clientOrder: `Order #${order.id}`,
@@ -134,7 +146,7 @@ export function buildNovaPostRequestFromForm(
             }
           : null,
     },
-    parcels: parseParcels(fd, settings, order),
+    parcels,
   };
 }
 
@@ -204,19 +216,18 @@ export function buildFanCourierRequestFromForm(
   const payer: FanCourierShipmentRequest["payer"] =
     payerRaw === "sender" ? "sender" : payerRaw === "recipient" ? "recipient" : "client";
 
-  // Ramburs (cash-on-delivery): collect the goods amount plus Lampino's
-  // address-delivery fee at the door.
+  // Ramburs (cash-on-delivery): the amount collected at the door — the order's
+  // grand total by default.
   const codOn = str(fd, "cod") === "1";
-  const codBase = pos(fd, "codAmount", 0);
-  const codTotal = codBase + pos(fd, "codDeliveryFee", 0);
+  const codTotal = pos(fd, "codAmount", 0);
   const typeRaw = str(fd, "rambursType");
   const rambursType: "cont" | "cash" | "instrumente_plata" =
     typeRaw === "cash" ? "cash" : typeRaw === "instrumente_plata" ? "instrumente_plata" : "cont";
 
-  // Declared value (insurance): the form prefills it; if cleared, fall back to
-  // the COD goods amount (not the delivery fee), mirroring aminterra's coupling.
+  // Declared value (insurance): the form prefills it from the order total; if
+  // cleared, fall back to the COD amount so cover never undershoots collection.
   let declaredValue = pos(fd, "declaredValue", 0);
-  if (declaredValue <= 0 && codOn && codBase > 0) declaredValue = codBase;
+  if (declaredValue <= 0 && codOn && codTotal > 0) declaredValue = codTotal;
 
   return {
     serviceType: settings.fancourierServiceType || "standard",

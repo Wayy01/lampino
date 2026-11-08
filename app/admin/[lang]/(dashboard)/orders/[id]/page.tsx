@@ -105,13 +105,6 @@ export default async function AdminOrderDetailPage({
     heightMm: (settings?.fancourierParcelHeightCm ?? 20) * 10,
   };
   const productItems = order.items.filter((i) => i.productId && i.product);
-  // Declared value / COD default is the value of the *shippable* goods only —
-  // `itemsTotal` also includes rental lines, which never go in the parcel, so
-  // using it would over-declare insurance and over-collect on delivery.
-  const shippableValue = productItems.reduce(
-    (sum, i) => sum + num(i.priceEach) * i.quantity,
-    0,
-  );
   // Item lines the drawer distributes across parcels (variant → product → store
   // dimensions), with per-unit value for proportional declared-value splitting.
   const shipmentItems = productItems.map((i) => ({
@@ -329,7 +322,7 @@ export default async function AdminOrderDetailPage({
                 items={shipmentItems}
                 fallback={parcelFallback}
                 fancourierFallback={fancourierFallback}
-                insuranceTotal={Math.round(shippableValue)}
+                orderTotal={Math.round(num(order.totalPrice))}
                 novapostConfigured={novapostConfigured}
                 fancourierConfigured={fancourierConfigured}
               />

@@ -245,7 +245,7 @@ export function ShipmentDialog({
   items,
   fallback,
   fancourierFallback,
-  insuranceTotal,
+  orderTotal,
   novapostConfigured,
   fancourierConfigured,
 }: {
@@ -255,7 +255,7 @@ export function ShipmentDialog({
   items: ShipmentItem[];
   fallback: ParcelFallback;
   fancourierFallback: ParcelFallback;
-  insuranceTotal: number;
+  orderTotal: number;
   novapostConfigured: boolean;
   fancourierConfigured: boolean;
 }) {
@@ -291,7 +291,7 @@ export function ShipmentDialog({
               address={address}
               items={items}
               fallback={fallback}
-              insuranceTotal={insuranceTotal}
+              orderTotal={orderTotal}
               onBack={() => setCarrier(null)}
               onDone={() => change(false)}
             />
@@ -302,7 +302,7 @@ export function ShipmentDialog({
               address={address}
               items={items}
               fallback={fancourierFallback}
-              insuranceTotal={insuranceTotal}
+              orderTotal={orderTotal}
               onBack={() => setCarrier(null)}
               onDone={() => change(false)}
             />
@@ -394,7 +394,7 @@ function NovaPostShipmentForm({
   address,
   items,
   fallback,
-  insuranceTotal,
+  orderTotal,
   onBack,
   onDone,
 }: {
@@ -403,7 +403,7 @@ function NovaPostShipmentForm({
   address: OrderAddress;
   items: ShipmentItem[];
   fallback: ParcelFallback;
-  insuranceTotal: number;
+  orderTotal: number;
   onBack: () => void;
   onDone: () => void;
 }) {
@@ -422,10 +422,10 @@ function NovaPostShipmentForm({
   const [flat, setFlat] = useState(parts.find((p) => p.target === "flat")?.label ?? "");
   const [postCode, setPostCode] = useState(address.postCode ?? "");
   const [novaPay, setNovaPay] = useState(true);
-  const [declaredValue, setDeclaredValue] = useState(String(insuranceTotal));
-  // Lampino's address-delivery fee, collected on top of the goods value: the
-  // COD total is declared value + fee, while the parcel insurance stays goods-only.
-  const [deliveryFee, setDeliveryFee] = useState("0");
+  // One amount drives both COD and insurance, prefilled from the order's grand
+  // total (incl. the shipping fee) — Nova Post refuses a COD above the insured
+  // total, so they are deliberately the same number.
+  const [declaredValue, setDeclaredValue] = useState(String(orderTotal));
   const [state, formAction] = useActionState<ShippingActionState, FormData>(
     createNovaPostShipment.bind(null, orderId),
     null,
@@ -446,11 +446,10 @@ function NovaPostShipmentForm({
     setOverrides((prev) => ({ ...prev, [i]: { ...prev[i], [field]: value } }));
   }
 
-  // Recompute parcels from the item distribution, split the declared value
+  // Recompute parcels from the item distribution, split the insured value
   // across them (proportional to parcel value, last gets the remainder), then
   // apply any manual overrides. This is what the form submits as `parcelsJson`.
   const declaredTotal = Math.max(0, Number(declaredValue) || 0);
-  const codTotal = declaredTotal + Math.max(0, Number(deliveryFee) || 0);
   const base = distributeParcels(items, count, fallback);
   const insuranceSplit = splitInsurance(
     base.map((p) => p.value),
@@ -660,8 +659,8 @@ function NovaPostShipmentForm({
 
         <div className="mt-5 border-t pt-4 text-sm font-medium">{s.summary}</div>
 
-        {/* Nova Pay (cash-on-delivery). Declared value shows when enabled and is
-            always what the parcel's insurance is submitted as. */}
+        {/* Nova Pay (cash-on-delivery). One amount — prefilled from the order's
+            grand total — is both the COD collected and the parcels' insurance. */}
         <div className="mt-3 rounded-[var(--radius-md)] border p-3">
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
@@ -687,41 +686,23 @@ function NovaPostShipmentForm({
           </div>
           <input type="hidden" name="novaPay" value={novaPay ? "1" : ""} />
           {novaPay && (
-            <>
-              <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                <Field label={s.insurance} htmlFor="pc_cod">
-                  <TextInput
-                    id="pc_cod"
-                    type="number"
-                    min="0"
-                    inputMode="numeric"
-                    value={declaredValue}
-                    onChange={(e) => setDeclaredValue(e.target.value)}
-                  />
-                </Field>
-                <Field label={s.deliveryFee} htmlFor="pc_fee">
-                  <TextInput
-                    id="pc_fee"
-                    type="number"
-                    min="0"
-                    inputMode="numeric"
-                    value={deliveryFee}
-                    onChange={(e) => setDeliveryFee(e.target.value)}
-                  />
-                </Field>
-              </div>
-              <div className="mt-2 text-xs text-muted-foreground">
-                {s.codTotal}:{" "}
-                <span className="font-medium text-foreground">{codTotal}</span>
-              </div>
-            </>
+            <div className="mt-3 sm:w-1/2">
+              <Field label={s.codTotal} htmlFor="pc_cod">
+                <TextInput
+                  id="pc_cod"
+                  type="number"
+                  min="0"
+                  inputMode="numeric"
+                  value={declaredValue}
+                  onChange={(e) => setDeclaredValue(e.target.value)}
+                />
+              </Field>
+            </div>
           )}
         </div>
 
-        {/* The parcel's declared value / insurance (goods only), always submitted. */}
+        {/* The declared value / insurance (== the COD total), always submitted. */}
         <input type="hidden" name="parcelInsurance" value={declaredValue} />
-        {/* Address-delivery fee added to the COD total collected on delivery. */}
-        <input type="hidden" name="codDeliveryFee" value={deliveryFee} />
 
         <div className="mt-3">
           <Field label={s.note} htmlFor="pc_note">
@@ -865,7 +846,7 @@ function FanCourierShipmentForm({
   address,
   items,
   fallback,
-  insuranceTotal,
+  orderTotal,
   onBack,
   onDone,
 }: {
@@ -874,7 +855,7 @@ function FanCourierShipmentForm({
   address: OrderAddress;
   items: ShipmentItem[];
   fallback: ParcelFallback;
-  insuranceTotal: number;
+  orderTotal: number;
   onBack: () => void;
   onDone: () => void;
 }) {
@@ -889,11 +870,10 @@ function FanCourierShipmentForm({
   const [flat, setFlat] = useState(parts.find((p) => p.target === "flat")?.label ?? "");
   const [zip, setZip] = useState(address.postCode ?? "");
   const [cod, setCod] = useState(true);
-  const [codAmount, setCodAmount] = useState(String(insuranceTotal));
-  // Lampino's address-delivery fee, added to the ramburs total collected.
-  const [deliveryFee, setDeliveryFee] = useState("0");
-  const [declaredValue, setDeclaredValue] = useState(String(insuranceTotal));
-  const codTotal = Math.max(0, Number(codAmount) || 0) + Math.max(0, Number(deliveryFee) || 0);
+  // Ramburs and declared value are both prefilled from the order's grand total
+  // (incl. the shipping fee) — that is the amount to collect at the door.
+  const [codAmount, setCodAmount] = useState(String(orderTotal));
+  const [declaredValue, setDeclaredValue] = useState(String(orderTotal));
   const [state, formAction] = useActionState<ShippingActionState, FormData>(
     createFanCourierShipment.bind(null, orderId),
     null,
@@ -1097,49 +1077,32 @@ function FanCourierShipmentForm({
           </div>
           <input type="hidden" name="cod" value={cod ? "1" : ""} />
           {cod && (
-            <>
-              <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                <Field label={s.codAmount} htmlFor="fc_cod">
-                  <TextInput
-                    id="fc_cod"
-                    type="number"
-                    min="0"
-                    inputMode="numeric"
-                    value={codAmount}
-                    onChange={(e) => setCodAmount(e.target.value)}
-                  />
-                </Field>
-                <Field label={s.deliveryFee} htmlFor="fc_fee">
-                  <TextInput
-                    id="fc_fee"
-                    type="number"
-                    min="0"
-                    inputMode="numeric"
-                    value={deliveryFee}
-                    onChange={(e) => setDeliveryFee(e.target.value)}
-                  />
-                </Field>
-                <Field label={s.rambursType} htmlFor="fc_rtype">
-                  <AdminSelect
-                    id="fc_rtype"
-                    name="rambursType"
-                    defaultValue="cont"
-                    options={[
-                      { value: "cont", label: s.rambursCont },
-                      { value: "cash", label: s.rambursCash },
-                      { value: "instrumente_plata", label: s.rambursInstrument },
-                    ]}
-                  />
-                </Field>
-              </div>
-              <div className="mt-2 text-xs text-muted-foreground">
-                {s.codTotal}: <span className="font-medium text-foreground">{codTotal}</span>
-              </div>
-            </>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <Field label={s.codAmount} htmlFor="fc_cod">
+                <TextInput
+                  id="fc_cod"
+                  type="number"
+                  min="0"
+                  inputMode="numeric"
+                  value={codAmount}
+                  onChange={(e) => setCodAmount(e.target.value)}
+                />
+              </Field>
+              <Field label={s.rambursType} htmlFor="fc_rtype">
+                <AdminSelect
+                  id="fc_rtype"
+                  name="rambursType"
+                  defaultValue="cont"
+                  options={[
+                    { value: "cont", label: s.rambursCont },
+                    { value: "cash", label: s.rambursCash },
+                    { value: "instrumente_plata", label: s.rambursInstrument },
+                  ]}
+                />
+              </Field>
+            </div>
           )}
           <input type="hidden" name="codAmount" value={codAmount} />
-          {/* Address-delivery fee added to the ramburs total collected. */}
-          <input type="hidden" name="codDeliveryFee" value={deliveryFee} />
         </div>
 
         <div className="mt-3 sm:w-1/2">
