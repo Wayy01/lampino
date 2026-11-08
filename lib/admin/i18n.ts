@@ -163,7 +163,9 @@ const ro = {
       "Curierul nu este configurat: activează-l și adaugă cheia API și filiala expeditorului în Integrări.",
     recipientRequired:
       "Completează destinatarul: localitatea și filiala (sau adresa) sunt necesare.",
-    courierFailed: "Nova Post a respins expedierea.",
+    courierFailed: "Curierul a respins expedierea.",
+    courierUncertain:
+      "Curierul nu a răspuns, iar AWB-ul s-ar putea să fi fost totuși creat. Verifică în platforma curierului: dacă AWB-ul nu există, șterge expedierea păstrată local și reîncearcă.",
     invalidMediaUrl:
       "Imaginile trebuie încărcate aici sau să provină de pe Unsplash; alte adrese nu se afișează în magazin.",
     duplicateSpecId:
@@ -1003,7 +1005,9 @@ const ru: AdminDict = {
       "Курьер не настроен: включите его и добавьте API-ключ и отделение отправителя в разделе «Интеграции».",
     recipientRequired:
       "Заполните получателя: нужны населённый пункт и отделение (или адрес).",
-    courierFailed: "Nova Post отклонил отправление.",
+    courierFailed: "Курьер отклонил отправление.",
+    courierUncertain:
+      "Курьер не ответил, но накладная всё же могла быть создана. Проверьте в платформе курьера: если накладной нет, удалите сохранённое локально отправление и повторите попытку.",
     invalidMediaUrl:
       "Изображения нужно загружать здесь или брать с Unsplash; другие адреса в магазине не отображаются.",
     duplicateSpecId:

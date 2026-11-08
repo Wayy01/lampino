@@ -111,6 +111,12 @@ async function authorize(cfg: NovaPostConfig): Promise<string> {
 }
 
 export class NovaPostError extends Error {
+  /** True when the carrier may have processed the request despite the failure
+   *  (timeout, transport drop, 5xx, unreadable success body). Set only around
+   *  the shipment-create call — callers holding a duplicate guard must NOT
+   *  release it on such an error, or a retry could mint a second waybill. */
+  public maybeProcessed = false;
+
   constructor(
     public status: number,
     public detail: unknown,
@@ -365,8 +371,13 @@ export async function cancelShipment(
 
   const body = (await res.json().catch(() => ({}))) as { errors?: unknown; message?: unknown };
   const reason = describeNovaPostError(new NovaPostError(res.status, body.errors ?? body));
-  // Repeated deletion comes back 422 "shipment_was_deleted" — idempotent success.
-  if (res.status === 422 && /deleted/i.test(reason)) return { status: "alreadyGone" };
+  // Repeated deletion comes back 422 with the `shipment_was_deleted` error slug —
+  // idempotent success. Match the slug exactly (on the raw body, not the
+  // humanized reason): a rejection like "shipment can not be deleted" must stay
+  // `refused`, or a live waybill would be dropped locally as already-gone.
+  if (res.status === 422 && /shipment_was_deleted/i.test(JSON.stringify(body))) {
+    return { status: "alreadyGone" };
+  }
   // A plain client-side rejection (e.g. the shipment has already progressed):
   // keep the live waybill and let the operator remove the row locally. A 401 is
   // an auth failure and a 5xx is a transport problem — throw so they retry.
@@ -580,10 +591,26 @@ export async function createShipment(
   }
 
   const body = buildNovaPostShipmentBody(req, contracts);
-  const res = await apiPost(cfg, "shipments", body);
+  let res;
+  try {
+    res = await apiPost(cfg, "shipments", body);
+  } catch (e) {
+    // Once the POST is in flight the carrier may have processed it even though
+    // no (valid) response came back — tag timeouts/transport drops/5xx so the
+    // caller keeps its duplicate guard instead of releasing it for a retry.
+    // A 4xx is a definite rejection and stays untagged.
+    if (e instanceof NovaPostError && (e.status === 0 || e.status >= 500)) {
+      e.maybeProcessed = true;
+    }
+    throw e;
+  }
   const number = (res.number ?? res.id) as string | number | undefined;
   if (!number) {
-    throw new NovaPostError(200, res.errors ?? res.message ?? "no waybill number returned");
+    // The create itself returned OK — the waybill very likely exists even
+    // though we couldn't read its number.
+    const err = new NovaPostError(200, res.errors ?? res.message ?? "no waybill number returned");
+    err.maybeProcessed = true;
+    throw err;
   }
   return { number: String(number), id: res.id ? String(res.id) : null, body };
 }

@@ -127,7 +127,15 @@ export async function createNovaPostShipment(
         request,
       );
     } catch (e) {
-      // Release the reservation so the operator can fix the input and retry.
+      // A timeout/transport drop/5xx is ambiguous — the carrier may have minted
+      // the waybill. Keep the reservation (it blocks a blind retry via the
+      // @unique(orderId) guard) and tell the operator to verify at the courier;
+      // deleting the kept row goes through the normal delete flow.
+      if (e instanceof NovaPostError && e.maybeProcessed) {
+        throw new ActionRefusal("courierUncertain");
+      }
+      // A definite rejection: release the reservation so the operator can fix
+      // the input and retry.
       await prisma.shipment.delete({ where: { id: reservation.id } }).catch(() => {});
       if (e instanceof NovaPostError) {
         throw new ActionRefusal("courierFailed", describeNovaPostError(e));
@@ -337,6 +345,11 @@ export async function createFanCourierShipment(
     try {
       result = await createFanCourierAwb({ apiKey }, request);
     } catch (e) {
+      // Ambiguous failure (timeout/transport/5xx): the AWB may exist — keep the
+      // reservation so a retry can't mint a duplicate (see the Nova Post action).
+      if (e instanceof FanCourierError && e.maybeProcessed) {
+        throw new ActionRefusal("courierUncertain");
+      }
       // Release the reservation so the operator can fix the input and retry.
       await prisma.shipment.delete({ where: { id: reservation.id } }).catch(() => {});
       if (e instanceof FanCourierError) {

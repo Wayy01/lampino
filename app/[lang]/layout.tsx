@@ -140,7 +140,11 @@ export default async function RootLayout({
         {/* Guards against browser page-translators crashing React. Async + src so
             React 19 hoists it to <head> as a resource (an inline/executable script
             in the tree warns in dev); see public/translate-guard.js. */}
-        <script async src="/translate-guard.js" />
+        {/* Deliberately synchronous (no async/defer): the guard must run
+            before hydration, or a translating browser can crash the first
+            post-translate React commit it exists to protect. */}
+        {/* eslint-disable-next-line @next/next/no-sync-scripts -- blocking is the point: it must beat hydration */}
+        <script src="/translate-guard.js" />
         {/* Site-wide entities, referenced by @id from the per-page schema. */}
         <JsonLd
           data={[

@@ -67,6 +67,16 @@ export async function submitOrder(
     const contact = validateContact(input.customerName, input.customerPhone);
     if (!contact) return { ok: false, error: "invalid_contact" };
 
+    // Server actions take arbitrary runtime input — the TypeScript type on
+    // `method`/`region` guarantees nothing. Reject anything but the two known
+    // values rather than storing a forged string as the order's deliveryMethod.
+    if (
+      (input.method !== "pickup" && input.method !== "delivery") ||
+      (input.method === "delivery" && input.region !== "chisinau" && input.region !== "outside")
+    ) {
+      return { ok: false, error: "invalid_address" };
+    }
+
     let address: string | null = null;
     let city: string | null = null;
     let postalCode = "";

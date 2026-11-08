@@ -89,6 +89,10 @@ export function NovaPostSearchField({
   const [selectedLabel, setSelectedLabel] = useState(
     defaultLabel || (defaultValue ? `#${defaultValue}` : ""),
   );
+  // The entity's bare name, submitted via `labelName` (and as the street value):
+  // the decorated label ("Name — Region · PostCode") is display-only — it must
+  // never reach the waybill, where settlementName becomes the printed city.
+  const [selectedName, setSelectedName] = useState(defaultLabel || "");
   const [dragOver, setDragOver] = useState(false);
 
   const {
@@ -120,6 +124,7 @@ export function NovaPostSearchField({
   function select(o: Option, keepQuery = false) {
     setSelectedId(String(o.id));
     setSelectedLabel(optionLabel(o));
+    setSelectedName(o.name);
     resetSearch(keepQuery);
     onSelect?.(String(o.id), optionLabel(o));
   }
@@ -127,6 +132,7 @@ export function NovaPostSearchField({
   function clear() {
     setSelectedId("");
     setSelectedLabel("");
+    setSelectedName("");
     setSeedMiss(null);
     onSelect?.("", "");
   }
@@ -151,6 +157,7 @@ export function NovaPostSearchField({
     setPrevSettlement(settlementId);
     setSelectedId("");
     setSelectedLabel("");
+    setSelectedName("");
     // Clears query/options/open/seedMiss and cancels any in-flight request; id
     // fields re-seed into a chip via the effect below, only a free-text street
     // puts the city back in the box.
@@ -158,26 +165,39 @@ export function NovaPostSearchField({
     if (isFreeText && settlementId) setQuery(seedQuery);
   }
 
-  // A pre-filled value triggers its own search (and, with nothing chosen yet,
-  // auto-selects the first match). Re-runs when the field becomes enabled or its
-  // settlement scope changes, so a re-seeded branch/street searches too.
+  // A pre-filled value triggers its own search. Only the settlement auto-commits
+  // its first match (the order's city has one obvious hit); a branch or street
+  // must be picked deliberately — a city has dozens of branches, and silently
+  // committing an arbitrary one shipped parcels to pickup points the customer
+  // never chose. Re-runs when the field becomes enabled or its settlement scope
+  // changes, so a re-seeded branch/street searches too.
   useEffect(() => {
     if (isDisabled || selectedId) return;
     const q = (seedQuery || "").trim();
     if (q.length < 2) return;
-    const h = setTimeout(() => performSearch(q, true), 0);
+    const h = setTimeout(() => {
+      if (type === "settlements") {
+        performSearch(q, true);
+      } else {
+        // Pre-run the search and show the list, but leave the pick to the
+        // operator: the seed text goes into the box so the dropdown renders.
+        setQuery(q);
+        setOpen(true);
+        performSearch(q, false);
+      }
+    }, 0);
     return () => clearTimeout(h);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settlementId, isDisabled]);
 
-  // Streets submit the chosen name; with none picked, the raw query is the
+  // Streets submit the chosen bare name; with none picked, the raw query is the
   // free-text fallback (Nova Post accepts an unmatched street).
-  const submittedValue = submit === "label" ? selectedLabel || query : selectedId;
+  const submittedValue = submit === "label" ? selectedName || query : selectedId;
 
   return (
     <Field label={label}>
       <input type="hidden" name={name} value={submittedValue} />
-      {labelName && <input type="hidden" name={labelName} value={selectedLabel} />}
+      {labelName && <input type="hidden" name={labelName} value={selectedName} />}
       <div
         ref={boxRef}
         className={`relative rounded-[var(--radius-md)] ${

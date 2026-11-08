@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Package, Truck, Webhook } from "lucide-react";
 import { LigattoMark } from "@/components/admin/ligatto-mark";
 import { prisma } from "@/lib/prisma";
+import { decryptSecret } from "@/lib/admin/crypto";
 import { requireAdmin } from "@/lib/admin/session";
 import {
   getAdminDict,
@@ -35,7 +36,10 @@ export default async function IntegrationsPage({
       title: s.novapost,
       desc: s.novaPostDesc,
       enabled: row?.novapostEnabled ?? false,
-      keySet: Boolean(row?.novapostApiKey),
+      // Decryptability, not mere ciphertext presence: after a key-material
+      // rotation the stored key is dead and shipping treats it as absent — the
+      // badge must agree, not show a green "configured" over a broken key.
+      keySet: Boolean(decryptSecret(row?.novapostApiKey)),
     },
     {
       href: "/integrations/fan-courier",
@@ -43,7 +47,7 @@ export default async function IntegrationsPage({
       title: s.fancourier,
       desc: s.fanCourierDesc,
       enabled: row?.fancourierEnabled ?? false,
-      keySet: Boolean(row?.fancourierApiKey),
+      keySet: Boolean(decryptSecret(row?.fancourierApiKey)),
     },
     {
       href: "/integrations/ligatto",

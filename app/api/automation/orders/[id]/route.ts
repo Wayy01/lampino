@@ -149,17 +149,43 @@ export async function PATCH(
   const listener = readListenerId(body); // undefined = absent, null = clear, string = set
 
   const fee = await computeFee(method, region, totals.itemsNet);
-  const currentLines = current.items.map((i) => ({
-    productId: i.productId,
-    variantId: i.productVariantId,
-    quantity: i.quantity,
-  }));
 
   try {
     const order = await prisma.$transaction(async (tx) => {
+      // Re-assert `pending` under a row lock: the pre-check above ran outside
+      // this transaction, and an admin transition (confirm/cancel) may have
+      // landed in between. The idempotent write takes a Postgres row lock, so
+      // the release→reserve below can't interleave with a concurrent transition
+      // or a second PATCH double-releasing the same lines.
+      const { count } = await tx.order.updateMany({
+        where: { id, status: "pending" },
+        data: { status: "pending" },
+      });
+      if (count === 0) throw new OrderLocked();
+      // Re-read the held lines and the reservation flag under that lock — the
+      // pre-read ones may be stale, and an order an admin bounced back to
+      // pending no longer holds its units (stockReserved=false), so there is
+      // nothing to give back for it.
+      const fresh = await tx.order.findUnique({
+        where: { id },
+        select: {
+          stockReserved: true,
+          items: { select: { productId: true, productVariantId: true, quantity: true } },
+        },
+      });
+      if (!fresh) throw new OrderLocked();
       // Give back what the order held, then take the new set — net-correct even
       // when lines overlap, and a shortage rolls the whole thing back.
-      await releaseStock(tx, currentLines);
+      if (fresh.stockReserved) {
+        await releaseStock(
+          tx,
+          fresh.items.map((i) => ({
+            productId: i.productId,
+            variantId: i.productVariantId,
+            quantity: i.quantity,
+          })),
+        );
+      }
       const shortage = await reserveStock(tx, resolved);
       if (shortage.length > 0) throw new StockShortage(shortage);
       return tx.order.update({
@@ -196,7 +222,22 @@ export async function PATCH(
     if (error instanceof StockShortage) {
       return NextResponse.json({ ok: false, error: "out_of_stock", rejected: error.lines }, { status: 409 });
     }
+    if (error instanceof OrderLocked) {
+      // Lost the race to an admin transition — report the order's state now.
+      const row = await prisma.order.findUnique({ where: { id }, select: { status: true } });
+      return NextResponse.json(
+        { ok: false, error: "locked", status: row?.status ?? "unknown" },
+        { status: 409 },
+      );
+    }
     console.error("automation order update failed", id, error);
     return NextResponse.json({ ok: false, error: "server_error" }, { status: 500 });
+  }
+}
+
+/** Thrown inside the edit transaction when the order is no longer `pending`. */
+class OrderLocked extends Error {
+  constructor() {
+    super("order locked");
   }
 }

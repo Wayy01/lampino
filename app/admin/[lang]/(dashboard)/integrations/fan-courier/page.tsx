@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/admin/session";
 import { getAdminDict, adminHref, type AdminLang } from "@/lib/admin/i18n";
 import { isLocale } from "@/lib/i18n/routing";
 import { toShippingData } from "@/lib/admin/shipping";
+import { decryptSecret } from "@/lib/admin/crypto";
 import { PageHeader } from "@/components/admin/page-header";
 import { FanCourierForm } from "@/components/admin/integration-forms";
 
@@ -28,7 +29,7 @@ export default async function FanCourierIntegrationPage({
       <div className="flex flex-col gap-4">
         <FanCourierForm
           shipping={toShippingData(shipping)}
-          keySet={Boolean(shipping?.fancourierApiKey)}
+          keySet={Boolean(decryptSecret(shipping?.fancourierApiKey))}
         />
       </div>
     </>

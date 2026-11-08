@@ -79,11 +79,14 @@ export function useComboboxSearch<T>({
       if (id !== seq.current) return;
       if (r.status === 400) {
         const j = await r.json().catch(() => ({}));
+        // Re-check after the await: a newer search may own the state by now.
+        if (id !== seq.current) return;
         setStatus(j.error === "no_key" ? "nokey" : "error");
         setOptions([]);
         return;
       }
       if (!r.ok) {
+        if (id !== seq.current) return;
         setStatus("error");
         setOptions([]);
         return;

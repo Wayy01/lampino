@@ -18,6 +18,12 @@ export type FanCourierConfig = {
 };
 
 export class FanCourierError extends Error {
+  /** True when the carrier may have processed the request despite the failure
+   *  (timeout, transport drop, 5xx, unreadable body on a 2xx). Callers holding
+   *  a duplicate guard (shipment create) must NOT release it on such an error,
+   *  or a retry could mint a second waybill. */
+  public maybeProcessed = false;
+
   constructor(
     public detail: string,
     public code?: string,
@@ -25,6 +31,12 @@ export class FanCourierError extends Error {
     super(detail || "Fan Courier API error");
     this.name = "FanCourierError";
   }
+}
+
+function fcError(detail: string, maybeProcessed: boolean, code?: string): FanCourierError {
+  const err = new FanCourierError(detail, code);
+  err.maybeProcessed = maybeProcessed;
+  return err;
 }
 
 /** Short, admin-readable reason — the envelope already carries a message. */
@@ -72,10 +84,13 @@ async function fcRequest(
       });
     }
   } catch (e) {
-    throw new FanCourierError(
+    // Both cases are ambiguous: a timeout fires after the request was sent, and
+    // a network drop can happen mid-response — the server may have processed it.
+    throw fcError(
       e instanceof Error && e.name === "AbortError"
         ? "Fan Courier request timed out."
         : "Could not reach Fan Courier.",
+      true,
     );
   } finally {
     clearTimeout(timer);
@@ -87,17 +102,23 @@ async function fcRequest(
     | null;
 
   if (decoded == null) {
-    throw new FanCourierError(`Fan Courier returned an unexpected response for "${operation}".`);
+    // An unreadable body on a 2xx (or a 5xx error page) may still mean the
+    // request was processed; a 4xx error page means it was rejected.
+    throw fcError(
+      `Fan Courier returned an unexpected response for "${operation}".`,
+      res.ok || res.status >= 500,
+    );
   }
 
   // List endpoints return a bare array.
   if (Array.isArray(decoded)) {
-    if (!res.ok) throw new FanCourierError(`Fan Courier request "${operation}" failed.`);
+    if (!res.ok) throw fcError(`Fan Courier request "${operation}" failed.`, res.status >= 500);
     return decoded;
   }
 
   const env = decoded as { status?: string; data?: unknown; message?: unknown; error?: unknown };
   if (env.status === "failed") {
+    // An explicit failure envelope is a clean rejection — never processed.
     throw new FanCourierError(
       typeof env.message === "string" && env.message.trim()
         ? env.message.trim()
@@ -105,8 +126,14 @@ async function fcRequest(
       typeof env.error === "string" ? env.error : undefined,
     );
   }
-  if (!res.ok && env.status === undefined) {
-    throw new FanCourierError(`Fan Courier request "${operation}" failed (HTTP ${res.status}).`);
+  // Any non-OK response that didn't declare an explicit envelope status is a
+  // failure — previously a non-OK body with e.g. `status:"error"` fell through
+  // and was returned as success data.
+  if (!res.ok) {
+    throw fcError(
+      `Fan Courier request "${operation}" failed (HTTP ${res.status}).`,
+      res.status >= 500,
+    );
   }
   return env.data ?? env;
 }
@@ -144,6 +171,12 @@ async function listCities(cfg: FanCourierConfig): Promise<FanCourierCity[]> {
       province: c.province ?? null,
       name: c.name.trim(),
     }));
+  // The real list is never empty — an empty result means a malformed/transient
+  // response. Surface it and, above all, don't cache it: a poisoned entry would
+  // blank every city search for the next 24h.
+  if (cities.length === 0) {
+    throw new FanCourierError("Fan Courier returned no city list.");
+  }
   cityCache.set(cfg.apiKey, { at: Date.now(), cities });
   return cities;
 }
@@ -349,7 +382,15 @@ export async function cancelShipment(
   const text = (await res.text().catch(() => "")).trim();
   const low = text.toLowerCase();
 
-  if (res.ok && (low === "" || /\b(ok|done|success|deleted)\b/.test(low))) {
+  // Success only on an unambiguous body: empty, a bare success keyword, or an
+  // explicit success envelope. Keywords are anchored to the whole body — a
+  // negative sentence ("AWB was not deleted", "not ok") must NOT read as
+  // cancelled, or a live waybill would be dropped locally.
+  const successBody =
+    low === "" ||
+    /^"?(ok|done|success|deleted)[.!]?"?$/.test(low) ||
+    /"status"\s*:\s*"(ok|success|done)"/.test(low);
+  if (res.ok && successBody) {
     return { status: "cancelled" };
   }
   // Collected / in transit, or the key can't cancel: keep the real AWB.
