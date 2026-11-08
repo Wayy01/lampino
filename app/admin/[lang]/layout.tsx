@@ -4,6 +4,7 @@ import { Fraunces, Hanken_Grotesk, Geist_Mono } from "next/font/google";
 import { isLocale, LOCALES } from "@/lib/i18n/routing";
 import { AdminLanguageProvider } from "@/lib/admin/i18n-provider";
 import { SITE_URL } from "@/lib/seo";
+import { TRANSLATE_GUARD_SCRIPT } from "@/lib/translate-guard";
 import "../../globals.css";
 
 const fraunces = Fraunces({
@@ -53,14 +54,12 @@ export default async function AdminRootLayout({
       className={`${fraunces.variable} ${hanken.variable} ${geistMono.variable} antialiased`}
     >
       <body className="min-h-screen">
-        {/* Guards against browser page-translators crashing React. Async + src so
-            React 19 hoists it to <head> as a resource (an inline/executable script
-            in the tree warns in dev); see public/translate-guard.js. */}
-        {/* Deliberately synchronous (no async/defer): the guard must run
-            before hydration, or a translating browser can crash the first
-            post-translate React commit it exists to protect. */}
-        {/* eslint-disable-next-line @next/next/no-sync-scripts -- blocking is the point: it must beat hydration */}
-        <script src="/translate-guard.js" />
+        {/* Guards against browser page-translators crashing React. Inline via
+            dangerouslySetInnerHTML: it executes synchronously while the initial
+            HTML parses (before hydration — async src gave no such guarantee),
+            and React 19 does not warn for it (it does for both sync and plain
+            <script> children rendered in the tree). */}
+        <script dangerouslySetInnerHTML={{ __html: TRANSLATE_GUARD_SCRIPT }} />
         <AdminLanguageProvider lang={lang}>{children}</AdminLanguageProvider>
       </body>
     </html>
