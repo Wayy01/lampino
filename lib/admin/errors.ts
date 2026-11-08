@@ -19,7 +19,13 @@ export type RefusalKey =
   | "superadminProtected"
   | "orderChanged"
   | "insufficientStock"
-  | "relationMissing";
+  | "relationMissing"
+  | "shipmentExists"
+  | "shipmentMissing"
+  | "courierNotConfigured"
+  | "recipientRequired"
+  | "courierFailed"
+  | "courierUncertain";
 
 /**
  * A deliberate refusal, thrown from inside an action body so it travels the
@@ -28,11 +34,15 @@ export type RefusalKey =
  */
 export class ActionRefusal extends Error {
   readonly key: RefusalKey;
+  /** Optional dynamic text appended to the translated message — e.g. the exact
+   *  reasons a courier API gave for rejecting a shipment. */
+  readonly detail?: string;
 
-  constructor(key: RefusalKey) {
+  constructor(key: RefusalKey, detail?: string) {
     super(key);
     this.name = "ActionRefusal";
     this.key = key;
+    this.detail = detail;
   }
 }
 
@@ -49,7 +59,9 @@ export function describeError(error: unknown, lang: AdminLang): string {
 
   const t = getAdminDict(lang).errors;
 
-  if (error instanceof ActionRefusal) return t[error.key];
+  if (error instanceof ActionRefusal) {
+    return error.detail ? `${t[error.key]} ${error.detail}` : t[error.key];
+  }
 
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     return knownRequestMessage(error, t);

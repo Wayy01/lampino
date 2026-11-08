@@ -12,6 +12,7 @@ type OrderForTelegram = {
   totalPrice: Prisma.Decimal | number;
   address?: string | null;
   city?: string | null;
+  postalCode?: string | null;
   items: {
     quantity: number;
     priceEach: Prisma.Decimal | number;
@@ -73,7 +74,9 @@ export async function sendNewOrderAlert(order: OrderForTelegram): Promise<void> 
   lines.push(`<b>Client:</b> ${escape(order.customerName)}`);
   if (order.customerPhone) lines.push(`<b>Telefon:</b> ${escape(order.customerPhone)}`);
   if (order.address) {
-    const addr = order.city ? `${order.address}, ${order.city}` : order.address;
+    const addr = [order.address, order.city, order.postalCode]
+      .filter(Boolean)
+      .join(", ");
     lines.push(`<b>Adresa:</b> ${escape(addr)}`);
   }
   lines.push("");

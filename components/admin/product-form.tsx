@@ -58,6 +58,10 @@ export type ProductFormData = {
   price: number;
   reducedPrice: number | null;
   stock: number;
+  weightGrams: number | null;
+  lengthMm: number | null;
+  widthMm: number | null;
+  heightMm: number | null;
   categoryId: number | null;
   promotionIds: number[];
   featured: boolean;
@@ -93,6 +97,10 @@ type VariantDraft = {
   price: string;
   reducedPrice: string;
   stock: string;
+  weightGrams: string;
+  lengthMm: string;
+  widthMm: string;
+  heightMm: string;
   isDefault: boolean;
   imageUrls: string[];
 };
@@ -138,6 +146,10 @@ export function ProductForm({
       price: String(v.price),
       reducedPrice: v.reducedPrice === null ? "" : String(v.reducedPrice),
       stock: String(v.stock),
+      weightGrams: v.weightGrams === null ? "" : String(v.weightGrams),
+      lengthMm: v.lengthMm === null ? "" : String(v.lengthMm),
+      widthMm: v.widthMm === null ? "" : String(v.widthMm),
+      heightMm: v.heightMm === null ? "" : String(v.heightMm),
       isDefault: v.isDefault,
       imageUrls: v.imageUrls,
     })),
@@ -163,6 +175,8 @@ export function ProductForm({
     );
   };
 
+  const toDim = (s: string): number | null => (s.trim() === "" ? null : Number(s));
+
   const variantsPayload: VariantPayload[] = variants.map((v, i) => ({
     id: v.id,
     name_ro: v.name_ro,
@@ -171,6 +185,10 @@ export function ProductForm({
     price: draftNumber(v.price),
     reducedPrice: draftNumber(v.reducedPrice),
     stock: draftNumber(v.stock) ?? 0,
+    weightGrams: toDim(v.weightGrams),
+    lengthMm: toDim(v.lengthMm),
+    widthMm: toDim(v.widthMm),
+    heightMm: toDim(v.heightMm),
     isDefault: v.isDefault,
     sortOrder: i,
     // An image removed from the gallery drops out of every variant too.
@@ -451,6 +469,48 @@ export function ProductForm({
                           />
                         </Field>
                       </div>
+                      <div className="grid grid-cols-2 gap-3 sm:col-span-2 sm:grid-cols-4">
+                        <Field label={t.products.weightG}>
+                          <TextInput
+                            type="number"
+                            min="0"
+                            inputMode="numeric"
+                            placeholder={t.products.inherit}
+                            value={v.weightGrams}
+                            onChange={(e) => setVariants(variants.map((x, j) => (j === i ? { ...x, weightGrams: e.target.value } : x)))}
+                          />
+                        </Field>
+                        <Field label={t.products.lengthMm}>
+                          <TextInput
+                            type="number"
+                            min="0"
+                            inputMode="numeric"
+                            placeholder={t.products.inherit}
+                            value={v.lengthMm}
+                            onChange={(e) => setVariants(variants.map((x, j) => (j === i ? { ...x, lengthMm: e.target.value } : x)))}
+                          />
+                        </Field>
+                        <Field label={t.products.widthMm}>
+                          <TextInput
+                            type="number"
+                            min="0"
+                            inputMode="numeric"
+                            placeholder={t.products.inherit}
+                            value={v.widthMm}
+                            onChange={(e) => setVariants(variants.map((x, j) => (j === i ? { ...x, widthMm: e.target.value } : x)))}
+                          />
+                        </Field>
+                        <Field label={t.products.heightMm}>
+                          <TextInput
+                            type="number"
+                            min="0"
+                            inputMode="numeric"
+                            placeholder={t.products.inherit}
+                            value={v.heightMm}
+                            onChange={(e) => setVariants(variants.map((x, j) => (j === i ? { ...x, heightMm: e.target.value } : x)))}
+                          />
+                        </Field>
+                      </div>
                     </div>
                     <div className="mt-3 border-t pt-3">
                       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
@@ -545,6 +605,10 @@ export function ProductForm({
                     price: product ? String(product.price) : "",
                     reducedPrice: "",
                     stock: "0",
+                    weightGrams: "",
+                    lengthMm: "",
+                    widthMm: "",
+                    heightMm: "",
                     isDefault: variants.length === 0,
                     imageUrls: [],
                   },
@@ -653,6 +717,24 @@ export function ProductForm({
               </Field>
               <Field label={t.products.stock} htmlFor="stock" className="col-span-2">
                 <TextInput id="stock" name="stock" type="number" min="0" inputMode="numeric" defaultValue={product?.stock ?? 0} />
+              </Field>
+            </div>
+          </SectionCard>
+
+          <SectionCard title={t.products.dimensions}>
+            <p className="mb-3 text-xs text-muted-foreground">{t.products.dimensionsHint}</p>
+            <div className="grid grid-cols-2 gap-4">
+              <Field label={t.products.weightG} htmlFor="weightGrams">
+                <TextInput id="weightGrams" name="weightGrams" type="number" min="0" inputMode="numeric" defaultValue={product?.weightGrams ?? ""} />
+              </Field>
+              <Field label={t.products.lengthMm} htmlFor="lengthMm">
+                <TextInput id="lengthMm" name="lengthMm" type="number" min="0" inputMode="numeric" defaultValue={product?.lengthMm ?? ""} />
+              </Field>
+              <Field label={t.products.widthMm} htmlFor="widthMm">
+                <TextInput id="widthMm" name="widthMm" type="number" min="0" inputMode="numeric" defaultValue={product?.widthMm ?? ""} />
+              </Field>
+              <Field label={t.products.heightMm} htmlFor="heightMm">
+                <TextInput id="heightMm" name="heightMm" type="number" min="0" inputMode="numeric" defaultValue={product?.heightMm ?? ""} />
               </Field>
             </div>
           </SectionCard>

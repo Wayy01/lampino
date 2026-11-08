@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { TRANSLATE_GUARD_SCRIPT } from "@/lib/translate-guard";
 import { notFound } from "next/navigation";
 import { Fraunces, Hanken_Grotesk, Geist_Mono } from "next/font/google";
 import { LanguageProvider } from "@/lib/i18n/provider";
+import { TRANSLATE_GUARD_SCRIPT } from "@/lib/translate-guard";
 import { CartProvider } from "@/lib/cart/provider";
 import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
@@ -137,10 +137,13 @@ export default async function RootLayout({
       className={`${fraunces.variable} ${hanken.variable} ${geistMono.variable} antialiased`}
       style={rootStyle}
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: TRANSLATE_GUARD_SCRIPT }} />
-      </head>
       <body className="min-h-screen" suppressHydrationWarning>
+        {/* Guards against browser page-translators crashing React. Inline via
+            dangerouslySetInnerHTML: it executes synchronously while the initial
+            HTML parses (before hydration — async src gave no such guarantee),
+            and React 19 does not warn for it (it does for both sync and plain
+            <script> children rendered in the tree). */}
+        <script dangerouslySetInnerHTML={{ __html: TRANSLATE_GUARD_SCRIPT }} />
         {/* Site-wide entities, referenced by @id from the per-page schema. */}
         <JsonLd
           data={[

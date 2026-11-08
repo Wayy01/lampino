@@ -46,6 +46,10 @@ export type VariantPayload = {
   price: number | null;
   reducedPrice: number | null;
   stock: number;
+  weightGrams: number | null;
+  lengthMm: number | null;
+  widthMm: number | null;
+  heightMm: number | null;
   isDefault: boolean;
   sortOrder: number;
   /** Subset of the product's image URLs; empty = the variant shows them all. */
@@ -61,6 +65,13 @@ function numOrNull(fd: FormData, key: string): number | null {
   if (raw === "") return null;
   const value = Number(raw);
   return Number.isFinite(value) ? value : null;
+}
+
+// Optional item dimensions (weight in g, L/W/H in mm). Empty, non-integer, or
+// negative all collapse to null — meaning "inherit / fall back" down the
+// variant → product → settings chain, never a stored zero.
+function intOrNull(value: number | null): number | null {
+  return value !== null && Number.isInteger(value) && value >= 0 ? value : null;
 }
 
 // `price` columns are Decimal(10,2); anything larger is a Postgres
@@ -169,6 +180,10 @@ function parseProduct(fd: FormData): ParsedProduct | { error: string } {
       price: finiteOrNull(r.price),
       reducedPrice: finiteOrNull(r.reducedPrice),
       stock: finiteOrNull(r.stock) ?? 0,
+      weightGrams: finiteOrNull(r.weightGrams),
+      lengthMm: finiteOrNull(r.lengthMm),
+      widthMm: finiteOrNull(r.widthMm),
+      heightMm: finiteOrNull(r.heightMm),
       isDefault: r.isDefault === true,
       sortOrder: i,
       // Only URLs that are still product images; a removed image drops out.
@@ -207,6 +222,10 @@ function parseProduct(fd: FormData): ParsedProduct | { error: string } {
       price: new Prisma.Decimal(price),
       reducedPrice: reducedPrice === null ? null : new Prisma.Decimal(reducedPrice),
       stock,
+      weightGrams: intOrNull(numOrNull(fd, "weightGrams")),
+      lengthMm: intOrNull(numOrNull(fd, "lengthMm")),
+      widthMm: intOrNull(numOrNull(fd, "widthMm")),
+      heightMm: intOrNull(numOrNull(fd, "heightMm")),
       hasVariants: variants.length > 0,
       specifications: specsToJson(specRows),
       categoryId,
@@ -229,6 +248,10 @@ const variantData = (v: VariantPayload) => ({
   price: new Prisma.Decimal(v.price ?? 0),
   reducedPrice: v.reducedPrice === null ? null : new Prisma.Decimal(v.reducedPrice),
   stock: v.stock,
+  weightGrams: intOrNull(v.weightGrams),
+  lengthMm: intOrNull(v.lengthMm),
+  widthMm: intOrNull(v.widthMm),
+  heightMm: intOrNull(v.heightMm),
   isDefault: v.isDefault,
   sortOrder: v.sortOrder,
   imageUrls: v.imageUrls,
@@ -443,6 +466,10 @@ export async function duplicateProduct(
         price: source.price,
         reducedPrice: source.reducedPrice,
         stock: source.stock,
+        weightGrams: source.weightGrams,
+        lengthMm: source.lengthMm,
+        widthMm: source.widthMm,
+        heightMm: source.heightMm,
         hasVariants: source.hasVariants,
         specifications: (source.specifications ?? {}) as Prisma.InputJsonValue,
         categoryId: source.categoryId,
@@ -473,6 +500,10 @@ export async function duplicateProduct(
             price: v.price,
             reducedPrice: v.reducedPrice,
             stock: v.stock,
+            weightGrams: v.weightGrams,
+            lengthMm: v.lengthMm,
+            widthMm: v.widthMm,
+            heightMm: v.heightMm,
             isDefault: v.isDefault,
             sortOrder: v.sortOrder,
             imageUrls: v.imageUrls,

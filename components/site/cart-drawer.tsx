@@ -80,7 +80,9 @@ export function CartDrawer({
       customerPhone: values.phone,
       method: values.method,
       region: values.region,
+      city: values.method === "delivery" ? values.city : null,
       address: values.method === "delivery" ? values.address : null,
+      postalCode: values.method === "delivery" ? values.postalCode : null,
       notes: values.notes || null,
     });
     setPending(false);

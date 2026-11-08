@@ -18,7 +18,9 @@ export type OrderForm = {
   phone: string;
   method: Method;
   region: DeliveryRegion;
+  city: string;
   address: string;
+  postalCode: string;
   notes: string;
 };
 
@@ -27,18 +29,24 @@ export function useOrderForm() {
   const [phone, setPhone] = useState("");
   const [method, setMethod] = useState<Method>("pickup");
   const [region, setRegion] = useState<DeliveryRegion>("chisinau");
+  // Default region is Chișinău, so seed the city to match; the region buttons
+  // keep the two in sync (see OrderFields).
+  const [city, setCity] = useState("Chișinău");
   const [address, setAddress] = useState("");
+  const [postalCode, setPostalCode] = useState("");
   const [notes, setNotes] = useState("");
   const reset = () => {
     setCustomer("");
     setPhone("");
     setMethod("pickup");
     setRegion("chisinau");
+    setCity("Chișinău");
     setAddress("");
+    setPostalCode("");
     setNotes("");
   };
   return {
-    values: { customer, phone, method, region, address, notes } as OrderForm,
+    values: { customer, phone, method, region, city, address, postalCode, notes } as OrderForm,
     customer,
     setCustomer,
     phone,
@@ -47,8 +55,12 @@ export function useOrderForm() {
     setMethod,
     region,
     setRegion,
+    city,
+    setCity,
     address,
     setAddress,
+    postalCode,
+    setPostalCode,
     notes,
     setNotes,
     reset,
@@ -117,15 +129,31 @@ export function OrderFields({
                 active={form.region === "chisinau"}
                 icon={<MapPin className="h-4 w-4" />}
                 label={t.cart.deliveryChisinau}
-                onClick={() => form.setRegion("chisinau")}
+                onClick={() => {
+                  form.setRegion("chisinau");
+                  form.setCity("Chișinău");
+                }}
               />
               <MethodButton
                 active={form.region === "outside"}
                 icon={<MapPin className="h-4 w-4" />}
                 label={t.cart.deliveryOutside}
-                onClick={() => form.setRegion("outside")}
+                onClick={() => {
+                  form.setRegion("outside");
+                  if (form.city === "Chișinău") form.setCity("");
+                }}
               />
             </div>
+          </div>
+          <div>
+            <Label htmlFor={`${idPrefix}-city`}>{t.fastBuy.city}</Label>
+            <Input
+              id={`${idPrefix}-city`}
+              required
+              autoComplete="address-level2"
+              value={form.city}
+              onChange={(e) => form.setCity(e.target.value)}
+            />
           </div>
           <div>
             <Label htmlFor={`${idPrefix}-address`}>{t.fastBuy.address}</Label>
@@ -135,6 +163,16 @@ export function OrderFields({
               autoComplete="street-address"
               value={form.address}
               onChange={(e) => form.setAddress(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label htmlFor={`${idPrefix}-postal`}>{t.fastBuy.postalCode}</Label>
+            <Input
+              id={`${idPrefix}-postal`}
+              autoComplete="postal-code"
+              inputMode="numeric"
+              value={form.postalCode}
+              onChange={(e) => form.setPostalCode(e.target.value)}
             />
           </div>
         </>

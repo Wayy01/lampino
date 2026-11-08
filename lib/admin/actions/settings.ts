@@ -1,11 +1,14 @@
 "use server";
 
+import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma";
 import { requireAdmin } from "@/lib/admin/session";
-import { langFromForm } from "@/lib/admin/i18n";
+import { langFromForm, getAdminDict } from "@/lib/admin/i18n";
 import { runFormAction } from "@/lib/admin/errors";
+import { encryptSecret } from "@/lib/admin/crypto";
+import { WEBHOOK_EVENTS, type WebhookEvent } from "@/lib/webhooks-events";
 
 export type SettingsActionState = { ok?: boolean; error?: string } | null;
 
@@ -26,6 +29,15 @@ function dec(fd: FormData, key: string, fallback: number): Prisma.Decimal {
 function color(fd: FormData, key: string, fallback: string): string {
   const value = str(fd, key);
   return /^#[0-9a-fA-F]{6}$/.test(value) ? value : fallback;
+}
+
+// Non-negative integer fields (parcel weight in grams, dimensions in mm). Like
+// `dec`, a cleared input posts "" and must fall back rather than become 0.
+function int(fd: FormData, key: string, fallback: number): number {
+  const raw = str(fd, key);
+  if (raw === "") return fallback;
+  const value = Number(raw);
+  return Number.isInteger(value) && value >= 0 ? value : fallback;
 }
 
 const revalidate = () => revalidatePath("/admin/[lang]/settings", "page");
@@ -134,6 +146,237 @@ export async function updateProductPage(
     revalidate();
     return { ok: true };
   });
+}
+
+// Write-only encrypted secret: a `<field>Clear` checkbox wipes it, a pasted
+// value is encrypted and stored, and a blank input leaves the existing
+// ciphertext untouched (so re-saving the form never erases the key).
+function writeOnlyKey(fd: FormData, field: string, current: string): string {
+  if (fd.get(`${field}Clear`) === "on") return "";
+  const raw = str(fd, field);
+  return raw === "" ? current : encryptSecret(raw);
+}
+
+// Each courier has its own page + action, writing ONLY its own columns — sender
+// identity and the default parcel are per-courier (Nova Post in g/mm, Fan
+// Courier in kg/cm). An update touches no other courier's fields, so saving one
+// integration never clobbers another's key or config.
+export async function updateNovaPost(
+  _prev: SettingsActionState,
+  fd: FormData,
+): Promise<SettingsActionState> {
+  const lang = langFromForm(fd);
+  await requireAdmin(lang);
+
+  return runFormAction(lang, async () => {
+    const existing = await prisma.shippingSettings.findFirst({ orderBy: { id: "asc" } });
+    const data = {
+      novapostEnabled: fd.get("novapostEnabled") === "on",
+      novapostSandbox: fd.get("novapostSandbox") === "on",
+      novapostApiKey: writeOnlyKey(fd, "novapostApiKey", existing?.novapostApiKey ?? ""),
+      novapostSenderCompanyTin: str(fd, "novapostSenderCompanyTin"),
+      novapostSenderDivisionId: str(fd, "novapostSenderDivisionId"),
+      novapostSenderDivisionName: str(fd, "novapostSenderDivisionName"),
+      novapostSenderCountryCode: str(fd, "novapostSenderCountryCode") || "MD",
+      novapostDefaultCategory: str(fd, "novapostDefaultCategory"),
+      novapostSenderName: str(fd, "novapostSenderName"),
+      novapostSenderPhone: str(fd, "novapostSenderPhone"),
+      novapostSenderEmail: str(fd, "novapostSenderEmail"),
+      novapostParcelWeightG: int(fd, "novapostParcelWeightG", 2000),
+      novapostParcelLengthMm: int(fd, "novapostParcelLengthMm", 240),
+      novapostParcelWidthMm: int(fd, "novapostParcelWidthMm", 160),
+      novapostParcelHeightMm: int(fd, "novapostParcelHeightMm", 200),
+      isActive: true,
+    };
+    if (existing) {
+      await prisma.shippingSettings.update({ where: { id: existing.id }, data });
+    } else {
+      await prisma.shippingSettings.create({ data });
+    }
+    revalidatePath("/admin/[lang]/integrations/nova-post", "page");
+    return { ok: true };
+  });
+}
+
+export async function updateFanCourier(
+  _prev: SettingsActionState,
+  fd: FormData,
+): Promise<SettingsActionState> {
+  const lang = langFromForm(fd);
+  await requireAdmin(lang);
+
+  return runFormAction(lang, async () => {
+    const existing = await prisma.shippingSettings.findFirst({ orderBy: { id: "asc" } });
+    const data = {
+      fancourierEnabled: fd.get("fancourierEnabled") === "on",
+      fancourierApiKey: writeOnlyKey(fd, "fancourierApiKey", existing?.fancourierApiKey ?? ""),
+      fancourierUseDefaultSender: fd.get("fancourierUseDefaultSender") === "on",
+      fancourierServiceType: str(fd, "fancourierServiceType") || "standard",
+      fancourierSenderCounty: str(fd, "fancourierSenderCounty"),
+      fancourierSenderCity: str(fd, "fancourierSenderCity"),
+      fancourierSenderStreet: str(fd, "fancourierSenderStreet"),
+      fancourierSenderNr: str(fd, "fancourierSenderNr"),
+      fancourierSenderZipcode: str(fd, "fancourierSenderZipcode"),
+      fancourierDefaultCategory: str(fd, "fancourierDefaultCategory"),
+      fancourierSenderName: str(fd, "fancourierSenderName"),
+      fancourierSenderPhone: str(fd, "fancourierSenderPhone"),
+      fancourierSenderEmail: str(fd, "fancourierSenderEmail"),
+      fancourierParcelWeightKg: dec(fd, "fancourierParcelWeightKg", 1),
+      fancourierParcelLengthCm: int(fd, "fancourierParcelLengthCm", 24),
+      fancourierParcelWidthCm: int(fd, "fancourierParcelWidthCm", 16),
+      fancourierParcelHeightCm: int(fd, "fancourierParcelHeightCm", 20),
+      isActive: true,
+    };
+    if (existing) {
+      await prisma.shippingSettings.update({ where: { id: existing.id }, data });
+    } else {
+      await prisma.shippingSettings.create({ data });
+    }
+    revalidatePath("/admin/[lang]/integrations/fan-courier", "page");
+    return { ok: true };
+  });
+}
+
+export type LigattoAgentActionState =
+  | { ok?: boolean; error?: string; token?: string; agentName?: string }
+  | null;
+
+// Ligatto agents: named bearer credentials for the order-automation API. Create
+// generates the token (revealed once), so the admin never pastes one; the
+// agent's name becomes the order's origin (`Order.source`).
+export async function createLigattoAgent(
+  _prev: LigattoAgentActionState,
+  fd: FormData,
+): Promise<LigattoAgentActionState> {
+  const lang = langFromForm(fd);
+  await requireAdmin(lang);
+  const s = getAdminDict(lang).settings.shipping;
+
+  const name = str(fd, "agentName").slice(0, 60);
+  if (!name) return { error: s.agentNameRequired };
+  if (await prisma.ligattoAgent.findUnique({ where: { name } })) {
+    return { error: s.agentNameTaken };
+  }
+
+  const token = randomBytes(24).toString("base64url");
+  try {
+    await prisma.ligattoAgent.create({
+      data: { name, token: encryptSecret(token), enabled: true },
+    });
+  } catch (e) {
+    // Lost a race on the unique name.
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      return { error: s.agentNameTaken };
+    }
+    throw e;
+  }
+  revalidatePath("/admin/[lang]/integrations/ligatto", "page");
+  return { ok: true, token, agentName: name };
+}
+
+// Enable/disable an agent — a disabled token is refused by the API.
+export async function toggleLigattoAgent(fd: FormData): Promise<void> {
+  const lang = langFromForm(fd);
+  await requireAdmin(lang);
+  const id = Number(fd.get("id"));
+  if (Number.isInteger(id)) {
+    const agent = await prisma.ligattoAgent.findUnique({ where: { id } });
+    if (agent) {
+      await prisma.ligattoAgent.update({ where: { id }, data: { enabled: !agent.enabled } });
+    }
+  }
+  revalidatePath("/admin/[lang]/integrations/ligatto", "page");
+}
+
+// Revoke an agent. To rotate a leaked token, delete and recreate (same name).
+export async function deleteLigattoAgent(fd: FormData): Promise<void> {
+  const lang = langFromForm(fd);
+  await requireAdmin(lang);
+  const id = Number(fd.get("id"));
+  if (Number.isInteger(id)) await prisma.ligattoAgent.deleteMany({ where: { id } });
+  revalidatePath("/admin/[lang]/integrations/ligatto", "page");
+}
+
+export type WebhookEndpointActionState = { ok?: boolean; error?: string } | null;
+
+// Resolve the selected event type, falling back to the first known type if the
+// posted value is missing or unrecognized.
+function readEvent(fd: FormData): WebhookEvent {
+  const known = new Set<string>(WEBHOOK_EVENTS);
+  const picked = str(fd, "event");
+  return known.has(picked) ? (picked as WebhookEvent) : WEBHOOK_EVENTS[0];
+}
+
+function validUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw);
+    return u.protocol === "http:" || u.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+// Webhook endpoints: named destinations Lampino POSTs events to. Lampino does
+// not authenticate — if the receiver needs a token, the admin puts it in the
+// custom `headers` (e.g. `Authorization: Bearer …`).
+export async function createWebhookEndpoint(
+  _prev: WebhookEndpointActionState,
+  fd: FormData,
+): Promise<WebhookEndpointActionState> {
+  const lang = langFromForm(fd);
+  await requireAdmin(lang);
+  const s = getAdminDict(lang).settings.shipping;
+
+  const name = str(fd, "endpointName").slice(0, 60);
+  if (!name) return { error: s.endpointNameRequired };
+  const url = str(fd, "endpointUrl").slice(0, 2048);
+  if (!validUrl(url)) return { error: s.endpointUrlInvalid };
+  if (await prisma.webhookEndpoint.findUnique({ where: { name } })) {
+    return { error: s.endpointNameTaken };
+  }
+
+  const headers = str(fd, "headers").slice(0, 4000) || null;
+  const requiresListenerId = fd.get("requiresListenerId") === "on";
+  try {
+    await prisma.webhookEndpoint.create({
+      data: { name, url, event: readEvent(fd), headers, requiresListenerId, enabled: true },
+    });
+  } catch (e) {
+    // Lost a race on the unique name.
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      return { error: s.endpointNameTaken };
+    }
+    throw e;
+  }
+  revalidatePath("/admin/[lang]/integrations/webhooks", "page");
+  return { ok: true };
+}
+
+// Enable/disable an endpoint — a disabled endpoint receives no events.
+export async function toggleWebhookEndpoint(fd: FormData): Promise<void> {
+  const lang = langFromForm(fd);
+  await requireAdmin(lang);
+  const id = Number(fd.get("id"));
+  if (Number.isInteger(id)) {
+    const endpoint = await prisma.webhookEndpoint.findUnique({ where: { id } });
+    if (endpoint) {
+      await prisma.webhookEndpoint.update({
+        where: { id },
+        data: { enabled: !endpoint.enabled },
+      });
+    }
+  }
+  revalidatePath("/admin/[lang]/integrations/webhooks", "page");
+}
+
+// Remove an endpoint (and its delivery log, via cascade). To rotate a leaked
+// secret, delete and recreate (same name).
+export async function deleteWebhookEndpoint(fd: FormData): Promise<void> {
+  const lang = langFromForm(fd);
+  await requireAdmin(lang);
+  const id = Number(fd.get("id"));
+  if (Number.isInteger(id)) await prisma.webhookEndpoint.deleteMany({ where: { id } });
+  revalidatePath("/admin/[lang]/integrations/webhooks", "page");
 }
 
 export async function updateTheme(
