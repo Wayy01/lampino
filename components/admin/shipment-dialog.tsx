@@ -1119,11 +1119,13 @@ function FanCourierShipmentForm({
                 value={declaredValue}
                 onChange={(e) => setDeclaredValue(e.target.value)}
               />
-              {/* One click fills the order's grand total — insuring is opt-in. */}
+              {/* One click fills the order's grand total — insuring is opt-in.
+                  Shaped like the kit's secondary buttons (input height, radius-md)
+                  so it sits flush with the field beside it. */}
               <button
                 type="button"
                 onClick={() => setDeclaredValue(String(orderTotal))}
-                className="shrink-0 cursor-pointer whitespace-nowrap rounded-full border px-2.5 py-1 text-xs transition-colors hover:border-primary hover:bg-primary/[0.04]"
+                className="flex h-10 shrink-0 cursor-pointer items-center whitespace-nowrap rounded-[var(--radius-md)] border px-3 text-sm transition-colors hover:bg-foreground/[0.03]"
               >
                 {s.useOrderTotal} ({orderTotal})
               </button>
