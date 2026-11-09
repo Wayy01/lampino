@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState, type ReactNode } from "react";
-import { Truck, ChevronRight, ArrowLeft, Building2, Home, GripVertical } from "lucide-react";
+import { Truck, ChevronRight, ChevronLeft, ArrowLeft, Building2, Home, GripVertical } from "lucide-react";
 import {
   createNovaPostShipment,
   createFanCourierShipment,
@@ -1125,8 +1125,10 @@ function FanCourierShipmentForm({
               <button
                 type="button"
                 onClick={() => setDeclaredValue(String(orderTotal))}
-                className="flex h-10 shrink-0 cursor-pointer items-center whitespace-nowrap rounded-[var(--radius-md)] border px-3 text-sm transition-colors hover:bg-foreground/[0.03]"
+                className="flex h-10 shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-[var(--radius-md)] border px-3 text-sm transition-colors hover:bg-foreground/[0.03]"
               >
+                {/* Points at the field it fills, to the left. */}
+                <ChevronLeft className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
                 {s.useOrderTotal} ({orderTotal})
               </button>
             </div>
