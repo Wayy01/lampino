@@ -1116,6 +1116,9 @@ function FanCourierShipmentForm({
               value={declaredValue}
               onChange={(e) => setDeclaredValue(e.target.value)}
             />
+            {/* Fan Courier insurance is a paid add-on with no COD coupling —
+                clearing the prefilled order total ships uninsured. */}
+            <p className="mt-1.5 text-xs text-muted-foreground">{s.insuranceOptional}</p>
           </Field>
         </div>
 

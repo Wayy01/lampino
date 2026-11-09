@@ -447,6 +447,8 @@ const ro = {
       widthMm: "Lățime (mm)",
       heightMm: "Înălțime (mm)",
       insurance: "Valoare declarată (lei)",
+      insuranceOptional:
+        "Opțional, serviciu cu cost suplimentar — lasă gol pentru expediere fără asigurare.",
       note: "Notă",
       submit: "Creează expedierea",
       cancel: "Anulează",
@@ -1289,6 +1291,8 @@ const ru: AdminDict = {
       widthMm: "Ширина (мм)",
       heightMm: "Высота (мм)",
       insurance: "Объявленная ценность (лей)",
+      insuranceOptional:
+        "Опционально, платная услуга — оставьте пустым для отправки без страховки.",
       note: "Примечание",
       submit: "Создать отправление",
       cancel: "Отмена",

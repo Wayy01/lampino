@@ -279,12 +279,15 @@ export function buildFanCourierShipmentBody(req: FanCourierShipmentRequest): FcP
     service_type: req.serviceType || "standard",
     cnt: req.parcels.length,
     payer: req.payer,
-    insurance: req.declaredValue,
     content: req.content.slice(0, 255),
     comments: (req.comments || "").slice(0, 255),
     customer_reference: req.customerReference,
     to_country: "MD",
   };
+
+  // Insurance is an optional paid add-on: send it only when a declared value
+  // was actually set, so a cleared field ships uninsured instead of insuring 0.
+  if (req.declaredValue > 0) body.insurance = req.declaredValue;
 
   req.parcels.forEach((p, i) => {
     const sfx = i === 0 ? "" : String(i + 1);
