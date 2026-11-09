@@ -449,6 +449,7 @@ const ro = {
       insurance: "Valoare declarată (lei)",
       insuranceOptional:
         "Opțional, serviciu cu cost suplimentar — lasă gol pentru expediere fără asigurare.",
+      useOrderTotal: "Totalul comenzii",
       note: "Notă",
       submit: "Creează expedierea",
       cancel: "Anulează",
@@ -1293,6 +1294,7 @@ const ru: AdminDict = {
       insurance: "Объявленная ценность (лей)",
       insuranceOptional:
         "Опционально, платная услуга — оставьте пустым для отправки без страховки.",
+      useOrderTotal: "Итог заказа",
       note: "Примечание",
       submit: "Создать отправление",
       cancel: "Отмена",

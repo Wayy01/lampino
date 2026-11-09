@@ -870,10 +870,12 @@ function FanCourierShipmentForm({
   const [flat, setFlat] = useState(parts.find((p) => p.target === "flat")?.label ?? "");
   const [zip, setZip] = useState(address.postCode ?? "");
   const [cod, setCod] = useState(true);
-  // Ramburs and declared value are both prefilled from the order's grand total
-  // (incl. the shipping fee) — that is the amount to collect at the door.
+  // Ramburs is prefilled from the order's grand total (incl. the shipping fee)
+  // — that is the amount to collect at the door. The declared value starts
+  // EMPTY: Fan Courier insurance is an optional paid add-on, so insuring is a
+  // deliberate act — the chip next to the field fills in the order total.
   const [codAmount, setCodAmount] = useState(String(orderTotal));
-  const [declaredValue, setDeclaredValue] = useState(String(orderTotal));
+  const [declaredValue, setDeclaredValue] = useState("");
   const [state, formAction] = useActionState<ShippingActionState, FormData>(
     createFanCourierShipment.bind(null, orderId),
     null,
@@ -1107,17 +1109,25 @@ function FanCourierShipmentForm({
 
         <div className="mt-3 sm:w-1/2">
           <Field label={s.insurance} htmlFor="fc_declared">
-            <TextInput
-              id="fc_declared"
-              name="declaredValue"
-              type="number"
-              min="0"
-              inputMode="numeric"
-              value={declaredValue}
-              onChange={(e) => setDeclaredValue(e.target.value)}
-            />
-            {/* Fan Courier insurance is a paid add-on with no COD coupling —
-                clearing the prefilled order total ships uninsured. */}
+            <div className="flex items-center gap-2">
+              <TextInput
+                id="fc_declared"
+                name="declaredValue"
+                type="number"
+                min="0"
+                inputMode="numeric"
+                value={declaredValue}
+                onChange={(e) => setDeclaredValue(e.target.value)}
+              />
+              {/* One click fills the order's grand total — insuring is opt-in. */}
+              <button
+                type="button"
+                onClick={() => setDeclaredValue(String(orderTotal))}
+                className="shrink-0 cursor-pointer whitespace-nowrap rounded-full border px-2.5 py-1 text-xs transition-colors hover:border-primary hover:bg-primary/[0.04]"
+              >
+                {s.useOrderTotal} ({orderTotal})
+              </button>
+            </div>
             <p className="mt-1.5 text-xs text-muted-foreground">{s.insuranceOptional}</p>
           </Field>
         </div>
