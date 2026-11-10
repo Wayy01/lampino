@@ -3,7 +3,6 @@
 // an order summary + Telegram alert, and the transaction-rollback sentinel.
 import { Prisma } from "@/lib/generated/prisma";
 import type { Locale } from "@/lib/i18n/routing";
-import type { DeliveryRegion } from "@/lib/pricing";
 import type { RejectedLine } from "@/lib/orders/resolve";
 
 // Agent-placed orders have no email; store the shop's own so the row stays a
@@ -16,10 +15,6 @@ export function parseLang(v: unknown): Locale {
 
 export function parseMethod(v: unknown): "pickup" | "delivery" {
   return v === "delivery" ? "delivery" : "pickup";
-}
-
-export function parseRegion(v: unknown): DeliveryRegion {
-  return v === "outside" ? "outside" : "chisinau";
 }
 
 /** The optional `Idempotency-Key` header: trimmed and capped, or null. */

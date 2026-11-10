@@ -8,6 +8,8 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma";
 import { reserveStock, releaseStock, mergeLines } from "@/lib/stock";
 import { requireAutomationToken } from "@/lib/api/automation-auth";
+import type { DeliveryRegion } from "@/lib/pricing";
+import { regionFromCity } from "@/lib/orders/region";
 import {
   resolveOrderLines,
   computeFee,
@@ -26,7 +28,6 @@ import {
   StockShortage,
   parseLang,
   parseMethod,
-  parseRegion,
   readListenerId,
 } from "@/lib/api/automation-orders";
 
@@ -93,7 +94,6 @@ export async function PATCH(
 
   // Delivery: a present `delivery` block fully replaces method + all fields.
   let method: "pickup" | "delivery" = current.deliveryMethod === "delivery" ? "delivery" : "pickup";
-  let region = parseRegion(current.deliveryRegion);
   let address = current.address;
   let city = current.city;
   let postalCode = current.postalCode;
@@ -102,7 +102,6 @@ export async function PATCH(
   if (body.delivery !== undefined) {
     const d = body.delivery as Record<string, unknown> | null;
     method = parseMethod(d?.method);
-    region = parseRegion(d?.region);
     notes = clampNotes(d?.notes) || null;
     if (method === "delivery") {
       const addr = validateDeliveryAddress(d?.address, d?.city);
@@ -118,6 +117,8 @@ export async function PATCH(
       country = null;
     }
   }
+  // Pricing bucket is derived from the (new or kept) city, never the payload.
+  const region: DeliveryRegion = method === "delivery" ? regionFromCity(city) : "outside";
 
   // Items: a present `items` list replaces the full set; otherwise keep current.
   const target: RequestedLine[] =

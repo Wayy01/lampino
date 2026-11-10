@@ -8,6 +8,8 @@ import { Prisma } from "@/lib/generated/prisma";
 import { sendNewOrderAlert } from "@/lib/telegram";
 import { reserveStock } from "@/lib/stock";
 import { requireAutomationToken } from "@/lib/api/automation-auth";
+import type { DeliveryRegion } from "@/lib/pricing";
+import { regionFromCity } from "@/lib/orders/region";
 import {
   resolveOrderLines,
   computeFee,
@@ -27,7 +29,6 @@ import {
   StockShortage,
   parseLang,
   parseMethod,
-  parseRegion,
   readIdempotencyKey,
   readListenerId,
 } from "@/lib/api/automation-orders";
@@ -50,7 +51,6 @@ export async function POST(request: NextRequest) {
   const customer = body.customer as Record<string, unknown> | undefined;
   const delivery = body.delivery as Record<string, unknown> | undefined;
   const method = parseMethod(delivery?.method);
-  const region = parseRegion(delivery?.region);
 
   const contact = validateContact(customer?.name, customer?.phone);
   if (!contact) return NextResponse.json({ ok: false, error: "invalid_contact" }, { status: 400 });
@@ -58,12 +58,16 @@ export async function POST(request: NextRequest) {
   let address: string | null = null;
   let city: string | null = null;
   let postalCode = "";
+  // Pricing bucket is derived from the city, never trusted from the payload; it
+  // only matters for delivery (pickup fees are 0).
+  let region: DeliveryRegion = "outside";
   if (method === "delivery") {
     const addr = validateDeliveryAddress(delivery?.address, delivery?.city);
     if (!addr) return NextResponse.json({ ok: false, error: "invalid_address" }, { status: 400 });
     address = addr.address;
     city = addr.city;
     postalCode = clampPostalCode(delivery?.postalCode);
+    region = regionFromCity(city);
   }
   const notes = clampNotes(delivery?.notes);
 
