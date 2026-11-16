@@ -17,6 +17,12 @@ const eslintConfig = defineConfig([
       "no-restricted-syntax": ["error", ...serverActionExportRules()],
     },
   },
+  {
+    // Playwright fixtures hand values on through a callback named `use`, which
+    // the React hooks rule mistakes for React's `use()`.
+    files: ["e2e/**"],
+    rules: { "react-hooks/rules-of-hooks": "off" },
+  },
   globalIgnores([
     ".next/**",
     "out/**",

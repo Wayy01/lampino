@@ -39,3 +39,8 @@ next-env.d.ts
 
 # playwright mcp session artifacts
 /.playwright-mcp/
+
+# playwright test output and the signed admin session the e2e setup writes
+/test-results/
+/playwright-report/
+/e2e/.auth/
