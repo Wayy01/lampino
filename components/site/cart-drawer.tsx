@@ -9,7 +9,8 @@ import type { DeliverySettings } from "@/lib/types";
 import { formatPrice, pick } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { submitOrder, type RejectedLine } from "@/lib/actions/orders";
+import { submitOrder, type SubmitOrderResult } from "@/lib/actions/orders";
+import type { RejectedLine } from "@/lib/orders/resolve";
 import { OrderError, type OrderFailure } from "./order-error";
 import { useOrderForm, OrderFields, type OrderForm } from "./order-fields";
 import { SiteImage } from "@/components/site/site-image";
@@ -70,21 +71,29 @@ export function CartDrawer({
     if (pending) return;
     setPending(true);
     setFailure(null);
-    const res = await submitOrder({
-      items: items.map((item) => ({
-        productId: item.product.id,
-        variantId: item.variant?.id ?? null,
-        quantity: item.quantity,
-      })),
-      customerName: values.customer,
-      customerPhone: values.phone,
-      method: values.method,
-      region: values.region,
-      city: values.method === "delivery" ? values.city : null,
-      address: values.method === "delivery" ? values.address : null,
-      postalCode: values.method === "delivery" ? values.postalCode : null,
-      notes: values.notes || null,
-    });
+    // The call itself can reject (network drop, a 500, a tab left open across
+    // a deploy) — without the catch the button stays on "sending" forever.
+    let res: SubmitOrderResult;
+    try {
+      res = await submitOrder({
+        items: items.map((item) => ({
+          productId: item.product.id,
+          variantId: item.variant?.id ?? null,
+          quantity: item.quantity,
+        })),
+        customerName: values.customer,
+        customerPhone: values.phone,
+        method: values.method,
+        region: values.region,
+        city: values.method === "delivery" ? values.city : null,
+        address: values.method === "delivery" ? values.address : null,
+        postalCode: values.method === "delivery" ? values.postalCode : null,
+        notes: values.notes || null,
+      });
+    } catch (error) {
+      console.error("submitOrder call failed", error);
+      res = { ok: false, error: "server_error" };
+    }
     setPending(false);
     if (res.ok) {
       setSent(true);

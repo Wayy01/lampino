@@ -25,7 +25,8 @@ export type RefusalKey =
   | "courierNotConfigured"
   | "recipientRequired"
   | "courierFailed"
-  | "courierUncertain";
+  | "courierUncertain"
+  | "orderNotShippable";
 
 /**
  * A deliberate refusal, thrown from inside an action body so it travels the

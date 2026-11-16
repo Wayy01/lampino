@@ -9,7 +9,7 @@ import { useLang } from "@/lib/i18n/provider";
 import { formatPrice, pick } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { submitOrder } from "@/lib/actions/orders";
+import { submitOrder, type SubmitOrderResult } from "@/lib/actions/orders";
 import { OrderError, type OrderFailure } from "./order-error";
 import { useOrderForm, OrderFields } from "./order-fields";
 
@@ -66,17 +66,25 @@ export function FastBuyDrawer({
     if (pending) return;
     setPending(true);
     setFailure(null);
-    const res = await submitOrder({
-      items: [{ productId: product.id, variantId: variant?.id ?? null, quantity: qty }],
-      customerName: form.customer,
-      customerPhone: form.phone,
-      method: form.method,
-      region: form.region,
-      city: form.method === "delivery" ? form.city : null,
-      address: form.method === "delivery" ? form.address : null,
-      postalCode: form.method === "delivery" ? form.postalCode : null,
-      notes: form.notes || null,
-    });
+    // The call itself can reject (network drop, a 500, a tab left open across
+    // a deploy) — without the catch the button stays on "sending" forever.
+    let res: SubmitOrderResult;
+    try {
+      res = await submitOrder({
+        items: [{ productId: product.id, variantId: variant?.id ?? null, quantity: qty }],
+        customerName: form.customer,
+        customerPhone: form.phone,
+        method: form.method,
+        region: form.region,
+        city: form.method === "delivery" ? form.city : null,
+        address: form.method === "delivery" ? form.address : null,
+        postalCode: form.method === "delivery" ? form.postalCode : null,
+        notes: form.notes || null,
+      });
+    } catch (error) {
+      console.error("submitOrder call failed", error);
+      res = { ok: false, error: "server_error" };
+    }
     setPending(false);
     if (res.ok) setSent(true);
     else setFailure(res);

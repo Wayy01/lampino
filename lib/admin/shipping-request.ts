@@ -225,9 +225,10 @@ export function buildFanCourierRequestFromForm(
     typeRaw === "cash" ? "cash" : typeRaw === "instrumente_plata" ? "instrumente_plata" : "cont";
 
   // Declared value (insurance): optional at Fan Courier — unlike Nova Post it
-  // has no COD≤insurance rule, and insurance is a paid add-on. The form prefills
-  // the order total; a cleared field means "ship uninsured" and stays 0 (the
-  // body builder then omits the `insurance` key entirely).
+  // has no COD≤insurance rule, and insurance is a paid add-on. The field starts
+  // empty (a button fills in the order total), and an empty field means "ship
+  // uninsured" and stays 0 (the body builder then omits the `insurance` key
+  // entirely).
   const declaredValue = pos(fd, "declaredValue", 0);
 
   return {

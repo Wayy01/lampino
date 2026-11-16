@@ -59,16 +59,11 @@ export type ResolveResult = {
  * Price and stock-check every requested line against the live catalog. A line
  * the catalog can't supply is reported (in `gone`/`short`) rather than dropped,
  * so the caller can tell the customer what changed. Stock here is only *read* —
- * the atomic reservation happens in `reserveStock` inside the caller's commit
- * transaction.
+ * units are taken when an admin confirms the order (`changeOrderStatus`).
  */
 export async function resolveOrderLines(
   requested: RequestedLine[],
   lang: Locale,
-  // When false, lines are priced regardless of stock (never classified `short`).
-  // Used by the pending-order edit path, where the order already holds its units
-  // and the authoritative check is the in-transaction release→reserve.
-  { checkStock = true }: { checkStock?: boolean } = {},
 ): Promise<ResolveResult> {
   const productIds = [...new Set(requested.map((i) => i.productId))];
   const products = await prisma.product.findMany({
@@ -128,7 +123,7 @@ export async function resolveOrderLines(
       continue;
     }
 
-    if (checkStock && available < line.quantity) {
+    if (available < line.quantity) {
       short.push({ productId: product.id, variantId, available });
       continue;
     }

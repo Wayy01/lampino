@@ -12,19 +12,14 @@ import {
   runFormAction,
   type ActionResult,
 } from "@/lib/admin/errors";
-import { releaseStock, reserveStock } from "@/lib/stock";
+import { releaseStock } from "@/lib/stock";
+import { changeOrderStatus } from "@/lib/orders/status";
 
 export type OrderActionState = { ok?: boolean; error?: string } | null;
 
 // Units of a shipped or delivered order have physically left, so deleting
 // one of those never puts stock back.
 const RESTOCK_ON_DELETE = new Set(["pending", "confirmed"]);
-// Statuses that hold the order's units. Checkout no longer reserves, so stock
-// is taken when an order moves here out of pending (or back from cancelled).
-const HOLDS_STOCK = new Set(["confirmed", "shipped", "delivered"]);
-// Only orders in the current flow get reserved on the way in; older
-// confirmed/shipped rows predate stock tracking and are left alone.
-const RESERVE_FROM = new Set(["pending", "cancelled"]);
 
 function revalidateStock(): void {
   revalidatePath("/admin/[lang]/orders", "page");
@@ -46,42 +41,7 @@ export async function updateOrderStatus(
     if (!ORDER_STATUSES.includes(status as (typeof ORDER_STATUSES)[number])) {
       return { error: getAdminDict(lang).orders.errors.unknownStatus };
     }
-    await prisma.$transaction(async (tx) => {
-      const order = await tx.order.findUniqueOrThrow({
-        where: { id },
-        select: {
-          status: true,
-          stockReserved: true,
-          items: { select: { productId: true, productVariantId: true, quantity: true } },
-        },
-      });
-      const lines = order.items.map((i) => ({
-        productId: i.productId,
-        variantId: i.productVariantId,
-        quantity: i.quantity,
-      }));
-      if (status === order.status) return;
-
-      let stockReserved = order.stockReserved;
-      const take = HOLDS_STOCK.has(status) && !order.stockReserved && RESERVE_FROM.has(order.status);
-      const give = (status === "cancelled" || status === "pending") && order.stockReserved;
-      if (take) stockReserved = true;
-      if (give) stockReserved = false;
-
-      // Conditional on what we just read: the row lock makes a second tab's
-      // concurrent change wait, then match nothing, so stock moves only once.
-      const { count } = await tx.order.updateMany({
-        where: { id, status: order.status, stockReserved: order.stockReserved },
-        data: { status, stockReserved },
-      });
-      if (count !== 1) throw new ActionRefusal("orderChanged");
-
-      if (take) {
-        const short = await reserveStock(tx, lines);
-        if (short.length > 0) throw new ActionRefusal("insufficientStock");
-      }
-      if (give) await releaseStock(tx, lines);
-    });
+    await prisma.$transaction((tx) => changeOrderStatus(tx, id, status));
     revalidateStock();
     return { ok: true };
   });

@@ -15,7 +15,8 @@ All requests and responses are `application/json`.
 
 **Optional header:** `Idempotency-Key: <string ≤200>` — a retried call with the same
 key returns the already-created order instead of a duplicate (recommended: derive
-from the conversation id).
+from the conversation id). Keys are unique across all agents: a key another agent
+already used returns `409 idempotency_conflict` and creates nothing.
 
 **Request body:**
 
@@ -49,7 +50,9 @@ Prices and stock are resolved from Lampino's catalog — anything price-like in 
 payload is ignored, including the delivery region: it's derived from `city`
 server-side (the city of Chișinău and its spelling variants → `chisinau`,
 everything else — suburbs, other towns, unrecognized → `outside`) and echoed back
-on the order. The order is created as `pending` with stock reserved.
+on the order. The order is created as `pending`. Stock is checked but not reserved:
+like storefront orders, the units are taken when an admin confirms the order, which
+fails if they've sold out in the meantime (a human then contacts the customer).
 
 **Success — `200`:**
 
@@ -89,6 +92,7 @@ on the order. The order is created as `pending` with stock reserved.
 | 400  | `empty_cart`      | no valid item lines                                                       |
 | 409  | `out_of_stock`    | + `"rejected": [{productId, variantId, available}]` — available units listed |
 | 409  | `unavailable`     | + `"rejected": [...]` — product/variant no longer sold                    |
+| 409  | `idempotency_conflict` | the `Idempotency-Key` was already used by another agent              |
 | 500  | `server_error`    | unexpected failure                                                        |
 
 ## 2. Edit order — `PATCH /api/automation/orders/{id}`
@@ -101,7 +105,12 @@ block; an absent key leaves current values untouched:**
   (switching to pickup clears the address). The region is re-derived from the new
   city, same as create.
 - `items` present → the **entire item set is replaced** and the order is
-  **re-priced at current catalog prices**; stock is atomically released/re-reserved.
+  **re-priced at current catalog prices** and stock-checked like a new order.
+  Without `items` the stored lines keep the prices they were placed at and no stock
+  moves; only the delivery fee is recomputed (the delivery block may have changed).
+  The response then summarizes the stored lines, which keep only the price charged,
+  so `discountTotal` is 0 and `itemsGross` equals `itemsNet` (same as an idempotent
+  replay); `grandTotal` and the line totals are exact.
 - `webhook_listener_id`: string sets it, `null`/empty clears it, absent leaves it.
 - `lang` works as in create.
 
@@ -110,8 +119,10 @@ block; an absent key leaves current values untouched:**
 - Only an order still in **`pending`** is editable. Anything else →
   `409 { "ok": false, "error": "locked", "status": "<current status>" }` — the agent
   must stop editing and hand off to a human.
-- `404 not_found`: unknown id, or an order not placed through this API (storefront
-  orders are invisible here).
+- `404 not_found`: unknown id, or an order not placed by the calling agent (storefront
+  orders and other agents' orders are invisible here). Ownership follows the agent's
+  name, so a token rotated by deleting and recreating the agent under the same name
+  keeps its orders.
 - Same `out_of_stock` / `unavailable` 409s with `rejected` lines, same 200 response
   shape as create.
 
