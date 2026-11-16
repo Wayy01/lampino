@@ -50,7 +50,10 @@ export type SubmitOrderError =
   | "too_many_requests"
   | "server_error";
 
-export type { RejectedLine };
+// Do NOT re-export `RejectedLine` from here (`export type { RejectedLine }`).
+// In a "use server" file the build treats a re-export as a server action and
+// emits `registerServerReference(RejectedLine, …)` — a ReferenceError at module
+// load that 500s every checkout. Import it from `@/lib/orders/resolve` instead.
 
 export type SubmitOrderResult =
   | { ok: true; orderId: number }

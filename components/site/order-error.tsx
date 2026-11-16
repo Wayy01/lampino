@@ -2,7 +2,8 @@
 
 import { TriangleAlert } from "lucide-react";
 import { useT } from "@/lib/i18n/provider";
-import type { RejectedLine, SubmitOrderResult } from "@/lib/actions/orders";
+import type { SubmitOrderResult } from "@/lib/actions/orders";
+import type { RejectedLine } from "@/lib/orders/resolve";
 
 /** The failure half of a `submitOrder` result — what the drawers hold onto. */
 export type OrderFailure = Extract<SubmitOrderResult, { ok: false }>;
