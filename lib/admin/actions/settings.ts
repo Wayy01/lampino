@@ -107,7 +107,10 @@ export async function updateDelivery(
       isActive: fd.get("isActive") === "on",
     };
 
-    const existing = await prisma.deliverySettings.findFirst({ orderBy: { id: "asc" } });
+    // Same row the settings page loaded and the storefront charges.
+    const existing = await prisma.deliverySettings.findFirst({
+      orderBy: [{ isActive: "desc" }, { id: "desc" }],
+    });
     if (existing) {
       await prisma.deliverySettings.update({ where: { id: existing.id }, data });
     } else {

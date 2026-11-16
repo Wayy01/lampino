@@ -129,7 +129,12 @@ export async function getShopEmail(): Promise<string> {
 /** Delivery pricing shown in the cart and sent with the WhatsApp order. */
 export async function getDeliverySettings(): Promise<DeliverySettings | null> {
   try {
-    const s = await prisma.deliverySettings.findFirst({ where: { isActive: true } });
+    // Newest active row — the table can hold several (an earlier app inserted
+    // one per save), and the admin edits this same one.
+    const s = await prisma.deliverySettings.findFirst({
+      where: { isActive: true },
+      orderBy: { id: "desc" },
+    });
     if (!s) return null;
     return {
       freeDeliveryThreshold: Number(s.freeDeliveryThreshold),

@@ -45,7 +45,8 @@ export default async function AdminSettingsPage({
     await Promise.all([
       // The row the storefront shows (`getContactSettings`): active, newest.
       prisma.contactSettings.findFirst({ orderBy: [{ isActive: "desc" }, { id: "desc" }] }),
-      prisma.deliverySettings.findFirst({ orderBy: { id: "asc" } }),
+      // The row the storefront charges (`getDeliverySettings`): active, newest.
+      prisma.deliverySettings.findFirst({ orderBy: [{ isActive: "desc" }, { id: "desc" }] }),
       prisma.themeSettings.findFirst({ orderBy: { id: "asc" } }),
       prisma.category.findMany({ orderBy: { position: "asc" } }),
       prisma.product.findMany({
