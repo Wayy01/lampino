@@ -2,17 +2,14 @@
 // Ligatto automation POST — so its shape (contact email, country, region,
 // totals, item lines) is decided in one place. Each caller adds what differs:
 // the stock flag, the origin, and the automation-only correlation fields.
-import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma";
 import type { DeliveryRegion } from "@/lib/pricing";
 import type { ResolvedLine } from "@/lib/orders/resolve";
 
-// Neither path collects an email; store the shop's own so the row stays a
-// valid contact point for the team.
-const FALLBACK_EMAIL = "contact@lampino.md";
-
 export type NewOrderFields = {
   contact: { name: string; phone: string };
+  /** Neither path collects one — the shop's own, from `getShopEmail`. */
+  email: string;
   method: "pickup" | "delivery";
   region: DeliveryRegion;
   address: string | null;
@@ -25,11 +22,10 @@ export type NewOrderFields = {
 };
 
 /** The shared `order.create` data for a new `pending` order. */
-export async function newOrderData(f: NewOrderFields) {
-  const contactSettings = await prisma.contactSettings.findFirst({ where: { isActive: true } });
+export function newOrderData(f: NewOrderFields) {
   return {
     customerName: f.contact.name,
-    customerEmail: contactSettings?.email?.trim() || FALLBACK_EMAIL,
+    customerEmail: f.email,
     customerPhone: f.contact.phone,
     address: f.address,
     city: f.city,

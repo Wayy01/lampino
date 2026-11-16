@@ -69,7 +69,6 @@ export async function PATCH(
       postalCode: true,
       country: true,
       specialInstructions: true,
-      items: { select: { priceEach: true, quantity: true } },
     },
   });
   if (!current) return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
@@ -137,17 +136,9 @@ export async function PATCH(
       return NextResponse.json({ ok: false, error: "empty_cart" }, { status: 400 });
     }
   }
-  // Without `items` the stored lines stand at the prices they were placed at;
-  // only the delivery fee is recomputed, since the delivery block may change.
-  const itemsNet = repriced
-    ? repriced.totals.itemsNet
-    : current.items.reduce((sum, i) => sum + Number(i.priceEach) * i.quantity, 0);
-
   // Correlation id: a present key updates it (empty → cleared); an absent key
   // leaves it untouched.
   const listener = readListenerId(body); // undefined = absent, null = clear, string = set
-
-  const fee = await computeFee(method, region, itemsNet);
 
   try {
     const order = await prisma.$transaction(async (tx) => {
@@ -161,6 +152,19 @@ export async function PATCH(
         data: { status: "pending" },
       });
       if (count === 0) throw new OrderLocked();
+      // Without `items` the stored lines stand at the prices they were placed
+      // at; only the delivery fee is recomputed, since the delivery block may
+      // change. The lines are read under the lock, so a concurrent items edit
+      // can't leave the total out of step with them.
+      let itemsNet = repriced?.totals.itemsNet ?? 0;
+      if (!repriced) {
+        const held = await tx.orderItem.findMany({
+          where: { orderId: id },
+          select: { priceEach: true, quantity: true },
+        });
+        itemsNet = held.reduce((sum, i) => sum + Number(i.priceEach) * i.quantity, 0);
+      }
+      const fee = await computeFee(method, region, itemsNet);
       if (repriced) {
         // Re-read the held lines and the reservation flag under that lock — the
         // pre-read ones may be stale, and an order an admin bounced back to

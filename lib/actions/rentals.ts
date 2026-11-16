@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma";
 import { sendNewRentalApplicationAlert } from "@/lib/telegram";
 import { withinRateLimit } from "@/lib/rate-limit";
+import { getShopEmail } from "@/lib/data/settings";
 
 export type RentalApplicationInput = {
   rentalPackageId: number;
@@ -42,9 +43,6 @@ export type RentalApplicationResult =
   | { ok: false; error: RentalApplicationError };
 
 const EVENT_TYPES = ["wedding", "corporate", "birthday", "private", "other"];
-// Email is optional on the form; when the customer leaves it blank we store the
-// shop's own address so the record stays valid and the team can still reply.
-const FALLBACK_EMAIL = "contact@lampino.md";
 
 // Public input caps, matching the order checkout.
 const MAX_NAME = 100;
@@ -126,7 +124,7 @@ export async function submitRentalApplication(
       return { ok: false, error: "too_many_requests" };
     }
 
-    const [pkg, contact] = await Promise.all([
+    const [pkg, shopEmail] = await Promise.all([
       prisma.rentalPackage.findFirst({
         where: { id: input.rentalPackageId, isActive: true },
         include: {
@@ -134,11 +132,12 @@ export async function submitRentalApplication(
           promotions: { select: { startDate: true, endDate: true, discountPercent: true } },
         },
       }),
-      prisma.contactSettings.findFirst({ where: { isActive: true } }),
+      getShopEmail(),
     ]);
     if (!pkg) return { ok: false, error: "package_not_found" };
 
-    const customerEmail = email || contact?.email?.trim() || FALLBACK_EMAIL;
+    // Email is optional on the form; a blank one falls back to the shop's own.
+    const customerEmail = email || shopEmail;
 
     // Price is resolved server-side from the package/variant — never the client.
     let rentalPackageVariantId: number | null = null;

@@ -12,6 +12,7 @@ import type { DeliveryRegion } from "@/lib/pricing";
 import type { Locale } from "@/lib/i18n/routing";
 import { regionFromCity } from "@/lib/orders/region";
 import { newOrderData } from "@/lib/orders/create";
+import { getShopEmail } from "@/lib/data/settings";
 import {
   resolveOrderLines,
   computeFee,
@@ -92,9 +93,13 @@ export async function POST(request: NextRequest) {
   if (gone.length > 0) return NextResponse.json({ ok: false, error: "unavailable", rejected: gone }, { status: 409 });
   if (resolved.length === 0) return NextResponse.json({ ok: false, error: "empty_cart" }, { status: 400 });
 
-  const fee = await computeFee(method, region, totals.itemsNet);
-  const data = await newOrderData({
+  const [fee, email] = await Promise.all([
+    computeFee(method, region, totals.itemsNet),
+    getShopEmail(),
+  ]);
+  const data = newOrderData({
     contact,
+    email,
     method,
     region,
     address,

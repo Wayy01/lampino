@@ -116,6 +116,16 @@ export async function getHomepageSettings(): Promise<HomepageSettings | null> {
   }
 }
 
+// Neither checkout nor the rental form requires an email; the row stores the
+// shop's own so it stays a valid contact point and the team can still reply.
+const FALLBACK_EMAIL = "contact@lampino.md";
+
+/** The shop's contact email, stored on orders and inquiries that have none. */
+export async function getShopEmail(): Promise<string> {
+  const s = await prisma.contactSettings.findFirst({ where: { isActive: true } });
+  return s?.email?.trim() || FALLBACK_EMAIL;
+}
+
 /** Delivery pricing shown in the cart and sent with the WhatsApp order. */
 export async function getDeliverySettings(): Promise<DeliverySettings | null> {
   try {

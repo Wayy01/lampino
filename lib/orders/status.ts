@@ -5,6 +5,7 @@
 // only export async functions.
 import type { Prisma } from "@/lib/generated/prisma";
 import { releaseStock, reserveStock } from "@/lib/stock";
+import { ActionRefusal } from "@/lib/admin/errors";
 
 // Statuses that hold the order's units. Checkout no longer reserves, so stock
 // is taken when an order moves here out of pending (or back from cancelled).
@@ -13,20 +14,18 @@ export const HOLDS_STOCK = new Set(["confirmed", "shipped", "delivered"]);
 // confirmed/shipped rows predate stock tracking and are left alone.
 export const RESERVE_FROM = new Set(["pending", "cancelled"]);
 
-/** Why a transition was refused; the caller maps it to its own error type. */
-export type StatusChangeError = "orderChanged" | "insufficientStock";
-
 /**
  * Move an order to `status`, reserving or releasing its units as the move
- * requires. Must run inside the caller's transaction: on an error the caller
- * throws, so a shortage rolls back the stock already taken. A no-op when the
- * order is already in `status`.
+ * requires. Must run inside the caller's transaction. A refusal throws an
+ * `ActionRefusal` (`orderChanged` / `insufficientStock`), which rolls the
+ * transaction back, including any units already taken. A no-op when the order
+ * is already in `status`.
  */
 export async function changeOrderStatus(
   tx: Prisma.TransactionClient,
   id: number,
   status: string,
-): Promise<StatusChangeError | null> {
+): Promise<void> {
   const order = await tx.order.findUniqueOrThrow({
     where: { id },
     select: {
@@ -35,7 +34,7 @@ export async function changeOrderStatus(
       items: { select: { productId: true, productVariantId: true, quantity: true } },
     },
   });
-  if (status === order.status) return null;
+  if (status === order.status) return;
   const lines = order.items.map((i) => ({
     productId: i.productId,
     variantId: i.productVariantId,
@@ -54,12 +53,11 @@ export async function changeOrderStatus(
     where: { id, status: order.status, stockReserved: order.stockReserved },
     data: { status, stockReserved },
   });
-  if (count !== 1) return "orderChanged";
+  if (count !== 1) throw new ActionRefusal("orderChanged");
 
   if (take) {
     const short = await reserveStock(tx, lines);
-    if (short.length > 0) return "insufficientStock";
+    if (short.length > 0) throw new ActionRefusal("insufficientStock");
   }
   if (give) await releaseStock(tx, lines);
-  return null;
 }

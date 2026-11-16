@@ -41,10 +41,7 @@ export async function updateOrderStatus(
     if (!ORDER_STATUSES.includes(status as (typeof ORDER_STATUSES)[number])) {
       return { error: getAdminDict(lang).orders.errors.unknownStatus };
     }
-    await prisma.$transaction(async (tx) => {
-      const refused = await changeOrderStatus(tx, id, status);
-      if (refused) throw new ActionRefusal(refused);
-    });
+    await prisma.$transaction((tx) => changeOrderStatus(tx, id, status));
     revalidateStock();
     return { ok: true };
   });

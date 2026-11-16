@@ -7,6 +7,7 @@
 import { prisma } from "@/lib/prisma";
 import { sendNewOrderAlert } from "@/lib/telegram";
 import { newOrderData } from "@/lib/orders/create";
+import { getShopEmail } from "@/lib/data/settings";
 import { withinRateLimit } from "@/lib/rate-limit";
 import { type DeliveryRegion } from "@/lib/pricing";
 import {
@@ -106,7 +107,10 @@ export async function submitOrder(
     if (gone.length > 0) return { ok: false, error: "unavailable", rejected: gone };
     if (resolved.length === 0) return { ok: false, error: "empty_cart" };
 
-    const fee = await computeFee(input.method, input.region, totals.itemsNet);
+    const [fee, email] = await Promise.all([
+      computeFee(input.method, input.region, totals.itemsNet),
+      getShopEmail(),
+    ]);
 
     // Stock is checked above but NOT taken here: it is reserved when an admin
     // confirms the order (lib/admin/actions/orders.ts). Reserving at checkout
@@ -114,8 +118,9 @@ export async function submitOrder(
     // them.
     const order = await prisma.order.create({
       data: {
-        ...(await newOrderData({
+        ...newOrderData({
           contact,
+          email,
           method: input.method,
           region: input.region,
           address,
@@ -125,7 +130,7 @@ export async function submitOrder(
           resolved,
           itemsNet: totals.itemsNet,
           fee,
-        })),
+        }),
         stockReserved: false,
       },
       select: {

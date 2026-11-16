@@ -73,22 +73,23 @@ const NOT_SHIPPABLE = new Set(["cancelled", "delivered"]);
 
 /**
  * Take the order's units before the courier call, the same way the status
- * dropdown does: a `pending` order is confirmed (reserving its stock), so a
- * shortage refuses here instead of after a real waybill exists. Returns whether
- * this call did the confirming, so a definite courier rejection can undo it.
- * On any refusal the shipment reservation is released.
+ * dropdown does: a `pending` order that doesn't hold them yet (storefront
+ * checkout) is confirmed, reserving its stock, so a shortage refuses here
+ * instead of after a real waybill exists. A pending order already holding its
+ * units (placed by a Ligatto agent) is left as is. Returns whether this call
+ * took the units, so a definite courier rejection can give them back. On any
+ * refusal the shipment reservation is released.
  */
 async function confirmForShipment(orderId: number, reservationId: number): Promise<boolean> {
   try {
     return await prisma.$transaction(async (tx) => {
       const order = await tx.order.findUniqueOrThrow({
         where: { id: orderId },
-        select: { status: true },
+        select: { status: true, stockReserved: true },
       });
       if (NOT_SHIPPABLE.has(order.status)) throw new ActionRefusal("orderNotShippable");
-      if (order.status !== "pending") return false;
-      const refused = await changeOrderStatus(tx, orderId, "confirmed");
-      if (refused) throw new ActionRefusal(refused);
+      if (order.status !== "pending" || order.stockReserved) return false;
+      await changeOrderStatus(tx, orderId, "confirmed");
       return true;
     });
   } catch (e) {
@@ -97,14 +98,13 @@ async function confirmForShipment(orderId: number, reservationId: number): Promi
   }
 }
 
-/** Put an order `confirmForShipment` confirmed back to pending (releasing its units). */
+/** Put an order `confirmForShipment` confirmed back to pending, releasing the units it took. */
 async function undoConfirm(orderId: number): Promise<void> {
   await prisma
     .$transaction(async (tx) => {
       const order = await tx.order.findUnique({ where: { id: orderId }, select: { status: true } });
       if (order?.status !== "confirmed") return;
-      const refused = await changeOrderStatus(tx, orderId, "pending");
-      if (refused) throw new ActionRefusal(refused);
+      await changeOrderStatus(tx, orderId, "pending");
     })
     .catch((e) => console.error("[shipment] could not return order to pending", orderId, e));
 }
@@ -117,10 +117,7 @@ async function undoConfirm(orderId: number): Promise<void> {
  */
 async function markShipped(orderId: number): Promise<void> {
   await prisma
-    .$transaction(async (tx) => {
-      const refused = await changeOrderStatus(tx, orderId, "shipped");
-      if (refused) throw new ActionRefusal(refused);
-    })
+    .$transaction((tx) => changeOrderStatus(tx, orderId, "shipped"))
     .catch((e) => console.error("[shipment] could not mark order shipped", orderId, e));
 }
 
@@ -286,25 +283,21 @@ async function cancelAtCarrier(
 
 /**
  * Drop the local `Shipment` row and roll the order back from `shipped` to the
- * pre-shipping state (so a fresh waybill can be created and the
- * `@unique(orderId)` slot is freed). An order holding its units goes back to
- * `confirmed`, which holds them too, so no stock moves; one that never took
- * them goes back to `pending`, so confirming it later reserves as usual. A
- * status the operator advanced to by hand (e.g. `delivered`) is left alone.
+ * pre-shipping `confirmed` state (so a fresh waybill can be created and the
+ * `@unique(orderId)` slot is freed). Both statuses hold stock, so no units
+ * move: creating a waybill always takes them (`confirmForShipment`), and an
+ * unreserved shipped order predates stock tracking, which `confirmed` leaves
+ * alone too. A status the operator advanced to by hand (e.g. `delivered`) is
+ * left alone via the `status: "shipped"` guard.
  */
 async function removeShipmentRow(shipmentId: number, orderId: number) {
-  await prisma.$transaction(async (tx) => {
-    await tx.shipment.delete({ where: { id: shipmentId } });
-    const order = await tx.order.findUnique({
-      where: { id: orderId },
-      select: { status: true, stockReserved: true },
-    });
-    if (order?.status !== "shipped") return;
-    await tx.order.updateMany({
-      where: { id: orderId, status: "shipped", stockReserved: order.stockReserved },
-      data: { status: order.stockReserved ? "confirmed" : "pending" },
-    });
-  });
+  await prisma.$transaction([
+    prisma.shipment.delete({ where: { id: shipmentId } }),
+    prisma.order.updateMany({
+      where: { id: orderId, status: "shipped" },
+      data: { status: "confirmed" },
+    }),
+  ]);
 }
 
 /**

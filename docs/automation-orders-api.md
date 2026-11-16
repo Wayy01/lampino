@@ -106,6 +106,9 @@ block; an absent key leaves current values untouched:**
   **re-priced at current catalog prices**; stock is atomically released/re-reserved.
   Without `items` the stored lines keep the prices they were placed at and no stock
   moves; only the delivery fee is recomputed (the delivery block may have changed).
+  The response then summarizes the stored lines, which keep only the price charged,
+  so `discountTotal` is 0 and `itemsGross` equals `itemsNet` (same as an idempotent
+  replay); `grandTotal` and the line totals are exact.
 - `webhook_listener_id`: string sets it, `null`/empty clears it, absent leaves it.
 - `lang` works as in create.
 
