@@ -1,9 +1,8 @@
 // Shared bits for the Ligatto order-automation route handlers
 // (app/api/automation/orders). Request parsing, the Prisma select used to build
-// an order summary + Telegram alert, and the transaction-rollback sentinel.
+// an order summary + Telegram alert.
 import { Prisma } from "@/lib/generated/prisma";
 import type { Locale } from "@/lib/i18n/routing";
-import type { RejectedLine } from "@/lib/orders/resolve";
 
 export function parseLang(v: unknown): Locale {
   return v === "ru" ? "ru" : "ro";
@@ -33,13 +32,6 @@ export function readListenerId(body: Record<string, unknown>): string | null | u
   if (typeof raw !== "string") return null;
   const v = raw.replace(/[\r\n]/g, "").trim().slice(0, 200);
   return v || null;
-}
-
-/** Thrown inside the order transaction to roll stock decrements back. */
-export class StockShortage extends Error {
-  constructor(readonly lines: RejectedLine[]) {
-    super("stock shortage");
-  }
 }
 
 /** Order fields needed to build a summary and the Telegram alert. */

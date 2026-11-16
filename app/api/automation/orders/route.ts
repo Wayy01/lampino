@@ -1,12 +1,12 @@
 // Ligatto order-automation API — placement. The AI agent assembles the order in
 // the conversation and calls this once it's complete; we create a normal `pending`
 // Order (same as storefront checkout), resolving price/stock from the DB — never
-// the payload. Editing afterwards is PATCH /api/automation/orders/{id}.
+// the payload. Like checkout, stock is only checked here; the units are taken
+// when an admin confirms the order (lib/orders/status.ts). Editing afterwards is PATCH /api/automation/orders/{id}.
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma";
 import { sendNewOrderAlert } from "@/lib/telegram";
-import { reserveStock } from "@/lib/stock";
 import { requireAutomationToken } from "@/lib/api/automation-auth";
 import type { DeliveryRegion } from "@/lib/pricing";
 import type { Locale } from "@/lib/i18n/routing";
@@ -28,7 +28,6 @@ import {
 } from "@/lib/orders/validate";
 import {
   ORDER_SELECT,
-  StockShortage,
   parseLang,
   parseMethod,
   readIdempotencyKey,
@@ -112,19 +111,15 @@ export async function POST(request: NextRequest) {
   });
 
   try {
-    const order = await prisma.$transaction(async (tx) => {
-      const shortage = await reserveStock(tx, resolved);
-      if (shortage.length > 0) throw new StockShortage(shortage);
-      return tx.order.create({
-        data: {
-          ...data,
-          stockReserved: true,
-          source: agent.name,
-          idempotencyKey,
-          webhookListenerId,
-        },
-        select: ORDER_SELECT,
-      });
+    const order = await prisma.order.create({
+      data: {
+        ...data,
+        stockReserved: false,
+        source: agent.name,
+        idempotencyKey,
+        webhookListenerId,
+      },
+      select: ORDER_SELECT,
     });
 
     sendNewOrderAlert(order).catch((err) =>
@@ -133,9 +128,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ ok: true, order: buildOrderSummary(order, resolved, totals) }, { status: 200 });
   } catch (error) {
-    if (error instanceof StockShortage) {
-      return NextResponse.json({ ok: false, error: "out_of_stock", rejected: error.lines }, { status: 409 });
-    }
     // A concurrent retry with the same key won the unique constraint — return its order.
     if (
       idempotencyKey &&

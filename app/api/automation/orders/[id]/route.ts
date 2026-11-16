@@ -2,12 +2,13 @@
 // order is still `pending` (no human has acted on it), the AI agent may add/change
 // items and fix buyer/delivery details. Once an admin moves it to `confirmed` it
 // locks and the agent must hand off to a human. Replacing `items` re-prices the
-// whole order at current catalog prices and re-reserves stock atomically; an edit
-// without `items` keeps the stored lines and prices and moves no stock.
+// whole order at current catalog prices and re-checks stock; an edit without
+// `items` keeps the stored lines and prices. A pending order holds no stock (it is
+// taken on confirm, as for storefront checkout), so no edit moves any.
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma";
-import { reserveStock, releaseStock } from "@/lib/stock";
+import { releaseStock } from "@/lib/stock";
 import { requireAutomationToken } from "@/lib/api/automation-auth";
 import type { DeliveryRegion } from "@/lib/pricing";
 import { regionFromCity } from "@/lib/orders/region";
@@ -26,7 +27,6 @@ import {
 } from "@/lib/orders/validate";
 import {
   ORDER_SELECT,
-  StockShortage,
   parseLang,
   parseMethod,
   readListenerId,
@@ -122,13 +122,15 @@ export async function PATCH(
   // Pricing bucket is derived from the (new or kept) city, never the payload.
   const region: DeliveryRegion = method === "delivery" ? regionFromCity(city) : "outside";
 
-  // Items: a present `items` list replaces the full set and re-prices it.
-  // Price without a stock pre-check: the order already holds its units, so the
-  // authoritative check is the in-transaction release→reserve below.
+  // Items: a present `items` list replaces the full set, re-priced and
+  // stock-checked like a new order.
   const repriced = body.items !== undefined
-    ? await resolveOrderLines(sanitizeLines(body.items), lang, { checkStock: false })
+    ? await resolveOrderLines(sanitizeLines(body.items), lang)
     : null;
   if (repriced) {
+    if (repriced.short.length > 0) {
+      return NextResponse.json({ ok: false, error: "out_of_stock", rejected: repriced.short }, { status: 409 });
+    }
     if (repriced.gone.length > 0) {
       return NextResponse.json({ ok: false, error: "unavailable", rejected: repriced.gone }, { status: 409 });
     }
@@ -145,8 +147,7 @@ export async function PATCH(
       // Re-assert `pending` under a row lock: the pre-check above ran outside
       // this transaction, and an admin transition (confirm/cancel) may have
       // landed in between. The idempotent write takes a Postgres row lock, so
-      // the release→reserve below can't interleave with a concurrent transition
-      // or a second PATCH double-releasing the same lines.
+      // the edit can't interleave with a concurrent transition or second PATCH.
       const { count } = await tx.order.updateMany({
         where: { id, status: "pending" },
         data: { status: "pending" },
@@ -166,10 +167,9 @@ export async function PATCH(
       }
       const fee = await computeFee(method, region, itemsNet);
       if (repriced) {
-        // Re-read the held lines and the reservation flag under that lock — the
-        // pre-read ones may be stale, and an order an admin bounced back to
-        // pending no longer holds its units (stockReserved=false), so there is
-        // nothing to give back for it.
+        // Orders placed before agent orders stopped reserving at placement may
+        // still hold their old lines' units. Give those back before the lines
+        // are replaced, so the order joins the take-on-confirm flow.
         const fresh = await tx.order.findUnique({
           where: { id },
           select: {
@@ -178,8 +178,6 @@ export async function PATCH(
           },
         });
         if (!fresh) throw new OrderLocked();
-        // Give back what the order held, then take the new set — net-correct even
-        // when lines overlap, and a shortage rolls the whole thing back.
         if (fresh.stockReserved) {
           await releaseStock(
             tx,
@@ -190,8 +188,6 @@ export async function PATCH(
             })),
           );
         }
-        const shortage = await reserveStock(tx, repriced.resolved);
-        if (shortage.length > 0) throw new StockShortage(shortage);
       }
       return tx.order.update({
         where: { id },
@@ -203,7 +199,7 @@ export async function PATCH(
           postalCode,
           country,
           specialInstructions: notes,
-          ...(repriced ? { stockReserved: true } : {}),
+          ...(repriced ? { stockReserved: false } : {}),
           deliveryMethod: method,
           deliveryRegion: method === "delivery" ? region : null,
           ...(listener !== undefined ? { webhookListenerId: listener } : {}),
@@ -231,9 +227,6 @@ export async function PATCH(
       : storedOrderSummary(order, lang);
     return NextResponse.json({ ok: true, order: summary }, { status: 200 });
   } catch (error) {
-    if (error instanceof StockShortage) {
-      return NextResponse.json({ ok: false, error: "out_of_stock", rejected: error.lines }, { status: 409 });
-    }
     if (error instanceof OrderLocked) {
       // Lost the race to an admin transition — report the order's state now.
       const row = await prisma.order.findUnique({ where: { id }, select: { status: true } });

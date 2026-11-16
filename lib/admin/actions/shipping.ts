@@ -73,12 +73,12 @@ const NOT_SHIPPABLE = new Set(["cancelled", "delivered"]);
 
 /**
  * Take the order's units before the courier call, the same way the status
- * dropdown does: a `pending` order that doesn't hold them yet (storefront
- * checkout) is confirmed, reserving its stock, so a shortage refuses here
- * instead of after a real waybill exists. A pending order already holding its
- * units (placed by a Ligatto agent) is left as is. Returns whether this call
- * took the units, so a definite courier rejection can give them back. On any
- * refusal the shipment reservation is released.
+ * dropdown does: a `pending` order is confirmed, reserving its stock, so a
+ * shortage refuses here instead of after a real waybill exists. A pending order
+ * that already holds its units (a Ligatto order placed before agent orders
+ * stopped reserving at placement) is left as is. Returns whether this call took
+ * the units, so a definite courier rejection can give them back. On any refusal
+ * the shipment reservation is released.
  */
 async function confirmForShipment(orderId: number, reservationId: number): Promise<boolean> {
   try {

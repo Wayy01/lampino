@@ -50,7 +50,9 @@ Prices and stock are resolved from Lampino's catalog — anything price-like in 
 payload is ignored, including the delivery region: it's derived from `city`
 server-side (the city of Chișinău and its spelling variants → `chisinau`,
 everything else — suburbs, other towns, unrecognized → `outside`) and echoed back
-on the order. The order is created as `pending` with stock reserved.
+on the order. The order is created as `pending`. Stock is checked but not reserved:
+like storefront orders, the units are taken when an admin confirms the order, which
+fails if they've sold out in the meantime (a human then contacts the customer).
 
 **Success — `200`:**
 
@@ -103,7 +105,7 @@ block; an absent key leaves current values untouched:**
   (switching to pickup clears the address). The region is re-derived from the new
   city, same as create.
 - `items` present → the **entire item set is replaced** and the order is
-  **re-priced at current catalog prices**; stock is atomically released/re-reserved.
+  **re-priced at current catalog prices** and stock-checked like a new order.
   Without `items` the stored lines keep the prices they were placed at and no stock
   moves; only the delivery fee is recomputed (the delivery block may have changed).
   The response then summarizes the stored lines, which keep only the price charged,
