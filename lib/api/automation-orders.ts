@@ -5,10 +5,6 @@ import { Prisma } from "@/lib/generated/prisma";
 import type { Locale } from "@/lib/i18n/routing";
 import type { RejectedLine } from "@/lib/orders/resolve";
 
-// Agent-placed orders have no email; store the shop's own so the row stays a
-// valid contact point (same as storefront checkout).
-export const FALLBACK_EMAIL = "contact@lampino.md";
-
 export function parseLang(v: unknown): Locale {
   return v === "ru" ? "ru" : "ro";
 }

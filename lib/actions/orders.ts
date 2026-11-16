@@ -3,10 +3,10 @@
 // Public storefront checkout. Cart and buy-now both submit here: it creates a
 // real `Order` + `OrderItem` rows, resolving prices from the DB rather than
 // trusting the client. Pricing/stock resolution and input validation are shared
-// with the Ligatto automation API through `lib/orders/{resolve,validate}.ts`.
+// with the Ligatto automation API through `lib/orders/{resolve,validate,create}.ts`.
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@/lib/generated/prisma";
 import { sendNewOrderAlert } from "@/lib/telegram";
+import { newOrderData } from "@/lib/orders/create";
 import { withinRateLimit } from "@/lib/rate-limit";
 import { type DeliveryRegion } from "@/lib/pricing";
 import {
@@ -59,10 +59,6 @@ export type SubmitOrderResult =
   | { ok: true; orderId: number }
   | { ok: false; error: SubmitOrderError; rejected?: RejectedLine[] };
 
-// Storefront checkout doesn't collect an email; store the shop's own so the
-// row stays a valid contact point for the team.
-const FALLBACK_EMAIL = "contact@lampino.md";
-
 export async function submitOrder(
   input: SubmitOrderInput,
 ): Promise<SubmitOrderResult> {
@@ -112,37 +108,25 @@ export async function submitOrder(
 
     const fee = await computeFee(input.method, input.region, totals.itemsNet);
 
-    const contactSettings = await prisma.contactSettings.findFirst({
-      where: { isActive: true },
-    });
-
     // Stock is checked above but NOT taken here: it is reserved when an admin
     // confirms the order (lib/admin/actions/orders.ts). Reserving at checkout
     // let anonymous, unverified orders empty the shop until someone cancelled
     // them.
     const order = await prisma.order.create({
       data: {
-        customerName: contact.name,
-        customerEmail: contactSettings?.email?.trim() || FALLBACK_EMAIL,
-        customerPhone: contact.phone,
-        address,
-        city,
-        postalCode: postalCode || null,
-        country: input.method === "delivery" ? "Moldova" : null,
-        specialInstructions: notes || null,
-        status: "pending",
+        ...(await newOrderData({
+          contact,
+          method: input.method,
+          region: input.region,
+          address,
+          city,
+          postalCode,
+          notes,
+          resolved,
+          itemsNet: totals.itemsNet,
+          fee,
+        })),
         stockReserved: false,
-        deliveryMethod: input.method,
-        deliveryRegion: input.method === "delivery" ? input.region : null,
-        totalPrice: new Prisma.Decimal(totals.itemsNet + fee),
-        items: {
-          create: resolved.map((r) => ({
-            productId: r.productId,
-            productVariantId: r.variantId,
-            quantity: r.quantity,
-            priceEach: r.priceEach,
-          })),
-        },
       },
       select: {
         id: true,

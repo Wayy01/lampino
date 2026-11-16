@@ -9,7 +9,9 @@ import { sendNewOrderAlert } from "@/lib/telegram";
 import { reserveStock } from "@/lib/stock";
 import { requireAutomationToken } from "@/lib/api/automation-auth";
 import type { DeliveryRegion } from "@/lib/pricing";
+import type { Locale } from "@/lib/i18n/routing";
 import { regionFromCity } from "@/lib/orders/region";
+import { newOrderData } from "@/lib/orders/create";
 import {
   resolveOrderLines,
   computeFee,
@@ -24,7 +26,6 @@ import {
   sanitizeLines,
 } from "@/lib/orders/validate";
 import {
-  FALLBACK_EMAIL,
   ORDER_SELECT,
   StockShortage,
   parseLang,
@@ -82,13 +83,8 @@ export async function POST(request: NextRequest) {
   // Idempotent replay: a retried call with a key we've already placed returns
   // that order rather than creating a second.
   if (idempotencyKey) {
-    const existing = await prisma.order.findUnique({
-      where: { idempotencyKey },
-      select: ORDER_SELECT,
-    });
-    if (existing) {
-      return NextResponse.json({ ok: true, order: storedOrderSummary(existing, lang) }, { status: 200 });
-    }
+    const replay = await replayIdempotent(idempotencyKey, agent.name, lang);
+    if (replay) return replay;
   }
 
   const { resolved, gone, short, totals } = await resolveOrderLines(requested, lang);
@@ -97,7 +93,18 @@ export async function POST(request: NextRequest) {
   if (resolved.length === 0) return NextResponse.json({ ok: false, error: "empty_cart" }, { status: 400 });
 
   const fee = await computeFee(method, region, totals.itemsNet);
-  const contactSettings = await prisma.contactSettings.findFirst({ where: { isActive: true } });
+  const data = await newOrderData({
+    contact,
+    method,
+    region,
+    address,
+    city,
+    postalCode,
+    notes,
+    resolved,
+    itemsNet: totals.itemsNet,
+    fee,
+  });
 
   try {
     const order = await prisma.$transaction(async (tx) => {
@@ -105,30 +112,11 @@ export async function POST(request: NextRequest) {
       if (shortage.length > 0) throw new StockShortage(shortage);
       return tx.order.create({
         data: {
-          customerName: contact.name,
-          customerEmail: contactSettings?.email?.trim() || FALLBACK_EMAIL,
-          customerPhone: contact.phone,
-          address,
-          city,
-          postalCode: postalCode || null,
-          country: method === "delivery" ? "Moldova" : null,
-          specialInstructions: notes || null,
-          status: "pending",
+          ...data,
           stockReserved: true,
           source: agent.name,
           idempotencyKey,
-          deliveryMethod: method,
-          deliveryRegion: method === "delivery" ? region : null,
           webhookListenerId,
-          totalPrice: new Prisma.Decimal(totals.itemsNet + fee),
-          items: {
-            create: resolved.map((r) => ({
-              productId: r.productId,
-              productVariantId: r.variantId,
-              quantity: r.quantity,
-              priceEach: r.priceEach,
-            })),
-          },
         },
         select: ORDER_SELECT,
       });
@@ -149,15 +137,31 @@ export async function POST(request: NextRequest) {
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"
     ) {
-      const existing = await prisma.order.findUnique({
-        where: { idempotencyKey },
-        select: ORDER_SELECT,
-      });
-      if (existing) {
-        return NextResponse.json({ ok: true, order: storedOrderSummary(existing, lang) }, { status: 200 });
-      }
+      const replay = await replayIdempotent(idempotencyKey, agent.name, lang);
+      if (replay) return replay;
     }
     console.error("automation order create failed", error);
     return NextResponse.json({ ok: false, error: "server_error" }, { status: 500 });
   }
+}
+
+/**
+ * The response for a key that already placed an order, or null when it hasn't.
+ * Keys are unique across all agents, so a key another agent already used is a
+ * conflict — never a replay of that agent's order (and its customer's details).
+ */
+async function replayIdempotent(
+  idempotencyKey: string,
+  agentName: string,
+  lang: Locale,
+): Promise<NextResponse | null> {
+  const existing = await prisma.order.findUnique({
+    where: { idempotencyKey },
+    select: ORDER_SELECT,
+  });
+  if (!existing) return null;
+  if (existing.source !== agentName) {
+    return NextResponse.json({ ok: false, error: "idempotency_conflict" }, { status: 409 });
+  }
+  return NextResponse.json({ ok: true, order: storedOrderSummary(existing, lang) }, { status: 200 });
 }

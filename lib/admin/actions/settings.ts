@@ -254,6 +254,9 @@ export async function createLigattoAgent(
 
   const name = str(fd, "agentName").slice(0, 60);
   if (!name) return { error: s.agentNameRequired };
+  // The name becomes `Order.source`, where "web" already means storefront
+  // checkout — an agent called that would own (and edit) storefront orders.
+  if (name.toLowerCase() === "web") return { error: s.agentNameReserved };
   if (await prisma.ligattoAgent.findUnique({ where: { name } })) {
     return { error: s.agentNameTaken };
   }

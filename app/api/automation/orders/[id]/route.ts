@@ -1,12 +1,13 @@
 // Ligatto order-automation API — the residual edit window. While an agent-placed
 // order is still `pending` (no human has acted on it), the AI agent may add/change
 // items and fix buyer/delivery details. Once an admin moves it to `confirmed` it
-// locks and the agent must hand off to a human. Editing re-prices the whole order at
-// current catalog prices and re-reserves stock atomically.
+// locks and the agent must hand off to a human. Replacing `items` re-prices the
+// whole order at current catalog prices and re-reserves stock atomically; an edit
+// without `items` keeps the stored lines and prices and moves no stock.
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma";
-import { reserveStock, releaseStock, mergeLines } from "@/lib/stock";
+import { reserveStock, releaseStock } from "@/lib/stock";
 import { requireAutomationToken } from "@/lib/api/automation-auth";
 import type { DeliveryRegion } from "@/lib/pricing";
 import { regionFromCity } from "@/lib/orders/region";
@@ -14,7 +15,7 @@ import {
   resolveOrderLines,
   computeFee,
   buildOrderSummary,
-  type RequestedLine,
+  storedOrderSummary,
 } from "@/lib/orders/resolve";
 import {
   validateContact,
@@ -39,6 +40,7 @@ export async function PATCH(
 ) {
   const auth = await requireAutomationToken(request);
   if ("response" in auth) return auth.response;
+  const agent = auth.agent;
 
   const id = Number((await params).id);
   if (!Number.isInteger(id) || id <= 0) {
@@ -67,13 +69,14 @@ export async function PATCH(
       postalCode: true,
       country: true,
       specialInstructions: true,
-      items: { select: { productId: true, productVariantId: true, quantity: true } },
+      items: { select: { priceEach: true, quantity: true } },
     },
   });
   if (!current) return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
-  // The automation API only edits orders it placed (a Ligatto agent origin);
-  // storefront orders ("web") are out of its scope — hide them as 404.
-  if (current.source === "web") {
+  // An agent only edits the orders it placed itself (`source` is the agent's
+  // name, which survives a delete-and-recreate token rotation). Storefront
+  // orders and other agents' orders are out of its scope — hide them as 404.
+  if (current.source !== agent.name) {
     return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
   }
   // The lock is status-based: only an untouched `pending` order is editable.
@@ -120,36 +123,31 @@ export async function PATCH(
   // Pricing bucket is derived from the (new or kept) city, never the payload.
   const region: DeliveryRegion = method === "delivery" ? regionFromCity(city) : "outside";
 
-  // Items: a present `items` list replaces the full set; otherwise keep current.
-  const target: RequestedLine[] =
-    body.items !== undefined
-      ? sanitizeLines(body.items)
-      : mergeLines(
-          current.items.flatMap((i) =>
-            i.productId === null
-              ? []
-              : [{ productId: i.productId, variantId: i.productVariantId, quantity: i.quantity }],
-          ),
-        );
-  if (target.length === 0) {
-    return NextResponse.json({ ok: false, error: "empty_cart" }, { status: 400 });
-  }
-
+  // Items: a present `items` list replaces the full set and re-prices it.
   // Price without a stock pre-check: the order already holds its units, so the
   // authoritative check is the in-transaction release→reserve below.
-  const { resolved, gone, totals } = await resolveOrderLines(target, lang, { checkStock: false });
-  if (gone.length > 0) {
-    return NextResponse.json({ ok: false, error: "unavailable", rejected: gone }, { status: 409 });
+  const repriced = body.items !== undefined
+    ? await resolveOrderLines(sanitizeLines(body.items), lang, { checkStock: false })
+    : null;
+  if (repriced) {
+    if (repriced.gone.length > 0) {
+      return NextResponse.json({ ok: false, error: "unavailable", rejected: repriced.gone }, { status: 409 });
+    }
+    if (repriced.resolved.length === 0) {
+      return NextResponse.json({ ok: false, error: "empty_cart" }, { status: 400 });
+    }
   }
-  if (resolved.length === 0) {
-    return NextResponse.json({ ok: false, error: "empty_cart" }, { status: 400 });
-  }
+  // Without `items` the stored lines stand at the prices they were placed at;
+  // only the delivery fee is recomputed, since the delivery block may change.
+  const itemsNet = repriced
+    ? repriced.totals.itemsNet
+    : current.items.reduce((sum, i) => sum + Number(i.priceEach) * i.quantity, 0);
 
   // Correlation id: a present key updates it (empty → cleared); an absent key
   // leaves it untouched.
   const listener = readListenerId(body); // undefined = absent, null = clear, string = set
 
-  const fee = await computeFee(method, region, totals.itemsNet);
+  const fee = await computeFee(method, region, itemsNet);
 
   try {
     const order = await prisma.$transaction(async (tx) => {
@@ -163,32 +161,34 @@ export async function PATCH(
         data: { status: "pending" },
       });
       if (count === 0) throw new OrderLocked();
-      // Re-read the held lines and the reservation flag under that lock — the
-      // pre-read ones may be stale, and an order an admin bounced back to
-      // pending no longer holds its units (stockReserved=false), so there is
-      // nothing to give back for it.
-      const fresh = await tx.order.findUnique({
-        where: { id },
-        select: {
-          stockReserved: true,
-          items: { select: { productId: true, productVariantId: true, quantity: true } },
-        },
-      });
-      if (!fresh) throw new OrderLocked();
-      // Give back what the order held, then take the new set — net-correct even
-      // when lines overlap, and a shortage rolls the whole thing back.
-      if (fresh.stockReserved) {
-        await releaseStock(
-          tx,
-          fresh.items.map((i) => ({
-            productId: i.productId,
-            variantId: i.productVariantId,
-            quantity: i.quantity,
-          })),
-        );
+      if (repriced) {
+        // Re-read the held lines and the reservation flag under that lock — the
+        // pre-read ones may be stale, and an order an admin bounced back to
+        // pending no longer holds its units (stockReserved=false), so there is
+        // nothing to give back for it.
+        const fresh = await tx.order.findUnique({
+          where: { id },
+          select: {
+            stockReserved: true,
+            items: { select: { productId: true, productVariantId: true, quantity: true } },
+          },
+        });
+        if (!fresh) throw new OrderLocked();
+        // Give back what the order held, then take the new set — net-correct even
+        // when lines overlap, and a shortage rolls the whole thing back.
+        if (fresh.stockReserved) {
+          await releaseStock(
+            tx,
+            fresh.items.map((i) => ({
+              productId: i.productId,
+              variantId: i.productVariantId,
+              quantity: i.quantity,
+            })),
+          );
+        }
+        const shortage = await reserveStock(tx, repriced.resolved);
+        if (shortage.length > 0) throw new StockShortage(shortage);
       }
-      const shortage = await reserveStock(tx, resolved);
-      if (shortage.length > 0) throw new StockShortage(shortage);
       return tx.order.update({
         where: { id },
         data: {
@@ -199,26 +199,33 @@ export async function PATCH(
           postalCode,
           country,
           specialInstructions: notes,
-          stockReserved: true,
+          ...(repriced ? { stockReserved: true } : {}),
           deliveryMethod: method,
           deliveryRegion: method === "delivery" ? region : null,
           ...(listener !== undefined ? { webhookListenerId: listener } : {}),
-          totalPrice: new Prisma.Decimal(totals.itemsNet + fee),
-          items: {
-            deleteMany: {},
-            create: resolved.map((r) => ({
-              productId: r.productId,
-              productVariantId: r.variantId,
-              quantity: r.quantity,
-              priceEach: r.priceEach,
-            })),
-          },
+          totalPrice: new Prisma.Decimal(itemsNet + fee),
+          ...(repriced
+            ? {
+                items: {
+                  deleteMany: {},
+                  create: repriced.resolved.map((r) => ({
+                    productId: r.productId,
+                    productVariantId: r.variantId,
+                    quantity: r.quantity,
+                    priceEach: r.priceEach,
+                  })),
+                },
+              }
+            : {}),
         },
         select: ORDER_SELECT,
       });
     });
 
-    return NextResponse.json({ ok: true, order: buildOrderSummary(order, resolved, totals) }, { status: 200 });
+    const summary = repriced
+      ? buildOrderSummary(order, repriced.resolved, repriced.totals)
+      : storedOrderSummary(order, lang);
+    return NextResponse.json({ ok: true, order: summary }, { status: 200 });
   } catch (error) {
     if (error instanceof StockShortage) {
       return NextResponse.json({ ok: false, error: "out_of_stock", rejected: error.lines }, { status: 409 });

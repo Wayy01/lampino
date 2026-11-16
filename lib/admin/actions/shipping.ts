@@ -26,6 +26,7 @@ import {
 import type { CancelResult } from "@/lib/courier/cancel";
 import type { ShippingSettings } from "@/lib/generated/prisma";
 import { dispatchShipmentCreated } from "@/lib/webhooks";
+import { changeOrderStatus } from "@/lib/orders/status";
 
 export type ShippingActionState = { ok?: boolean; error?: string } | null;
 
@@ -62,6 +63,65 @@ async function reserveShipment(
     }
     throw e;
   }
+}
+
+/**
+ * Orders a waybill can't be created for: a cancelled order isn't going out,
+ * and a delivered one already went.
+ */
+const NOT_SHIPPABLE = new Set(["cancelled", "delivered"]);
+
+/**
+ * Take the order's units before the courier call, the same way the status
+ * dropdown does: a `pending` order is confirmed (reserving its stock), so a
+ * shortage refuses here instead of after a real waybill exists. Returns whether
+ * this call did the confirming, so a definite courier rejection can undo it.
+ * On any refusal the shipment reservation is released.
+ */
+async function confirmForShipment(orderId: number, reservationId: number): Promise<boolean> {
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const order = await tx.order.findUniqueOrThrow({
+        where: { id: orderId },
+        select: { status: true },
+      });
+      if (NOT_SHIPPABLE.has(order.status)) throw new ActionRefusal("orderNotShippable");
+      if (order.status !== "pending") return false;
+      const refused = await changeOrderStatus(tx, orderId, "confirmed");
+      if (refused) throw new ActionRefusal(refused);
+      return true;
+    });
+  } catch (e) {
+    await prisma.shipment.delete({ where: { id: reservationId } }).catch(() => {});
+    throw e;
+  }
+}
+
+/** Put an order `confirmForShipment` confirmed back to pending (releasing its units). */
+async function undoConfirm(orderId: number): Promise<void> {
+  await prisma
+    .$transaction(async (tx) => {
+      const order = await tx.order.findUnique({ where: { id: orderId }, select: { status: true } });
+      if (order?.status !== "confirmed") return;
+      const refused = await changeOrderStatus(tx, orderId, "pending");
+      if (refused) throw new ActionRefusal(refused);
+    })
+    .catch((e) => console.error("[shipment] could not return order to pending", orderId, e));
+}
+
+/**
+ * Mark the order shipped once its waybill exists. The units were taken by
+ * `confirmForShipment` (or earlier), so this moves no stock in the normal case.
+ * The waybill is real by now, so a refusal (the order changed in another tab)
+ * is logged rather than failing the action.
+ */
+async function markShipped(orderId: number): Promise<void> {
+  await prisma
+    .$transaction(async (tx) => {
+      const refused = await changeOrderStatus(tx, orderId, "shipped");
+      if (refused) throw new ActionRefusal(refused);
+    })
+    .catch((e) => console.error("[shipment] could not mark order shipped", orderId, e));
 }
 
 /**
@@ -114,6 +174,7 @@ export async function createNovaPostShipment(
     // submission fails here (P2002 → shipmentExists) rather than minting a
     // second real waybill at the courier.
     const reservation = await reserveShipment(order.id, "novapost", "Nova Post", codAmount);
+    const confirmedHere = await confirmForShipment(order.id, reservation.id);
 
     let result;
     try {
@@ -137,6 +198,7 @@ export async function createNovaPostShipment(
       // A definite rejection: release the reservation so the operator can fix
       // the input and retry.
       await prisma.shipment.delete({ where: { id: reservation.id } }).catch(() => {});
+      if (confirmedHere) await undoConfirm(order.id);
       if (e instanceof NovaPostError) {
         throw new ActionRefusal("courierFailed", describeNovaPostError(e));
       }
@@ -152,7 +214,7 @@ export async function createNovaPostShipment(
         payload: result.body as Prisma.InputJsonValue,
       },
     });
-    await prisma.order.update({ where: { id: order.id }, data: { status: "shipped" } });
+    await markShipped(order.id);
 
     // Outbound webhook — fire-and-forget, never blocks or fails the shipment.
     void dispatchShipmentCreated(shipment.id).catch((e) => console.error("[webhooks]", e));
@@ -224,19 +286,25 @@ async function cancelAtCarrier(
 
 /**
  * Drop the local `Shipment` row and roll the order back from `shipped` to the
- * pre-shipping `confirmed` state (so a fresh waybill can be created and the
- * `@unique(orderId)` slot is freed). Both statuses hold stock, so `stockReserved`
- * is untouched; a status the operator advanced to by hand (e.g. `delivered`) is
- * left alone via the `status: "shipped"` guard.
+ * pre-shipping state (so a fresh waybill can be created and the
+ * `@unique(orderId)` slot is freed). An order holding its units goes back to
+ * `confirmed`, which holds them too, so no stock moves; one that never took
+ * them goes back to `pending`, so confirming it later reserves as usual. A
+ * status the operator advanced to by hand (e.g. `delivered`) is left alone.
  */
 async function removeShipmentRow(shipmentId: number, orderId: number) {
-  await prisma.$transaction([
-    prisma.shipment.delete({ where: { id: shipmentId } }),
-    prisma.order.updateMany({
-      where: { id: orderId, status: "shipped" },
-      data: { status: "confirmed" },
-    }),
-  ]);
+  await prisma.$transaction(async (tx) => {
+    await tx.shipment.delete({ where: { id: shipmentId } });
+    const order = await tx.order.findUnique({
+      where: { id: orderId },
+      select: { status: true, stockReserved: true },
+    });
+    if (order?.status !== "shipped") return;
+    await tx.order.updateMany({
+      where: { id: orderId, status: "shipped", stockReserved: order.stockReserved },
+      data: { status: order.stockReserved ? "confirmed" : "pending" },
+    });
+  });
 }
 
 /**
@@ -340,6 +408,7 @@ export async function createFanCourierShipment(
     // Reserve the one-shipment-per-order slot BEFORE hitting the courier (see
     // the Nova Post action for the rationale — atomic duplicate-waybill guard).
     const reservation = await reserveShipment(order.id, "fancourier", "Fan Courier", codAmount);
+    const confirmedHere = await confirmForShipment(order.id, reservation.id);
 
     let result;
     try {
@@ -352,6 +421,7 @@ export async function createFanCourierShipment(
       }
       // Release the reservation so the operator can fix the input and retry.
       await prisma.shipment.delete({ where: { id: reservation.id } }).catch(() => {});
+      if (confirmedHere) await undoConfirm(order.id);
       if (e instanceof FanCourierError) {
         throw new ActionRefusal("courierFailed", describeFanCourierError(e));
       }
@@ -366,7 +436,7 @@ export async function createFanCourierShipment(
         payload: result.body as Prisma.InputJsonValue,
       },
     });
-    await prisma.order.update({ where: { id: order.id }, data: { status: "shipped" } });
+    await markShipped(order.id);
 
     // Outbound webhook — fire-and-forget, never blocks or fails the shipment.
     void dispatchShipmentCreated(shipment.id).catch((e) => console.error("[webhooks]", e));

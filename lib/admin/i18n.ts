@@ -166,6 +166,8 @@ const ro = {
     courierFailed: "Curierul a respins expedierea.",
     courierUncertain:
       "Curierul nu a răspuns, iar AWB-ul s-ar putea să fi fost totuși creat. Verifică în platforma curierului: dacă AWB-ul nu există, șterge expedierea păstrată local și reîncearcă.",
+    orderNotShippable:
+      "Nu se poate crea o expediere pentru o comandă anulată sau livrată.",
     invalidMediaUrl:
       "Imaginile trebuie încărcate aici sau să provină de pe Unsplash; alte adrese nu se afișează în magazin.",
     duplicateSpecId:
@@ -671,6 +673,7 @@ const ro = {
       remove: "Șterge",
       agentNameRequired: "Introduceți un nume de agent",
       agentNameTaken: "Există deja un agent cu acest nume",
+      agentNameReserved: "Numele „web” este rezervat pentru comenzile din magazin",
       tokenOnce: "Copiați acest token acum — nu va mai fi afișat din nou.",
       copy: "Copiază",
       copied: "Copiat",
@@ -1011,6 +1014,8 @@ const ru: AdminDict = {
     courierFailed: "Курьер отклонил отправление.",
     courierUncertain:
       "Курьер не ответил, но накладная всё же могла быть создана. Проверьте в платформе курьера: если накладной нет, удалите сохранённое локально отправление и повторите попытку.",
+    orderNotShippable:
+      "Нельзя создать отправление для отменённого или доставленного заказа.",
     invalidMediaUrl:
       "Изображения нужно загружать здесь или брать с Unsplash; другие адреса в магазине не отображаются.",
     duplicateSpecId:
@@ -1516,6 +1521,7 @@ const ru: AdminDict = {
       remove: "Удалить",
       agentNameRequired: "Введите имя агента",
       agentNameTaken: "Агент с таким именем уже существует",
+      agentNameReserved: "Имя «web» зарезервировано для заказов из магазина",
       tokenOnce: "Скопируйте этот токен сейчас — он больше не будет показан.",
       copy: "Копировать",
       copied: "Скопировано",
