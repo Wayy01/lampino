@@ -384,9 +384,16 @@ function CarrierChooser({
   );
 }
 
-type ParcelOverride = Partial<
-  Pick<ComputedParcel, "description" | "weightG" | "lengthMm" | "widthMm" | "heightMm">
-> & { insuranceCost?: number };
+// Overrides hold the raw input text so a field can be cleared while typing; an
+// empty or invalid override falls back to the computed value on submit.
+type ParcelOverride = {
+  description?: string;
+  weightG?: string;
+  lengthMm?: string;
+  widthMm?: string;
+  heightMm?: string;
+  insuranceCost?: string;
+};
 
 function NovaPostShipmentForm({
   orderId,
@@ -445,6 +452,10 @@ function NovaPostShipmentForm({
   function setOverride(i: number, field: keyof ParcelOverride, value: string) {
     setOverrides((prev) => ({ ...prev, [i]: { ...prev[i], [field]: value } }));
   }
+  // What an input shows: the operator's text while they've touched it (even
+  // empty), the computed value otherwise.
+  const shown = (i: number, field: keyof ParcelOverride, computed: string | number) =>
+    overrides[i]?.[field] ?? String(computed);
 
   // Recompute parcels from the item distribution, split the insured value
   // across them (proportional to parcel value, last gets the remainder), then
@@ -754,7 +765,7 @@ function NovaPostShipmentForm({
                 <Field label={s.description} htmlFor={`pc_desc_${i}`}>
                   <TextInput
                     id={`pc_desc_${i}`}
-                    value={p.description}
+                    value={shown(i, "description", p.description)}
                     onChange={(e) => setOverride(i, "description", e.target.value)}
                   />
                 </Field>
@@ -766,7 +777,8 @@ function NovaPostShipmentForm({
                     type="number"
                     min="1"
                     inputMode="numeric"
-                    value={String(p.weightG)}
+                    required
+                    value={shown(i, "weightG", p.weightG)}
                     onChange={(e) => setOverride(i, "weightG", e.target.value)}
                   />
                 </Field>
@@ -776,7 +788,8 @@ function NovaPostShipmentForm({
                     type="number"
                     min="0"
                     inputMode="numeric"
-                    value={String(p.insuranceCost)}
+                    required
+                    value={shown(i, "insuranceCost", p.insuranceCost)}
                     onChange={(e) => setOverride(i, "insuranceCost", e.target.value)}
                   />
                 </Field>
@@ -788,7 +801,8 @@ function NovaPostShipmentForm({
                     type="number"
                     min="1"
                     inputMode="numeric"
-                    value={String(p.widthMm)}
+                    required
+                    value={shown(i, "widthMm", p.widthMm)}
                     onChange={(e) => setOverride(i, "widthMm", e.target.value)}
                   />
                 </Field>
@@ -798,7 +812,8 @@ function NovaPostShipmentForm({
                     type="number"
                     min="1"
                     inputMode="numeric"
-                    value={String(p.lengthMm)}
+                    required
+                    value={shown(i, "lengthMm", p.lengthMm)}
                     onChange={(e) => setOverride(i, "lengthMm", e.target.value)}
                   />
                 </Field>
@@ -808,7 +823,8 @@ function NovaPostShipmentForm({
                     type="number"
                     min="1"
                     inputMode="numeric"
-                    value={String(p.heightMm)}
+                    required
+                    value={shown(i, "heightMm", p.heightMm)}
                     onChange={(e) => setOverride(i, "heightMm", e.target.value)}
                   />
                 </Field>
@@ -893,6 +909,8 @@ function FanCourierShipmentForm({
   function setOverride(i: number, field: keyof FanParcelOverride, value: string) {
     setOverrides((prev) => ({ ...prev, [i]: { ...prev[i], [field]: value } }));
   }
+  const shown = (i: number, field: keyof FanParcelOverride, computed: number) =>
+    overrides[i]?.[field] ?? String(computed);
 
   // Distribute the units (canonical g/mm), convert each parcel to Fan Courier
   // units (kg/cm), then apply any manual overrides. Submitted as `parcelsJson`.
@@ -1191,7 +1209,8 @@ function FanCourierShipmentForm({
                     min="0.1"
                     step="0.001"
                     inputMode="decimal"
-                    value={String(p.weightKg)}
+                    required
+                    value={shown(i, "weightKg", p.weightKg)}
                     onChange={(e) => setOverride(i, "weightKg", e.target.value)}
                   />
                 </Field>
@@ -1201,7 +1220,8 @@ function FanCourierShipmentForm({
                     type="number"
                     min="1"
                     inputMode="numeric"
-                    value={String(p.lengthCm)}
+                    required
+                    value={shown(i, "lengthCm", p.lengthCm)}
                     onChange={(e) => setOverride(i, "lengthCm", e.target.value)}
                   />
                 </Field>
@@ -1211,7 +1231,8 @@ function FanCourierShipmentForm({
                     type="number"
                     min="1"
                     inputMode="numeric"
-                    value={String(p.widthCm)}
+                    required
+                    value={shown(i, "widthCm", p.widthCm)}
                     onChange={(e) => setOverride(i, "widthCm", e.target.value)}
                   />
                 </Field>
@@ -1221,7 +1242,8 @@ function FanCourierShipmentForm({
                     type="number"
                     min="1"
                     inputMode="numeric"
-                    value={String(p.heightCm)}
+                    required
+                    value={shown(i, "heightCm", p.heightCm)}
                     onChange={(e) => setOverride(i, "heightCm", e.target.value)}
                   />
                 </Field>

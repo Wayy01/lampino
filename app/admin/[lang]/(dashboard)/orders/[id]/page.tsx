@@ -105,8 +105,11 @@ export default async function AdminOrderDetailPage({
     heightMm: (settings?.fancourierParcelHeightCm ?? 20) * 10,
   };
   const productItems = order.items.filter((i) => i.productId && i.product);
-  // Item lines the drawer distributes across parcels (variant → product → store
+  // Item lines the drawer distributes across parcels (variant → product
   // dimensions), with per-unit value for proportional declared-value splitting.
+  // Missing fields stay 0 so each carrier's form fills them from its *own*
+  // store defaults — resolving with one carrier's here would leak into the other.
+  const noDims = { weightG: 0, lengthMm: 0, widthMm: 0, heightMm: 0 };
   const shipmentItems = productItems.map((i) => ({
     name: pick(lang, i.product!.name_ro, i.product!.name_ru),
     category: i.product!.category
@@ -114,7 +117,7 @@ export default async function AdminOrderDetailPage({
       : settings?.novapostDefaultCategory || "",
     qty: i.quantity,
     unitValue: num(i.priceEach),
-    ...resolveItemDims(i.productVariant, i.product!, parcelFallback),
+    ...resolveItemDims(i.productVariant, i.product!, noDims),
   }));
 
   return (
