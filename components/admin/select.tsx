@@ -49,7 +49,15 @@ export function AdminSelect({
   const current = options.some((o) => o.value === selected) ? selected : "";
 
   const handleChange = (next: string) => {
+    // Radix mirrors the value into a hidden native <select> and reports that
+    // select's `change` back through here whenever the value *prop* moves —
+    // with a raw "" when the matching native option isn't rendered yet.
+    // Neither is the admin choosing: a real pick is always an item value
+    // (never ""), and always differs from what is shown. Letting them through
+    // would make a controlled parent "pick" a value it never offered.
+    if (next === "") return;
     const mapped = next === EMPTY ? "" : next;
+    if (mapped === current) return;
     if (value === undefined) setInternal(mapped);
     onValueChange?.(mapped);
   };
