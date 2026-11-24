@@ -457,29 +457,49 @@ model ShippingSettings {
   id Int @id @default(autoincrement())
 
   // Nova Post
-  novapostEnabled            Boolean @default(false) @map("novapost_enabled")
-  novapostSandbox            Boolean @default(false) @map("novapost_sandbox")
+  novapostEnabled              Boolean @default(false) @map("novapost_enabled")
+  novapostSandbox              Boolean @default(false) @map("novapost_sandbox")
   // API key, stored ENCRYPTED at rest (AES-256-GCM via lib/admin/crypto). Never
   // a raw token. Admin-editable + write-only: the plaintext never leaves the
   // server. Empty string = not configured.
-  novapostApiKey             String  @default("") @map("novapost_api_key")
-  novapostSenderCompanyTin   String  @default("") @map("novapost_sender_company_tin")
-  novapostSenderDivisionId   String  @default("") @map("novapost_sender_division_id")
+  novapostApiKey               String  @default("") @map("novapost_api_key")
+  novapostSenderCompanyTin     String  @default("") @map("novapost_sender_company_tin")
+  novapostSenderDivisionId     String  @default("") @map("novapost_sender_division_id")
   // Human-readable label of the chosen division, stored so the config screen can
   // show a name instead of a bare id. Display-only; the id is the source of truth.
-  novapostSenderDivisionName String  @default("") @map("novapost_sender_division_name")
-  novapostSenderCountryCode  String  @default("MD") @map("novapost_sender_country_code")
-  novapostDefaultCategory    String  @default("") @map("novapost_default_category")
+  novapostSenderDivisionName   String  @default("") @map("novapost_sender_division_name")
+  // Where parcels leave from: "division" (handed in at the branch above) or
+  // "address" (a courier collects them from the address below). Both are kept, so
+  // switching back and forth never loses the other one's values.
+  novapostSenderType           String  @default("division") @map("novapost_sender_type")
+  novapostSenderSettlementId   String  @default("") @map("novapost_sender_settlement_id")
+  novapostSenderSettlementName String  @default("") @map("novapost_sender_settlement_name")
+  novapostSenderStreet         String  @default("") @map("novapost_sender_street")
+  novapostSenderBuilding       String  @default("") @map("novapost_sender_building")
+  novapostSenderFlat           String  @default("") @map("novapost_sender_flat")
+  novapostSenderPostCode       String  @default("") @map("novapost_sender_post_code")
+  novapostSenderAddressNote    String  @default("") @map("novapost_sender_address_note")
+  // Contracts picked from the sender company's list (GET clients/companies/
+  // contracts, by TIN): the Client contract delivery is billed to when the sender
+  // pays, and the COD contract whose bank account receives Nova Pay. Empty = the
+  // company's first active one.
+  novapostClientContractNumber String  @default("") @map("novapost_client_contract_number")
+  novapostCodContractNumber    String  @default("") @map("novapost_cod_contract_number")
+  // Which of the COD contract's payout accounts (its id at Nova Post) — a
+  // contract can carry several. Empty = the contract's first.
+  novapostCodAccount           String  @default("") @map("novapost_cod_account")
+  novapostSenderCountryCode    String  @default("MD") @map("novapost_sender_country_code")
+  novapostDefaultCategory      String  @default("") @map("novapost_default_category")
   // Sender identity (per courier)
-  novapostSenderName         String  @default("") @map("novapost_sender_name")
-  novapostSenderPhone        String  @default("") @map("novapost_sender_phone")
-  novapostSenderEmail        String  @default("") @map("novapost_sender_email")
+  novapostSenderName           String  @default("") @map("novapost_sender_name")
+  novapostSenderPhone          String  @default("") @map("novapost_sender_phone")
+  novapostSenderEmail          String  @default("") @map("novapost_sender_email")
   // Default parcel in Nova Post's native units (grams + millimetres). Fallback for
   // an order line when neither the variant nor the product carries its own size.
-  novapostParcelWeightG      Int     @default(2000) @map("novapost_parcel_weight_g")
-  novapostParcelLengthMm     Int     @default(240) @map("novapost_parcel_length_mm")
-  novapostParcelWidthMm      Int     @default(160) @map("novapost_parcel_width_mm")
-  novapostParcelHeightMm     Int     @default(200) @map("novapost_parcel_height_mm")
+  novapostParcelWeightG        Int     @default(2000) @map("novapost_parcel_weight_g")
+  novapostParcelLengthMm       Int     @default(240) @map("novapost_parcel_length_mm")
+  novapostParcelWidthMm        Int     @default(160) @map("novapost_parcel_width_mm")
+  novapostParcelHeightMm       Int     @default(200) @map("novapost_parcel_height_mm")
 
   // Fan Courier
   fancourierEnabled          Boolean @default(false) @map("fancourier_enabled")

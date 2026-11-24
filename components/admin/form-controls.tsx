@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useTransition } from "react";
 import { useFormStatus } from "react-dom";
-import { Check, LoaderCircle, TriangleAlert } from "lucide-react";
+import { Check, LoaderCircle, TriangleAlert, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAdminLang } from "@/lib/admin/i18n-provider";
 
@@ -89,6 +89,53 @@ export function Toggle({
       <span className="relative h-5 w-9 shrink-0 rounded-full bg-foreground/15 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-surface after:shadow after:transition-transform peer-checked:bg-primary peer-checked:after:translate-x-4" />
       <span className="text-sm">{label}</span>
     </label>
+  );
+}
+
+/**
+ * A pick-one pair of cards — icon, title, one-line description — for a choice
+ * that reshapes the fields below it (door or branch, branch or address). Holds
+ * no form value itself: the caller posts `value` through a hidden input.
+ */
+export function ChoiceCards<T extends string>({
+  value,
+  onChange,
+  options,
+  className,
+}: {
+  value: T;
+  onChange: (value: T) => void;
+  options: readonly { value: T; icon: LucideIcon; title: string; description: string }[];
+  className?: string;
+}) {
+  return (
+    <div className={cn("grid grid-cols-2 gap-3", className)}>
+      {options.map((opt) => {
+        const Icon = opt.icon;
+        const active = value === opt.value;
+        return (
+          <button
+            key={opt.value}
+            type="button"
+            aria-pressed={active}
+            onClick={() => onChange(opt.value)}
+            className={cn(
+              "flex cursor-pointer items-start gap-3 rounded-[var(--radius-md)] border p-3 text-left transition-colors",
+              active ? "border-primary bg-primary/[0.04]" : "hover:bg-foreground/[0.03]",
+            )}
+          >
+            <Icon
+              className={cn("h-5 w-5 shrink-0", active ? "text-primary" : "text-muted-foreground")}
+              strokeWidth={1.75}
+            />
+            <div className="min-w-0">
+              <div className="text-sm font-medium">{opt.title}</div>
+              <div className="text-xs text-muted-foreground">{opt.description}</div>
+            </div>
+          </button>
+        );
+      })}
+    </div>
   );
 }
 

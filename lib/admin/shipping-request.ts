@@ -1,7 +1,11 @@
 import type { ShippingSettings } from "@/lib/generated/prisma";
 import { ActionRefusal } from "@/lib/admin/errors";
 import { num } from "@/lib/admin/serialize";
-import type { NovaPostShipmentRequest, NovaPostParcel } from "@/lib/courier/novapost";
+import {
+  normalizeCompanyTin,
+  type NovaPostShipmentRequest,
+  type NovaPostParcel,
+} from "@/lib/courier/novapost";
 import type { FanCourierShipmentRequest, FanCourierParcel } from "@/lib/courier/fancourier";
 
 // Pure request-building for the shipment drawer, split out of the "use server"
@@ -120,13 +124,32 @@ export function buildNovaPostRequestFromForm(
     note: str(fd, "note") || null,
     payerType: str(fd, "payerType") === "Sender" ? "Sender" : "Recipient",
     cod: novaPay && codAmount > 0 ? { amount: codAmount } : null,
+    contracts: {
+      client: settings.novapostClientContractNumber || null,
+      cod: settings.novapostCodContractNumber || null,
+      codAccount: settings.novapostCodAccount || null,
+    },
     sender: {
       name: settings.novapostSenderName,
       phone: settings.novapostSenderPhone,
       email: settings.novapostSenderEmail,
-      companyTin: settings.novapostSenderCompanyTin,
+      companyTin: normalizeCompanyTin(settings.novapostSenderCompanyTin),
       countryCode: settings.novapostSenderCountryCode || "MD",
-      divisionId: settings.novapostSenderDivisionId,
+      // Departure point from the integration settings: a courier pickup at the
+      // sender's address, or a drop-off at the sender's branch.
+      ...(settings.novapostSenderType === "address"
+        ? {
+            address: {
+              settlementId: settings.novapostSenderSettlementId,
+              settlementName: settings.novapostSenderSettlementName,
+              street: settings.novapostSenderStreet,
+              building: settings.novapostSenderBuilding,
+              flat: settings.novapostSenderFlat || undefined,
+              postCode: settings.novapostSenderPostCode,
+              note: settings.novapostSenderAddressNote || undefined,
+            },
+          }
+        : { divisionId: settings.novapostSenderDivisionId }),
     },
     recipient: {
       name: str(fd, "recipientName") || order.customerName,

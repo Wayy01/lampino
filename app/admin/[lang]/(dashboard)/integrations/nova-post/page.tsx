@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin/session";
 import { getAdminDict, adminHref, type AdminLang } from "@/lib/admin/i18n";
 import { isLocale } from "@/lib/i18n/routing";
-import { toShippingData } from "@/lib/admin/shipping";
+import { novapostSenderGaps, toShippingData } from "@/lib/admin/shipping";
 import { decryptSecret } from "@/lib/admin/crypto";
 import { PageHeader } from "@/components/admin/page-header";
 import { NovaPostForm } from "@/components/admin/integration-forms";
@@ -30,6 +30,7 @@ export default async function NovaPostIntegrationPage({
         <NovaPostForm
           shipping={toShippingData(shipping)}
           keySet={Boolean(decryptSecret(shipping?.novapostApiKey))}
+          senderGaps={shipping ? novapostSenderGaps(shipping) : []}
         />
       </div>
     </>

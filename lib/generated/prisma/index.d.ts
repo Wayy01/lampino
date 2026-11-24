@@ -28002,6 +28002,17 @@ export namespace Prisma {
     novapostSenderCompanyTin: string | null
     novapostSenderDivisionId: string | null
     novapostSenderDivisionName: string | null
+    novapostSenderType: string | null
+    novapostSenderSettlementId: string | null
+    novapostSenderSettlementName: string | null
+    novapostSenderStreet: string | null
+    novapostSenderBuilding: string | null
+    novapostSenderFlat: string | null
+    novapostSenderPostCode: string | null
+    novapostSenderAddressNote: string | null
+    novapostClientContractNumber: string | null
+    novapostCodContractNumber: string | null
+    novapostCodAccount: string | null
     novapostSenderCountryCode: string | null
     novapostDefaultCategory: string | null
     novapostSenderName: string | null
@@ -28041,6 +28052,17 @@ export namespace Prisma {
     novapostSenderCompanyTin: string | null
     novapostSenderDivisionId: string | null
     novapostSenderDivisionName: string | null
+    novapostSenderType: string | null
+    novapostSenderSettlementId: string | null
+    novapostSenderSettlementName: string | null
+    novapostSenderStreet: string | null
+    novapostSenderBuilding: string | null
+    novapostSenderFlat: string | null
+    novapostSenderPostCode: string | null
+    novapostSenderAddressNote: string | null
+    novapostClientContractNumber: string | null
+    novapostCodContractNumber: string | null
+    novapostCodAccount: string | null
     novapostSenderCountryCode: string | null
     novapostDefaultCategory: string | null
     novapostSenderName: string | null
@@ -28080,6 +28102,17 @@ export namespace Prisma {
     novapostSenderCompanyTin: number
     novapostSenderDivisionId: number
     novapostSenderDivisionName: number
+    novapostSenderType: number
+    novapostSenderSettlementId: number
+    novapostSenderSettlementName: number
+    novapostSenderStreet: number
+    novapostSenderBuilding: number
+    novapostSenderFlat: number
+    novapostSenderPostCode: number
+    novapostSenderAddressNote: number
+    novapostClientContractNumber: number
+    novapostCodContractNumber: number
+    novapostCodAccount: number
     novapostSenderCountryCode: number
     novapostDefaultCategory: number
     novapostSenderName: number
@@ -28145,6 +28178,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: true
     novapostSenderDivisionId?: true
     novapostSenderDivisionName?: true
+    novapostSenderType?: true
+    novapostSenderSettlementId?: true
+    novapostSenderSettlementName?: true
+    novapostSenderStreet?: true
+    novapostSenderBuilding?: true
+    novapostSenderFlat?: true
+    novapostSenderPostCode?: true
+    novapostSenderAddressNote?: true
+    novapostClientContractNumber?: true
+    novapostCodContractNumber?: true
+    novapostCodAccount?: true
     novapostSenderCountryCode?: true
     novapostDefaultCategory?: true
     novapostSenderName?: true
@@ -28184,6 +28228,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: true
     novapostSenderDivisionId?: true
     novapostSenderDivisionName?: true
+    novapostSenderType?: true
+    novapostSenderSettlementId?: true
+    novapostSenderSettlementName?: true
+    novapostSenderStreet?: true
+    novapostSenderBuilding?: true
+    novapostSenderFlat?: true
+    novapostSenderPostCode?: true
+    novapostSenderAddressNote?: true
+    novapostClientContractNumber?: true
+    novapostCodContractNumber?: true
+    novapostCodAccount?: true
     novapostSenderCountryCode?: true
     novapostDefaultCategory?: true
     novapostSenderName?: true
@@ -28223,6 +28278,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: true
     novapostSenderDivisionId?: true
     novapostSenderDivisionName?: true
+    novapostSenderType?: true
+    novapostSenderSettlementId?: true
+    novapostSenderSettlementName?: true
+    novapostSenderStreet?: true
+    novapostSenderBuilding?: true
+    novapostSenderFlat?: true
+    novapostSenderPostCode?: true
+    novapostSenderAddressNote?: true
+    novapostClientContractNumber?: true
+    novapostCodContractNumber?: true
+    novapostCodAccount?: true
     novapostSenderCountryCode?: true
     novapostDefaultCategory?: true
     novapostSenderName?: true
@@ -28349,6 +28415,17 @@ export namespace Prisma {
     novapostSenderCompanyTin: string
     novapostSenderDivisionId: string
     novapostSenderDivisionName: string
+    novapostSenderType: string
+    novapostSenderSettlementId: string
+    novapostSenderSettlementName: string
+    novapostSenderStreet: string
+    novapostSenderBuilding: string
+    novapostSenderFlat: string
+    novapostSenderPostCode: string
+    novapostSenderAddressNote: string
+    novapostClientContractNumber: string
+    novapostCodContractNumber: string
+    novapostCodAccount: string
     novapostSenderCountryCode: string
     novapostDefaultCategory: string
     novapostSenderName: string
@@ -28407,6 +28484,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: boolean
     novapostSenderDivisionId?: boolean
     novapostSenderDivisionName?: boolean
+    novapostSenderType?: boolean
+    novapostSenderSettlementId?: boolean
+    novapostSenderSettlementName?: boolean
+    novapostSenderStreet?: boolean
+    novapostSenderBuilding?: boolean
+    novapostSenderFlat?: boolean
+    novapostSenderPostCode?: boolean
+    novapostSenderAddressNote?: boolean
+    novapostClientContractNumber?: boolean
+    novapostCodContractNumber?: boolean
+    novapostCodAccount?: boolean
     novapostSenderCountryCode?: boolean
     novapostDefaultCategory?: boolean
     novapostSenderName?: boolean
@@ -28446,6 +28534,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: boolean
     novapostSenderDivisionId?: boolean
     novapostSenderDivisionName?: boolean
+    novapostSenderType?: boolean
+    novapostSenderSettlementId?: boolean
+    novapostSenderSettlementName?: boolean
+    novapostSenderStreet?: boolean
+    novapostSenderBuilding?: boolean
+    novapostSenderFlat?: boolean
+    novapostSenderPostCode?: boolean
+    novapostSenderAddressNote?: boolean
+    novapostClientContractNumber?: boolean
+    novapostCodContractNumber?: boolean
+    novapostCodAccount?: boolean
     novapostSenderCountryCode?: boolean
     novapostDefaultCategory?: boolean
     novapostSenderName?: boolean
@@ -28485,6 +28584,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: boolean
     novapostSenderDivisionId?: boolean
     novapostSenderDivisionName?: boolean
+    novapostSenderType?: boolean
+    novapostSenderSettlementId?: boolean
+    novapostSenderSettlementName?: boolean
+    novapostSenderStreet?: boolean
+    novapostSenderBuilding?: boolean
+    novapostSenderFlat?: boolean
+    novapostSenderPostCode?: boolean
+    novapostSenderAddressNote?: boolean
+    novapostClientContractNumber?: boolean
+    novapostCodContractNumber?: boolean
+    novapostCodAccount?: boolean
     novapostSenderCountryCode?: boolean
     novapostDefaultCategory?: boolean
     novapostSenderName?: boolean
@@ -28524,6 +28634,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: boolean
     novapostSenderDivisionId?: boolean
     novapostSenderDivisionName?: boolean
+    novapostSenderType?: boolean
+    novapostSenderSettlementId?: boolean
+    novapostSenderSettlementName?: boolean
+    novapostSenderStreet?: boolean
+    novapostSenderBuilding?: boolean
+    novapostSenderFlat?: boolean
+    novapostSenderPostCode?: boolean
+    novapostSenderAddressNote?: boolean
+    novapostClientContractNumber?: boolean
+    novapostCodContractNumber?: boolean
+    novapostCodAccount?: boolean
     novapostSenderCountryCode?: boolean
     novapostDefaultCategory?: boolean
     novapostSenderName?: boolean
@@ -28555,7 +28676,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type ShippingSettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "novapostEnabled" | "novapostSandbox" | "novapostApiKey" | "novapostSenderCompanyTin" | "novapostSenderDivisionId" | "novapostSenderDivisionName" | "novapostSenderCountryCode" | "novapostDefaultCategory" | "novapostSenderName" | "novapostSenderPhone" | "novapostSenderEmail" | "novapostParcelWeightG" | "novapostParcelLengthMm" | "novapostParcelWidthMm" | "novapostParcelHeightMm" | "fancourierEnabled" | "fancourierApiKey" | "fancourierUseDefaultSender" | "fancourierServiceType" | "fancourierSenderCounty" | "fancourierSenderCity" | "fancourierSenderStreet" | "fancourierSenderNr" | "fancourierSenderZipcode" | "fancourierDefaultCategory" | "fancourierSenderName" | "fancourierSenderPhone" | "fancourierSenderEmail" | "fancourierParcelWeightKg" | "fancourierParcelLengthCm" | "fancourierParcelWidthCm" | "fancourierParcelHeightCm" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["shippingSettings"]>
+  export type ShippingSettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "novapostEnabled" | "novapostSandbox" | "novapostApiKey" | "novapostSenderCompanyTin" | "novapostSenderDivisionId" | "novapostSenderDivisionName" | "novapostSenderType" | "novapostSenderSettlementId" | "novapostSenderSettlementName" | "novapostSenderStreet" | "novapostSenderBuilding" | "novapostSenderFlat" | "novapostSenderPostCode" | "novapostSenderAddressNote" | "novapostClientContractNumber" | "novapostCodContractNumber" | "novapostCodAccount" | "novapostSenderCountryCode" | "novapostDefaultCategory" | "novapostSenderName" | "novapostSenderPhone" | "novapostSenderEmail" | "novapostParcelWeightG" | "novapostParcelLengthMm" | "novapostParcelWidthMm" | "novapostParcelHeightMm" | "fancourierEnabled" | "fancourierApiKey" | "fancourierUseDefaultSender" | "fancourierServiceType" | "fancourierSenderCounty" | "fancourierSenderCity" | "fancourierSenderStreet" | "fancourierSenderNr" | "fancourierSenderZipcode" | "fancourierDefaultCategory" | "fancourierSenderName" | "fancourierSenderPhone" | "fancourierSenderEmail" | "fancourierParcelWeightKg" | "fancourierParcelLengthCm" | "fancourierParcelWidthCm" | "fancourierParcelHeightCm" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["shippingSettings"]>
 
   export type $ShippingSettingsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ShippingSettings"
@@ -28568,6 +28689,17 @@ export namespace Prisma {
       novapostSenderCompanyTin: string
       novapostSenderDivisionId: string
       novapostSenderDivisionName: string
+      novapostSenderType: string
+      novapostSenderSettlementId: string
+      novapostSenderSettlementName: string
+      novapostSenderStreet: string
+      novapostSenderBuilding: string
+      novapostSenderFlat: string
+      novapostSenderPostCode: string
+      novapostSenderAddressNote: string
+      novapostClientContractNumber: string
+      novapostCodContractNumber: string
+      novapostCodAccount: string
       novapostSenderCountryCode: string
       novapostDefaultCategory: string
       novapostSenderName: string
@@ -29027,6 +29159,17 @@ export namespace Prisma {
     readonly novapostSenderCompanyTin: FieldRef<"ShippingSettings", 'String'>
     readonly novapostSenderDivisionId: FieldRef<"ShippingSettings", 'String'>
     readonly novapostSenderDivisionName: FieldRef<"ShippingSettings", 'String'>
+    readonly novapostSenderType: FieldRef<"ShippingSettings", 'String'>
+    readonly novapostSenderSettlementId: FieldRef<"ShippingSettings", 'String'>
+    readonly novapostSenderSettlementName: FieldRef<"ShippingSettings", 'String'>
+    readonly novapostSenderStreet: FieldRef<"ShippingSettings", 'String'>
+    readonly novapostSenderBuilding: FieldRef<"ShippingSettings", 'String'>
+    readonly novapostSenderFlat: FieldRef<"ShippingSettings", 'String'>
+    readonly novapostSenderPostCode: FieldRef<"ShippingSettings", 'String'>
+    readonly novapostSenderAddressNote: FieldRef<"ShippingSettings", 'String'>
+    readonly novapostClientContractNumber: FieldRef<"ShippingSettings", 'String'>
+    readonly novapostCodContractNumber: FieldRef<"ShippingSettings", 'String'>
+    readonly novapostCodAccount: FieldRef<"ShippingSettings", 'String'>
     readonly novapostSenderCountryCode: FieldRef<"ShippingSettings", 'String'>
     readonly novapostDefaultCategory: FieldRef<"ShippingSettings", 'String'>
     readonly novapostSenderName: FieldRef<"ShippingSettings", 'String'>
@@ -38941,6 +39084,17 @@ export namespace Prisma {
     novapostSenderCompanyTin: 'novapostSenderCompanyTin',
     novapostSenderDivisionId: 'novapostSenderDivisionId',
     novapostSenderDivisionName: 'novapostSenderDivisionName',
+    novapostSenderType: 'novapostSenderType',
+    novapostSenderSettlementId: 'novapostSenderSettlementId',
+    novapostSenderSettlementName: 'novapostSenderSettlementName',
+    novapostSenderStreet: 'novapostSenderStreet',
+    novapostSenderBuilding: 'novapostSenderBuilding',
+    novapostSenderFlat: 'novapostSenderFlat',
+    novapostSenderPostCode: 'novapostSenderPostCode',
+    novapostSenderAddressNote: 'novapostSenderAddressNote',
+    novapostClientContractNumber: 'novapostClientContractNumber',
+    novapostCodContractNumber: 'novapostCodContractNumber',
+    novapostCodAccount: 'novapostCodAccount',
     novapostSenderCountryCode: 'novapostSenderCountryCode',
     novapostDefaultCategory: 'novapostDefaultCategory',
     novapostSenderName: 'novapostSenderName',
@@ -41168,6 +41322,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: StringFilter<"ShippingSettings"> | string
     novapostSenderDivisionId?: StringFilter<"ShippingSettings"> | string
     novapostSenderDivisionName?: StringFilter<"ShippingSettings"> | string
+    novapostSenderType?: StringFilter<"ShippingSettings"> | string
+    novapostSenderSettlementId?: StringFilter<"ShippingSettings"> | string
+    novapostSenderSettlementName?: StringFilter<"ShippingSettings"> | string
+    novapostSenderStreet?: StringFilter<"ShippingSettings"> | string
+    novapostSenderBuilding?: StringFilter<"ShippingSettings"> | string
+    novapostSenderFlat?: StringFilter<"ShippingSettings"> | string
+    novapostSenderPostCode?: StringFilter<"ShippingSettings"> | string
+    novapostSenderAddressNote?: StringFilter<"ShippingSettings"> | string
+    novapostClientContractNumber?: StringFilter<"ShippingSettings"> | string
+    novapostCodContractNumber?: StringFilter<"ShippingSettings"> | string
+    novapostCodAccount?: StringFilter<"ShippingSettings"> | string
     novapostSenderCountryCode?: StringFilter<"ShippingSettings"> | string
     novapostDefaultCategory?: StringFilter<"ShippingSettings"> | string
     novapostSenderName?: StringFilter<"ShippingSettings"> | string
@@ -41207,6 +41372,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: SortOrder
     novapostSenderDivisionId?: SortOrder
     novapostSenderDivisionName?: SortOrder
+    novapostSenderType?: SortOrder
+    novapostSenderSettlementId?: SortOrder
+    novapostSenderSettlementName?: SortOrder
+    novapostSenderStreet?: SortOrder
+    novapostSenderBuilding?: SortOrder
+    novapostSenderFlat?: SortOrder
+    novapostSenderPostCode?: SortOrder
+    novapostSenderAddressNote?: SortOrder
+    novapostClientContractNumber?: SortOrder
+    novapostCodContractNumber?: SortOrder
+    novapostCodAccount?: SortOrder
     novapostSenderCountryCode?: SortOrder
     novapostDefaultCategory?: SortOrder
     novapostSenderName?: SortOrder
@@ -41249,6 +41425,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: StringFilter<"ShippingSettings"> | string
     novapostSenderDivisionId?: StringFilter<"ShippingSettings"> | string
     novapostSenderDivisionName?: StringFilter<"ShippingSettings"> | string
+    novapostSenderType?: StringFilter<"ShippingSettings"> | string
+    novapostSenderSettlementId?: StringFilter<"ShippingSettings"> | string
+    novapostSenderSettlementName?: StringFilter<"ShippingSettings"> | string
+    novapostSenderStreet?: StringFilter<"ShippingSettings"> | string
+    novapostSenderBuilding?: StringFilter<"ShippingSettings"> | string
+    novapostSenderFlat?: StringFilter<"ShippingSettings"> | string
+    novapostSenderPostCode?: StringFilter<"ShippingSettings"> | string
+    novapostSenderAddressNote?: StringFilter<"ShippingSettings"> | string
+    novapostClientContractNumber?: StringFilter<"ShippingSettings"> | string
+    novapostCodContractNumber?: StringFilter<"ShippingSettings"> | string
+    novapostCodAccount?: StringFilter<"ShippingSettings"> | string
     novapostSenderCountryCode?: StringFilter<"ShippingSettings"> | string
     novapostDefaultCategory?: StringFilter<"ShippingSettings"> | string
     novapostSenderName?: StringFilter<"ShippingSettings"> | string
@@ -41288,6 +41475,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: SortOrder
     novapostSenderDivisionId?: SortOrder
     novapostSenderDivisionName?: SortOrder
+    novapostSenderType?: SortOrder
+    novapostSenderSettlementId?: SortOrder
+    novapostSenderSettlementName?: SortOrder
+    novapostSenderStreet?: SortOrder
+    novapostSenderBuilding?: SortOrder
+    novapostSenderFlat?: SortOrder
+    novapostSenderPostCode?: SortOrder
+    novapostSenderAddressNote?: SortOrder
+    novapostClientContractNumber?: SortOrder
+    novapostCodContractNumber?: SortOrder
+    novapostCodAccount?: SortOrder
     novapostSenderCountryCode?: SortOrder
     novapostDefaultCategory?: SortOrder
     novapostSenderName?: SortOrder
@@ -41335,6 +41533,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: StringWithAggregatesFilter<"ShippingSettings"> | string
     novapostSenderDivisionId?: StringWithAggregatesFilter<"ShippingSettings"> | string
     novapostSenderDivisionName?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    novapostSenderType?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    novapostSenderSettlementId?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    novapostSenderSettlementName?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    novapostSenderStreet?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    novapostSenderBuilding?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    novapostSenderFlat?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    novapostSenderPostCode?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    novapostSenderAddressNote?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    novapostClientContractNumber?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    novapostCodContractNumber?: StringWithAggregatesFilter<"ShippingSettings"> | string
+    novapostCodAccount?: StringWithAggregatesFilter<"ShippingSettings"> | string
     novapostSenderCountryCode?: StringWithAggregatesFilter<"ShippingSettings"> | string
     novapostDefaultCategory?: StringWithAggregatesFilter<"ShippingSettings"> | string
     novapostSenderName?: StringWithAggregatesFilter<"ShippingSettings"> | string
@@ -44184,6 +44393,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: string
     novapostSenderDivisionId?: string
     novapostSenderDivisionName?: string
+    novapostSenderType?: string
+    novapostSenderSettlementId?: string
+    novapostSenderSettlementName?: string
+    novapostSenderStreet?: string
+    novapostSenderBuilding?: string
+    novapostSenderFlat?: string
+    novapostSenderPostCode?: string
+    novapostSenderAddressNote?: string
+    novapostClientContractNumber?: string
+    novapostCodContractNumber?: string
+    novapostCodAccount?: string
     novapostSenderCountryCode?: string
     novapostDefaultCategory?: string
     novapostSenderName?: string
@@ -44223,6 +44443,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: string
     novapostSenderDivisionId?: string
     novapostSenderDivisionName?: string
+    novapostSenderType?: string
+    novapostSenderSettlementId?: string
+    novapostSenderSettlementName?: string
+    novapostSenderStreet?: string
+    novapostSenderBuilding?: string
+    novapostSenderFlat?: string
+    novapostSenderPostCode?: string
+    novapostSenderAddressNote?: string
+    novapostClientContractNumber?: string
+    novapostCodContractNumber?: string
+    novapostCodAccount?: string
     novapostSenderCountryCode?: string
     novapostDefaultCategory?: string
     novapostSenderName?: string
@@ -44261,6 +44492,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: StringFieldUpdateOperationsInput | string
     novapostSenderDivisionId?: StringFieldUpdateOperationsInput | string
     novapostSenderDivisionName?: StringFieldUpdateOperationsInput | string
+    novapostSenderType?: StringFieldUpdateOperationsInput | string
+    novapostSenderSettlementId?: StringFieldUpdateOperationsInput | string
+    novapostSenderSettlementName?: StringFieldUpdateOperationsInput | string
+    novapostSenderStreet?: StringFieldUpdateOperationsInput | string
+    novapostSenderBuilding?: StringFieldUpdateOperationsInput | string
+    novapostSenderFlat?: StringFieldUpdateOperationsInput | string
+    novapostSenderPostCode?: StringFieldUpdateOperationsInput | string
+    novapostSenderAddressNote?: StringFieldUpdateOperationsInput | string
+    novapostClientContractNumber?: StringFieldUpdateOperationsInput | string
+    novapostCodContractNumber?: StringFieldUpdateOperationsInput | string
+    novapostCodAccount?: StringFieldUpdateOperationsInput | string
     novapostSenderCountryCode?: StringFieldUpdateOperationsInput | string
     novapostDefaultCategory?: StringFieldUpdateOperationsInput | string
     novapostSenderName?: StringFieldUpdateOperationsInput | string
@@ -44300,6 +44542,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: StringFieldUpdateOperationsInput | string
     novapostSenderDivisionId?: StringFieldUpdateOperationsInput | string
     novapostSenderDivisionName?: StringFieldUpdateOperationsInput | string
+    novapostSenderType?: StringFieldUpdateOperationsInput | string
+    novapostSenderSettlementId?: StringFieldUpdateOperationsInput | string
+    novapostSenderSettlementName?: StringFieldUpdateOperationsInput | string
+    novapostSenderStreet?: StringFieldUpdateOperationsInput | string
+    novapostSenderBuilding?: StringFieldUpdateOperationsInput | string
+    novapostSenderFlat?: StringFieldUpdateOperationsInput | string
+    novapostSenderPostCode?: StringFieldUpdateOperationsInput | string
+    novapostSenderAddressNote?: StringFieldUpdateOperationsInput | string
+    novapostClientContractNumber?: StringFieldUpdateOperationsInput | string
+    novapostCodContractNumber?: StringFieldUpdateOperationsInput | string
+    novapostCodAccount?: StringFieldUpdateOperationsInput | string
     novapostSenderCountryCode?: StringFieldUpdateOperationsInput | string
     novapostDefaultCategory?: StringFieldUpdateOperationsInput | string
     novapostSenderName?: StringFieldUpdateOperationsInput | string
@@ -44339,6 +44592,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: string
     novapostSenderDivisionId?: string
     novapostSenderDivisionName?: string
+    novapostSenderType?: string
+    novapostSenderSettlementId?: string
+    novapostSenderSettlementName?: string
+    novapostSenderStreet?: string
+    novapostSenderBuilding?: string
+    novapostSenderFlat?: string
+    novapostSenderPostCode?: string
+    novapostSenderAddressNote?: string
+    novapostClientContractNumber?: string
+    novapostCodContractNumber?: string
+    novapostCodAccount?: string
     novapostSenderCountryCode?: string
     novapostDefaultCategory?: string
     novapostSenderName?: string
@@ -44377,6 +44641,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: StringFieldUpdateOperationsInput | string
     novapostSenderDivisionId?: StringFieldUpdateOperationsInput | string
     novapostSenderDivisionName?: StringFieldUpdateOperationsInput | string
+    novapostSenderType?: StringFieldUpdateOperationsInput | string
+    novapostSenderSettlementId?: StringFieldUpdateOperationsInput | string
+    novapostSenderSettlementName?: StringFieldUpdateOperationsInput | string
+    novapostSenderStreet?: StringFieldUpdateOperationsInput | string
+    novapostSenderBuilding?: StringFieldUpdateOperationsInput | string
+    novapostSenderFlat?: StringFieldUpdateOperationsInput | string
+    novapostSenderPostCode?: StringFieldUpdateOperationsInput | string
+    novapostSenderAddressNote?: StringFieldUpdateOperationsInput | string
+    novapostClientContractNumber?: StringFieldUpdateOperationsInput | string
+    novapostCodContractNumber?: StringFieldUpdateOperationsInput | string
+    novapostCodAccount?: StringFieldUpdateOperationsInput | string
     novapostSenderCountryCode?: StringFieldUpdateOperationsInput | string
     novapostDefaultCategory?: StringFieldUpdateOperationsInput | string
     novapostSenderName?: StringFieldUpdateOperationsInput | string
@@ -44416,6 +44691,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: StringFieldUpdateOperationsInput | string
     novapostSenderDivisionId?: StringFieldUpdateOperationsInput | string
     novapostSenderDivisionName?: StringFieldUpdateOperationsInput | string
+    novapostSenderType?: StringFieldUpdateOperationsInput | string
+    novapostSenderSettlementId?: StringFieldUpdateOperationsInput | string
+    novapostSenderSettlementName?: StringFieldUpdateOperationsInput | string
+    novapostSenderStreet?: StringFieldUpdateOperationsInput | string
+    novapostSenderBuilding?: StringFieldUpdateOperationsInput | string
+    novapostSenderFlat?: StringFieldUpdateOperationsInput | string
+    novapostSenderPostCode?: StringFieldUpdateOperationsInput | string
+    novapostSenderAddressNote?: StringFieldUpdateOperationsInput | string
+    novapostClientContractNumber?: StringFieldUpdateOperationsInput | string
+    novapostCodContractNumber?: StringFieldUpdateOperationsInput | string
+    novapostCodAccount?: StringFieldUpdateOperationsInput | string
     novapostSenderCountryCode?: StringFieldUpdateOperationsInput | string
     novapostDefaultCategory?: StringFieldUpdateOperationsInput | string
     novapostSenderName?: StringFieldUpdateOperationsInput | string
@@ -46926,6 +47212,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: SortOrder
     novapostSenderDivisionId?: SortOrder
     novapostSenderDivisionName?: SortOrder
+    novapostSenderType?: SortOrder
+    novapostSenderSettlementId?: SortOrder
+    novapostSenderSettlementName?: SortOrder
+    novapostSenderStreet?: SortOrder
+    novapostSenderBuilding?: SortOrder
+    novapostSenderFlat?: SortOrder
+    novapostSenderPostCode?: SortOrder
+    novapostSenderAddressNote?: SortOrder
+    novapostClientContractNumber?: SortOrder
+    novapostCodContractNumber?: SortOrder
+    novapostCodAccount?: SortOrder
     novapostSenderCountryCode?: SortOrder
     novapostDefaultCategory?: SortOrder
     novapostSenderName?: SortOrder
@@ -46977,6 +47274,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: SortOrder
     novapostSenderDivisionId?: SortOrder
     novapostSenderDivisionName?: SortOrder
+    novapostSenderType?: SortOrder
+    novapostSenderSettlementId?: SortOrder
+    novapostSenderSettlementName?: SortOrder
+    novapostSenderStreet?: SortOrder
+    novapostSenderBuilding?: SortOrder
+    novapostSenderFlat?: SortOrder
+    novapostSenderPostCode?: SortOrder
+    novapostSenderAddressNote?: SortOrder
+    novapostClientContractNumber?: SortOrder
+    novapostCodContractNumber?: SortOrder
+    novapostCodAccount?: SortOrder
     novapostSenderCountryCode?: SortOrder
     novapostDefaultCategory?: SortOrder
     novapostSenderName?: SortOrder
@@ -47016,6 +47324,17 @@ export namespace Prisma {
     novapostSenderCompanyTin?: SortOrder
     novapostSenderDivisionId?: SortOrder
     novapostSenderDivisionName?: SortOrder
+    novapostSenderType?: SortOrder
+    novapostSenderSettlementId?: SortOrder
+    novapostSenderSettlementName?: SortOrder
+    novapostSenderStreet?: SortOrder
+    novapostSenderBuilding?: SortOrder
+    novapostSenderFlat?: SortOrder
+    novapostSenderPostCode?: SortOrder
+    novapostSenderAddressNote?: SortOrder
+    novapostClientContractNumber?: SortOrder
+    novapostCodContractNumber?: SortOrder
+    novapostCodAccount?: SortOrder
     novapostSenderCountryCode?: SortOrder
     novapostDefaultCategory?: SortOrder
     novapostSenderName?: SortOrder

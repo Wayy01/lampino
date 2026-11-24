@@ -160,7 +160,7 @@ const ro = {
       "Această comandă are deja o expediere. Șterge-o întâi dacă vrei să creezi una nouă.",
     shipmentMissing: "Expedierea nu mai există.",
     courierNotConfigured:
-      "Curierul nu este configurat: activează-l și adaugă cheia API și filiala expeditorului în Integrări.",
+      "Curierul nu este configurat: activează-l și adaugă cheia API și filiala sau adresa expeditorului în Integrări.",
     recipientRequired:
       "Completează destinatarul: localitatea și filiala (sau adresa) sunt necesare.",
     courierFailed: "Curierul a respins expedierea.",
@@ -168,6 +168,14 @@ const ro = {
       "Curierul nu a răspuns, iar AWB-ul s-ar putea să fi fost totuși creat. Verifică în platforma curierului: dacă AWB-ul nu există, șterge expedierea păstrată local și reîncearcă.",
     orderNotShippable:
       "Nu se poate crea o expediere pentru o comandă anulată sau livrată.",
+    novapostContractInactive:
+      "Contractul de livrare ales în setările Nova Post nu mai este activ, deci livrarea nu poate fi facturată expeditorului. Alege alt contract în Integrări → Nova Post. Contract:",
+    novapostCodContractInactive:
+      "Contractul Nova Pay (sau contul lui bancar) ales în setările Nova Post nu mai este activ. Alege altul în Integrări → Nova Post. Contract:",
+    novapostCodNeedsTin:
+      "Nova Pay are nevoie de codul fiscal al expeditorului: completează-l în Integrări → Nova Post.",
+    novapostNoCodContract:
+      "Nova Post nu are un contract Nova Pay activ, cu cont bancar, pentru codul fiscal al expeditorului.",
     invalidMediaUrl:
       "Imaginile trebuie încărcate aici sau să provină de pe Unsplash; alte adrese nu se afișează în magazin.",
     duplicateSpecId:
@@ -622,6 +630,32 @@ const ro = {
       sandbox: "Mod testare (sandbox)",
       senderTin: "Cod fiscal expeditor (TIN)",
       senderDivisionId: "ID filială expeditor",
+      contracts: "Contracte",
+      clientContract: "Contract de livrare",
+      clientContractHint: "Livrarea se facturează pe acest contract când plătește expeditorul.",
+      codContract: "Contract Nova Pay (ramburs)",
+      codContractHint: "Sumele Nova Pay se virează în contul bancar al acestui contract.",
+      contractAuto: "Automat (primul activ)",
+      contractInactive: "inactiv",
+      contractInactiveNote:
+        "Un contract selectat nu mai este activ la Nova Post. Alegeți altul: expedierile care au nevoie de el sunt refuzate.",
+      contractsLoading: "Se încarcă contractele…",
+      contractsError: "Contractele nu au putut fi încărcate de la Nova Post. Încercați din nou.",
+      contractsBadKey: "Nova Post a respins cheia API. Verificați cheia.",
+      contractsBadTin: "Nova Post nu acceptă acest cod fiscal. Verificați-l.",
+      contractsNeedKey: "Salvați cheia API pentru a încărca contractele.",
+      contractsNeedTin:
+        "Introduceți codul fiscal al expeditorului pentru a-i încărca contractele. Fără el, Nova Pay nu este disponibil, iar livrarea plătită de expeditor nu se facturează pe contract.",
+      contractsNone: "Nova Post nu are contracte active pentru acest cod fiscal.",
+      departure: "Punct de expediere",
+      fromDivision: "Din filială",
+      fromDivisionDesc: "Predați coletele la o filială Nova Post",
+      fromAddress: "De la adresă",
+      fromAddressDesc: "Curierul ridică coletele de la adresa dvs.",
+      addressNote: "Indicații pentru curier",
+      addressRequiredHint:
+        "Pentru ridicarea de la adresă sunt obligatorii localitatea, strada, blocul și codul poștal.",
+      notReady: "Integrarea este activă, dar încă nu poate crea expedieri. Lipsește:",
       countryCode: "Cod țară",
       defaultCategory: "Categorie implicită",
       useDefaultSender: "Folosește adresa expeditorului din cont",
@@ -1008,7 +1042,7 @@ const ru: AdminDict = {
       "У этого заказа уже есть отправление. Сначала удалите его, чтобы создать новое.",
     shipmentMissing: "Отправление больше не существует.",
     courierNotConfigured:
-      "Курьер не настроен: включите его и добавьте API-ключ и отделение отправителя в разделе «Интеграции».",
+      "Курьер не настроен: включите его и добавьте API-ключ и отделение или адрес отправителя в разделе «Интеграции».",
     recipientRequired:
       "Заполните получателя: нужны населённый пункт и отделение (или адрес).",
     courierFailed: "Курьер отклонил отправление.",
@@ -1016,6 +1050,14 @@ const ru: AdminDict = {
       "Курьер не ответил, но накладная всё же могла быть создана. Проверьте в платформе курьера: если накладной нет, удалите сохранённое локально отправление и повторите попытку.",
     orderNotShippable:
       "Нельзя создать отправление для отменённого или доставленного заказа.",
+    novapostContractInactive:
+      "Договор на доставку, выбранный в настройках Nova Post, больше не активен, поэтому доставку нельзя выставить отправителю. Выберите другой в «Интеграции» → Nova Post. Договор:",
+    novapostCodContractInactive:
+      "Договор Nova Pay (или его банковский счёт), выбранный в настройках Nova Post, больше не активен. Выберите другой в «Интеграции» → Nova Post. Договор:",
+    novapostCodNeedsTin:
+      "Для Nova Pay нужен ИНН отправителя: укажите его в «Интеграции» → Nova Post.",
+    novapostNoCodContract:
+      "У Nova Post нет активного договора Nova Pay с банковским счётом для ИНН отправителя.",
     invalidMediaUrl:
       "Изображения нужно загружать здесь или брать с Unsplash; другие адреса в магазине не отображаются.",
     duplicateSpecId:
@@ -1470,6 +1512,32 @@ const ru: AdminDict = {
       sandbox: "Тестовый режим (sandbox)",
       senderTin: "ИНН отправителя (TIN)",
       senderDivisionId: "ID отделения отправителя",
+      contracts: "Договоры",
+      clientContract: "Договор на доставку",
+      clientContractHint: "По этому договору оплачивается доставка, когда платит отправитель.",
+      codContract: "Договор Nova Pay (COD)",
+      codContractHint: "Суммы Nova Pay перечисляются на банковский счёт этого договора.",
+      contractAuto: "Авто (первый активный)",
+      contractInactive: "неактивен",
+      contractInactiveNote:
+        "Выбранный договор больше не активен в Nova Post. Выберите другой: отправления, которым он нужен, отклоняются.",
+      contractsLoading: "Загрузка договоров…",
+      contractsError: "Не удалось загрузить договоры из Nova Post. Попробуйте ещё раз.",
+      contractsBadKey: "Nova Post отклонил API-ключ. Проверьте ключ.",
+      contractsBadTin: "Nova Post не принимает этот ИНН. Проверьте его.",
+      contractsNeedKey: "Сохраните API-ключ, чтобы загрузить договоры.",
+      contractsNeedTin:
+        "Укажите ИНН отправителя, чтобы загрузить его договоры. Без него Nova Pay недоступен, а доставка за счёт отправителя не выставляется по договору.",
+      contractsNone: "У Nova Post нет активных договоров для этого ИНН.",
+      departure: "Место отправки",
+      fromDivision: "Из отделения",
+      fromDivisionDesc: "Вы сдаёте посылки в отделении Nova Post",
+      fromAddress: "С адреса",
+      fromAddressDesc: "Курьер забирает посылки с вашего адреса",
+      addressNote: "Комментарий для курьера",
+      addressRequiredHint:
+        "Для забора с адреса обязательны населённый пункт, улица, дом и почтовый индекс.",
+      notReady: "Интеграция включена, но пока не может создавать отправления. Не заполнено:",
       countryCode: "Код страны",
       defaultCategory: "Категория по умолчанию",
       useDefaultSender: "Использовать адрес отправителя из аккаунта",

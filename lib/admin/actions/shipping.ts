@@ -5,17 +5,21 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma";
 import { requireAdmin } from "@/lib/admin/session";
 import { langFromForm } from "@/lib/admin/i18n";
-import { ActionRefusal, runFormAction } from "@/lib/admin/errors";
+import { ActionRefusal, runFormAction, type RefusalKey } from "@/lib/admin/errors";
 import { decryptSecret } from "@/lib/admin/crypto";
+import { novapostSenderReady } from "@/lib/admin/shipping";
 import {
   buildNovaPostRequestFromForm,
   buildFanCourierRequestFromForm,
 } from "@/lib/admin/shipping-request";
 import {
   createShipment,
+  resolveShipmentContracts,
   cancelShipment as cancelNovaPostShipment,
   describeNovaPostError,
+  NovaPostContractError,
   NovaPostError,
+  type NovaPostContractIssue,
 } from "@/lib/courier/novapost";
 import {
   createShipment as createFanCourierAwb,
@@ -121,6 +125,14 @@ async function markShipped(orderId: number): Promise<void> {
     .catch((e) => console.error("[shipment] could not mark order shipped", orderId, e));
 }
 
+/** How each contract problem found before a Nova Post shipment is worded. */
+const CONTRACT_REFUSALS: Record<NovaPostContractIssue, RefusalKey> = {
+  clientContractInactive: "novapostContractInactive",
+  codContractInactive: "novapostCodContractInactive",
+  codTinMissing: "novapostCodNeedsTin",
+  codContractMissing: "novapostNoCodContract",
+};
+
 /**
  * Create a Nova Post waybill for an order and record it as a `Shipment`.
  * Bound to the order id in the form component. Refuses (without hitting the API)
@@ -154,7 +166,7 @@ export async function createNovaPostShipment(
     if (order.shipments.length > 0) throw new ActionRefusal("shipmentExists");
 
     const apiKey = decryptSecret(settings?.novapostApiKey);
-    if (!settings?.novapostEnabled || !apiKey || !settings.novapostSenderDivisionId) {
+    if (!settings?.novapostEnabled || !apiKey || !novapostSenderReady(settings)) {
       throw new ActionRefusal("courierNotConfigured");
     }
 
@@ -166,6 +178,28 @@ export async function createNovaPostShipment(
     const codAmount =
       request.cod && request.cod.amount > 0 ? new Prisma.Decimal(request.cod.amount) : null;
 
+    const cfg = {
+      apiKey,
+      sandbox: settings.novapostSandbox,
+      countryCode: settings.novapostSenderCountryCode || "MD",
+      companyTin: settings.novapostSenderCompanyTin || undefined,
+    };
+
+    // Settle the contracts while nothing is reserved yet: a lapsed pick or a
+    // missing COD contract refuses here, with the order and its stock untouched.
+    let contracts;
+    try {
+      contracts = await resolveShipmentContracts(cfg, request);
+    } catch (e) {
+      if (e instanceof NovaPostContractError) {
+        throw new ActionRefusal(CONTRACT_REFUSALS[e.issue], e.contractNumber ?? undefined);
+      }
+      if (e instanceof NovaPostError) {
+        throw new ActionRefusal("courierFailed", describeNovaPostError(e));
+      }
+      throw e;
+    }
+
     // Reserve the one-shipment-per-order slot BEFORE hitting the courier. The
     // @unique(orderId) constraint makes this atomic: a concurrent or retried
     // submission fails here (P2002 → shipmentExists) rather than minting a
@@ -175,15 +209,7 @@ export async function createNovaPostShipment(
 
     let result;
     try {
-      result = await createShipment(
-        {
-          apiKey,
-          sandbox: settings.novapostSandbox,
-          countryCode: settings.novapostSenderCountryCode || "MD",
-          companyTin: settings.novapostSenderCompanyTin || undefined,
-        },
-        request,
-      );
+      result = await createShipment(cfg, request, contracts);
     } catch (e) {
       // A timeout/transport drop/5xx is ambiguous — the carrier may have minted
       // the waybill. Keep the reservation (it blocks a blind retry via the

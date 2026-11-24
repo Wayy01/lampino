@@ -14,6 +14,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin/session";
 import { decryptSecret } from "@/lib/admin/crypto";
+import { novapostSenderReady } from "@/lib/admin/shipping";
 import { formatPrice, parseId, pick } from "@/lib/utils";
 import { num, formatDate, formatDateTime } from "@/lib/admin/serialize";
 import {
@@ -85,7 +86,7 @@ export default async function AdminOrderDetailPage({
   const novapostConfigured = Boolean(
     settings?.novapostEnabled &&
       decryptSecret(settings.novapostApiKey) &&
-      settings.novapostSenderDivisionId,
+      novapostSenderReady(settings),
   );
   const fancourierConfigured = Boolean(
     settings?.fancourierEnabled && decryptSecret(settings.fancourierApiKey),

@@ -26,7 +26,11 @@ export type RefusalKey =
   | "recipientRequired"
   | "courierFailed"
   | "courierUncertain"
-  | "orderNotShippable";
+  | "orderNotShippable"
+  | "novapostContractInactive"
+  | "novapostCodContractInactive"
+  | "novapostCodNeedsTin"
+  | "novapostNoCodContract";
 
 /**
  * A deliberate refusal, thrown from inside an action body so it travels the

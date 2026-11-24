@@ -60,8 +60,9 @@ export function NovaPostSearchField({
   settlementId?: string;
   disabled?: boolean;
   placeholder?: string;
-  /** Notifies the parent of the chosen id/label (and "" on clear). */
-  onSelect?: (id: string, label: string) => void;
+  /** Notifies the parent of the chosen id/label (and "" on clear), plus the
+   *  entity's postal code when the directory has one (settlements do). */
+  onSelect?: (id: string, label: string, postCode?: string | null) => void;
   /** What the hidden field submits: the entity `id` (default) or its `label` —
    *  streets have no useful id downstream, so they submit the chosen name (and
    *  the raw query as a free-text fallback when nothing is picked). */
@@ -126,7 +127,7 @@ export function NovaPostSearchField({
     setSelectedLabel(optionLabel(o));
     setSelectedName(o.name);
     resetSearch(keepQuery);
-    onSelect?.(String(o.id), optionLabel(o));
+    onSelect?.(String(o.id), optionLabel(o), o.postCode);
   }
 
   function clear() {

@@ -8,6 +8,7 @@ import { requireAdmin } from "@/lib/admin/session";
 import { langFromForm, getAdminDict } from "@/lib/admin/i18n";
 import { runFormAction } from "@/lib/admin/errors";
 import { encryptSecret } from "@/lib/admin/crypto";
+import { normalizeCompanyTin } from "@/lib/courier/novapost";
 import { WEBHOOK_EVENTS, type WebhookEvent } from "@/lib/webhooks-events";
 
 export type SettingsActionState = { ok?: boolean; error?: string } | null;
@@ -173,13 +174,31 @@ export async function updateNovaPost(
 
   return runFormAction(lang, async () => {
     const existing = await prisma.shippingSettings.findFirst({ orderBy: { id: "asc" } });
+    // Contracts belong to the sender company: without its TIN there is nothing
+    // they could be looked up under, so a pick doesn't outlive a cleared TIN.
+    const companyTin = normalizeCompanyTin(str(fd, "novapostSenderCompanyTin"));
+    const codContract = companyTin ? str(fd, "novapostCodContractNumber") : "";
     const data = {
       novapostEnabled: fd.get("novapostEnabled") === "on",
       novapostSandbox: fd.get("novapostSandbox") === "on",
       novapostApiKey: writeOnlyKey(fd, "novapostApiKey", existing?.novapostApiKey ?? ""),
-      novapostSenderCompanyTin: str(fd, "novapostSenderCompanyTin"),
+      novapostSenderCompanyTin: companyTin,
+      novapostClientContractNumber: companyTin ? str(fd, "novapostClientContractNumber") : "",
+      novapostCodContractNumber: codContract,
+      // A payout account only means something under its contract.
+      novapostCodAccount: codContract ? str(fd, "novapostCodAccount") : "",
+      // Both departure points are saved — the form keeps the inactive one
+      // mounted — so switching between them never loses the other's values.
+      novapostSenderType: str(fd, "novapostSenderType") === "address" ? "address" : "division",
       novapostSenderDivisionId: str(fd, "novapostSenderDivisionId"),
       novapostSenderDivisionName: str(fd, "novapostSenderDivisionName"),
+      novapostSenderSettlementId: str(fd, "novapostSenderSettlementId"),
+      novapostSenderSettlementName: str(fd, "novapostSenderSettlementName"),
+      novapostSenderStreet: str(fd, "novapostSenderStreet").slice(0, 100),
+      novapostSenderBuilding: str(fd, "novapostSenderBuilding").slice(0, 100),
+      novapostSenderFlat: str(fd, "novapostSenderFlat").slice(0, 10),
+      novapostSenderPostCode: str(fd, "novapostSenderPostCode").slice(0, 10),
+      novapostSenderAddressNote: str(fd, "novapostSenderAddressNote").slice(0, 100),
       novapostSenderCountryCode: str(fd, "novapostSenderCountryCode") || "MD",
       novapostDefaultCategory: str(fd, "novapostDefaultCategory"),
       novapostSenderName: str(fd, "novapostSenderName"),

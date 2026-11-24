@@ -34,10 +34,11 @@ export type NovaPostConfig = {
   apiKey: string;
   sandbox?: boolean;
   countryCode?: string; // default "MD"
-  companyTin?: string; // sender company TIN, for the contracts lookup
+  companyTin?: string; // sender company TIN — the contracts lookup is scoped to it
 };
 
 export type NovaPostCodAccount = {
+  id?: string;
   bankIban?: string;
   accountNumber?: string;
   accountCurrency?: string;
@@ -50,6 +51,29 @@ export type NovaPostContract = {
   company?: { tin?: string; name?: string };
   currencyCode?: string;
   cod?: NovaPostCodAccount[];
+};
+
+/** Which contracts a shipment bills against, by contract number. A blank
+ *  number means "the first active contract of that type". */
+export type NovaPostContractSelection = {
+  client?: string | null;
+  cod?: string | null;
+  /** Which payout account of the picked COD contract (its id at Nova Post);
+   *  blank means the contract's first. */
+  codAccount?: string | null;
+};
+
+/** A contract trimmed for the settings picker (no full bank details). A COD
+ *  contract yields one option per payout account: the account is what Nova Pay
+ *  is actually told to pay out to. */
+export type ContractOption = {
+  number: string;
+  type: "Client" | "COD";
+  companyName: string | null;
+  /** COD only: the payout account's id — what a pick stores. */
+  account: string | null;
+  /** COD only: the tail of the payout account, enough to tell accounts apart. */
+  accountTail: string | null;
 };
 
 export type DivisionOption = {
@@ -102,7 +126,9 @@ async function authorize(cfg: NovaPostConfig): Promise<string> {
   );
   const body = (await res.json().catch(() => ({}))) as { jwt?: string; errors?: unknown };
   if (!res.ok || !body.jwt) {
-    throw new NovaPostError(res.status, body.errors ?? "authorization failed");
+    const err = new NovaPostError(res.status, body.errors ?? "authorization failed");
+    err.authFailed = true;
+    throw err;
   }
   // Fall back to a 30-minute TTL if the token carries no decodable expiry.
   const exp = jwtExpiryMs(body.jwt) ?? Date.now() + 30 * 60_000;
@@ -116,6 +142,9 @@ export class NovaPostError extends Error {
    *  the shipment-create call — callers holding a duplicate guard must NOT
    *  release it on such an error, or a retry could mint a second waybill. */
   public maybeProcessed = false;
+  /** True when Nova Post refused the API key itself (the authorization step),
+   *  as opposed to rejecting what an authorized request asked for. */
+  public authFailed = false;
 
   constructor(
     public status: number,
@@ -293,16 +322,167 @@ export async function searchStreets(
  * specific — contract numbers, company TIN, COD bank account — comes from here
  * at shipment time; nothing is stored in code. Keyed by the `companyTin` the
  * admin saved in settings.
+ *
+ * Without a TIN there is nothing to return: the endpoint is not scoped to the
+ * API key, so an unfiltered call pages through every Nova Post client's
+ * contracts in the country — and "the first one" would be a stranger's.
  */
 export async function fetchContracts(cfg: NovaPostConfig): Promise<NovaPostContract[]> {
+  const companyTin = normalizeCompanyTin(cfg.companyTin);
+  if (!companyTin) return [];
   const activeOnDate = new Date().toISOString().replace(/\.\d+Z$/, ".000000Z");
   const params: Record<string, string | number | string[]> = {
     "countryCodes[]": cfg.countryCode ?? "MD",
+    "companies[]": companyTin,
     deletionMark: "false",
     activeOnDate,
+    limit: 100,
   };
-  if (cfg.companyTin) params["companies[]"] = cfg.companyTin;
   return (await apiGet(cfg, "clients/companies/contracts", params)) as NovaPostContract[];
+}
+
+/**
+ * A company TIN the way Nova Post matches it: without whitespace (a number
+ * typed in groups finds no contracts). Applied wherever the TIN is saved, looked
+ * up or sent, so the settings picker and a shipment can't disagree about it.
+ */
+export function normalizeCompanyTin(raw: string | null | undefined): string {
+  return (raw ?? "").replace(/\s+/g, "");
+}
+
+const hasCodAccount = (c: NovaPostContract) => (c.cod?.length ?? 0) > 0;
+
+/** What identifies a COD payout account in a saved pick. */
+const codAccountKey = (a: NovaPostCodAccount) => a.id ?? a.accountNumber ?? a.bankIban ?? "";
+
+/**
+ * Pick the Client (delivery) and COD contracts for a shipment, and the COD
+ * contract's payout account. A number chosen in settings must match exactly:
+ * when it is no longer among the active contracts the result is `undefined`,
+ * never a silent swap to another contract (that would bill a different
+ * agreement) — and the same goes for a chosen payout account. With nothing
+ * chosen, the first active contract of the type (and its first account) is
+ * used. A COD contract without a bank account can't receive Nova Pay, so it
+ * never counts.
+ */
+export function resolveContracts(
+  contracts: NovaPostContract[],
+  selection: NovaPostContractSelection = {},
+): { client?: NovaPostContract; cod?: NovaPostContract; codAccount?: NovaPostCodAccount } {
+  const clients = contracts.filter((c) => c.type === "Client");
+  const cods = contracts.filter((c) => c.type === "COD" && hasCodAccount(c));
+  const cod = selection.cod ? cods.find((c) => c.number === selection.cod) : cods[0];
+  return {
+    client: selection.client ? clients.find((c) => c.number === selection.client) : clients[0],
+    cod,
+    codAccount:
+      selection.cod && selection.codAccount
+        ? cod?.cod?.find((a) => codAccountKey(a) === selection.codAccount)
+        : cod?.cod?.[0],
+  };
+}
+
+/** The company's active Client and COD contracts, for the settings picker. */
+export async function listContractOptions(cfg: NovaPostConfig): Promise<ContractOption[]> {
+  const contracts = await fetchContracts(cfg);
+  const options: ContractOption[] = [];
+  for (const c of contracts) {
+    if (!c.number) continue;
+    const base = { number: c.number, companyName: c.company?.name ?? null };
+    if (c.type === "Client") {
+      options.push({ ...base, type: "Client", account: null, accountTail: null });
+    } else if (c.type === "COD") {
+      for (const a of c.cod ?? []) {
+        const number = a.accountNumber ?? a.bankIban ?? "";
+        options.push({
+          ...base,
+          type: "COD",
+          account: codAccountKey(a),
+          accountTail: number ? number.slice(-4) : null,
+        });
+      }
+    }
+  }
+  return options;
+}
+
+/** Why the saved contract settings can't serve a shipment. */
+export type NovaPostContractIssue =
+  /** The delivery contract picked in settings is no longer active. */
+  | "clientContractInactive"
+  /** The Nova Pay contract (or its payout account) picked in settings is gone. */
+  | "codContractInactive"
+  /** Nova Pay was asked for, but there is no company TIN to find contracts by. */
+  | "codTinMissing"
+  /** The company has no active COD contract with a bank account. */
+  | "codContractMissing";
+
+/** A shipment that the saved contract settings can't serve; nothing was sent. */
+export class NovaPostContractError extends Error {
+  constructor(
+    public issue: NovaPostContractIssue,
+    /** The picked contract's number, when the issue is about a pick. */
+    public contractNumber: string | null = null,
+  ) {
+    super(`Nova Post contract issue: ${issue}`);
+    this.name = "NovaPostContractError";
+  }
+}
+
+/** The contracts settled for one shipment (see `resolveShipmentContracts`). */
+export type NovaPostShipmentContracts = {
+  /** The sender company's name, as Nova Post has it. */
+  companyName: string | null;
+  /** Billed for delivery when the sender pays. Absent, Nova Post bills cash. */
+  client?: NovaPostContract;
+  /** Set when the shipment collects on delivery: where Nova Pay pays out. */
+  cod?: { contract: NovaPostContract; account: NovaPostCodAccount };
+};
+
+/**
+ * Fetch the sender company's contracts and settle which ones a shipment uses.
+ * Nothing is created at Nova Post, so callers run this before reserving
+ * anything of their own. Throws `NovaPostContractError` when the shipment needs
+ * a contract the settings can't supply — a contract picked in settings that is
+ * no longer active is refused rather than swapped for another one, which would
+ * bill (or pay out to) an agreement the admin didn't choose. The delivery
+ * contract is only billed when the sender pays, so a lapsed pick doesn't stop a
+ * recipient-paid shipment.
+ */
+export async function resolveShipmentContracts(
+  cfg: NovaPostConfig,
+  req: NovaPostShipmentRequest,
+): Promise<NovaPostShipmentContracts> {
+  const contracts = await fetchContracts(cfg);
+  const picked = req.contracts ?? {};
+  const resolved = resolveContracts(contracts, picked);
+  const senderPays = req.payerType === "Sender";
+  const collects = Boolean(req.cod && req.cod.amount > 0);
+
+  if (senderPays && picked.client && !resolved.client) {
+    throw new NovaPostContractError("clientContractInactive", picked.client);
+  }
+  const cod =
+    resolved.cod && resolved.codAccount
+      ? { contract: resolved.cod, account: resolved.codAccount }
+      : undefined;
+  if (collects && !cod) {
+    if (!normalizeCompanyTin(cfg.companyTin)) throw new NovaPostContractError("codTinMissing");
+    throw picked.cod
+      ? new NovaPostContractError("codContractInactive", picked.cod)
+      : new NovaPostContractError("codContractMissing");
+  }
+
+  return {
+    // Every contract here belongs to the one company the TIN names, so its
+    // name survives a lapsed delivery-contract pick.
+    companyName:
+      resolved.client?.company?.name ??
+      contracts.find((c) => c.company?.name)?.company?.name ??
+      null,
+    client: senderPays ? resolved.client : undefined,
+    cod: collects ? cod : undefined,
+  };
 }
 
 // Authenticated POST with one automatic re-auth on 401. Returns the parsed body.
@@ -404,7 +584,20 @@ export type NovaPostSenderInfo = {
   email: string;
   companyTin: string;
   countryCode: string;
-  divisionId: string;
+  /** Branch drop-off: the division the parcels are handed in at. */
+  divisionId?: string | null;
+  /** Courier pickup: the address the parcels are collected from. When set it
+   *  is used instead of `divisionId`. */
+  address?: {
+    settlementId: string;
+    /** The settlement's name — fills `addressParts.city`. */
+    settlementName: string;
+    street: string;
+    building: string;
+    flat?: string;
+    postCode: string;
+    note?: string;
+  } | null;
 };
 
 export type NovaPostRecipientInfo = {
@@ -433,17 +626,24 @@ export type NovaPostShipmentRequest = {
   payerType: "Sender" | "Recipient";
   /** When set, collect this amount on delivery (COD / "Nova Pay"). */
   cod?: { amount: number } | null;
+  /** The contracts picked in settings; omitted = first active of each type. */
+  contracts?: NovaPostContractSelection;
   sender: NovaPostSenderInfo;
   recipient: NovaPostRecipientInfo;
   parcels: NovaPostParcel[];
 };
 
-/** Build the COD ("Nova Pay") service from the account's COD contract. */
+/**
+ * Build the COD ("Nova Pay") service: the payout goes to `bank`, one of the COD
+ * contract's accounts. The service's own `contractNumber` stays null — it names
+ * the contract of whoever pays for the service (the recipient), not the COD
+ * contract; Nova Post finds that by the company TIN and the account.
+ */
 function buildCodService(
   amount: number,
   codContract: NovaPostContract,
+  bank: NovaPostCodAccount,
 ): Record<string, unknown> {
-  const bank = codContract.cod?.[0] ?? {};
   return {
     shipmentParcelRowNumber: null,
     serviceCode: codContract.serviceCode ?? codContract.type ?? "COD",
@@ -475,21 +675,40 @@ function buildCodService(
 
 /**
  * Map the structured request to the exact `POST shipments` body. The contracts
- * (fetched per shipment) supply the client-specific data: the sender company
- * name, the payer contract number when the sender pays, and the COD bank
- * account when collecting on delivery.
+ * (settled per shipment by `resolveShipmentContracts`) supply the client-
+ * specific data: the sender company name, the payer contract number when the
+ * sender pays, and the COD bank account when collecting on delivery.
  */
 export function buildNovaPostShipmentBody(
   req: NovaPostShipmentRequest,
-  contracts: NovaPostContract[] = [],
+  contracts: NovaPostShipmentContracts = { companyName: null },
 ): Record<string, unknown> {
-  const clientContract = contracts.find((c) => c.type === "Client");
-  const codContract = contracts.find((c) => c.type === "COD" && (c.cod?.length ?? 0) > 0);
-  const senderCompanyName = clientContract?.company?.name ?? null;
+  const senderCompanyName = contracts.companyName;
+
+  // Where the parcels leave from: collected by a courier at the sender's
+  // address, or handed in at the sender's branch.
+  const pickup = req.sender.address;
+  const senderOrigin = pickup
+    ? {
+        settlementId: pickup.settlementId,
+        divisionId: null,
+        address: null,
+        addressParts: {
+          city: pickup.settlementName,
+          region: "",
+          street: pickup.street,
+          postCode: pickup.postCode,
+          building: pickup.building,
+          flat: pickup.flat ?? null,
+          block: "",
+          note: pickup.note ?? "",
+        },
+      }
+    : { divisionId: req.sender.divisionId };
 
   const services =
-    req.cod && req.cod.amount > 0 && codContract
-      ? [buildCodService(req.cod.amount, codContract)]
+    req.cod && req.cod.amount > 0 && contracts.cod
+      ? [buildCodService(req.cod.amount, contracts.cod.contract, contracts.cod.account)]
       : [];
 
   // When the sender pays, bill it against the Client contract.
@@ -497,7 +716,7 @@ export function buildNovaPostShipmentBody(
     req.payerType === "Sender"
       ? {
           payerType: "Sender" as const,
-          payerContractNumber: clientContract?.number ?? null,
+          payerContractNumber: contracts.client?.number ?? null,
           payerCompanyTin: req.sender.companyTin || null,
           payerCompanyName: senderCompanyName,
           additionalParameters: { paymentForm: "Contract" },
@@ -533,7 +752,7 @@ export function buildNovaPostShipmentBody(
       companyName: senderCompanyName,
       companyTin: req.sender.companyTin || null,
       countryCode: req.sender.countryCode || "MD",
-      divisionId: req.sender.divisionId,
+      ...senderOrigin,
     },
     recipient: {
       companyTin: "",
@@ -571,25 +790,16 @@ export type NovaPostShipmentResult = {
 
 /**
  * Create a waybill. NOTE: this mints a REAL shipment in the Nova Post account —
- * callers must gate it behind an explicit operator action.
+ * callers must gate it behind an explicit operator action. `contracts` comes
+ * from `resolveShipmentContracts`: they carry the sender company name, the payer
+ * contract number and the COD bank account — fetched per shipment, never
+ * hardcoded.
  */
 export async function createShipment(
   cfg: NovaPostConfig,
   req: NovaPostShipmentRequest,
+  contracts: NovaPostShipmentContracts,
 ): Promise<NovaPostShipmentResult> {
-  // Contracts carry the sender company name, the payer contract number, and the
-  // COD bank account — fetched per shipment, never hardcoded.
-  const contracts = await fetchContracts(cfg);
-
-  if (req.cod && req.cod.amount > 0) {
-    const codContract = contracts.find((c) => c.type === "COD" && (c.cod?.length ?? 0) > 0);
-    if (!codContract) {
-      throw new NovaPostError(0, {
-        cod: ["No active COD contract with a bank account was found for this Nova Post account."],
-      });
-    }
-  }
-
   const body = buildNovaPostShipmentBody(req, contracts);
   let res;
   try {

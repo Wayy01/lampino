@@ -26,6 +26,7 @@ import {
   ActionNotice,
   LangField,
   AdminForm,
+  ChoiceCards,
 } from "@/components/admin/form-controls";
 
 export type ShipmentItem = {
@@ -526,36 +527,14 @@ function NovaPostShipmentForm({
 
         <div className="mt-3">
           <div className="mb-1.5 label-mono text-muted-foreground">{s.deliveryType}</div>
-          <div className="grid grid-cols-2 gap-3">
-            {(
-              [
-                { v: "door", icon: Home, title: s.toDoor, desc: s.doorDesc },
-                { v: "branch", icon: Building2, title: s.toBranch, desc: s.branchDesc },
-              ] as const
-            ).map((opt) => {
-              const Icon = opt.icon;
-              const active = deliveryType === opt.v;
-              return (
-                <button
-                  key={opt.v}
-                  type="button"
-                  onClick={() => setDeliveryType(opt.v)}
-                  className={`flex cursor-pointer items-start gap-3 rounded-[var(--radius-md)] border p-3 text-left transition-colors ${
-                    active ? "border-primary bg-primary/[0.04]" : "hover:bg-foreground/[0.03]"
-                  }`}
-                >
-                  <Icon
-                    className={`h-5 w-5 shrink-0 ${active ? "text-primary" : "text-muted-foreground"}`}
-                    strokeWidth={1.75}
-                  />
-                  <div className="min-w-0">
-                    <div className="text-sm font-medium">{opt.title}</div>
-                    <div className="text-xs text-muted-foreground">{opt.desc}</div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+          <ChoiceCards
+            value={deliveryType}
+            onChange={setDeliveryType}
+            options={[
+              { value: "door", icon: Home, title: s.toDoor, description: s.doorDesc },
+              { value: "branch", icon: Building2, title: s.toBranch, description: s.branchDesc },
+            ]}
+          />
         </div>
 
         <div className="mt-3 sm:w-1/2 sm:pr-1.5">
