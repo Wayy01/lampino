@@ -164,6 +164,7 @@ export function buildNovaPostRequestFromForm(
           ? {
               street,
               building: str(fd, "recipientBuilding") || undefined,
+              block: str(fd, "recipientBlock") || undefined,
               flat: str(fd, "recipientFlat") || undefined,
               postCode: str(fd, "recipientPostCode") || undefined,
             }

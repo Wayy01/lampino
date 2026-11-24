@@ -146,19 +146,25 @@ const ghostBtn =
 type Recipient = { name: string; phone: string; email: string };
 type OrderAddress = { city: string | null; street: string | null; postCode: string | null };
 
-type TokenTarget = "street" | "building" | "flat";
+type TokenTarget = "street" | "building" | "block" | "flat";
 type AddressPart = { label: string; target: TokenTarget };
 
 // Split the order's single address line into clean, field-targeted parts so the
 // door fields can be auto-filled and re-assigned with one click. Nova Post wants
 // a bare street *name* (its search won't match "str. … 128"), the house number
-// in `building`, and the apartment in `flat` — so prefixes are stripped and a
-// "street + number" part is split across street and building. The lookahead
-// keeps real names ("bulevardul", "Aprilie") from matching a prefix.
+// in `building`, the bloc in `block` and the apartment in `flat` — so prefixes
+// are stripped and a "street + number" part is split across street and
+// building. A house number may carry a fraction ("49/3") or a letter ("12a").
+// The lookahead keeps real names ("bulevardul", "Aprilie") from matching a
+// prefix.
 const FLAT_RE = /^(?:ap|apt|apart|apartament|кв|#)(?=[\s.\d]|$)\.?\s*/i;
-const BUILDING_RE = /^(?:bl|bloc|korp|корп)(?=[\s.\d]|$)\.?\s*/i;
+const BLOCK_RE = /^(?:bl|bloc|blocul|korp|корп|корпус|блок)(?=[\s.\d]|$)\.?\s*/i;
+const HOUSE_RE = /^(?:nr|casa|д|дом)(?=[\s.\d]|$)\.?\s*/i;
 const STREET_RE =
   /^(?:str|strada|bd|b-dul|bulevardul|șos|sos|șoseaua|aleea|alee|стр|ул)(?=[\s.\d]|$)\.?\s*/i;
+const HOUSE_NR = String.raw`\d+[a-zа-я]?(?:\s*\/\s*\d+[a-zа-я]?)?`;
+const HOUSE_ONLY_RE = new RegExp(`^${HOUSE_NR}$`, "i");
+const STREET_AND_HOUSE_RE = new RegExp(`^(.*?[^\\s\\d])\\s+(?:nr\\.?\\s*)?(${HOUSE_NR})$`, "i");
 
 function parseAddressParts(addr: string | null): AddressPart[] {
   if (!addr) return [];
@@ -172,11 +178,13 @@ function parseAddressParts(addr: string | null): AddressPart[] {
     if (!part) continue;
     if (FLAT_RE.test(part)) {
       push(part.replace(FLAT_RE, ""), "flat");
-    } else if (BUILDING_RE.test(part)) {
-      push(part.replace(BUILDING_RE, ""), "building");
+    } else if (BLOCK_RE.test(part)) {
+      push(part.replace(BLOCK_RE, ""), "block");
+    } else if (HOUSE_ONLY_RE.test(part.replace(HOUSE_RE, ""))) {
+      push(part.replace(HOUSE_RE, ""), "building");
     } else {
       const name = part.replace(STREET_RE, "");
-      const m = name.match(/^(.*?[^\s\d])\s+(\d+[a-z]?)$/i);
+      const m = name.match(STREET_AND_HOUSE_RE);
       if (m) {
         push(m[1], "street");
         push(m[2], "building");
@@ -427,6 +435,7 @@ function NovaPostShipmentForm({
   const [building, setBuilding] = useState(
     parts.find((p) => p.target === "building")?.label ?? "",
   );
+  const [block, setBlock] = useState(parts.find((p) => p.target === "block")?.label ?? "");
   const [flat, setFlat] = useState(parts.find((p) => p.target === "flat")?.label ?? "");
   const [postCode, setPostCode] = useState(address.postCode ?? "");
   const [novaPay, setNovaPay] = useState(true);
@@ -612,7 +621,7 @@ function NovaPostShipmentForm({
               acceptDrop
               keySet
             />
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <Field label={s.building} htmlFor="rc_building">
                 <DropField onDrop={setBuilding}>
                   <TextInput
@@ -620,6 +629,16 @@ function NovaPostShipmentForm({
                     name="recipientBuilding"
                     value={building}
                     onChange={(e) => setBuilding(e.target.value)}
+                  />
+                </DropField>
+              </Field>
+              <Field label={s.block} htmlFor="rc_block">
+                <DropField onDrop={setBlock}>
+                  <TextInput
+                    id="rc_block"
+                    name="recipientBlock"
+                    value={block}
+                    onChange={(e) => setBlock(e.target.value)}
                   />
                 </DropField>
               </Field>
@@ -999,7 +1018,11 @@ function FanCourierShipmentForm({
               </DropField>
             </Field>
             <Field label={s.block} htmlFor="fc_bl">
-              <TextInput id="fc_bl" name="recipientBlock" />
+              <TextInput
+                id="fc_bl"
+                name="recipientBlock"
+                defaultValue={parts.find((p) => p.target === "block")?.label}
+              />
             </Field>
             <Field label={s.staircase} htmlFor="fc_sc">
               <TextInput id="fc_sc" name="recipientStaircase" />

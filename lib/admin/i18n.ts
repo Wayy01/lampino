@@ -444,7 +444,7 @@ const ro = {
       settlement: "Localitate",
       branch: "Filială",
       street: "Stradă",
-      building: "Bloc",
+      building: "Nr. casă",
       flat: "Apartament",
       postCode: "Cod poștal",
       payer: "Plătitor livrare",
@@ -654,7 +654,7 @@ const ro = {
       fromAddressDesc: "Curierul ridică coletele de la adresa dvs.",
       addressNote: "Indicații pentru curier",
       addressRequiredHint:
-        "Pentru ridicarea de la adresă sunt obligatorii localitatea, strada, blocul și codul poștal.",
+        "Pentru ridicarea de la adresă sunt obligatorii localitatea, strada, numărul casei și codul poștal.",
       notReady: "Integrarea este activă, dar încă nu poate crea expedieri. Lipsește:",
       countryCode: "Cod țară",
       defaultCategory: "Categorie implicită",
